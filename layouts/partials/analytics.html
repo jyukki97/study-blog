@@ -1,0 +1,336 @@
+{{- if .Site.Params.analytics.google.GA_MEASUREMENT_ID -}}
+<!-- Google Analytics 4 (Phase 3.3) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id={{ .Site.Params.analytics.google.GA_MEASUREMENT_ID }}"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', '{{ .Site.Params.analytics.google.GA_MEASUREMENT_ID }}', {
+    // 개인정보 보호 강화 설정
+    anonymize_ip: true,
+    allow_google_signals: false,
+    allow_ad_personalization_signals: false,
+    
+    // 사용자 정의 매개변수
+    custom_map: {
+      'custom_parameter_1': 'reading_time',
+      'custom_parameter_2': 'scroll_depth',
+      'custom_parameter_3': 'comment_interactions'
+    },
+    
+    // Enhanced Ecommerce 비활성화 (블로그용)
+    send_page_view: true,
+    
+    // 디버깅 모드 (개발 환경에서만)
+    debug_mode: {{ if eq .Site.Params.env "development" }}true{{ else }}false{{ end }}
+  });
+
+  // 고급 이벤트 추적
+  function trackEvent(action, category, label, value) {
+    gtag('event', action, {
+      event_category: category,
+      event_label: label,
+      value: value
+    });
+  }
+
+  // 페이지 뷰 추적 (SPA 대응)
+  function trackPageView(page_title, page_location) {
+    gtag('config', '{{ .Site.Params.analytics.google.GA_MEASUREMENT_ID }}', {
+      page_title: page_title,
+      page_location: page_location
+    });
+  }
+
+  // 스크롤 깊이 추적
+  let maxScrollDepth = 0;
+  let scrollCheckpoints = [25, 50, 75, 90, 100];
+  let triggeredCheckpoints = new Set();
+
+  window.addEventListener('scroll', function() {
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const scrollPercent = Math.round((scrollTop / docHeight) * 100);
+    
+    maxScrollDepth = Math.max(maxScrollDepth, scrollPercent);
+    
+    scrollCheckpoints.forEach(checkpoint => {
+      if (scrollPercent >= checkpoint && !triggeredCheckpoints.has(checkpoint)) {
+        triggeredCheckpoints.add(checkpoint);
+        trackEvent('scroll_depth', 'engagement', `${checkpoint}%`, checkpoint);
+      }
+    });
+  });
+
+  // 읽기 시간 추적
+  let startTime = Date.now();
+  let readingTimeTracked = false;
+  
+  window.addEventListener('beforeunload', function() {
+    if (!readingTimeTracked) {
+      const readingTime = Math.round((Date.now() - startTime) / 1000);
+      trackEvent('reading_time', 'engagement', 'seconds_on_page', readingTime);
+      readingTimeTracked = true;
+    }
+  });
+
+  // 검색 추적
+  window.trackSearch = function(query, results_count) {
+    trackEvent('search', 'site_search', query, results_count);
+  };
+
+  // 댓글 상호작용 추적
+  window.trackCommentInteraction = function(action) {
+    trackEvent(action, 'comments', window.location.pathname, 1);
+  };
+
+  // 소셜 공유 추적
+  window.trackSocialShare = function(platform) {
+    trackEvent('share', 'social', platform, 1);
+  };
+
+  // 테마 변경 추적
+  window.trackThemeChange = function(theme) {
+    trackEvent('theme_change', 'interface', theme, 1);
+  };
+
+  // 에러 추적
+  window.addEventListener('error', function(e) {
+    trackEvent('javascript_error', 'error', e.message, 1);
+  });
+
+  // 북마크 추적
+  window.trackBookmark = function(action, post_title) {
+    trackEvent(action, 'bookmark', post_title, 1);
+  };
+
+  // 성능 메트릭 추적
+  window.addEventListener('load', function() {
+    setTimeout(function() {
+      // Core Web Vitals 추적
+      if (window.performance && window.performance.getEntriesByType) {
+        const navigation = window.performance.getEntriesByType('navigation')[0];
+        if (navigation) {
+          const loadTime = Math.round(navigation.loadEventEnd - navigation.loadEventStart);
+          const domContentLoaded = Math.round(navigation.domContentLoadedEventEnd - navigation.domContentLoadedEventStart);
+          const firstPaint = Math.round(navigation.responseEnd - navigation.requestStart);
+          
+          trackEvent('page_load_time', 'performance', 'load_time', loadTime);
+          trackEvent('dom_content_loaded', 'performance', 'dcl_time', domContentLoaded);
+          trackEvent('first_paint', 'performance', 'fp_time', firstPaint);
+        }
+      }
+      
+      // Largest Contentful Paint (LCP)
+      if (window.PerformanceObserver) {
+        new PerformanceObserver((entryList) => {
+          const entries = entryList.getEntries();
+          if (entries.length > 0) {
+            const lcp = Math.round(entries[entries.length - 1].startTime);
+            trackEvent('largest_contentful_paint', 'performance', 'lcp_time', lcp);
+          }
+        }).observe({entryTypes: ['largest-contentful-paint']});
+        
+        // Cumulative Layout Shift (CLS)
+        let clsValue = 0;
+        new PerformanceObserver((entryList) => {
+          for (const entry of entryList.getEntries()) {
+            if (!entry.hadRecentInput) {
+              clsValue += entry.value;
+            }
+          }
+          trackEvent('cumulative_layout_shift', 'performance', 'cls_score', Math.round(clsValue * 1000));
+        }).observe({entryTypes: ['layout-shift']});
+        
+        // First Input Delay (FID)
+        new PerformanceObserver((entryList) => {
+          for (const entry of entryList.getEntries()) {
+            const fid = Math.round(entry.processingStart - entry.startTime);
+            trackEvent('first_input_delay', 'performance', 'fid_time', fid);
+          }
+        }).observe({entryTypes: ['first-input']});
+      }
+    }, 1000);
+  });
+
+  // 사용자 참여도 추적
+  let engagementTimer = 0;
+  let isEngaged = false;
+  
+  function startEngagementTracking() {
+    if (!isEngaged) {
+      isEngaged = true;
+      engagementTimer = Date.now();
+    }
+  }
+  
+  function endEngagementTracking() {
+    if (isEngaged) {
+      const engagementTime = Date.now() - engagementTimer;
+      if (engagementTime > 1000) { // 1초 이상만 추적
+        trackEvent('user_engagement', 'engagement', 'active_time', Math.round(engagementTime / 1000));
+      }
+      isEngaged = false;
+    }
+  }
+  
+  // 사용자 활동 감지
+  ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(function(event) {
+    document.addEventListener(event, startEngagementTracking, true);
+  });
+  
+  ['blur', 'visibilitychange'].forEach(function(event) {
+    document.addEventListener(event, endEngagementTracking, true);
+  });
+
+  // 브라우저 기능 지원 추적
+  gtag('event', 'browser_features', {
+    event_category: 'technology',
+    service_worker_support: 'serviceWorker' in navigator,
+    local_storage_support: typeof(Storage) !== 'undefined',
+    intersection_observer_support: 'IntersectionObserver' in window,
+    web_share_support: 'share' in navigator
+  });
+</script>
+
+<!-- 실시간 방문자 표시 스크립트 -->
+<script>
+class RealTimeVisitors {
+  constructor() {
+    this.visitorCount = 0;
+    this.sessionId = this.generateSessionId();
+    this.updateInterval = null;
+    this.init();
+  }
+
+  init() {
+    this.createVisitorWidget();
+    this.simulateRealTimeCount(); // 실제로는 서버 API 호출
+    this.startPeriodicUpdate();
+  }
+
+  generateSessionId() {
+    return Date.now().toString(36) + Math.random().toString(36).substr(2);
+  }
+
+  createVisitorWidget() {
+    const widget = document.createElement('div');
+    widget.id = 'realtime-visitors';
+    widget.className = 'realtime-visitors-widget';
+    widget.innerHTML = `
+      <div class="visitor-indicator">
+        <span class="visitor-dot"></span>
+        <span class="visitor-count">0</span>
+        <span class="visitor-label">명이 읽고 있습니다</span>
+      </div>
+    `;
+    
+    // 포스트 페이지에만 표시
+    if (document.querySelector('.post-content')) {
+      document.querySelector('.post-content').appendChild(widget);
+    }
+  }
+
+  simulateRealTimeCount() {
+    // 실제 구현에서는 WebSocket이나 Server-Sent Events 사용
+    this.visitorCount = Math.floor(Math.random() * 5) + 1;
+    this.updateVisitorDisplay();
+  }
+
+  updateVisitorDisplay() {
+    const countElement = document.querySelector('.visitor-count');
+    if (countElement) {
+      countElement.textContent = this.visitorCount;
+    }
+  }
+
+  startPeriodicUpdate() {
+    this.updateInterval = setInterval(() => {
+      this.simulateRealTimeCount();
+    }, 30000); // 30초마다 업데이트
+  }
+
+  destroy() {
+    if (this.updateInterval) {
+      clearInterval(this.updateInterval);
+    }
+  }
+}
+
+// 실시간 방문자 위젯 초기화
+document.addEventListener('DOMContentLoaded', () => {
+  window.realTimeVisitors = new RealTimeVisitors();
+});
+</script>
+
+<!-- 실시간 방문자 위젯 스타일 -->
+<style>
+.realtime-visitors-widget {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: var(--primary);
+  color: var(--theme);
+  padding: 0.75rem 1rem;
+  border-radius: 25px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  animation: slideInUp 0.3s ease;
+  opacity: 0.9;
+  transition: opacity 0.3s ease;
+}
+
+.realtime-visitors-widget:hover {
+  opacity: 1;
+}
+
+.visitor-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
+.visitor-dot {
+  width: 8px;
+  height: 8px;
+  background: #22c55e;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes slideInUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 0.9;
+  }
+}
+
+@media (max-width: 768px) {
+  .realtime-visitors-widget {
+    bottom: 80px; /* 모바일에서 네비게이션 영역 회피 */
+    right: 15px;
+    font-size: 0.8rem;
+    padding: 0.5rem 0.75rem;
+  }
+}
+
+[data-theme="dark"] .realtime-visitors-widget {
+  background: var(--entry);
+  color: var(--content);
+  border: 1px solid var(--border);
+}
+</style>
+{{- end -}}

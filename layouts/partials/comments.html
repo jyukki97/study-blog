@@ -1,0 +1,323 @@
+{{- if .Site.Params.comments -}}
+
+<!-- 댓글 시스템 선택 (Giscus 또는 Utterances) -->
+{{- if and (.Site.Params.giscus.repo) (.Site.Params.giscus.repoID) (not .Params.disableComments) -}}
+<!-- Giscus 댓글 시스템 -->
+<div id="comments" class="comments-container giscus-enabled">
+    <div class="comments-header">
+        <h3 class="comments-title">
+            <i class="comments-icon" aria-hidden="true">💬</i>
+            댓글
+        </h3>
+        <div class="comments-info">
+            <small>GitHub 계정으로 댓글을 남길 수 있습니다.</small>
+        </div>
+    </div>
+    
+    <div class="giscus-container">
+        <script src="https://giscus.app/client.js"
+                data-repo="{{ .Site.Params.giscus.repo }}"
+                data-repo-id="{{ .Site.Params.giscus.repoID }}"
+                data-category="{{ .Site.Params.giscus.category | default "General" }}"
+                data-category-id="{{ .Site.Params.giscus.categoryID }}"
+                data-mapping="{{ .Site.Params.giscus.mapping | default "pathname" }}"
+                data-strict="{{ .Site.Params.giscus.strict | default "0" }}"
+                data-reactions-enabled="{{ .Site.Params.giscus.reactionsEnabled | default "1" }}"
+                data-emit-metadata="{{ .Site.Params.giscus.emitMetadata | default "0" }}"
+                data-input-position="{{ .Site.Params.giscus.inputPosition | default "bottom" }}"
+                data-theme="{{ .Site.Params.giscus.theme | default "preferred_color_scheme" }}"
+                data-lang="{{ .Site.Params.giscus.lang | default "ko" }}"
+                data-loading="lazy"
+                crossorigin="anonymous"
+                async>
+        </script>
+    </div>
+    
+    <!-- 댓글 미리보기 영역 -->
+    <div id="comments-preview" class="comments-preview" style="display: none;">
+        <div class="preview-header">
+            <span class="preview-title">미리보기</span>
+            <button id="close-preview" class="close-preview-btn" aria-label="미리보기 닫기">×</button>
+        </div>
+        <div class="preview-content"></div>
+    </div>
+    
+    <!-- 댓글 알림 -->
+    <div id="comment-notification" class="comment-notification" style="display: none;">
+        <div class="notification-content">
+            <span class="notification-icon">🔔</span>
+            <span class="notification-text"></span>
+            <button class="notification-close" aria-label="알림 닫기">×</button>
+        </div>
+    </div>
+</div>
+
+{{- else if and (.Site.Params.utterances.repo) (not .Params.disableComments) -}}
+<!-- Utterances 댓글 시스템 (대안) -->
+<div id="comments" class="comments-container utterances-enabled">
+    <div class="comments-header">
+        <h3 class="comments-title">
+            <i class="comments-icon" aria-hidden="true">💬</i>
+            댓글
+        </h3>
+        <div class="comments-info">
+            <small>GitHub 계정으로 댓글을 남길 수 있습니다.</small>
+        </div>
+    </div>
+    
+    <div class="utterances-container">
+        <script src="https://utteranc.es/client.js"
+                repo="{{ .Site.Params.utterances.repo }}"
+                issue-term="{{ .Site.Params.utterances.issueTerm | default "pathname" }}"
+                label="{{ .Site.Params.utterances.label | default "comment" }}"
+                theme="{{ .Site.Params.utterances.theme | default "github-light" }}"
+                crossorigin="anonymous"
+                async>
+        </script>
+    </div>
+    
+    <!-- 댓글 알림 -->
+    <div id="comment-notification" class="comment-notification" style="display: none;">
+        <div class="notification-content">
+            <span class="notification-icon">🔔</span>
+            <span class="notification-text"></span>
+            <button class="notification-close" aria-label="알림 닫기">×</button>
+        </div>
+    </div>
+</div>
+
+{{- else if not .Params.disableComments -}}
+<!-- 댓글 시스템 설정 안내 -->
+<div id="comments" class="comments-container setup-required">
+    <div class="comments-header">
+        <h3 class="comments-title">
+            <i class="comments-icon" aria-hidden="true">⚙️</i>
+            댓글 시스템 설정 필요
+        </h3>
+    </div>
+    
+    <div class="setup-guide">
+        <div class="setup-info">
+            <h4>댓글 시스템을 활성화하려면:</h4>
+            
+            <div class="setup-options">
+                <div class="setup-option">
+                    <h5>🚀 Giscus (추천)</h5>
+                    <ol>
+                        <li><a href="https://github.com/apps/giscus" target="_blank" rel="noopener">Giscus 앱</a>을 GitHub 저장소에 설치</li>
+                        <li><a href="https://giscus.app/ko" target="_blank" rel="noopener">Giscus 설정 페이지</a>에서 저장소 정보 입력</li>
+                        <li>생성된 설정을 <code>hugo.toml</code>에 추가</li>
+                    </ol>
+                    <details class="setup-details">
+                        <summary>설정 예시 보기</summary>
+                        <pre><code>[params.giscus]
+repo = "사용자명/저장소명"
+repoID = "여기에_REPO_ID_입력"
+category = "General"
+categoryID = "여기에_CATEGORY_ID_입력"
+mapping = "pathname"
+theme = "preferred_color_scheme"
+lang = "ko"</code></pre>
+                    </details>
+                </div>
+                
+                <div class="setup-option">
+                    <h5>📝 Utterances (간단한 대안)</h5>
+                    <ol>
+                        <li><a href="https://github.com/apps/utterances" target="_blank" rel="noopener">Utterances 앱</a>을 GitHub 저장소에 설치</li>
+                        <li><code>hugo.toml</code>에 설정 추가</li>
+                    </ol>
+                    <details class="setup-details">
+                        <summary>설정 예시 보기</summary>
+                        <pre><code>[params.utterances]
+repo = "사용자명/저장소명"
+issueTerm = "pathname"
+label = "comment"
+theme = "github-light"</code></pre>
+                    </details>
+                </div>
+            </div>
+            
+            <div class="setup-help">
+                <p><strong>도움이 필요하시나요?</strong></p>
+                <ul>
+                    <li><a href="https://giscus.app/ko" target="_blank" rel="noopener">Giscus 공식 가이드</a></li>
+                    <li><a href="https://utteranc.es/" target="_blank" rel="noopener">Utterances 공식 가이드</a></li>
+                    <li><a href="https://docs.github.com/ko/discussions" target="_blank" rel="noopener">GitHub Discussions 가이드</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{{- end -}}
+
+<!-- 댓글 관련 JavaScript -->
+<script>
+// 댓글 시스템 공통 기능
+class CommentSystem {
+    constructor() {
+        this.init();
+    }
+
+    init() {
+        this.setupNotifications();
+        this.setupThemeSync();
+        this.setupKeyboardShortcuts();
+        this.trackCommentInteractions();
+    }
+
+    // 알림 시스템
+    setupNotifications() {
+        // 알림 닫기 버튼
+        document.addEventListener('click', (e) => {
+            if (e.target.matches('.notification-close')) {
+                e.target.closest('.comment-notification').style.display = 'none';
+            }
+        });
+    }
+
+    // 테마 동기화 (Giscus/Utterances)
+    setupThemeSync() {
+        // Giscus 테마 동기화
+        const syncGiscusTheme = () => {
+            const theme = document.documentElement.getAttribute('data-theme') || 'auto';
+            const giscusFrame = document.querySelector('iframe.giscus-frame');
+            if (giscusFrame) {
+                giscusFrame.contentWindow.postMessage({
+                    giscus: {
+                        setConfig: {
+                            theme: theme === 'dark' ? 'dark' : theme === 'light' ? 'light' : 'preferred_color_scheme'
+                        }
+                    }
+                }, 'https://giscus.app');
+            }
+        };
+
+        // Utterances 테마 동기화
+        const syncUtterancesTheme = () => {
+            const theme = document.documentElement.getAttribute('data-theme') || 'auto';
+            const utterancesFrame = document.querySelector('.utterances-frame');
+            if (utterancesFrame) {
+                const utterancesTheme = theme === 'dark' ? 'github-dark' : 'github-light';
+                utterancesFrame.contentWindow.postMessage({
+                    type: 'set-theme',
+                    theme: utterancesTheme
+                }, 'https://utteranc.es');
+            }
+        };
+
+        // 테마 변경 감지
+        const themeObserver = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'data-theme') {
+                    setTimeout(() => {
+                        syncGiscusTheme();
+                        syncUtterancesTheme();
+                    }, 100);
+                }
+            });
+        });
+
+        themeObserver.observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ['data-theme']
+        });
+
+        // 댓글 시스템 로드 완료 후 테마 동기화
+        window.addEventListener('message', (event) => {
+            if (event.origin === 'https://giscus.app' && event.data.giscus?.discussion) {
+                syncGiscusTheme();
+                this.showNotification('댓글이 로드되었습니다.');
+            }
+            
+            if (event.origin === 'https://utteranc.es' && event.data.type === 'resize') {
+                syncUtterancesTheme();
+                this.showNotification('댓글이 로드되었습니다.');
+            }
+        });
+    }
+
+    // 키보드 단축키
+    setupKeyboardShortcuts() {
+        document.addEventListener('keydown', (e) => {
+            // Ctrl+Shift+C: 댓글로 이동
+            if (e.ctrlKey && e.shiftKey && e.key === 'C') {
+                e.preventDefault();
+                this.scrollToComments();
+            }
+        });
+    }
+
+    scrollToComments() {
+        const commentsSection = document.getElementById('comments');
+        if (commentsSection) {
+            commentsSection.scrollIntoView({ 
+                behavior: 'smooth',
+                block: 'start'
+            });
+            this.showNotification('댓글 섹션으로 이동했습니다.', 'info', 2000);
+        }
+    }
+
+    // 댓글 상호작용 추적
+    trackCommentInteractions() {
+        const commentsContainer = document.getElementById('comments');
+        if (commentsContainer) {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        // Google Analytics 추적
+                        if (typeof trackCommentInteraction !== 'undefined') {
+                            trackCommentInteraction('view');
+                        }
+                    }
+                });
+            });
+            
+            observer.observe(commentsContainer);
+        }
+    }
+
+    // 알림 표시
+    showNotification(message, type = 'info', duration = 3000) {
+        const notification = document.getElementById('comment-notification');
+        if (!notification) return;
+
+        const notificationText = notification.querySelector('.notification-text');
+        const notificationIcon = notification.querySelector('.notification-icon');
+        
+        // 타입별 아이콘 설정
+        const icons = {
+            info: '📢',
+            success: '✅',
+            warning: '⚠️',
+            error: '❌'
+        };
+        
+        if (notificationIcon) notificationIcon.textContent = icons[type] || icons.info;
+        if (notificationText) notificationText.textContent = message;
+        
+        notification.style.display = 'block';
+        
+        // 자동 숨김
+        setTimeout(() => {
+            notification.style.display = 'none';
+        }, duration);
+    }
+}
+
+// 페이지 로드 시 댓글 시스템 초기화
+document.addEventListener('DOMContentLoaded', () => {
+    if (document.getElementById('comments')) {
+        window.commentSystem = new CommentSystem();
+    }
+});
+
+// URL 해시가 #comments인 경우 스크롤
+if (window.location.hash === '#comments') {
+    setTimeout(() => {
+        document.getElementById('comments')?.scrollIntoView({ behavior: 'smooth' });
+    }, 1000);
+}
+</script>
+{{- end -}}

@@ -1,0 +1,95 @@
+/* 라이트 모드 배경색 */
+:root {
+    --main-bg: #fff;
+    --entry-bg: #fff;
+    --primary: #2d3436;
+    --secondary: #636e72;
+    --tertiary: #b2bec3;
+    --content: #2d3436;
+    --hljs-bg: #f8f9fa;
+    --code-bg: #f8f9fa;
+    --border: #dfe6e9;
+}
+
+/* 다크 모드 배경색 */
+[data-theme="dark"] {
+    --main-bg: #18122b;
+    --entry-bg: #18122b;
+    --primary: #e9ecef;
+    --secondary: #adb5bd;
+    --tertiary: #6c757d;
+    --content: #e9ecef;
+    --hljs-bg: #2d2d2d;
+    --code-bg: #2d2d2d;
+    --border: #495057;
+}
+
+/* 태그와 카테고리 페이지 스타일 */
+.tag-list, .category-list {
+    background-color: var(--main-bg);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin: 1rem 0;
+}
+
+.tag-list a, .category-list a {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    margin: 0.25rem;
+    background-color: var(--entry-bg);
+    color: var(--primary);
+    border-radius: 0.25rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.tag-list a:hover, .category-list a:hover {
+    background-color: var(--primary);
+    color: var(--main-bg);
+}
+
+/* 포스트 리스트 스타일 */
+.post-list {
+    background-color: var(--main-bg);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin: 1rem 0;
+}
+
+.post-entry {
+    background-color: var(--entry-bg);
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+/* 헤더 스타일 */
+.site-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background-color: var(--main-bg);
+    border-bottom: 1px solid var(--border);
+}
+
+.site-nav {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.menu-item {
+    color: var(--primary);
+    text-decoration: none;
+    padding: 0.5rem;
+}
+
+.menu-item:hover {
+    color: var(--secondary);
+}
+
+.menu-item.active {
+    color: var(--secondary);
+    font-weight: bold;
+} 

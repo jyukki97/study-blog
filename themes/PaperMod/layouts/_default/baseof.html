@@ -1,0 +1,35 @@
+{{- if lt hugo.Version "0.146.0" }}
+{{- errorf "=> hugo v0.146.0 or greater is required for hugo-PaperMod to build " }}
+{{- end -}}
+
+<!DOCTYPE html>
+<html lang="{{ .Site.Language }}" dir="{{ .Language.LanguageDirection | default "auto" }}">
+
+<head>
+    {{- partial "head.html" . }}
+</head>
+
+<body class="
+{{- if (or (ne .Kind `page` ) (eq .Layout `archives`) (eq .Layout `search`)) -}}
+{{- print " list" -}}
+{{- end -}}
+" id="top">
+    {{- partialCached "header.html" . .Page -}}
+    <main class="main">
+        {{- block "main" . }}{{ end }}
+    </main>
+    {{ partialCached "footer.html" . .Layout .Kind (.Param "hideFooter") (.Param "ShowCodeCopyButtons") -}}
+    {{ if .Site.Params.enableSearch }}
+    {{ partialCached "search.html" . }}
+    {{ end }}
+    {{- if (not site.Params.disableScrollToTop) -}}
+    <a href="#top" id="top-link" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" data-ani="{{ $.Site.Params.enableUiAnimation | default "true" }}">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+            <path d="M12 6H0l6-6z" />
+        </svg>
+    </a>
+    {{- end -}}
+    <script src="{{ "js/theme.js" | relURL }}"></script>
+</body>
+
+</html>

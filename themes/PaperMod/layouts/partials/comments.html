@@ -1,0 +1,124 @@
+{{- if .Site.Params.comments -}}
+{{- if and (.Site.Params.giscus.repo) (not .Params.disableComments) -}}
+<div id="comments" class="comments-container">
+    <div class="comments-header">
+        <h3 class="comments-title">
+            <i class="comments-icon" aria-hidden="true">💬</i>
+            댓글
+        </h3>
+        <div class="comments-info">
+            <small>GitHub 계정으로 댓글을 남길 수 있습니다.</small>
+        </div>
+    </div>
+    
+    <div class="giscus-container">
+        <script src="https://giscus.app/client.js"
+                data-repo="{{ .Site.Params.giscus.repo }}"
+                data-repo-id="{{ .Site.Params.giscus.repoID }}"
+                data-category="{{ .Site.Params.giscus.category | default "General" }}"
+                data-category-id="{{ .Site.Params.giscus.categoryID }}"
+                data-mapping="{{ .Site.Params.giscus.mapping | default "pathname" }}"
+                data-strict="{{ .Site.Params.giscus.strict | default "0" }}"
+                data-reactions-enabled="{{ .Site.Params.giscus.reactionsEnabled | default "1" }}"
+                data-emit-metadata="{{ .Site.Params.giscus.emitMetadata | default "0" }}"
+                data-input-position="{{ .Site.Params.giscus.inputPosition | default "bottom" }}"
+                data-theme="{{ .Site.Params.giscus.theme | default "preferred_color_scheme" }}"
+                data-lang="{{ .Site.Params.giscus.lang | default "ko" }}"
+                data-loading="lazy"
+                crossorigin="anonymous"
+                async>
+        </script>
+    </div>
+    
+    <!-- 댓글 미리보기 영역 -->
+    <div id="comments-preview" class="comments-preview" style="display: none;">
+        <div class="preview-header">
+            <span class="preview-title">미리보기</span>
+            <button id="close-preview" class="close-preview-btn" aria-label="미리보기 닫기">×</button>
+        </div>
+        <div class="preview-content"></div>
+    </div>
+    
+    <!-- 댓글 알림 -->
+    <div id="comment-notification" class="comment-notification" style="display: none;">
+        <div class="notification-content">
+            <span class="notification-icon">🔔</span>
+            <span class="notification-text"></span>
+            <button class="notification-close" aria-label="알림 닫기">×</button>
+        </div>
+    </div>
+</div>
+
+<!-- 댓글 관련 JavaScript -->
+<script>
+// Giscus 테마 동기화
+function syncGiscusTheme() {
+    const theme = document.documentElement.getAttribute('data-theme') || 'auto';
+    const giscusFrame = document.querySelector('iframe.giscus-frame');
+    if (giscusFrame) {
+        giscusFrame.contentWindow.postMessage({
+            giscus: {
+                setConfig: {
+                    theme: theme === 'dark' ? 'dark' : theme === 'light' ? 'light' : 'preferred_color_scheme'
+                }
+            }
+        }, 'https://giscus.app');
+    }
+}
+
+// 테마 변경 감지 및 Giscus 동기화
+const themeObserver = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'data-theme') {
+            setTimeout(syncGiscusTheme, 100);
+        }
+    });
+});
+
+themeObserver.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['data-theme']
+});
+
+// Giscus 로드 완료 후 테마 동기화
+window.addEventListener('message', (event) => {
+    if (event.origin !== 'https://giscus.app') return;
+    
+    if (event.data.giscus?.discussion) {
+        syncGiscusTheme();
+        
+        // 댓글 로드 알림
+        showCommentNotification('댓글이 로드되었습니다.');
+    }
+});
+
+// 댓글 알림 표시
+function showCommentNotification(message) {
+    const notification = document.getElementById('comment-notification');
+    const notificationText = notification.querySelector('.notification-text');
+    
+    notificationText.textContent = message;
+    notification.style.display = 'block';
+    
+    // 3초 후 자동 숨김
+    setTimeout(() => {
+        notification.style.display = 'none';
+    }, 3000);
+}
+
+// 알림 닫기 버튼
+document.addEventListener('click', (e) => {
+    if (e.target.matches('.notification-close')) {
+        e.target.closest('.comment-notification').style.display = 'none';
+    }
+});
+
+// 페이지 로드 시 댓글 영역으로 스크롤 (URL 해시가 #comments인 경우)
+if (window.location.hash === '#comments') {
+    setTimeout(() => {
+        document.getElementById('comments')?.scrollIntoView({ behavior: 'smooth' });
+    }, 1000);
+}
+</script>
+{{- end -}}
+{{- end -}}

@@ -1,0 +1,363 @@
+/* ===== 댓글 시스템 스타일 (Phase 3.2) ===== */
+
+/* 댓글 컨테이너 */
+.comments-container {
+    margin: 3rem 0;
+    padding: 2rem;
+    background: var(--theme);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+[data-theme="dark"] .comments-container {
+    background: var(--entry);
+    border-color: var(--border);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* 댓글 헤더 */
+.comments-header {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.comments-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin: 0;
+}
+
+.comments-icon {
+    font-size: 1.2rem;
+    opacity: 0.8;
+}
+
+.comments-info {
+    margin-top: 0.5rem;
+}
+
+.comments-info small {
+    color: var(--secondary);
+    font-size: 0.875rem;
+}
+
+/* Giscus 컨테이너 */
+.giscus-container {
+    min-height: 200px;
+    position: relative;
+}
+
+/* Giscus 프레임 스타일링 */
+.giscus-container iframe {
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    transition: border-color 0.3s ease;
+}
+
+.giscus-container iframe:hover {
+    border-color: var(--primary);
+}
+
+/* 댓글 미리보기 */
+.comments-preview {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 600px;
+    max-height: 80vh;
+    background: var(--theme);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    overflow: hidden;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+.preview-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    background: var(--primary);
+    color: var(--theme);
+    border-bottom: 1px solid var(--border);
+}
+
+.preview-title {
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.close-preview-btn {
+    background: none;
+    border: none;
+    color: var(--theme);
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background-color 0.2s ease;
+}
+
+.close-preview-btn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.preview-content {
+    padding: 1.5rem;
+    max-height: calc(80vh - 80px);
+    overflow-y: auto;
+}
+
+/* 댓글 알림 */
+.comment-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1001;
+    animation: notificationSlide 0.3s ease;
+}
+
+@keyframes notificationSlide {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.notification-content {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: var(--primary);
+    color: var(--theme);
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    min-width: 250px;
+    max-width: 400px;
+}
+
+.notification-icon {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.notification-text {
+    flex: 1;
+    font-weight: 500;
+}
+
+.notification-close {
+    background: none;
+    border: none;
+    color: var(--theme);
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    flex-shrink: 0;
+    transition: background-color 0.2s ease;
+}
+
+.notification-close:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* 스팸 필터링 인디케이터 */
+.spam-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    background: #fee2e2;
+    color: #dc2626;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+[data-theme="dark"] .spam-indicator {
+    background: #450a0a;
+    color: #fca5a5;
+}
+
+.spam-indicator::before {
+    content: "⚠️";
+    font-size: 0.8rem;
+}
+
+/* 댓글 로딩 스피너 */
+.comments-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    color: var(--secondary);
+}
+
+.comments-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--border);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .comments-container {
+        margin: 2rem 0;
+        padding: 1.5rem;
+        border-radius: 8px;
+    }
+    
+    .comments-title {
+        font-size: 1.3rem;
+    }
+    
+    .comments-preview {
+        width: 95%;
+        max-height: 85vh;
+    }
+    
+    .preview-header {
+        padding: 0.75rem 1rem;
+    }
+    
+    .preview-content {
+        padding: 1rem;
+        max-height: calc(85vh - 60px);
+    }
+    
+    .notification-content {
+        padding: 0.75rem 1rem;
+        min-width: 200px;
+        max-width: calc(100vw - 40px);
+        margin: 0 20px;
+    }
+    
+    .comment-notification {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        right: auto;
+    }
+}
+
+/* 접근성 개선 */
+@media (prefers-reduced-motion: reduce) {
+    .comments-container,
+    .giscus-container iframe,
+    .close-preview-btn,
+    .notification-close,
+    .comments-preview {
+        transition: none;
+    }
+    
+    .comments-preview,
+    .comment-notification {
+        animation: none;
+    }
+    
+    .comments-spinner {
+        animation: none;
+    }
+}
+
+/* 고대비 모드 지원 */
+@media (prefers-contrast: high) {
+    .comments-container {
+        border-width: 2px;
+        border-color: var(--primary);
+    }
+    
+    .comments-title {
+        font-weight: 800;
+    }
+    
+    .notification-content {
+        border: 2px solid var(--theme);
+    }
+}
+
+/* 포커스 관리 */
+.close-preview-btn:focus,
+.notification-close:focus {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+/* 다크 테마 추가 스타일 */
+[data-theme="dark"] .comments-preview {
+    background: var(--entry);
+    border-color: var(--border);
+}
+
+[data-theme="dark"] .preview-header {
+    background: var(--primary);
+    border-bottom-color: var(--border);
+}
+
+/* 댓글 카운터 */
+.comments-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    background: var(--code-bg);
+    color: var(--primary);
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-left: 0.5rem;
+}
+
+.comments-count::before {
+    content: "💬";
+    font-size: 0.8rem;
+}
