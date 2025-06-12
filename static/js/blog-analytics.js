@@ -162,7 +162,6 @@ class BlogAnalytics {
 
     // 실시간 조회수 업데이트
     this.updateRealTimeViews();
-    this.updatePopularPosts();
   }
 
   // GA로 페이지뷰 전송

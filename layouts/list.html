@@ -12,7 +12,7 @@
             <div class="tags-section">
                 <div class="tags-header">
                     <h2>Tags</h2>
-                    <a href="/tags" class="more-link">More →</a>
+                    <a href="{{ "tags" | relURL }}" class="more-link">More →</a>
                 </div>
                 <div class="all-tags">
                     {{ range .Site.Taxonomies.tags }}
@@ -27,7 +27,7 @@
         <div class="post-header">
             <h2>Posts</h2>
             {{ if and .IsHome }}
-            <a href="/posts" class="more-link">More →</a>
+            <a href="{{ "posts" | relURL }}" class="more-link">More →</a>
             {{ end }}
         </div>
 

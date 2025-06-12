@@ -29,7 +29,7 @@ class AdvancedSearch {
   // 검색 인덱스 로드
   async loadSearchIndex() {
     try {
-      const response = await fetch("/searchindex.json");
+      const response = await fetch(window.location.pathname + "searchindex.json");
       this.searchIndex = await response.json();
     } catch (error) {
       console.error("검색 인덱스를 로드하는데 실패했습니다:", error);

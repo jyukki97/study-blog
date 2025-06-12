@@ -209,7 +209,7 @@ async function getOfflineFallback(request) {
 // 최신 포스트 가져와서 캐시
 async function fetchAndCacheLatestPosts() {
   try {
-    const response = await fetch('/searchindex.json');
+    const response = await fetch('./searchindex.json');
     const searchIndex = await response.json();
     
     // 최신 10개 포스트 선별
@@ -402,7 +402,7 @@ async function updateCriticalCaches() {
 // 새 포스트 확인 및 알림
 async function checkForNewPosts() {
   try {
-    const response = await fetch('/searchindex.json');
+    const response = await fetch('./searchindex.json');
     const searchIndex = await response.json();
     
     const latestPost = searchIndex
