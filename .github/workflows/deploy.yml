@@ -10,23 +10,14 @@ permissions:
   pages: write
   id-token: write
 
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
-
-defaults:
-  run:
-    shell: bash
-
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
         with:
           submodules: recursive
-          fetch-depth: 0
 
       - name: Setup Hugo
         uses: peaceiris/actions-hugo@v2
@@ -35,14 +26,10 @@ jobs:
           extended: true
 
       - name: Build with Hugo
-        run: |
-          hugo --minify
-        env:
-          HUGO_ENV: production
-          HUGO_BASEURL: https://jyukki97.github.io/study-blog/
+        run: hugo --minify
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v2
         with:
           path: ./public
 
