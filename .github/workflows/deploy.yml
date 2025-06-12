@@ -39,9 +39,10 @@ jobs:
           hugo --minify
         env:
           HUGO_ENV: production
+          HUGO_BASEURL: https://jyukki97.github.io/study-blog/
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v2
         with:
           path: ./public
 
