@@ -1,0 +1,61 @@
+{{ $project := .Get 0 }}
+{{ $posts := where .Site.RegularPages "Params.projects" "intersect" (slice $project) }}
+
+<div class="project-posts">
+    {{ if $posts }}
+        <ul class="post-list">
+            {{ range $posts }}
+                <li class="post-item">
+                    <a href="{{ .Permalink }}" class="post-link">
+                        <span class="post-title">{{ .Title }}</span>
+                        <span class="post-date">{{ .Date.Format "2006-01-02" }}</span>
+                    </a>
+                </li>
+            {{ end }}
+        </ul>
+    {{ else }}
+        <p class="no-posts">아직 관련 포스트가 없습니다.</p>
+    {{ end }}
+</div>
+
+<style>
+.project-posts {
+    margin: 1rem 0;
+}
+
+.post-list {
+    list-style: none;
+    padding: 0;
+}
+
+.post-item {
+    margin: 0.5rem 0;
+}
+
+.post-link {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.post-link:hover {
+    background-color: var(--code-bg);
+}
+
+.post-title {
+    color: var(--primary);
+}
+
+.post-date {
+    color: var(--secondary);
+    font-size: 0.9em;
+}
+
+.no-posts {
+    color: var(--secondary);
+    font-style: italic;
+}
+</style> 

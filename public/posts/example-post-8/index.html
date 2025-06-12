@@ -15,21 +15,7 @@ def hello_world():
 ">
 <meta name="author" content="">
 <link rel="canonical" href="//localhost:1313/posts/example-post-8/">
-<meta name="application-name" content="jyukki&#39;s Blog">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="jyukki&#39;s Blog">
-<meta name="msapplication-TileColor" content="#b19cd9">
-<meta name="msapplication-config" content="/browserconfig.xml">
-<meta name="theme-color" content="#b19cd9">
-<link rel="manifest" href="/manifest.json">
-<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-<link rel="mask-icon" href="safari-pinned-tab.svg" color="#b19cd9">
-<link crossorigin="anonymous" href="/assets/css/stylesheet.1f0d939f55e74f2804a4b7582400bf23e7970488ed3e7cc3e326962a4ca298ba.css" integrity="sha256-Hw2Tn1XnTygEpLdYJAC/I&#43;eXBIjtPnzD4yaWKkyimLo=" rel="preload stylesheet" as="style">
-<link rel="stylesheet" href="/css/pwa-styles.css">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.2bb4c02b9ddb6f7c4d38e6a1236d70275ca73db979e5d97d4bc7bff2f29caa81.css" integrity="sha256-K7TAK53bb3xNOOahI21wJ1ynPbl55dl9S8e/8vKcqoE=" rel="preload stylesheet" as="style">
 <link rel="icon" href="//localhost:1313/favicon.ico">
 <link rel="icon" type="image/png" sizes="16x16" href="//localhost:1313/favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="//localhost:1313/favicon-32x32.png">
@@ -78,8 +64,21 @@ def hello_world():
 
     </style>
 </noscript>
-<script src="/js/pwa-manager.js" defer></script>
-<script src="/js/pwa-utils.js" defer></script><meta property="og:url" content="//localhost:1313/posts/example-post-8/">
+<meta name="google-analytics" content="G-137248174">
+
+
+<script src="/js/blog-analytics.js" defer></script>
+
+
+<script src="/js/post-view-enhancements.js" defer></script>
+
+
+
+
+<script src="/js/seo-optimizer.js" defer></script>
+
+
+<script src="/js/advertisement-system.js" defer></script><meta property="og:url" content="//localhost:1313/posts/example-post-8/">
   <meta property="og:site_name" content="jyukki&#39;s Blog">
   <meta property="og:title" content="여덟 번째 예제 포스트">
   <meta property="og:description" content="이것은 여덟 번째 예제 포스트입니다. 커버 이미지가 없는 포스트입니다.
@@ -177,6 +176,11 @@ def hello_world():
                 </a>
             </li>
             <li>
+                <a href="//localhost:1313/projects/" title="Projects">
+                    <span>Projects</span>
+                </a>
+            </li>
+            <li>
                 <a href="//localhost:1313/categories/" title="Categories">
                     <span>Categories</span>
                 </a>
@@ -219,7 +223,6 @@ def hello_world():
 }
 
 .nav {
-    padding: 1rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -621,9 +624,9 @@ document.addEventListener('DOMContentLoaded', () => {
     <div class="giscus-container">
         <script src="https://giscus.app/client.js"
                 data-repo="jyukki97/study-blog"
-                data-repo-id="1000833737"
+                data-repo-id="R_kgDOO6eCyQ"
                 data-category="General"
-                data-category-id=""
+                data-category-id="DIC_kwDOO6eCyc4CrZf3"
                 data-mapping="pathname"
                 data-strict="0"
                 data-reactions-enabled="1"
@@ -834,6 +837,12 @@ if (window.location.hash === '#comments') {
         <path d="M12 6H0l6-6z" />
     </svg>
 </a>
+
+  <link rel="stylesheet" href="/css/analytics-widgets.css">
+  <div id="analytics-widgets-root"></div>
+  <script src="/js/blog-analytics.js" defer></script>
+
+
 
 <script>
     let menu = document.getElementById('menu')

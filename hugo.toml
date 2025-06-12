@@ -66,9 +66,9 @@ enableEmoji = false
   # Giscus 댓글 시스템 설정 (Phase 3.2)
   [params.giscus]
     repo = "jyukki97/study-blog"  # GitHub 저장소 (사용자명/저장소명)
-    repoID = "1000833737"  # GitHub 저장소 ID (Giscus 설정에서 생성)
+    repoID = "R_kgDOO6eCyQ"  # GitHub 저장소 ID (Giscus 설정에서 생성)
     category = "General"  # Discussion 카테고리
-    categoryID = ""  # 카테고리 ID (Giscus 설정에서 생성)
+    categoryID = "DIC_kwDOO6eCyc4CrZf3"  # 카테고리 ID (Giscus 설정에서 생성)
     mapping = "pathname"  # URL과 Discussion 매핑 방식
     strict = "0"  # 엄격한 매핑 (0=비활성화, 1=활성화)
     reactionsEnabled = "1"  # 반응 버튼 활성화
@@ -80,7 +80,7 @@ enableEmoji = false
   # Google Analytics 4 설정 (Phase 3.3)
   [params.analytics]
     [params.analytics.google]
-      GA_MEASUREMENT_ID = "G-XXXXXXXXXX"  # Google Analytics 4 측정 ID (실제 ID로 변경 필요)
+      GA_MEASUREMENT_ID = "G-137248174"  # Google Analytics 4 측정 ID (실제 ID로 변경 필요)
       SiteVerificationTag = ""  # Google Search Console 인증 태그
       anonymizeIP = true  # IP 익명화
       respectDoNotTrack = true  # Do Not Track 헤더 존중
@@ -127,6 +127,17 @@ enableEmoji = false
     name = "Posts"
     url = "/posts/"
     weight = 10
+  [[menu.main]]
+    identifier = "projects"
+    name = "Projects"
+    url = "/projects/"
+    weight = 15
+    [[menu.main]]
+      parent = "projects"
+      identifier = "study-blog"
+      name = "Study Blog"
+      url = "/projects/study-blog/"
+      weight = 1
   [[menu.main]]
     identifier = "categories"
     name = "Categories"

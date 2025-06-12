@@ -1,0 +1,293 @@
+{{ define "main" }}
+<main class="main">
+    {{ if .Site.Params.cover.enabled }}
+        {{ partial "cover.html" . }}
+    {{ end }}
+    {{ if .Site.Params.ProfileMode }}
+        {{ partial "profile.html" . }}
+    {{ end }}
+
+    <section class="list-page">
+        {{ if and .IsHome .Site.Params.showTagsOnHome }}
+            <div class="tags-section">
+                <div class="tags-header">
+                    <h2>Tags</h2>
+                    <a href="/tags" class="more-link">More →</a>
+                </div>
+                <div class="all-tags">
+                    {{ range .Site.Taxonomies.tags }}
+                        <a href="{{ .Page.RelPermalink }}" class="tag-link">
+                            {{ .Page.Title }}
+                        </a>
+                    {{ end }}
+                </div>
+            </div>
+        {{ end }}
+
+        <div class="post-header">
+            <h2>Posts</h2>
+            {{ if and .IsHome }}
+            <a href="/posts" class="more-link">More →</a>
+            {{ end }}
+        </div>
+
+        <div class="post-grid">
+            {{ $pages := .Pages }}
+            {{ if .IsHome }}
+                {{ $pages = .Site.RegularPages }}
+            {{ end }}
+            {{ $paginator := .Paginate $pages }}
+            {{ range $paginator.Pages }}
+                <article class="post-entry">
+                    {{ if .Params.cover.image }}
+                        <a class="post-cover" href="{{ .Permalink }}">
+                            <img src="{{ .Params.cover.image | relURL }}" alt="{{ .Title }}">
+                        </a>
+                    {{ else }}
+                        <a class="post-cover no-image" href="{{ .Permalink }}">
+                            <div class="title-overlay">
+                                <h2>{{ .Title }}</h2>
+                            </div>
+                        </a>
+                    {{ end }}
+                    <div class="post-content">
+                        {{ if .Params.tags }}
+                            <div class="post-tags">
+                                {{ range .Params.tags }}
+                                    <a href="{{ "tags/" | relURL }}{{ . | urlize }}" class="post-tag">{{ . }}</a>
+                                {{ end }}
+                            </div>
+                        {{ end }}
+                        <h2 class="post-title">
+                            <a href="{{ .Permalink }}">{{ .Title }}</a>
+                        </h2>
+                        {{ if .Description }}
+                            <p class="post-summary">{{ .Description }}</p>
+                        {{ end }}
+                        <div class="post-meta">
+                            <time>{{ .Date.Format "2006-01-02" }}</time>
+                        </div>
+                    </div>
+                </article>
+            {{ end }}
+        </div>
+
+        {{ if gt $paginator.TotalPages 1 }}
+            <nav class="pagination">
+                {{ if $paginator.HasPrev }}
+                    <a class="prev" href="{{ $paginator.Prev.URL | relURL }}">← {{ i18n "prev_page" }}</a>
+                {{ end }}
+                {{ if $paginator.HasNext }}
+                    <a class="next" href="{{ $paginator.Next.URL | relURL }}">{{ i18n "next_page" }} →</a>
+                {{ end }}
+            </nav>
+        {{ end }}
+    </section>
+</main>
+
+<style>
+.post-header {
+    margin: 2rem 0;
+    padding: 0 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.post-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #b19cd9;
+}
+
+.post-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.post-entry {
+    background: var(--entry);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.2s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.post-entry:hover {
+    transform: translateY(-5px);
+}
+
+.post-cover {
+    display: block;
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+    position: relative;
+}
+
+.post-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s;
+}
+
+.post-entry:hover .post-cover img {
+    transform: scale(1.05);
+}
+
+.no-image {
+    background: linear-gradient(45deg, #b19cd9, #8a6cb3);
+}
+
+.title-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    text-align: center;
+}
+
+.title-overlay h2 {
+    color: white;
+    margin: 0;
+    font-size: 1.5rem;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+}
+
+.post-content {
+    padding: 1.5rem;
+}
+
+.post-tags {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+.post-tag {
+    color: #b19cd9;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    background: var(--entry);
+    transition: all 0.2s;
+    font-size: 0.9rem;
+    border: 1px solid #b19cd9;
+}
+
+.post-tag:hover {
+    background: #b19cd9;
+    color: #fff;
+}
+
+.post-title {
+    margin: 0 0 1rem;
+    font-size: 1.5rem;
+}
+
+.post-title a {
+    color: var(--primary);
+    text-decoration: none;
+}
+
+.post-summary {
+    color: var(--secondary);
+    margin-bottom: 1rem;
+    line-height: 1.6;
+}
+
+.post-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--secondary);
+    font-size: 0.9rem;
+}
+
+.tags-section {
+    margin: 2rem 0;
+    padding: 0 1rem;
+}
+
+.tags-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.tags-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #b19cd9;
+}
+
+.more-link {
+    color: #b19cd9;
+    text-decoration: none;
+    font-size: 0.9rem;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    background: var(--entry);
+    transition: all 0.2s;
+    border: 1px solid #b19cd9;
+}
+
+.more-link:hover {
+    background: #b19cd9;
+    color: #fff;
+}
+
+.all-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+}
+
+.tag-link {
+    color: #b19cd9;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    background: var(--entry);
+    transition: all 0.2s;
+    font-size: 0.9rem;
+    border: 1px solid #b19cd9;
+}
+
+.tag-link:hover {
+    background: #b19cd9;
+    color: #fff;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.pagination a {
+    color: #b19cd9;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    background: var(--entry);
+    transition: all 0.2s;
+    border: 1px solid #b19cd9;
+}
+
+.pagination a:hover {
+    background: #b19cd9;
+    color: var(--bg);
+}
+</style>
+{{ end }}

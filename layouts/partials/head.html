@@ -36,25 +36,6 @@
 <meta name="naver-site-verification" content="{{ site.Params.analytics.naver.SiteVerificationTag }}">
 {{- end }}
 
-{{- /* PWA Meta Tags (Phase 3.1) */}}
-<meta name="application-name" content="{{ site.Title }}">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="{{ site.Title }}">
-<meta name="msapplication-TileColor" content="{{ site.Params.assets.theme_color | default "#b19cd9" }}">
-<meta name="msapplication-config" content="/browserconfig.xml">
-<meta name="theme-color" content="{{ site.Params.assets.theme_color | default "#b19cd9" }}">
-
-{{- /* PWA Manifest */}}
-<link rel="manifest" href="/manifest.json">
-
-{{- /* PWA Icons */}}
-<link rel="icon" type="image/png" sizes="32x32" href="{{ site.Params.assets.favicon32x32 | default "/favicon-32x32.png" }}">
-<link rel="icon" type="image/png" sizes="16x16" href="{{ site.Params.assets.favicon16x16 | default "/favicon-16x16.png" }}">
-<link rel="apple-touch-icon" sizes="180x180" href="{{ site.Params.assets.apple_touch_icon | default "/apple-touch-icon.png" }}">
-<link rel="mask-icon" href="{{ site.Params.assets.safari_pinned_tab | default "/safari-pinned-tab.svg" }}" color="{{ site.Params.assets.theme_color | default "#b19cd9" }}">
-
 {{- /* Styles */}}
 
 {{- /* includes */}}
@@ -72,7 +53,7 @@
 {{- $reset := (resources.Get "css/core/reset.css") }}
 {{- $media := (resources.Get "css/core/zmedia.css") }}
 {{- $license_css := (resources.Get "css/core/license.css") }}
-{{- $common := (resources.Match "css/common/*.css") | resources.Concat "assets/css/common.css" }}
+{{- $common := (resources.Match "css/common/*.css" ) | resources.Concat "assets/css/common.css" }}
 
 {{- /* markup.highlight.noClasses should be set to `false` */}}
 {{- $chroma_styles := (resources.Get "css/includes/chroma-styles.css") }}
@@ -92,9 +73,6 @@
 {{- else }}
 <link crossorigin="anonymous" href="{{ $stylesheet.RelPermalink }}" rel="preload stylesheet" as="style">
 {{- end }}
-
-{{- /* PWA Styles (Phase 3.1) */}}
-<link rel="stylesheet" href="{{ "css/pwa-styles.css" | relURL }}">
 
 {{- /* Search */}}
 {{- if (eq .Layout `search`) -}}
@@ -173,9 +151,31 @@
 
 {{- partial "extend_head.html" . -}}
 
-{{- /* PWA Manager Script (Phase 3.1) */}}
-<script src="{{ "js/pwa-manager.js" | relURL }}" defer></script>
-<script src="{{ "js/pwa-utils.js" | relURL }}" defer></script>
+<!-- Google Analytics 4 설정 (Phase 3.3) -->
+{{- if and (hugo.IsProduction | or (eq site.Params.env "production")) site.Params.analytics.google.GA_MEASUREMENT_ID }}
+<meta name="google-analytics" content="{{ site.Params.analytics.google.GA_MEASUREMENT_ID }}">
+{{- end }}
+
+<!-- Phase 3.3: 분석 및 통계 시스템 -->
+{{- if site.Params.analytics.enabled | default true }}
+<script src="/js/blog-analytics.js" defer></script>
+{{- end }}
+
+<!-- Phase 2.3: 포스트 뷰 개선 스크립트 -->
+{{- if and (eq .Type "posts") (.IsPage) }}
+<script src="/js/post-view-enhancements.js" defer></script>
+{{- end }}
+
+<!-- Phase 4.1: 컨텐츠 관리 시스템 -->
+{{- if .Site.Params.contentManagement.enabled }}
+<script src="/js/content-manager.js" defer></script>
+{{- end }}
+
+<!-- Phase 4.2: SEO 최적화 시스템 -->
+<script src="/js/seo-optimizer.js" defer></script>
+
+<!-- Phase 3.3: 광고 시스템 -->
+<script src="/js/advertisement-system.js" defer></script>
 
 {{- /* Misc */}}
 {{- if hugo.IsProduction | or (eq site.Params.env "production") }}

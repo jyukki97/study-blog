@@ -57,12 +57,7 @@
 /* Giscus 프레임 스타일링 */
 .giscus-container iframe {
     border-radius: 8px;
-    border: 1px solid var(--border);
     transition: border-color 0.3s ease;
-}
-
-.giscus-container iframe:hover {
-    border-color: var(--primary);
 }
 
 /* 댓글 미리보기 */

@@ -92,4 +92,102 @@
 .menu-item.active {
     color: var(--secondary);
     font-weight: bold;
+}
+
+/* Projects 드롭다운 메뉴 스타일 */
+#menu {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+#menu li {
+    position: relative;
+}
+
+#menu a {
+    color: var(--primary);
+    text-decoration: none;
+    padding: 0.5rem;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    display: inline-block;
+}
+
+.menu-dropdown {
+    position: relative;
+}
+
+.menu-dropdown-content {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: var(--entry);
+    min-width: 200px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    border-radius: 4px;
+    z-index: 1000;
+    padding: 0.5rem 0;
+    margin-top: 0.5rem;
+    border: 1px solid var(--border);
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all 0.2s ease;
+}
+
+.menu-dropdown:hover .menu-dropdown-content {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.menu-dropdown-content a {
+    display: block;
+    padding: 0.75rem 1rem;
+    white-space: nowrap;
+    color: var(--primary);
+    border-radius: 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.menu-dropdown-content a:hover {
+    background-color: var(--code-bg);
+}
+
+/* 다크 모드 대응 */
+[data-theme="dark"] .menu-dropdown-content {
+    background-color: var(--entry);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    border-color: var(--border);
+}
+
+/* 모바일 대응 */
+@media (max-width: 768px) {
+    #menu {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .menu-dropdown {
+        width: 100%;
+    }
+    
+    .menu-dropdown-content {
+        position: static;
+        box-shadow: none;
+        border: none;
+        margin-top: 0;
+        padding-left: 1rem;
+        width: 100%;
+    }
+    
+    #menu a {
+        width: 100%;
+        box-sizing: border-box;
+    }
 } 

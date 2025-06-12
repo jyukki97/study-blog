@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>오프라인 - jyukki's Blog</title>
+    <style>
+        :root {
+            --brand-color: #b19cd9;
+            --text-color: #333;
+            --bg-color: #fff;
+            --border-color: #ddd;
+        }
+        
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --text-color: #e4e6ea;
+                --bg-color: #1d1e20;
+                --border-color: #404040;
+            }
+        }
+        
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            max-width: 500px;
+            text-align: center;
+            padding: 40px 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            background: var(--bg-color);
+        }
+        
+        .icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.6;
+        }
+        
+        h1 {
+            color: var(--brand-color);
+            margin-bottom: 16px;
+            font-size: 24px;
+        }
+        
+        p {
+            margin-bottom: 24px;
+            opacity: 0.8;
+        }
+        
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            background: var(--brand-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            transition: opacity 0.2s;
+        }
+        
+        .button:hover {
+            opacity: 0.9;
+        }
+        
+        .status {
+            margin-top: 24px;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        
+        .status.online {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status.offline {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        @media (prefers-color-scheme: dark) {
+            .status.online {
+                background: #1e4d2b;
+                color: #a3d4a6;
+                border-color: #2d5a3d;
+            }
+            
+            .status.offline {
+                background: #4d1e23;
+                color: #d4a3a6;
+                border-color: #5a2d32;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">📡</div>
+        <h1>인터넷 연결 없음</h1>
+        <p>현재 오프라인 상태입니다. 인터넷 연결을 확인하고 다시 시도해주세요.</p>
+        <button class="button" onclick="checkConnection()">다시 시도</button>
+        
+        <div id="status" class="status offline">
+            오프라인 상태
+        </div>
+    </div>
+
+    <script>
+        // 연결 상태 확인
+        function updateConnectionStatus() {
+            const status = document.getElementById('status');
+            if (navigator.onLine) {
+                status.textContent = '온라인 상태 - 페이지를 새로고침하세요';
+                status.className = 'status online';
+            } else {
+                status.textContent = '오프라인 상태';
+                status.className = 'status offline';
+            }
+        }
+        
+        function checkConnection() {
+            if (navigator.onLine) {
+                // 메인 페이지로 이동
+                window.location.href = '/';
+            } else {
+                alert('아직 인터넷에 연결되지 않았습니다.');
+            }
+        }
+        
+        // 연결 상태 모니터링
+        window.addEventListener('online', updateConnectionStatus);
+        window.addEventListener('offline', updateConnectionStatus);
+        
+        // 초기 상태 설정
+        updateConnectionStatus();
+        
+        // 5초마다 자동 연결 확인
+        setInterval(() => {
+            if (navigator.onLine) {
+                updateConnectionStatus();
+            }
+        }, 5000);
+    </script>
+</body>
+</html>

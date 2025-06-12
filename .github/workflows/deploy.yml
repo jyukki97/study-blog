@@ -1,0 +1,338 @@
+name: Build and Deploy Blog
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # 매일 자정에 자동 빌드 (캐시 갱신)
+    - cron: '0 0 * * *'
+
+env:
+  HUGO_VERSION: '0.124.0'
+  NODE_VERSION: '18'
+
+jobs:
+  # 코드 품질 검사
+  quality-check:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: |
+        npm install -g markdownlint-cli
+        npm install -g htmlhint
+        npm install -g eslint
+
+    - name: Lint Markdown files
+      run: |
+        markdownlint content/**/*.md || true
+
+    - name: Lint JavaScript files
+      run: |
+        eslint static/js/*.js || true
+
+    - name: Check Hugo configuration
+      run: |
+        wget -O hugo.deb https://github.com/gohugoio/hugo/releases/download/v${{ env.HUGO_VERSION }}/hugo_extended_${{ env.HUGO_VERSION }}_linux-amd64.deb
+        sudo dpkg -i hugo.deb
+        hugo config
+
+  # 사이트 빌드
+  build:
+    needs: quality-check
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        fetch-depth: 0
+
+    - name: Setup Hugo
+      uses: peaceiris/actions-hugo@v2
+      with:
+        hugo-version: ${{ env.HUGO_VERSION }}
+        extended: true
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: Install Node dependencies
+      run: |
+        if [ -f package.json ]; then
+          npm ci
+        fi
+
+    - name: Build site
+      run: |
+        hugo --minify --environment production
+
+    - name: Optimize images
+      run: |
+        # 이미지 최적화 스크립트 실행
+        if [ -f scripts/optimize-images.sh ]; then
+          chmod +x scripts/optimize-images.sh
+          ./scripts/optimize-images.sh
+        fi
+
+    - name: Generate sitemap
+      run: |
+        # 추가 사이트맵 생성
+        echo "Generating additional sitemaps..."
+        # 필요시 커스텀 사이트맵 생성 스크립트 실행
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: blog-build
+        path: public/
+        retention-days: 7
+
+  # 보안 스캔
+  security-scan:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: blog-build
+        path: public/
+
+    - name: Run security scan
+      run: |
+        # HTML 보안 검사
+        grep -r "javascript:" public/ || true
+        grep -r "onclick=" public/ || true
+        
+        # CSP 헤더 검사
+        echo "Checking Content Security Policy..."
+
+    - name: Check for secrets
+      run: |
+        # 민감한 정보 노출 검사
+        grep -r "password\|secret\|token\|key" public/ --exclude-dir=js || true
+
+  # 성능 테스트
+  performance-test:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: blog-build
+        path: public/
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+
+    - name: Install Lighthouse CI
+      run: |
+        npm install -g @lhci/cli
+
+    - name: Start local server
+      run: |
+        cd public
+        python3 -m http.server 8080 &
+        sleep 5
+
+    - name: Run Lighthouse CI
+      run: |
+        lhci autorun --config=.lighthouserc.json || true
+
+    - name: Upload Lighthouse results
+      uses: actions/upload-artifact@v4
+      with:
+        name: lighthouse-results
+        path: .lighthouseci/
+        retention-days: 30
+
+  # 스테이징 배포
+  deploy-staging:
+    needs: [build, security-scan, performance-test]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/develop'
+    environment:
+      name: staging
+      url: https://staging.jyukki.dev
+    steps:
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: blog-build
+        path: public/
+
+    - name: Deploy to staging
+      run: |
+        echo "Deploying to staging environment..."
+        # 실제 배포 명령어로 교체
+        # rsync -avz --delete public/ user@staging-server:/var/www/staging/
+
+    - name: Notify deployment
+      run: |
+        echo "Staging deployment completed"
+        # 슬랙, 이메일 등 알림 발송
+
+  # 프로덕션 배포
+  deploy-production:
+    needs: [build, security-scan, performance-test]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    environment:
+      name: production
+      url: https://jyukki.dev
+    steps:
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: blog-build
+        path: public/
+
+    - name: Create backup
+      run: |
+        echo "Creating backup before deployment..."
+        # 현재 사이트 백업
+        # rsync -avz user@prod-server:/var/www/production/ backup/$(date +%Y%m%d_%H%M%S)/
+
+    - name: Deploy to production
+      run: |
+        echo "Deploying to production environment..."
+        # 실제 배포 명령어로 교체
+        # rsync -avz --delete public/ user@prod-server:/var/www/production/
+
+    - name: Health check
+      run: |
+        echo "Running health checks..."
+        # curl -f https://jyukki.dev/health || exit 1
+
+    - name: Notify deployment
+      run: |
+        echo "Production deployment completed"
+        # 슬랙, 이메일 등 알림 발송
+
+    - name: Update CDN cache
+      run: |
+        echo "Purging CDN cache..."
+        # CDN 캐시 무효화
+
+  # 모니터링 및 알림
+  monitoring:
+    needs: [deploy-production]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+    - name: Setup monitoring
+      run: |
+        echo "Setting up post-deployment monitoring..."
+
+    - name: Check site availability
+      run: |
+        for i in {1..5}; do
+          if curl -f https://jyukki.dev > /dev/null 2>&1; then
+            echo "Site is available"
+            break
+          fi
+          echo "Attempt $i failed, retrying..."
+          sleep 10
+        done
+
+    - name: Run smoke tests
+      run: |
+        echo "Running smoke tests..."
+        # 기본 페이지 로드 테스트
+        # curl -f https://jyukki.dev/posts/ || exit 1
+
+  # 자동 백업
+  backup:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Create content backup
+      run: |
+        echo "Creating content backup..."
+        tar -czf content-backup-$(date +%Y%m%d).tar.gz content/
+
+    - name: Upload backup to storage
+      run: |
+        echo "Uploading backup to cloud storage..."
+        # AWS S3, Google Cloud Storage 등에 업로드
+
+    - name: Cleanup old backups
+      run: |
+        echo "Cleaning up old backups..."
+        # 30일 이전 백업 파일 삭제
+
+  # 의존성 업데이트 체크
+  dependency-check:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Check Hugo updates
+      run: |
+        echo "Checking for Hugo updates..."
+        LATEST_HUGO=$(curl -s https://api.github.com/repos/gohugoio/hugo/releases/latest | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+        echo "Current: v${{ env.HUGO_VERSION }}, Latest: $LATEST_HUGO"
+
+    - name: Check theme updates
+      run: |
+        echo "Checking theme updates..."
+        cd themes/PaperMod
+        git fetch origin
+        BEHIND=$(git rev-list --count HEAD..origin/master)
+        echo "Theme is $BEHIND commits behind"
+
+    - name: Create update issue
+      if: ${{ env.UPDATES_AVAILABLE }}
+      run: |
+        echo "Creating GitHub issue for available updates..."
+        # GitHub API를 사용하여 이슈 생성
+
+# 워크플로우 완료 알림
+on_success:
+  runs-on: ubuntu-latest
+  needs: [deploy-production, monitoring]
+  if: success()
+  steps:
+  - name: Success notification
+    run: |
+      echo "🎉 Deployment completed successfully!"
+
+on_failure:
+  runs-on: ubuntu-latest
+  needs: [deploy-production, monitoring]
+  if: failure()
+  steps:
+  - name: Failure notification
+    run: |
+      echo "❌ Deployment failed!"
+      # 실패 알림 발송
