@@ -36,7 +36,6 @@ jobs:
 
       - name: Build with Hugo
         run: |
-          echo "baseURL = 'https://jyukki97.github.io/study-blog/'" >> hugo.toml
           hugo --minify
         env:
           HUGO_ENV: production
