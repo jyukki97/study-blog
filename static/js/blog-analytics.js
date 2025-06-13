@@ -1,4 +1,5 @@
 // ===== 고급 분석 및 통계 시스템 (Phase 3.3) =====
+// Cache version: v2.1 - Updated 2025-06-13
 
 class BlogAnalytics {
   constructor() {
@@ -24,9 +25,6 @@ class BlogAnalytics {
 
     // 사용자 행동 추적
     this.setupUserBehaviorTracking();
-
-    // 위젯 생성
-    this.createAnalyticsWidgets();
 
     // 실시간 방문자 추적
     this.startRealTimeTracking();

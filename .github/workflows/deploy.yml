@@ -50,13 +50,14 @@ jobs:
         run: "[[ -f package-lock.json || -f npm-shrinkwrap.json ]] && npm ci || true"
       - name: Build with Hugo
         env:
-          HUGO_CACHEDIR: ${{ runner.temp }}/hugo_cache
+          HUGO_CACHEDIR: ${{ runner.temp }}/hugo_cache_v2
           HUGO_ENVIRONMENT: production
         run: |
-          rm -rf ${{ runner.temp }}/hugo_cache
+          rm -rf ${{ runner.temp }}/hugo_cache*
           hugo \
             --minify \
             --cleanDestinationDir \
+            --ignoreCache \
             --baseURL "https://jyukki.com/"
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
