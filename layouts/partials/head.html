@@ -170,7 +170,13 @@
 {{- end }}
 
 <!-- 테마 토글 스크립트 -->
-<script src="{{ "js/theme.js" | absURL }}" defer></script>
+{{- $theme_js := resources.Get "js/theme.js" | resources.Minify }}
+{{- if not site.Params.assets.disableFingerprinting }}
+{{- $theme_js = $theme_js | fingerprint }}
+<script src="{{ $theme_js.RelPermalink | absURL }}" integrity="{{ $theme_js.Data.Integrity }}" defer></script>
+{{- else }}
+<script src="{{ $theme_js.RelPermalink | absURL }}" defer></script>
+{{- end }}
 
 <!-- Phase 3.3: 분석 시스템 -->
 <script src="{{ "js/blog-analytics.js" | absURL }}" defer></script>
