@@ -48,15 +48,12 @@ jobs:
         uses: actions/configure-pages@v5
       - name: Install Node.js dependencies
         run: "[[ -f package-lock.json || -f npm-shrinkwrap.json ]] && npm ci || true"
-      - name: Clean previous build
-        run: |
-          rm -rf ./public
-          rm -rf ./resources
       - name: Build with Hugo
         env:
-          HUGO_CACHEDIR: ${{ runner.temp }}/hugo_cache_${{ github.run_id }}
+          HUGO_CACHEDIR: ${{ runner.temp }}/hugo_cache
           HUGO_ENVIRONMENT: production
         run: |
+          rm -rf ${{ runner.temp }}/hugo_cache
           hugo \
             --minify \
             --cleanDestinationDir \
