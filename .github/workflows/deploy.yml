@@ -52,11 +52,10 @@ jobs:
         env:
           HUGO_CACHEDIR: ${{ runner.temp }}/hugo_cache
           HUGO_ENVIRONMENT: production
-          HUGO_BASEURL: https://jyukki97.github.io/study-blog/
         run: |
           hugo \
             --minify \
-            --baseURL "${{ steps.pages.outputs.base_url }}/"
+            --baseURL "https://jyukki.com/"
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
