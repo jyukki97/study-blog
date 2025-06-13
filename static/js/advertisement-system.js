@@ -8,8 +8,8 @@ class AdvertisementManager {
   constructor() {
     this.adNetworks = {
       adsense: {
-        enabled: false,
-        publisherId: "", // ca-pub-xxxxxxxxxx
+        enabled: true,
+        publisherId: "ca-pub-4944031426200690", // ca-pub-xxxxxxxxxx
         slots: [],
       },
       custom: {
