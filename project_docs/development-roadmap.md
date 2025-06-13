@@ -1,5 +1,19 @@
 # jyukki's Blog - 향후 개발 계획
 
+## 🚀 최근 완료 사항 (2024년 12월 8일 기준)
+
+### ✅ GitHub Pages 배포 문제 해결 및 사이트 배포 완료
+- **Hugo 설정 최적화**: baseURL 수정으로 커스텀 도메인 지원
+- **CNAME 파일 추가**: GitHub Pages 커스텀 도메인 설정
+- **GitHub Actions 워크플로우 업데이트**: Pages 전용 배포 프로세스로 간소화
+- **실제 배포 완료**: 변경사항을 GitHub에 푸시하고 jyukki.com 도메인에서 사이트 정상 작동 확인
+- **배포 상태**: ✅ Live at https://jyukki.com
+
+### ✅ 사이트 기능 개선
+- **Projects 드롭다운 수정**: 모바일 클릭 이벤트 및 JavaScript 오류 해결
+- **Projects 페이지 통합 디자인**: 브랜드 컬러(#b19cd9) 적용 및 스타일 일관성
+- **테스트 프로젝트 추가**: mobile-app.md로 드롭다운 기능 테스트
+
 ## 우선순위별 개발 로드맵
 
 ### 🚀 Phase 1: 핵심 기능 개선 (1-2주)
