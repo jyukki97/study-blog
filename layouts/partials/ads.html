@@ -1,0 +1,118 @@
+{{- /* Google AdSense 광고 컴포넌트 */ -}}
+{{- if site.Params.adsense.enabled }}
+
+{{- /* 사이드바 광고 */ -}}
+{{- if eq .position "sidebar" }}
+<div class="ad-container sidebar-ad">
+    <div class="ad-label">Advertisement</div>
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="{{ site.Params.adsense.client }}"
+         data-ad-slot="1234567890"
+         data-ad-format="rectangle"
+         data-full-width-responsive="true"></ins>
+</div>
+{{- end }}
+
+{{- /* 콘텐츠 내 광고 */ -}}
+{{- if eq .position "content" }}
+<div class="ad-container content-ad">
+    <div class="ad-label">Advertisement</div>
+    <ins class="adsbygoogle"
+         style="display:block; text-align:center;"
+         data-ad-layout="in-article"
+         data-ad-format="fluid"
+         data-ad-client="{{ site.Params.adsense.client }}"
+         data-ad-slot="9876543210"></ins>
+</div>
+{{- end }}
+
+{{- /* 반응형 배너 광고 */ -}}
+{{- if eq .position "banner" }}
+<div class="ad-container banner-ad">
+    <div class="ad-label">Advertisement</div>
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="{{ site.Params.adsense.client }}"
+         data-ad-slot="1122334455"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+</div>
+{{- end }}
+
+{{- /* 푸터 광고 */ -}}
+{{- if eq .position "footer" }}
+<div class="ad-container footer-ad">
+    <div class="ad-label">Advertisement</div>
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="{{ site.Params.adsense.client }}"
+         data-ad-slot="5566778899"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+</div>
+{{- end }}
+
+<style>
+.ad-container {
+    margin: 1.5rem auto;
+    padding: 1rem;
+    background: var(--bg-secondary, #f8f9fa);
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-radius: 8px;
+    text-align: center;
+}
+
+.ad-label {
+    font-size: 0.75rem;
+    color: var(--text-muted, #718096);
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.sidebar-ad {
+    max-width: 300px;
+    margin: 1rem 0;
+}
+
+.content-ad {
+    max-width: 728px;
+    margin: 2rem auto;
+}
+
+.banner-ad {
+    width: 100%;
+    max-width: 970px;
+}
+
+.footer-ad {
+    width: 100%;
+    max-width: 728px;
+}
+
+/* 다크 모드 지원 */
+[data-theme="dark"] .ad-container {
+    background: var(--bg-secondary, #2d3748);
+    border-color: var(--border-color, #4a5568);
+}
+
+[data-theme="dark"] .ad-label {
+    color: var(--text-muted, #a0aec0);
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .ad-container {
+        margin: 1rem 0;
+        padding: 0.75rem;
+    }
+    
+    .banner-ad,
+    .footer-ad {
+        max-width: 100%;
+    }
+}
+</style>
+
+{{- end }}

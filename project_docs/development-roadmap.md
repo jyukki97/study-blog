@@ -197,6 +197,33 @@
     - [x] 불필요한 파일 15개 제거 (정적 파일 수 43% 감소)
     - [x] 조건부 스크립트 로딩 구현
     - [x] 포괄적인 디자인 시스템 구축 (/static/css/design-improvements.css)
+  - [x] 포스트 카드 개선
+    - [x] 태그 밑부분 잘림 문제 해결 (컨테이너 높이 조정)
+    - [x] 날짜 형식을 개별 포스트와 동일하게 변경
+    - [x] 태그 hover 효과 및 스타일 통일
+    - [x] 반응형 디자인 최적화
+
+#### 6.3 광고 시스템 (Google AdSense) ✅ 완료
+- **목표**: Google AdSense 광고 시스템 구현
+- **구현사항**:
+  - [x] Google AdSense 메타 태그 추가
+    - [x] `google-adsense-account` 메타 태그 구현
+    - [x] 퍼블리셔 ID 설정 (ca-pub-4944031426200690)
+  - [x] 광고 스크립트 시스템 구현
+    - [x] AdSense 스크립트 자동 로드 (`advertisement-system.js`)
+    - [x] 광고 슬롯 자동 생성 기능
+    - [x] Ad Block 감지 기능
+  - [x] 광고 컴포넌트 개발
+    - [x] 재사용 가능한 광고 partial (`layouts/partials/ads.html`)
+    - [x] 다양한 광고 위치 지원 (content, banner, sidebar, footer)
+    - [x] 반응형 광고 디자인
+  - [x] 광고 배치 구현
+    - [x] 포스트 내용 후 광고 배치
+    - [x] 포스트 리스트 후 배너 광고 배치
+    - [x] 다크 모드 호환 광고 스타일
+  - [x] Hugo 설정 완료
+    - [x] `hugo.toml`에서 애드센스 활성화
+    - [x] 조건부 광고 로드 시스템
 
 ## 기술 스택 확장 계획
 
