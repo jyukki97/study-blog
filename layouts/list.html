@@ -80,6 +80,9 @@
             {{ end }}
         </div>
 
+        {{- /* 포스트 리스트 후 광고 */ -}}
+        {{- partial "ads.html" (dict "position" "banner") }}
+
         {{ if gt $paginator.TotalPages 1 }}
             <nav class="pagination">
                 {{ if $paginator.HasPrev }}

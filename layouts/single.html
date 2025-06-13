@@ -60,6 +60,9 @@
       {{- partial "anchored_headings.html" .Content -}}
       {{- else }}{{ .Content }}{{ end }}
     </div>
+    
+    {{- /* 포스트 내용 후 광고 */ -}}
+    {{- partial "ads.html" (dict "position" "content") }}
     {{- end }}
 
     <footer class="post-footer">
