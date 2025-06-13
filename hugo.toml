@@ -1,4 +1,4 @@
-baseURL = '/'
+baseURL = 'https://jyukki.com'
 languageCode = 'ko-kr'
 title = "jyukki's Blog"
 theme = 'PaperMod'
@@ -47,21 +47,6 @@ enableEmoji = false
   enableSearch = true
   disableSearch = false
   env = "production"
-  
-  # 관련 포스트 추천 설정 (Phase 2.3)
-  [params.related]
-    includeNewer = true
-    threshold = 80
-    toLower = false
-    [[params.related.indices]]
-      name = "tags"
-      weight = 100
-    [[params.related.indices]]
-      name = "categories"
-      weight = 80
-    [[params.related.indices]]
-      name = "date"
-      weight = 10
 
   # Giscus 댓글 시스템 설정 (Phase 3.2)
   [params.giscus]
@@ -81,26 +66,10 @@ enableEmoji = false
   [params.analytics]
     [params.analytics.google]
       GA_MEASUREMENT_ID = "G-4BH0XLL42M"  # Google Analytics 4 측정 ID
-      SiteVerificationTag = "G-4BH0XLL42M	"  # Google Search Console 인증 태그
+      SiteVerificationTag = "UA-137248174-1"  # Google Search Console 인증 태그
       anonymizeIP = true  # IP 익명화
       respectDoNotTrack = true  # Do Not Track 헤더 존중
       useSessionStorage = false  # 세션 스토리지 사용 여부
-      
-  # 방문자 통계 설정
-  [params.stats]
-    enabled = true  # 통계 기능 활성화
-    showRealTimeVisitors = true  # 실시간 방문자 표시
-    showPopularPosts = true  # 인기 포스트 위젯 표시
-    showSearchAnalytics = true  # 검색 분석 위젯 표시
-    
-  # 실시간 통계 설정
-  [params.realtime]
-    enabled = true  # 실시간 기능 활성화
-    updateInterval = 30  # 업데이트 간격 (초)
-    maxVisibleCount = 99  # 최대 표시 방문자 수
-    showRealTimeVisitors = true  # 실시간 방문자 표시
-    showPopularPosts = true  # 인기 포스트 표시
-    retentionDays = 30  # 데이터 보존 기간 (일)
 
   # 이미지 최적화 설정
   [params.cover]
@@ -120,29 +89,6 @@ enableEmoji = false
 
 [params.header]
   enable = true
-
-[menu]
-  [[menu.main]]
-    identifier = "posts"
-    name = "Posts"
-    url = "/posts/"
-    weight = 10
-  [[menu.main]]
-    identifier = "projects"
-    name = "Projects"
-    url = "/projects/"
-    weight = 15
-    [[menu.main]]
-      parent = "projects"
-      identifier = "study-blog"
-      name = "Study Blog"
-      url = "/projects/study-blog/"
-      weight = 1
-  [[menu.main]]
-    identifier = "categories"
-    name = "Categories"
-    url = "/categories/"
-    weight = 20
 
 [[menu.main]]
     identifier = "projects"

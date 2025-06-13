@@ -154,11 +154,36 @@
     max-width: 1000px;
     margin: 0 auto;
     padding: 2rem;
+    background: var(--entry);
+    min-height: 100vh;
 }
 
 /* 프로젝트 헤더 */
 .project-header {
     margin-bottom: 3rem;
+    background: linear-gradient(135deg, #b19cd9 0%, #9b7fc7 100%);
+    border-radius: 20px;
+    padding: 2.5rem;
+    color: white;
+    box-shadow: 0 12px 40px rgba(177, 156, 217, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.project-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 100%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-20px) rotate(180deg); }
 }
 
 .project-meta {
@@ -166,183 +191,249 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 1.5rem;
+    position: relative;
+    z-index: 2;
 }
 
 .project-breadcrumb {
     font-size: 0.9rem;
-    color: var(--secondary);
+    color: rgba(255, 255, 255, 0.8);
 }
 
 .project-breadcrumb a {
-    color: var(--primary);
+    color: white;
     text-decoration: none;
-    transition: color 0.3s ease;
+    transition: all 0.3s ease;
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
 }
 
 .project-breadcrumb a:hover {
-    color: var(--tertiary);
+    background: rgba(255, 255, 255, 0.2);
 }
 
 .separator {
     margin: 0 0.5rem;
-    color: var(--secondary);
+    color: rgba(255, 255, 255, 0.6);
 }
 
 .current {
     font-weight: 600;
-    color: var(--primary);
+    color: white;
 }
 
 .project-title {
-    font-size: 2.5rem;
-    color: var(--primary);
+    font-size: 2.8rem;
+    color: white;
     margin-bottom: 1rem;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 1rem;
+    position: relative;
+    z-index: 2;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
 
 .project-icon {
-    font-size: 2rem;
+    font-size: 3rem;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
 }
 
 .project-description {
     font-size: 1.2rem;
-    color: var(--secondary);
+    color: rgba(255, 255, 255, 0.9);
     margin-bottom: 2rem;
     line-height: 1.6;
+    position: relative;
+    z-index: 2;
 }
 
 .project-info-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 1.5rem;
+    position: relative;
+    z-index: 2;
 }
 
 .project-tech-stack,
 .project-links,
 .project-timeline {
-    background: var(--theme);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 1.2rem;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.project-tech-stack:hover,
+.project-links:hover,
+.project-timeline:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-4px);
 }
 
 .project-tech-stack h3,
 .project-links h3,
 .project-timeline h3 {
     margin: 0 0 1rem 0;
-    font-size: 1rem;
-    color: var(--primary);
+    font-size: 1.1rem;
+    color: white;
+    font-weight: 600;
 }
 
 .tech-tags {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: 0.6rem;
 }
 
 .tech-tag {
-    background: var(--code-bg);
-    color: var(--primary);
-    padding: 0.3rem 0.8rem;
-    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
     font-size: 0.8rem;
     font-weight: 500;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    transition: all 0.3s ease;
+}
+
+.tech-tag:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
 }
 
 .links-list {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.8rem;
 }
 
 .project-link {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    color: var(--primary);
+    gap: 0.8rem;
+    color: white;
     text-decoration: none;
-    padding: 0.4rem 0;
-    border-radius: 4px;
+    padding: 0.6rem 1rem;
+    border-radius: 12px;
     transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .project-link:hover {
-    background: var(--code-bg);
-    padding-left: 0.5rem;
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateX(4px);
 }
 
 .timeline-info {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.8rem;
 }
 
 .timeline-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: 0.4rem 0;
 }
 
 .timeline-label {
     font-weight: 500;
-    color: var(--secondary);
+    color: rgba(255, 255, 255, 0.8);
 }
 
 /* 프로젝트 상태 */
 .project-status {
-    padding: 0.3rem 0.8rem;
-    border-radius: 12px;
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
     font-size: 0.8rem;
     font-weight: 600;
     text-transform: uppercase;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(10px);
 }
 
 .status-진행중 {
-    background: #e3f2fd;
-    color: #1976d2;
+    background: rgba(33, 150, 243, 0.3);
+    color: #90caf9;
+    border-color: #64b5f6;
 }
 
 .status-완료 {
-    background: #e8f5e8;
-    color: #2e7d32;
+    background: rgba(76, 175, 80, 0.3);
+    color: #a5d6a7;
+    border-color: #81c784;
 }
 
 .status-보류 {
-    background: #fff3e0;
-    color: #f57c00;
+    background: rgba(255, 152, 0, 0.3);
+    color: #ffcc02;
+    border-color: #ffb74d;
+}
+
+.status-기획 {
+    background: rgba(156, 39, 176, 0.3);
+    color: #ce93d8;
+    border-color: #ba68c8;
 }
 
 /* 프로젝트 콘텐츠 */
 .project-content {
     margin-bottom: 3rem;
+    background: var(--entry);
+    border-radius: 16px;
+    padding: 2.5rem;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    border: 1px solid var(--border);
 }
 
 .project-description-content {
     color: var(--content);
     line-height: 1.8;
+    font-size: 1.1rem;
 }
 
 .project-description-content h2,
 .project-description-content h3 {
-    color: var(--primary);
-    margin-top: 2rem;
-    margin-bottom: 1rem;
+    color: #b19cd9;
+    margin-top: 2.5rem;
+    margin-bottom: 1.2rem;
+    font-weight: 600;
+    position: relative;
+}
+
+.project-description-content h2::after {
+    content: '';
+    position: absolute;
+    bottom: -0.5rem;
+    left: 0;
+    width: 50px;
+    height: 3px;
+    background: linear-gradient(90deg, #b19cd9, #9b7fc7);
+    border-radius: 2px;
 }
 
 .project-description-content pre {
     background: var(--code-bg);
-    padding: 1rem;
-    border-radius: 8px;
+    padding: 1.5rem;
+    border-radius: 12px;
     overflow-x: auto;
+    border: 1px solid var(--border);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.05);
 }
 
 .project-description-content code {
-    background: var(--code-bg);
-    padding: 0.2rem 0.4rem;
-    border-radius: 4px;
+    background: linear-gradient(135deg, rgba(177, 156, 217, 0.1), rgba(155, 127, 199, 0.1));
+    color: #b19cd9;
+    padding: 0.3rem 0.6rem;
+    border-radius: 6px;
     font-size: 0.9em;
+    border: 1px solid rgba(177, 156, 217, 0.2);
 }
 
 /* 관련 포스트 */
@@ -354,8 +445,20 @@
     font-size: 1.8rem;
     margin-bottom: 2rem;
     color: var(--primary);
-    border-bottom: 2px solid var(--border);
+    border-bottom: 3px solid #b19cd9;
     padding-bottom: 0.5rem;
+    position: relative;
+}
+
+.related-posts h2::after {
+    content: '';
+    position: absolute;
+    bottom: -3px;
+    left: 0;
+    width: 80px;
+    height: 3px;
+    background: linear-gradient(90deg, #b19cd9, #9b7fc7);
+    border-radius: 2px;
 }
 
 .related-posts-grid {
@@ -365,17 +468,30 @@
 }
 
 .related-post-card {
-    background: var(--theme);
+    background: var(--entry);
     border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 1.5rem;
+    border-radius: 16px;
+    padding: 1.8rem;
     transition: all 0.3s ease;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    position: relative;
+    overflow: hidden;
+}
+
+.related-post-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #b19cd9, #9b7fc7);
 }
 
 .related-post-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
-    border-color: var(--primary);
+    transform: translateY(-6px);
+    box-shadow: 0 16px 40px rgba(177, 156, 217, 0.2);
+    border-color: #b19cd9;
 }
 
 .related-post-card .post-header {
@@ -388,27 +504,29 @@
 }
 
 .post-series {
-    background: var(--primary);
+    background: linear-gradient(135deg, #b19cd9, #9b7fc7);
     color: white;
-    padding: 0.2rem 0.6rem;
-    border-radius: 6px;
+    padding: 0.3rem 0.8rem;
+    border-radius: 16px;
     font-size: 0.75rem;
     font-weight: 600;
+    box-shadow: 0 2px 8px rgba(177, 156, 217, 0.3);
 }
 
 .related-post-card h3 {
     margin: 0 0 1rem 0;
     font-size: 1.2rem;
+    font-weight: 600;
 }
 
 .related-post-card h3 a {
     color: var(--primary);
     text-decoration: none;
-    transition: color 0.3s ease;
+    transition: all 0.3s ease;
 }
 
 .related-post-card h3 a:hover {
-    color: var(--tertiary);
+    color: #b19cd9;
 }
 
 .related-post-card .post-summary {
@@ -420,23 +538,27 @@
 .related-post-card .post-tags {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.3rem;
+    gap: 0.4rem;
     margin-bottom: 1rem;
 }
 
 .tag {
-    background: var(--code-bg);
-    color: var(--primary);
-    padding: 0.2rem 0.5rem;
-    border-radius: 6px;
+    background: linear-gradient(135deg, rgba(177, 156, 217, 0.1), rgba(155, 127, 199, 0.1));
+    color: #b19cd9;
+    padding: 0.3rem 0.8rem;
+    border-radius: 16px;
     font-size: 0.75rem;
     text-decoration: none;
     transition: all 0.3s ease;
+    border: 1px solid rgba(177, 156, 217, 0.2);
+    font-weight: 500;
 }
 
 .tag:hover {
-    background: var(--primary);
+    background: linear-gradient(135deg, #b19cd9, #9b7fc7);
     color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(177, 156, 217, 0.3);
 }
 
 .post-footer {
@@ -444,18 +566,32 @@
 }
 
 .read-more {
-    color: var(--primary);
+    color: #b19cd9;
     font-size: 0.9rem;
-    font-weight: 500;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.read-more:hover {
+    color: #9b7fc7;
 }
 
 .no-posts {
     text-align: center;
-    padding: 2rem;
+    padding: 3rem;
     color: var(--secondary);
-    background: var(--theme);
-    border: 1px solid var(--border);
-    border-radius: 8px;
+    background: var(--entry);
+    border: 2px dashed rgba(177, 156, 217, 0.3);
+    border-radius: 16px;
+    position: relative;
+}
+
+.no-posts::before {
+    content: '📝';
+    display: block;
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
 }
 
 /* 다른 프로젝트 */
@@ -463,8 +599,20 @@
     font-size: 1.8rem;
     margin-bottom: 2rem;
     color: var(--primary);
-    border-bottom: 2px solid var(--border);
+    border-bottom: 3px solid #b19cd9;
     padding-bottom: 0.5rem;
+    position: relative;
+}
+
+.other-projects h2::after {
+    content: '';
+    position: absolute;
+    bottom: -3px;
+    left: 0;
+    width: 120px;
+    height: 3px;
+    background: linear-gradient(90deg, #b19cd9, #9b7fc7);
+    border-radius: 2px;
 }
 
 .other-projects-grid {
@@ -474,38 +622,53 @@
 }
 
 .other-project-card {
-    background: var(--theme);
+    background: var(--entry);
     border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 1.2rem;
+    border-radius: 16px;
+    padding: 1.5rem;
     text-align: center;
     transition: all 0.3s ease;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    position: relative;
+    overflow: hidden;
+}
+
+.other-project-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #b19cd9, #9b7fc7);
 }
 
 .other-project-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
-    border-color: var(--primary);
+    transform: translateY(-6px);
+    box-shadow: 0 16px 40px rgba(177, 156, 217, 0.2);
+    border-color: #b19cd9;
 }
 
 .other-project-card .project-icon {
-    font-size: 2rem;
+    font-size: 2.5rem;
     margin-bottom: 1rem;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
 }
 
 .other-project-card h3 {
     margin: 0 0 0.8rem 0;
-    font-size: 1.1rem;
+    font-size: 1.2rem;
+    font-weight: 600;
 }
 
 .other-project-card h3 a {
     color: var(--primary);
     text-decoration: none;
-    transition: color 0.3s ease;
+    transition: all 0.3s ease;
 }
 
 .other-project-card h3 a:hover {
-    color: var(--tertiary);
+    color: #b19cd9;
 }
 
 .other-project-card p {
@@ -515,14 +678,30 @@
     line-height: 1.5;
 }
 
+.other-project-card .project-status {
+    background: linear-gradient(135deg, rgba(177, 156, 217, 0.1), rgba(155, 127, 199, 0.1));
+    color: #b19cd9;
+    border: 1px solid rgba(177, 156, 217, 0.2);
+    font-size: 0.7rem;
+    padding: 0.3rem 0.8rem;
+}
+
 /* 반응형 디자인 */
 @media (max-width: 768px) {
     .project-single-container {
         padding: 1rem;
     }
     
+    .project-header {
+        padding: 2rem 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
     .project-title {
-        font-size: 2rem;
+        font-size: 2.2rem;
+        flex-direction: column;
+        text-align: center;
+        gap: 0.5rem;
     }
     
     .project-meta {
@@ -542,36 +721,38 @@
     .other-projects-grid {
         grid-template-columns: 1fr;
     }
+    
+    .project-content {
+        padding: 1.5rem;
+    }
 }
 
 /* 다크 모드 지원 */
-[data-theme="dark"] .project-tech-stack,
-[data-theme="dark"] .project-links,
-[data-theme="dark"] .project-timeline,
-[data-theme="dark"] .related-post-card,
-[data-theme="dark"] .other-project-card,
-[data-theme="dark"] .no-posts {
-    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+.dark .project-header {
+    background: linear-gradient(135deg, #7b5a9e 0%, #6b4b8a 100%);
+    box-shadow: 0 12px 40px rgba(123, 90, 158, 0.4);
 }
 
-[data-theme="dark"] .related-post-card:hover,
-[data-theme="dark"] .other-project-card:hover {
-    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+.dark .project-tech-stack,
+.dark .project-links,
+.dark .project-timeline {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
-[data-theme="dark"] .status-진행중 {
-    background: #1a237e;
-    color: #90caf9;
+.dark .project-content,
+.dark .related-post-card,
+.dark .other-project-card {
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
 }
 
-[data-theme="dark"] .status-완료 {
-    background: #1b5e20;
-    color: #a5d6a7;
+.dark .related-post-card:hover,
+.dark .other-project-card:hover {
+    box-shadow: 0 16px 40px rgba(177, 156, 217, 0.4);
 }
 
-[data-theme="dark"] .status-보류 {
-    background: #e65100;
-    color: #ffcc02;
+.dark .no-posts {
+    border-color: rgba(177, 156, 217, 0.2);
 }
 </style>
 {{- end }}

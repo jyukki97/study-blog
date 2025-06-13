@@ -811,8 +811,7 @@ body {
 /* 포스트 제목 */
 .post-title {
   margin: 0 0 1rem 0;
-  font-size: 1.25rem;
-  font-weight: 600;
+  font-size: 2rem;
   line-height: 1.4;
 }
 
