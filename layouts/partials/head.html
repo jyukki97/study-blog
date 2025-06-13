@@ -162,7 +162,7 @@
 {{- partial "extend_head.html" . -}}
 
 <!-- Phase 6.2: 디자인 개선 CSS -->
-<link rel="stylesheet" href="{{ "css/design-improvements.css" | absURL }}">
+<link rel="stylesheet" href="css/design-improvements.css">
 
 <!-- Google Analytics 4 설정 (Phase 3.3) -->
 {{- if and (hugo.IsProduction | or (eq site.Params.env "production")) site.Params.analytics.google.GA_MEASUREMENT_ID }}
@@ -170,37 +170,37 @@
 {{- end }}
 
 <!-- Phase 3.3: 분석 시스템 -->
-<script src="{{ "js/blog-analytics.js" | absURL }}" defer></script>
+<script src="js/blog-analytics.js" defer></script>
 
 <!-- Phase 2.3: 포스트 뷰 개선 스크립트 -->
 {{- if and (eq .Type "posts") (.IsPage) }}
-<script src="{{ "js/post-view-enhancements.js" | absURL }}" defer></script>
+<script src="js/post-view-enhancements.js" defer></script>
 {{- end }}
 
 <!-- Phase 4.1: 컨텐츠 관리 시스템 -->
 {{- if .Site.Params.contentManagement.enabled }}
-<script src="{{ "js/content-manager.js" | absURL }}" defer></script>
+<script src="js/content-manager.js" defer></script>
 {{- end }}
 
 <!-- Phase 4.2: SEO 최적화 시스템 -->
 {{- if hugo.IsProduction | or (eq site.Params.env "production") }}
-<script src="{{ "js/seo-optimizer.js" | absURL }}" defer></script>
+<script src="js/seo-optimizer.js" defer></script>
 {{- end }}
 
 <!-- Phase 3.3: 광고 시스템 -->
 {{- if site.Params.adsense.enabled }}
-<script src="{{ "js/advertisement-system.js" | absURL }}" defer></script>
+<script src="js/advertisement-system.js" defer></script>
 {{- end }}
 
 <!-- Phase 5.1: 동적 기능 -->
-<script src="{{ "js/dynamic-features.js" | absURL }}" defer></script>
+<script src="js/dynamic-features.js" defer></script>
 
 <!-- Phase 5.2: 개인화 기능 -->
-<script src="{{ "js/personalization-features.js" | absURL }}" defer></script>
+<script src="js/personalization-features.js" defer></script>
 
 <!-- Phase 5.3: 소셜 기능 -->
 {{- if .Site.Params.social.enabled }}
-<script src="{{ "js/social-features.js" | relURL }}" defer></script>
+<script src="js/social-features.js" defer></script>
 {{- end }}
 
 {{- /* Misc */}}
