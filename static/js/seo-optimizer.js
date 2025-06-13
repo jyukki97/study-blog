@@ -294,8 +294,8 @@ class SEOOptimizer {
   addResourceHints() {
     // 중요 리소스 프리로드
     const criticalResources = [
-      { href: window.location.pathname + "css/main.css", as: "style" },
-      { href: window.location.pathname + "js/main.js", as: "script" },
+      { href: "css/main.css", as: "style" },
+      { href: "js/main.js", as: "script" },
     ];
 
     criticalResources.forEach((resource) => {
