@@ -127,32 +127,34 @@ class TOCHighlighter {
   enhanceTOCStyles() {
     const style = document.createElement("style");
     style.textContent = `
-      .toc, #TableOfContents {
-        position: sticky;
-        top: 100px;
-        max-height: calc(100vh - 200px);
-        overflow-y: auto;
-        padding: 20px;
-        background: white;
+      /* 사이드바 TOC는 이미 single.html에서 스타일링됨 */
+      
+      /* 기본 TOC 스타일 (사이드바가 아닌 경우) */
+      .toc:not(.toc-sidebar .toc), #TableOfContents:not(.toc-sidebar #TableOfContents) {
+        position: relative;
+        background: var(--theme);
+        border: 1px solid var(--border);
         border-radius: 10px;
+        padding: 20px;
+        margin: 20px 0;
         box-shadow: 0 4px 20px rgba(0,0,0,0.1);
         transition: all 0.3s ease;
       }
 
-      .toc ul, #TableOfContents ul {
+      .toc:not(.toc-sidebar .toc) ul, #TableOfContents:not(.toc-sidebar #TableOfContents) ul {
         list-style: none;
         padding-left: 0;
         margin: 0;
       }
 
-      .toc li, #TableOfContents li {
+      .toc:not(.toc-sidebar .toc) li, #TableOfContents:not(.toc-sidebar #TableOfContents) li {
         margin: 8px 0;
       }
 
-      .toc a, #TableOfContents a {
+      .toc:not(.toc-sidebar .toc) a, #TableOfContents:not(.toc-sidebar #TableOfContents) a {
         display: block;
         padding: 8px 12px;
-        color: #666;
+        color: var(--secondary);
         text-decoration: none;
         border-radius: 6px;
         transition: all 0.2s ease;
@@ -160,13 +162,13 @@ class TOCHighlighter {
         overflow: hidden;
       }
 
-      .toc a:hover, #TableOfContents a:hover {
-        background: #f0f0f0;
+      .toc:not(.toc-sidebar .toc) a:hover, #TableOfContents:not(.toc-sidebar #TableOfContents) a:hover {
+        background: rgba(177, 156, 217, 0.1);
         color: #b19cd9;
         transform: translateX(4px);
       }
 
-      .toc a.active, #TableOfContents a.active {
+      .toc:not(.toc-sidebar .toc) a.active, #TableOfContents:not(.toc-sidebar #TableOfContents) a.active {
         background: linear-gradient(135deg, #b19cd9, #9a7bc8);
         color: white;
         font-weight: 600;
@@ -174,52 +176,53 @@ class TOCHighlighter {
         box-shadow: 0 2px 10px rgba(177, 156, 217, 0.3);
       }
 
-      .toc a.active::before, #TableOfContents a.active::before {
+      .toc:not(.toc-sidebar .toc) a.active::before, #TableOfContents:not(.toc-sidebar #TableOfContents) a.active::before {
         content: '';
         position: absolute;
         left: 0;
         top: 0;
         bottom: 0;
         width: 3px;
-        background: #fff;
+        background: rgba(255, 255, 255, 0.8);
         opacity: 0.8;
       }
 
-      .toc ul ul a, #TableOfContents ul ul a {
+      .toc:not(.toc-sidebar .toc) ul ul a, #TableOfContents:not(.toc-sidebar #TableOfContents) ul ul a {
         padding-left: 24px;
         font-size: 0.9em;
       }
 
-      .toc ul ul ul a, #TableOfContents ul ul ul a {
+      .toc:not(.toc-sidebar .toc) ul ul ul a, #TableOfContents:not(.toc-sidebar #TableOfContents) ul ul ul a {
         padding-left: 36px;
         font-size: 0.85em;
       }
 
       /* 다크모드 지원 */
-      [data-theme="dark"] .toc,
-      [data-theme="dark"] #TableOfContents {
-        background: #2d3748;
-        color: #e2e8f0;
+      [data-theme="dark"] .toc:not(.toc-sidebar .toc),
+      [data-theme="dark"] #TableOfContents:not(.toc-sidebar #TableOfContents) {
+        background: var(--entry);
+        border-color: var(--border);
+        color: var(--primary);
       }
 
-      [data-theme="dark"] .toc a,
-      [data-theme="dark"] #TableOfContents a {
-        color: #a0aec0;
+      [data-theme="dark"] .toc:not(.toc-sidebar .toc) a,
+      [data-theme="dark"] #TableOfContents:not(.toc-sidebar #TableOfContents) a {
+        color: var(--secondary);
       }
 
-      [data-theme="dark"] .toc a:hover,
-      [data-theme="dark"] #TableOfContents a:hover {
-        background: #4a5568;
+      [data-theme="dark"] .toc:not(.toc-sidebar .toc) a:hover,
+      [data-theme="dark"] #TableOfContents:not(.toc-sidebar #TableOfContents) a:hover {
+        background: rgba(177, 156, 217, 0.15);
         color: #b19cd9;
       }
 
-      /* 모바일 대응 */
-      @media (max-width: 768px) {
-        .toc, #TableOfContents {
-          position: static;
-          max-height: none;
-          margin: 20px 0;
-        }
+      /* 사이드바 TOC 활성화 상태 강화 */
+      .toc-sidebar .toc a.active {
+        background: linear-gradient(135deg, #b19cd9, #9a7bc8) !important;
+        color: white !important;
+        font-weight: 600 !important;
+        transform: translateX(8px) !important;
+        box-shadow: 0 2px 10px rgba(177, 156, 217, 0.3) !important;
       }
     `;
     document.head.appendChild(style);
@@ -833,364 +836,8 @@ class BookmarkManager {
   }
 
   setup() {
-    this.createBookmarkButton();
-    this.createBookmarkPanel();
     this.updateBookmarkButton();
     console.log("[Bookmark] 북마크 시스템 초기화 완료");
-  }
-
-  createBookmarkButton() {
-    const button = document.createElement("button");
-    button.className = "bookmark-btn";
-    button.innerHTML = `
-      <span class="bookmark-icon">🔖</span>
-      <span class="bookmark-text">북마크</span>
-    `;
-
-    // 포스트 헤더나 적절한 위치에 삽입
-    const target =
-      document.querySelector(".post-header, .entry-header, h1") ||
-      document.querySelector("article, main");
-
-    if (target) {
-      target.appendChild(button);
-    }
-
-    this.addBookmarkStyles();
-    this.attachBookmarkListeners(button);
-  }
-
-  addBookmarkStyles() {
-    const style = document.createElement("style");
-    style.textContent = `
-      .bookmark-btn {
-        background: linear-gradient(135deg, #b19cd9, #9a7bc8);
-        color: white;
-        border: none;
-        border-radius: 25px;
-        padding: 10px 20px;
-        font-size: 14px;
-        font-weight: 500;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        transition: all 0.3s ease;
-        margin: 10px 0;
-        box-shadow: 0 2px 10px rgba(177, 156, 217, 0.3);
-      }
-
-      .bookmark-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 15px rgba(177, 156, 217, 0.4);
-      }
-
-      .bookmark-btn.bookmarked {
-        background: linear-gradient(135deg, #ff6b6b, #ee5a52);
-      }
-
-      .bookmark-btn.bookmarked .bookmark-icon::before {
-        content: '❤️';
-      }
-
-      .bookmark-panel {
-        position: fixed;
-        top: 50%;
-        right: -400px;
-        width: 350px;
-        height: 60%;
-        background: white;
-        border-radius: 15px 0 0 15px;
-        box-shadow: -5px 0 25px rgba(0,0,0,0.2);
-        z-index: 10000;
-        transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        transform: translateY(-50%);
-        display: flex;
-        flex-direction: column;
-      }
-
-      .bookmark-panel.open {
-        right: 0;
-      }
-
-      .bookmark-panel-header {
-        background: linear-gradient(135deg, #b19cd9, #9a7bc8);
-        color: white;
-        padding: 20px;
-        border-radius: 15px 0 0 0;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-      }
-
-      .bookmark-panel-title {
-        font-size: 18px;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-
-      .bookmark-close-btn {
-        background: rgba(255,255,255,0.2);
-        border: none;
-        color: white;
-        width: 30px;
-        height: 30px;
-        border-radius: 50%;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: background 0.2s;
-      }
-
-      .bookmark-close-btn:hover {
-        background: rgba(255,255,255,0.3);
-      }
-
-      .bookmark-list {
-        flex: 1;
-        overflow-y: auto;
-        padding: 0;
-        margin: 0;
-        list-style: none;
-      }
-
-      .bookmark-item {
-        padding: 15px 20px;
-        border-bottom: 1px solid #f0f0f0;
-        cursor: pointer;
-        transition: background 0.2s;
-        position: relative;
-      }
-
-      .bookmark-item:hover {
-        background: #f8f9fa;
-      }
-
-      .bookmark-item-title {
-        font-weight: 500;
-        color: #333;
-        text-decoration: none;
-        display: block;
-        margin-bottom: 5px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-
-      .bookmark-item-date {
-        font-size: 12px;
-        color: #666;
-      }
-
-      .bookmark-item-remove {
-        position: absolute;
-        top: 50%;
-        right: 15px;
-        transform: translateY(-50%);
-        background: #ff6b6b;
-        color: white;
-        border: none;
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        cursor: pointer;
-        font-size: 12px;
-        display: none;
-        align-items: center;
-        justify-content: center;
-      }
-
-      .bookmark-item:hover .bookmark-item-remove {
-        display: flex;
-      }
-
-      .bookmark-empty {
-        text-align: center;
-        padding: 40px 20px;
-        color: #666;
-        font-style: italic;
-      }
-
-      .bookmark-empty::before {
-        content: '📚';
-        display: block;
-        font-size: 3em;
-        margin-bottom: 10px;
-      }
-
-      .bookmark-toggle {
-        position: fixed;
-        top: 50%;
-        right: 10px;
-        transform: translateY(-50%);
-        background: #b19cd9;
-        color: white;
-        border: none;
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        cursor: pointer;
-        font-size: 1.5rem;
-        z-index: 10001;
-        box-shadow: 0 4px 15px rgba(177, 156, 217, 0.3);
-        transition: all 0.3s ease;
-      }
-
-      .bookmark-toggle:hover {
-        background: #9a7bc8;
-        transform: translateY(-50%) scale(1.1);
-      }
-
-      /* 다크모드 지원 */
-      [data-theme="dark"] .bookmark-panel {
-        background: #2d3748;
-        color: #e2e8f0;
-      }
-
-      [data-theme="dark"] .bookmark-item {
-        border-color: #4a5568;
-      }
-
-      [data-theme="dark"] .bookmark-item:hover {
-        background: #374151;
-      }
-
-      [data-theme="dark"] .bookmark-item-title {
-        color: #e2e8f0;
-      }
-
-      [data-theme="dark"] .bookmark-item-date {
-        color: #a0aec0;
-      }
-
-      /* 모바일 대응 */
-      @media (max-width: 768px) {
-        .bookmark-panel {
-          width: 90%;
-          right: -90%;
-        }
-
-        .bookmark-toggle {
-          right: 20px;
-          bottom: 20px;
-          top: auto;
-          transform: none;
-        }
-
-        .bookmark-toggle:hover {
-          transform: scale(1.1);
-        }
-      }
-    `;
-    document.head.appendChild(style);
-  }
-
-  createBookmarkPanel() {
-    const panel = document.createElement("div");
-    panel.className = "bookmark-panel";
-    panel.innerHTML = `
-      <div class="bookmark-panel-header">
-        <div class="bookmark-panel-title">
-          <span>📚</span>
-          북마크 목록
-        </div>
-        <button class="bookmark-close-btn">×</button>
-      </div>
-      <ul class="bookmark-list">
-        ${this.renderBookmarkList()}
-      </ul>
-    `;
-
-    document.body.appendChild(panel);
-
-    // 토글 버튼 생성
-    const toggleBtn = document.createElement("button");
-    toggleBtn.className = "bookmark-toggle";
-    toggleBtn.innerHTML = "📚";
-    toggleBtn.title = "북마크 목록";
-    document.body.appendChild(toggleBtn);
-
-    this.attachPanelListeners(panel, toggleBtn);
-  }
-
-  attachBookmarkListeners(button) {
-    button.addEventListener("click", () => {
-      this.toggleBookmark();
-    });
-  }
-
-  attachPanelListeners(panel, toggleBtn) {
-    // 패널 토글
-    toggleBtn.addEventListener("click", () => {
-      panel.classList.toggle("open");
-    });
-
-    // 닫기 버튼
-    panel.querySelector(".bookmark-close-btn").addEventListener("click", () => {
-      panel.classList.remove("open");
-    });
-
-    // 북마크 항목 클릭
-    panel.addEventListener("click", (e) => {
-      if (e.target.classList.contains("bookmark-item-remove")) {
-        // 삭제 버튼
-        const item = e.target.closest(".bookmark-item");
-        const url = item.dataset.url;
-        this.removeBookmark(url);
-        this.updateBookmarkPanel();
-      } else if (e.target.closest(".bookmark-item")) {
-        // 북마크 항목
-        const item = e.target.closest(".bookmark-item");
-        const url = item.dataset.url;
-        window.location.href = url;
-      }
-    });
-  }
-
-  toggleBookmark() {
-    const isBookmarked = this.isBookmarked(this.currentPage.url);
-
-    if (isBookmarked) {
-      this.removeBookmark(this.currentPage.url);
-    } else {
-      this.addBookmark(this.currentPage);
-    }
-
-    this.updateBookmarkButton();
-    this.updateBookmarkPanel();
-  }
-
-  addBookmark(page) {
-    this.bookmarks[page.url] = {
-      title: page.title,
-      timestamp: page.timestamp,
-    };
-
-    this.saveBookmarks();
-
-    // GA 이벤트 전송
-    if (typeof gtag !== "undefined") {
-      gtag("event", "bookmark_add", {
-        event_category: "engagement",
-        event_label: page.url,
-      });
-    }
-  }
-
-  removeBookmark(url) {
-    delete this.bookmarks[url];
-    this.saveBookmarks();
-
-    // GA 이벤트 전송
-    if (typeof gtag !== "undefined") {
-      gtag("event", "bookmark_remove", {
-        event_category: "engagement",
-        event_label: url,
-      });
-    }
   }
 
   isBookmarked(url) {

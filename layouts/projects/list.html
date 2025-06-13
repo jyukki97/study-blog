@@ -1,0 +1,460 @@
+{{- define "main" }}
+<div class="projects-container">
+    <header class="projects-header">
+        <h1>{{- .Title -}}</h1>
+        {{- if .Content }}
+        <div class="projects-description">
+            {{- .Content -}}
+        </div>
+        {{- end }}
+    </header>
+
+    <!-- 프로젝트 카테고리 섹션 -->
+    <section class="project-categories">
+        <h2>📁 프로젝트 카테고리</h2>
+        <div class="category-grid">
+            {{- range .Pages }}
+            <div class="project-card">
+                <div class="project-icon">
+                    {{- if .Params.icon }}
+                        {{ .Params.icon | safeHTML }}
+                    {{- else }}
+                        🚀
+                    {{- end }}
+                </div>
+                <div class="project-info">
+                    <h3><a href="{{ .Permalink }}">{{ .Title }}</a></h3>
+                    <p class="project-description">{{ .Params.description | default .Summary }}</p>
+                    <div class="project-meta">
+                        {{- if .Params.status }}
+                        <span class="project-status status-{{ .Params.status }}">{{ .Params.status }}</span>
+                        {{- end }}
+                        {{- if .Params.tech }}
+                        <div class="project-tech">
+                            {{- range .Params.tech }}
+                            <span class="tech-tag">{{ . }}</span>
+                            {{- end }}
+                        </div>
+                        {{- end }}
+                    </div>
+                </div>
+            </div>
+            {{- end }}
+        </div>
+    </section>
+
+    <!-- 최근 프로젝트 포스트 섹션 -->
+    <section class="recent-project-posts">
+        <h2>📝 최근 프로젝트 포스트 (최근 10개)</h2>
+        <div class="posts-list">
+            {{- $projectPosts := where site.RegularPages "Section" "posts" }}
+            {{- $projectPosts = where $projectPosts "Params.project" "!=" nil }}
+            {{- range first 10 ($projectPosts.ByDate.Reverse) }}
+            <article class="project-post-item">
+                <div class="post-project-badge">
+                    [{{ .Params.project }}]
+                </div>
+                <h3><a href="{{ .Permalink }}">{{ .Title }}</a></h3>
+                <div class="post-meta">
+                    <time datetime="{{ .Date.Format "2006-01-02" }}">
+                        {{ .Date.Format "2006/01/02 15:04" }}
+                    </time>
+                    {{- if .Params.tags }}
+                    <div class="post-tags">
+                        {{- range .Params.tags }}
+                        <span class="tag">{{ . }}</span>
+                        {{- end }}
+                    </div>
+                    {{- end }}
+                </div>
+                {{- if .Summary }}
+                <p class="post-summary">{{ .Summary | truncate 100 }}</p>
+                {{- end }}
+            </article>
+            {{- end }}
+        </div>
+    </section>
+
+    <!-- 모든 프로젝트 포스트 섹션 -->
+    <section class="all-project-posts">
+        <h2>📚 모든 프로젝트 포스트</h2>
+        <div class="posts-grid">
+            {{- range $projectPosts.ByDate.Reverse }}
+            <article class="project-post-card">
+                <div class="post-header">
+                    <div class="post-project-badge">
+                        [{{ .Params.project }}]
+                    </div>
+                    <time datetime="{{ .Date.Format "2006-01-02" }}">
+                        {{ .Date.Format "2006/01/02" }}
+                    </time>
+                </div>
+                <h3><a href="{{ .Permalink }}">{{ .Title }}</a></h3>
+                {{- if .Summary }}
+                <p class="post-summary">{{ .Summary | truncate 80 }}</p>
+                {{- end }}
+                {{- if .Params.tags }}
+                <div class="post-tags">
+                    {{- range first 3 .Params.tags }}
+                    <span class="tag">{{ . }}</span>
+                    {{- end }}
+                </div>
+                {{- end }}
+            </article>
+            {{- end }}
+        </div>
+    </section>
+</div>
+
+<style>
+.projects-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2.5rem;
+}
+
+.projects-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.projects-header h1 {
+    font-size: 2.5rem;
+    color: var(--primary);
+    margin-bottom: 1rem;
+}
+
+.projects-description {
+    font-size: 1.1rem;
+    color: var(--secondary);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* 프로젝트 카테고리 스타일 */
+.project-categories {
+    margin-bottom: 4rem;
+}
+
+.project-categories h2 {
+    font-size: 1.8rem;
+    margin-bottom: 2rem;
+    color: var(--primary);
+    border-bottom: 2px solid var(--border);
+    padding-bottom: 0.5rem;
+}
+
+.category-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.project-card {
+    background: var(--theme);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.project-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    border-color: var(--primary);
+}
+
+.project-icon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.project-info h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.3rem;
+}
+
+.project-info h3 a {
+    color: var(--primary);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.project-info h3 a:hover {
+    color: var(--tertiary);
+}
+
+.project-description {
+    color: var(--secondary);
+    margin-bottom: 1rem;
+    line-height: 1.6;
+}
+
+.project-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.project-status {
+    padding: 0.2rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-진행중 {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+.status-완료 {
+    background: #e8f5e8;
+    color: #2e7d32;
+}
+
+.status-보류 {
+    background: #fff3e0;
+    color: #f57c00;
+}
+
+.project-tech {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+}
+
+.tech-tag {
+    background: var(--code-bg);
+    color: var(--primary);
+    padding: 0.2rem 0.5rem;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+/* 최근 포스트 스타일 */
+.recent-project-posts {
+    margin-bottom: 4rem;
+}
+
+.recent-project-posts h2 {
+    font-size: 1.8rem;
+    margin-bottom: 2rem;
+    color: var(--primary);
+    border-bottom: 2px solid var(--border);
+    padding-bottom: 0.5rem;
+}
+
+.posts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.project-post-item {
+    background: var(--theme);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.project-post-item:hover {
+    border-color: var(--primary);
+    transform: translateX(4px);
+}
+
+.post-project-badge {
+    display: inline-block;
+    background: var(--primary);
+    color: white;
+    padding: 0.3rem 0.8rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 0.8rem;
+}
+
+.project-post-item h3 {
+    margin: 0 0 0.8rem 0;
+    font-size: 1.2rem;
+}
+
+.project-post-item h3 a {
+    color: var(--primary);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.project-post-item h3 a:hover {
+    color: var(--tertiary);
+}
+
+.post-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 0.8rem;
+    font-size: 0.9rem;
+    color: var(--secondary);
+}
+
+.post-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+}
+
+.tag {
+    background: var(--code-bg);
+    color: var(--primary);
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.tag:hover {
+    background: var(--primary);
+    color: white;
+}
+
+.post-summary {
+    color: var(--secondary);
+    margin: 0;
+    line-height: 1.6;
+}
+
+/* 모든 포스트 그리드 스타일 */
+.all-project-posts h2 {
+    font-size: 1.8rem;
+    margin-bottom: 2rem;
+    color: var(--primary);
+    border-bottom: 2px solid var(--border);
+    padding-bottom: 0.5rem;
+}
+
+.posts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.project-post-card {
+    background: var(--theme);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.2rem;
+    transition: all 0.3s ease;
+    height: fit-content;
+}
+
+.project-post-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    border-color: var(--primary);
+}
+
+.post-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.8rem;
+}
+
+.project-post-card .post-project-badge {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.6rem;
+    margin-bottom: 0;
+}
+
+.project-post-card time {
+    font-size: 0.8rem;
+    color: var(--secondary);
+}
+
+.project-post-card h3 {
+    margin: 0 0 0.8rem 0;
+    font-size: 1.1rem;
+    line-height: 1.4;
+}
+
+.project-post-card h3 a {
+    color: var(--primary);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.project-post-card h3 a:hover {
+    color: var(--tertiary);
+}
+
+.project-post-card .post-summary {
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.project-post-card .post-tags {
+    margin-top: auto;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .projects-container {
+        padding: 1rem;
+    }
+    
+    .projects-header h1 {
+        font-size: 2rem;
+    }
+    
+    .category-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .posts-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .post-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+}
+
+/* 다크 모드 지원 */
+[data-theme="dark"] .project-card,
+[data-theme="dark"] .project-post-item,
+[data-theme="dark"] .project-post-card {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+[data-theme="dark"] .project-card:hover,
+[data-theme="dark"] .project-post-card:hover {
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+}
+
+[data-theme="dark"] .status-진행중 {
+    background: #1a237e;
+    color: #90caf9;
+}
+
+[data-theme="dark"] .status-완료 {
+    background: #1b5e20;
+    color: #a5d6a7;
+}
+
+[data-theme="dark"] .status-보류 {
+    background: #e65100;
+    color: #ffcc02;
+}
+</style>
+{{- end }}

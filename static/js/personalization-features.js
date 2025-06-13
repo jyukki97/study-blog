@@ -22,12 +22,6 @@ class PersonalizationFeatures {
     // 읽기 속도 조절
     this.initReadingSpeedControl();
 
-    // 개인 노트 기능
-    this.initPersonalNotes();
-
-    // 읽은 포스트 기록
-    this.initReadingHistory();
-
     // 설정 적용
     this.applySettings();
 
@@ -161,7 +155,6 @@ class PersonalizationFeatures {
 
     this.addSettingsStyles();
     this.attachSettingsListeners();
-    this.createSettingsToggle();
   }
 
   addSettingsStyles() {
@@ -549,19 +542,6 @@ class PersonalizationFeatures {
       }
     `;
     document.head.appendChild(style);
-  }
-
-  createSettingsToggle() {
-    const toggle = document.createElement("button");
-    toggle.className = "settings-toggle";
-    toggle.innerHTML = "⚙️";
-    toggle.title = "개인 설정";
-
-    toggle.addEventListener("click", () => {
-      this.openSettingsPanel();
-    });
-
-    document.body.appendChild(toggle);
   }
 
   attachSettingsListeners() {
@@ -955,43 +935,6 @@ class PersonalizationFeatures {
     );
   }
 
-  showReadingProgress() {
-    if (!this.settings.showReadingProgress) return;
-
-    const currentUrl = window.location.pathname;
-    const record = this.readingHistory[currentUrl];
-
-    if (record && record.scrollPercent > 0) {
-      this.createProgressIndicator(record);
-    }
-  }
-
-  createProgressIndicator(record) {
-    const indicator = document.createElement("div");
-    indicator.className = "reading-progress-indicator";
-    indicator.innerHTML = `
-      <div class="progress-text">
-        이전에 ${record.scrollPercent}% 읽었습니다
-        ${record.completed ? "(완료)" : ""}
-      </div>
-      <div class="progress-bar">
-        <div class="progress-fill" style="width: ${
-          record.scrollPercent
-        }%"></div>
-      </div>
-      <button class="progress-continue">이어서 읽기</button>
-    `;
-
-    // 포스트 상단에 삽입
-    const article = document.querySelector("article, .post, .content");
-    if (article) {
-      article.insertBefore(indicator, article.firstChild);
-    }
-
-    this.addProgressStyles();
-    this.attachProgressListeners(indicator, record);
-  }
-
   addProgressStyles() {
     const style = document.createElement("style");
     style.textContent = `
@@ -1078,17 +1021,6 @@ class PersonalizationFeatures {
       "night-mode",
       this.settings.nightMode
     );
-
-    // 개인 노트 기능
-    if (this.settings.personalNotes) {
-      this.createNotesInterface();
-    }
-
-    // 읽기 기록
-    if (this.settings.trackReadingHistory) {
-      this.trackCurrentPost();
-      this.showReadingProgress();
-    }
 
     // 폰트 버튼 상태 업데이트
     if (this.settingsPanel) {
