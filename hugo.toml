@@ -18,6 +18,8 @@ enableGitInfo = false
 # 빌드 성능 최적화
 timeout = "30s"
 enableEmoji = false
+canonifyURLs = true
+relativeURLs = false
 
 # 이미지 처리 최적화
 [imaging]
