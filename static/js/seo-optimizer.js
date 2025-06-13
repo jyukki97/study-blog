@@ -292,10 +292,10 @@ class SEOOptimizer {
   }
 
   addResourceHints() {
-    // 중요 리소스 프리로드
+    // 중요 리소스 프리로드 - 실제 사이트에서 사용하는 파일들
     const criticalResources = [
-      { href: "css/main.css", as: "style" },
-      { href: "js/main.js", as: "script" },
+      { href: "/css/design-improvements.css", as: "style" },
+      { href: "/js/blog-analytics.js", as: "script" },
     ];
 
     criticalResources.forEach((resource) => {
