@@ -291,13 +291,6 @@ body {
   color: var(--primary-hover);
 }
 
-/* 단락 개선 */
-.post-content p {
-  margin-bottom: 1.5rem;
-  text-align: justify;
-  word-break: keep-all;
-}
-
 /* 링크 스타일 개선 */
 .post-content a {
   color: var(--primary-color);
@@ -598,6 +591,10 @@ body {
   .toc-sidebar .toc a {
     font-size: 0.85rem;
     padding: 0.5rem 0.75rem;
+  }
+  
+  .toc-sidebar {
+    display: none !important;
   }
 }
 
