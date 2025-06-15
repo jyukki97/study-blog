@@ -14,7 +14,6 @@ links:
     url: "https://api.ecommerce.example.com/docs"
     icon: "📚"
 duration: "12주"
-tags: ["ecommerce", "nodejs", "mongodb", "fullstack"]
 ---
 
 # E-커머스 플랫폼 프로젝트

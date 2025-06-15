@@ -1,74 +1,161 @@
 {{ define "main" }}
-<main class="main">
-    {{ if .Site.Params.cover.enabled }}
-        {{ partial "cover.html" . }}
-    {{ end }}
-
-    <section class="terms-section">
-        <div class="terms-header">
-            <h2>{{ .Title }}</h2>
-        </div>
-
-        <div class="terms-grid">
+<div class="tags-container">
+    <!-- 태그 그리드 섹션 -->
+    <section class="tags-section">       
+        <div class="all-tags">
             {{ range .Data.Terms.Alphabetical }}
-                <a href="{{ .Page.RelPermalink }}" class="term-link">
-                    <span class="term-name">{{ .Page.Title }}</span>
-                    <span class="term-count">({{ .Count }})</span>
+                <a href="{{ .Page.RelPermalink }}" class="tag-link">
+                    {{ .Page.Title }} <span class="tag-count">({{ .Count }})</span>
                 </a>
             {{ end }}
         </div>
     </section>
-</main>
+</div>
 
 <style>
-.terms-section {
+/* 전체 컨테이너 */
+.tags-container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 2rem 1rem;
+    padding: 2rem;
+    padding-top: 3rem;
+    background: var(--theme);
+    min-height: 100vh;
 }
 
-.terms-header {
-    margin-bottom: 2rem;
-}
-
-.terms-header h2 {
-    margin: 0;
-    font-size: 1.5rem;
-    color: #b19cd9;
-}
-
-.terms-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 1rem;
-}
-
-.term-link {
+/* 섹션 헤더 */
+.section-header {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 1rem;
-    background: var(--entry);
-    border-radius: 8px;
-    text-decoration: none;
+    gap: 1rem;
+    margin-bottom: 3rem;
+}
+
+.section-header h2 {
+    font-size: 2rem;
+    font-weight: 600;
     color: var(--primary);
-    transition: all 0.2s;
-    border: 1px solid #b19cd9;
+    margin: 0;
 }
 
-.term-link:hover {
-    background: #b19cd9;
-    color: var(--bg);
+.section-line {
+    flex: 1;
+    height: 2px;
+    background: linear-gradient(to right, var(--primary-color, #b19cd9), transparent);
+    border-radius: 1px;
+}
+
+/* 태그 스타일 (홈화면과 동일) */
+.all-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    margin-bottom: 2rem;
+    line-height: 1.6;
+}
+
+.tag-link {
+    color: var(--primary-color, #b19cd9);
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 20px !important;
+    background: var(--bg-secondary, #f8f9fa);
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    border: 1px solid var(--primary-color, #b19cd9);
+    position: relative;
+    overflow: visible;
+    white-space: nowrap;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0.1rem 0;
+    min-height: 2rem;
+    box-sizing: border-box;
+}
+
+.tag-link::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, var(--primary-color, #b19cd9), var(--primary-hover, #9a7bc8));
+    transition: left 0.3s ease;
+    z-index: -1;
+    border-radius: 20px;
+}
+
+.tag-link:hover {
+    color: white;
     transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(177, 156, 217, 0.3);
+    border-radius: 20px !important;
 }
 
-.term-name {
+.tag-link:hover::before {
+    left: 0;
+}
+
+.tag-count {
+    opacity: 0.8;
     font-weight: 500;
 }
 
-.term-count {
-    color: inherit;
-    opacity: 0.8;
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .tags-container {
+        padding: 1rem;
+        padding-top: 2rem;
+    }
+    
+    .section-header h2 {
+        font-size: 1.6rem;
+    }
+    
+    .section-header {
+        margin-bottom: 2rem;
+    }
+    
+    .all-tags {
+        gap: 0.6rem;
+    }
+    
+    .tag-link {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.85rem;
+        min-height: 1.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .section-header h2 {
+        font-size: 1.4rem;
+    }
+    
+    .tag-link {
+        font-size: 0.8rem;
+        padding: 0.3rem 0.7rem;
+    }
+}
+
+/* 다크 모드 지원 */
+[data-theme="dark"] .tag-link {
+    background: var(--bg-secondary, #2d3748);
+    border-color: var(--primary-color, #b19cd9);
+    color: var(--primary-color, #b19cd9);
+}
+
+[data-theme="dark"] .tag-link:hover {
+    color: white;
 }
 </style>
 {{ end }}

@@ -1,311 +1,417 @@
 {{- define "main" }}
 <div class="project-single-container">
-    <header class="project-header">
-        <div class="project-meta">
+    <!-- 프로젝트 히어로 섹션 -->
+    <header class="project-hero">
+        <div class="hero-background">
+            <div class="floating-element"></div>
+            <div class="floating-element"></div>
+            <div class="floating-element"></div>
+        </div>
+        <div class="hero-content">
             <nav class="project-breadcrumb">
                 <a href="/projects/">Projects</a>
                 <span class="separator">→</span>
                 <span class="current">{{ .Title }}</span>
             </nav>
-            {{- if .Params.status }}
-            <span class="project-status status-{{ .Params.status }}">{{ .Params.status }}</span>
-            {{- end }}
-        </div>
-        
-        <h1 class="project-title">
-            {{- if .Params.icon }}
-            <span class="project-icon">{{ .Params.icon | safeHTML }}</span>
-            {{- end }}
-            {{ .Title }}
-        </h1>
-        
-        {{- if .Params.description }}
-        <p class="project-description">{{ .Params.description }}</p>
-        {{- end }}
-        
-        <div class="project-info-grid">
-            {{- if .Params.tech }}
-            <div class="project-tech-stack">
-                <h3>🛠️ 기술 스택</h3>
-                <div class="tech-tags">
-                    {{- range .Params.tech }}
-                    <span class="tech-tag">{{ . }}</span>
+            
+            <div class="project-header-main">
+                <div class="project-icon-title">
+                    {{- if .Params.icon }}
+                    <div class="project-hero-icon">{{ .Params.icon | safeHTML }}</div>
                     {{- end }}
+                    <h1 class="project-hero-title">{{ .Title }}</h1>
                 </div>
+                {{- if .Params.status }}
+                <span class="project-status status-{{ .Params.status }}">{{ .Params.status }}</span>
+                {{- end }}
             </div>
+            
+            {{- if .Params.description }}
+            <p class="project-hero-description">{{ .Params.description }}</p>
             {{- end }}
             
-            {{- if .Params.links }}
-            <div class="project-links">
-                <h3>🔗 링크</h3>
-                <div class="links-list">
-                    {{- range .Params.links }}
-                    <a href="{{ .url }}" target="_blank" rel="noopener" class="project-link">
-                        {{- if .icon }}{{ .icon | safeHTML }}{{- else }}🌐{{- end }}
-                        {{ .name }}
-                    </a>
-                    {{- end }}
+            <!-- 프로젝트 정보 통합 -->
+            <div class="hero-info-grid">
+                <div class="hero-info-item">
+                    <div class="info-header">
+                        <span class="info-icon">🛠️</span>
+                        <h3>기술 스택</h3>
+                    </div>
+                    <div class="tech-tags">
+                        {{- if .Params.tech }}
+                            {{- range .Params.tech }}
+                            <span class="tech-tag">{{ . }}</span>
+                            {{- end }}
+                        {{- else }}
+                            <span class="no-data">기술 스택 정보가 없습니다</span>
+                        {{- end }}
+                    </div>
                 </div>
-            </div>
-            {{- end }}
-            
-            <div class="project-timeline">
-                <h3>📅 타임라인</h3>
-                <div class="timeline-info">
-                    <div class="timeline-item">
-                        <span class="timeline-label">시작일:</span>
-                        <time>{{ .Date.Format "2006년 1월 2일" }}</time>
+                
+                <div class="hero-info-item">
+                    <div class="info-header">
+                        <span class="info-icon">🔗</span>
+                        <h3>프로젝트 링크</h3>
                     </div>
-                    {{- if .Params.endDate }}
-                    <div class="timeline-item">
-                        <span class="timeline-label">완료일:</span>
-                        <time>{{ .Params.endDate }}</time>
+                    <div class="project-links">
+                        {{- if .Params.links }}
+                            {{- range .Params.links }}
+                            <a href="{{ .url }}" target="_blank" rel="noopener" class="project-link">
+                                <span class="link-icon">{{- if .icon }}{{ .icon | safeHTML }}{{- else }}🌐{{- end }}</span>
+                                <span class="link-text">{{ .name }}</span>
+                                <span class="link-arrow">→</span>
+                            </a>
+                            {{- end }}
+                        {{- else }}
+                            <span class="no-data">프로젝트 링크가 없습니다</span>
+                        {{- end }}
                     </div>
-                    {{- end }}
-                    {{- if .Params.duration }}
-                    <div class="timeline-item">
-                        <span class="timeline-label">기간:</span>
-                        <span>{{ .Params.duration }}</span>
+                </div>
+                
+                <div class="hero-info-item">
+                    <div class="info-header">
+                        <span class="info-icon">📅</span>
+                        <h3>프로젝트 타임라인</h3>
                     </div>
-                    {{- end }}
+                    <div class="timeline-items">
+                        <div class="timeline-item">
+                            <span class="timeline-label">시작일</span>
+                            <time class="timeline-value">{{ .Date.Format "2006년 1월 2일" }}</time>
+                        </div>
+                        {{- if .Params.endDate }}
+                        <div class="timeline-item">
+                            <span class="timeline-label">완료일</span>
+                            <time class="timeline-value">{{ .Params.endDate }}</time>
+                        </div>
+                        {{- end }}
+                        {{- if .Params.duration }}
+                        <div class="timeline-item">
+                            <span class="timeline-label">진행 기간</span>
+                            <span class="timeline-value">{{ .Params.duration }}</span>
+                        </div>
+                        {{- end }}
+                    </div>
                 </div>
             </div>
         </div>
     </header>
 
-    <main class="project-content">
-        {{- if .Content }}
-        <div class="project-description-content">
-            {{ .Content }}
+    <!-- 프로젝트 콘텐츠 -->
+    {{- if .Content }}
+    <section class="project-content">
+        <div class="content-card">
+            <div class="content-header">
+                <h2>📋 프로젝트 상세</h2>
+            </div>
+            <div class="content-body">
+                {{ .Content }}
+            </div>
         </div>
-        {{- end }}
-    </main>
+    </section>
+    {{- end }}
 
-    <!-- 관련 포스트 섹션 -->
+    <!-- 최근 관련 포스트 섹션 -->
+    {{- $projectName := .Title }}
+    {{- $relatedPosts := where site.RegularPages "Params.project" $projectName }}
+    {{- if $relatedPosts }}
     <section class="related-posts">
-        <h2>📝 관련 포스트</h2>
-        {{- $projectName := .Title }}
-        {{- $relatedPosts := where site.RegularPages "Params.project" $projectName }}
-        {{- if $relatedPosts }}
+        <div class="section-header">
+            <h2>📝 최근 관련 포스트</h2>
+            <span class="post-count">{{ len $relatedPosts }}개의 포스트 중 최신 {{ if lt (len $relatedPosts) 5 }}{{ len $relatedPosts }}{{ else }}5{{ end }}개</span>
+        </div>
         <div class="related-posts-grid">
-            {{- range $relatedPosts.ByDate.Reverse }}
+            {{- range first 5 ($relatedPosts.ByDate.Reverse) }}
             <article class="related-post-card">
-                <div class="post-header">
+                <div class="post-card-header">
                     <time datetime="{{ .Date.Format "2006-01-02" }}">
-                        {{ .Date.Format "2006/01/02" }}
+                        {{ .Date | time.Format (default "January 2, 2006" site.Params.DateFormat) }}
                     </time>
                     {{- if .Params.series }}
                     <span class="post-series">{{ .Params.series }}</span>
                     {{- end }}
                 </div>
-                <h3><a href="{{ .Permalink }}">{{ .Title }}</a></h3>
+                <h3 class="post-card-title">
+                    <a href="{{ .Permalink }}">{{ .Title }}</a>
+                </h3>
                 {{- if .Summary }}
-                <p class="post-summary">{{ .Summary | truncate 120 }}</p>
+                <p class="post-card-summary">{{ .Summary | truncate 100 }}</p>
                 {{- end }}
                 {{- if .Params.tags }}
-                <div class="post-tags">
+                <div class="post-card-tags">
                     {{- range first 3 .Params.tags }}
-                    <span class="tag">{{ . }}</span>
+                    <span class="post-tag">{{ . }}</span>
+                    {{- end }}
+                    {{- if gt (len .Params.tags) 3 }}
+                    <span class="tag-more">+{{ sub (len .Params.tags) 3 }}</span>
                     {{- end }}
                 </div>
                 {{- end }}
-                <div class="post-footer">
-                    <span class="read-more">자세히 보기 →</span>
-                </div>
             </article>
             {{- end }}
         </div>
-        {{- else }}
-        <div class="no-posts">
-            <p>아직 관련 포스트가 없습니다. 곧 업데이트될 예정입니다!</p>
-        </div>
-        {{- end }}
-    </section>
-
-    <!-- 다른 프로젝트 둘러보기 -->
-    <section class="other-projects">
-        <h2>🚀 다른 프로젝트 둘러보기</h2>
-        <div class="other-projects-grid">
-            {{- $currentTitle := .Title }}
-            {{- range site.RegularPages }}
-                {{- if and (eq .Section "projects") (ne .Title $currentTitle) }}
-            <div class="other-project-card">
-                <div class="project-icon">
-                    {{- if .Params.icon }}
-                        {{ .Params.icon | safeHTML }}
-                    {{- else }}
-                        🚀
-                    {{- end }}
-                </div>
-                <h3><a href="{{ .Permalink }}">{{ .Title }}</a></h3>
-                <p>{{ .Params.description | default .Summary | truncate 80 }}</p>
-                {{- if .Params.status }}
-                <span class="project-status status-{{ .Params.status }}">{{ .Params.status }}</span>
-                {{- end }}
-            </div>
-                {{- end }}
+        <div class="project-posts-actions">
+            {{- if gt (len $relatedPosts) 5 }}
+            <a href="/posts/?project={{ .Title | urlize }}" class="view-all-project-posts">
+                <span class="action-icon">📋</span>
+                <span class="action-text">이 프로젝트의 모든 포스트 보기</span>
+                <span class="action-count">({{ len $relatedPosts }}개)</span>
+                <span class="action-arrow">→</span>
+            </a>
+            {{- else }}
+            <a href="/posts/?project={{ .Title | urlize }}" class="view-all-project-posts">
+                <span class="action-icon">📋</span>
+                <span class="action-text">이 프로젝트의 포스트 보기</span>
+                <span class="action-count">({{ len $relatedPosts }}개)</span>
+                <span class="action-arrow">→</span>
+            </a>
             {{- end }}
         </div>
     </section>
+    {{- end }}
+
+    <!-- 네비게이션 -->
+    <nav class="project-navigation">
+        <a href="/projects/" class="nav-back">
+            ← 프로젝트 목록으로
+        </a>
+    </nav>
 </div>
 
 <style>
+/* 전체 컨테이너 */
 .project-single-container {
-    max-width: 1000px;
+    max-width: 1200px;
     margin: 0 auto;
     padding: 2rem;
-    background: var(--entry);
+    padding-top: 5rem;
+    background: var(--theme);
     min-height: 100vh;
 }
 
-/* 프로젝트 헤더 */
-.project-header {
-    margin-bottom: 3rem;
-    background: linear-gradient(135deg, #b19cd9 0%, #9b7fc7 100%);
-    border-radius: 20px;
-    padding: 2.5rem;
-    color: white;
-    box-shadow: 0 12px 40px rgba(177, 156, 217, 0.3);
+/* 프로젝트 히어로 섹션 */
+.project-hero {
     position: relative;
+    background: linear-gradient(135deg, #b19cd9 0%, #9b7fc7 100%);
+    border-radius: 24px;
+    padding: 4rem 2rem;
+    margin-bottom: 3rem;
     overflow: hidden;
+    box-shadow: 0 20px 40px rgba(177, 156, 217, 0.15);
 }
 
-.project-header::before {
-    content: '';
+.hero-background {
     position: absolute;
-    top: -50%;
-    right: -50%;
-    width: 100%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-    animation: float 6s ease-in-out infinite;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+}
+
+.floating-element {
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: float 8s ease-in-out infinite;
+    will-change: transform;
+    transform: translateZ(0);
+}
+
+.floating-element:nth-child(1) {
+    top: 15%;
+    left: 15%;
+    animation-delay: 0s;
+}
+
+.floating-element:nth-child(2) {
+    top: 55%;
+    right: 20%;
+    animation-delay: 3s;
+}
+
+.floating-element:nth-child(3) {
+    bottom: 25%;
+    left: 25%;
+    animation-delay: 6s;
 }
 
 @keyframes float {
-    0%, 100% { transform: translateY(0px) rotate(0deg); }
-    50% { transform: translateY(-20px) rotate(180deg); }
+    0%, 100% { 
+        transform: translateY(0px) translateZ(0); 
+    }
+    50% { 
+        transform: translateY(-15px) translateZ(0); 
+    }
 }
 
-.project-meta {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
+.hero-content {
     position: relative;
     z-index: 2;
+    color: white;
 }
 
 .project-breadcrumb {
     font-size: 0.9rem;
-    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 2rem;
+    opacity: 0.9;
 }
 
 .project-breadcrumb a {
     color: white;
     text-decoration: none;
-    transition: all 0.3s ease;
-    padding: 0.2rem 0.5rem;
-    border-radius: 6px;
+    transition: opacity 0.2s ease;
 }
 
 .project-breadcrumb a:hover {
-    background: rgba(255, 255, 255, 0.2);
+    opacity: 0.8;
 }
 
 .separator {
     margin: 0 0.5rem;
-    color: rgba(255, 255, 255, 0.6);
+    opacity: 0.7;
 }
 
 .current {
-    font-weight: 600;
-    color: white;
+    opacity: 0.8;
 }
 
-.project-title {
-    font-size: 2.8rem;
-    color: white;
-    margin-bottom: 1rem;
+.project-header-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 2rem;
+    gap: 2rem;
+}
+
+.project-icon-title {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    position: relative;
-    z-index: 2;
-    text-shadow: 0 2px 8px rgba(0,0,0,0.2);
-}
-
-.project-icon {
-    font-size: 3rem;
-    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
-}
-
-.project-description {
-    font-size: 1.2rem;
-    color: rgba(255, 255, 255, 0.9);
-    margin-bottom: 2rem;
-    line-height: 1.6;
-    position: relative;
-    z-index: 2;
-}
-
-.project-info-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 1.5rem;
-    position: relative;
-    z-index: 2;
+    flex: 1;
 }
 
-.project-tech-stack,
-.project-links,
-.project-timeline {
-    background: rgba(255, 255, 255, 0.15);
+.project-hero-icon {
+    font-size: 4rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
     backdrop-filter: blur(10px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.project-hero-title {
+    font-size: 3rem;
+    font-weight: 700;
+    margin: 0;
+    text-shadow: 0 2px 20px rgba(0,0,0,0.1);
+    line-height: 1.2;
+}
+
+.project-status {
+    padding: 0.8rem 1.5rem;
+    border-radius: 25px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    white-space: nowrap;
+}
+
+.status-진행중 {
+    background: linear-gradient(135deg, #4facfe, #00f2fe);
+    color: white;
+}
+
+.status-완료 {
+    background: linear-gradient(135deg, #43e97b, #38f9d7);
+    color: white;
+}
+
+.status-보류 {
+    background: linear-gradient(135deg, #fa709a, #fee140);
+    color: white;
+}
+
+.status-기획 {
+    background: linear-gradient(135deg, #a8edea, #fed6e3);
+    color: #333;
+}
+
+.project-hero-description {
+    font-size: 1.3rem;
+    opacity: 0.95;
+    line-height: 1.6;
+    margin: 0 0 2rem 0;
+    max-width: 800px;
+}
+
+/* 히어로 정보 그리드 */
+.hero-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.hero-info-item {
+    background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 16px;
     padding: 1.5rem;
-    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    transition: all 0.2s ease;
 }
 
-.project-tech-stack:hover,
-.project-links:hover,
-.project-timeline:hover {
-    background: rgba(255, 255, 255, 0.2);
-    transform: translateY(-4px);
+.hero-info-item:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
 }
 
-.project-tech-stack h3,
-.project-links h3,
-.project-timeline h3 {
-    margin: 0 0 1rem 0;
-    font-size: 1.1rem;
+.info-header {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-bottom: 1rem;
+}
+
+.info-icon {
+    font-size: 1.5rem;
+}
+
+.info-header h3 {
     color: white;
+    font-size: 1.1rem;
     font-weight: 600;
+    margin: 0;
 }
 
 .tech-tags {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.6rem;
+    gap: 0.8rem;
 }
 
 .tech-tag {
     background: rgba(255, 255, 255, 0.2);
     color: white;
-    padding: 0.4rem 1rem;
-    border-radius: 20px;
-    font-size: 0.8rem;
+    padding: 0.5rem 1rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
     font-weight: 500;
     border: 1px solid rgba(255, 255, 255, 0.3);
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
 }
 
 .tech-tag:hover {
     background: rgba(255, 255, 255, 0.3);
-    transform: translateY(-2px);
+    transform: translateY(-1px);
 }
 
-.links-list {
+.project-links {
     display: flex;
     flex-direction: column;
     gap: 0.8rem;
@@ -314,126 +420,309 @@
 .project-link {
     display: flex;
     align-items: center;
-    gap: 0.8rem;
+    gap: 1rem;
+    padding: 1rem;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
     color: white;
     text-decoration: none;
-    padding: 0.6rem 1rem;
-    border-radius: 12px;
-    transition: all 0.3s ease;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.2s ease;
+    backdrop-filter: blur(5px);
 }
 
 .project-link:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.15));
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+}
+
+.link-icon {
+    font-size: 1.2rem;
+}
+
+.link-text {
+    flex: 1;
+    font-weight: 500;
+}
+
+.link-arrow {
+    font-size: 1.1rem;
+    transition: transform 0.2s ease;
+}
+
+.project-link:hover .link-arrow {
     transform: translateX(4px);
 }
 
-.timeline-info {
+.timeline-items {
     display: flex;
     flex-direction: column;
-    gap: 0.8rem;
+    gap: 1rem;
 }
 
 .timeline-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.4rem 0;
+    padding: 1rem;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.08));
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 12px;
+    backdrop-filter: blur(5px);
+    transition: all 0.2s ease;
+}
+
+.timeline-item:hover {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.12));
+    transform: translateY(-1px);
 }
 
 .timeline-label {
-    font-weight: 500;
     color: rgba(255, 255, 255, 0.8);
+    font-size: 0.9rem;
+    font-weight: 500;
 }
 
-/* 프로젝트 상태 */
-.project-status {
-    padding: 0.4rem 1rem;
-    border-radius: 20px;
-    font-size: 0.8rem;
+.timeline-value {
+    color: white;
     font-weight: 600;
-    text-transform: uppercase;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    backdrop-filter: blur(10px);
 }
 
-.status-진행중 {
-    background: rgba(33, 150, 243, 0.3);
-    color: #90caf9;
-    border-color: #64b5f6;
+/* 데이터 없음 표시 */
+.no-data {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.9rem;
+    font-style: italic;
+    text-align: center;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px dashed rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    width: 100%;
 }
 
-.status-완료 {
-    background: rgba(76, 175, 80, 0.3);
-    color: #a5d6a7;
-    border-color: #81c784;
+/* 정보 카드 섹션 */
+.project-info-section {
+    margin-bottom: 3rem;
 }
 
-.status-보류 {
-    background: rgba(255, 152, 0, 0.3);
-    color: #ffcc02;
-    border-color: #ffb74d;
+.info-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
 }
 
-.status-기획 {
-    background: rgba(156, 39, 176, 0.3);
-    color: #ce93d8;
-    border-color: #ba68c8;
+.info-card {
+    background: var(--entry);
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.06);
+    border: 1px solid var(--border);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.info-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 48px rgba(177, 156, 217, 0.1);
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.card-icon {
+    font-size: 1.8rem;
+    padding: 0.5rem;
+    background: linear-gradient(135deg, #b19cd9, #9b7fc7);
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(177, 156, 217, 0.2);
+}
+
+.card-header h3 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--primary);
+    margin: 0;
+}
+
+.tech-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+}
+
+.tech-tag {
+    background: var(--code-bg);
+    color: var(--primary-color, #b19cd9);
+    padding: 0.5rem 1rem;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border: 1px solid rgba(177, 156, 217, 0.2);
+    transition: all 0.2s ease;
+}
+
+.tech-tag:hover {
+    background: var(--primary-color, #b19cd9);
+    color: white;
+    transform: translateY(-1px);
+}
+
+.project-links {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.project-link {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: var(--code-bg);
+    border-radius: 12px;
+    text-decoration: none;
+    color: var(--primary-color, #b19cd9);
+    transition: all 0.2s ease;
+    border: 1px solid var(--border);
+}
+
+.project-link:hover {
+    background: var(--primary-color, #b19cd9);
+    color: white;
+    transform: translateX(4px);
+    box-shadow: 0 4px 16px rgba(177, 156, 217, 0.2);
+}
+
+.link-icon {
+    font-size: 1.2rem;
+}
+
+.link-text {
+    flex: 1;
+    font-weight: 500;
+}
+
+.link-arrow {
+    transition: transform 0.2s ease;
+}
+
+.project-link:hover .link-arrow {
+    transform: translateX(4px);
+}
+
+.timeline-items {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.timeline-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: var(--code-bg);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+}
+
+.timeline-label {
+    font-weight: 600;
+    color: var(--secondary);
+}
+
+.timeline-value {
+    font-weight: 500;
+    color: var(--primary);
 }
 
 /* 프로젝트 콘텐츠 */
 .project-content {
     margin-bottom: 3rem;
+}
+
+.content-card {
     background: var(--entry);
-    border-radius: 16px;
-    padding: 2.5rem;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.06);
     border: 1px solid var(--border);
+    overflow: hidden;
 }
 
-.project-description-content {
-    color: var(--content);
-    line-height: 1.8;
-    font-size: 1.1rem;
+.content-header {
+    padding: 2rem 2rem 0;
+    border-bottom: 1px solid var(--border);
 }
 
-.project-description-content h2,
-.project-description-content h3 {
-    color: #b19cd9;
-    margin-top: 2.5rem;
-    margin-bottom: 1.2rem;
+.content-header h2 {
+    font-size: 1.8rem;
     font-weight: 600;
-    position: relative;
+    color: var(--primary);
+    margin: 0 0 2rem;
+    background: linear-gradient(135deg, var(--primary-color, #b19cd9), var(--primary-dark, #8a67b8));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
-.project-description-content h2::after {
-    content: '';
-    position: absolute;
-    bottom: -0.5rem;
-    left: 0;
-    width: 50px;
-    height: 3px;
-    background: linear-gradient(90deg, #b19cd9, #9b7fc7);
-    border-radius: 2px;
+.content-body {
+    padding: 2rem;
+    line-height: 1.8;
 }
 
-.project-description-content pre {
+.content-body h1,
+.content-body h2,
+.content-body h3,
+.content-body h4,
+.content-body h5,
+.content-body h6 {
+    color: var(--primary);
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+}
+
+.content-body p {
+    margin-bottom: 1.5rem;
+    color: var(--secondary);
+}
+
+.content-body ul,
+.content-body ol {
+    margin-bottom: 1.5rem;
+    padding-left: 2rem;
+}
+
+.content-body li {
+    margin-bottom: 0.5rem;
+    color: var(--secondary);
+}
+
+.content-body code {
+    background: var(--code-bg);
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+    font-size: 0.9em;
+    color: var(--primary-color, #b19cd9);
+}
+
+.content-body pre {
     background: var(--code-bg);
     padding: 1.5rem;
     border-radius: 12px;
     overflow-x: auto;
-    border: 1px solid var(--border);
-    box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+    margin-bottom: 1.5rem;
 }
 
-.project-description-content code {
-    background: linear-gradient(135deg, rgba(177, 156, 217, 0.1), rgba(155, 127, 199, 0.1));
-    color: #b19cd9;
-    padding: 0.3rem 0.6rem;
-    border-radius: 6px;
-    font-size: 0.9em;
-    border: 1px solid rgba(177, 156, 217, 0.2);
+.content-body blockquote {
+    border-left: 4px solid var(--primary-color, #b19cd9);
+    background: var(--code-bg);
+    padding: 1rem 1.5rem;
+    margin: 1.5rem 0;
+    border-radius: 0 12px 12px 0;
 }
 
 /* 관련 포스트 */
@@ -441,24 +730,31 @@
     margin-bottom: 3rem;
 }
 
-.related-posts h2 {
-    font-size: 1.8rem;
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 2rem;
-    color: var(--primary);
-    border-bottom: 3px solid #b19cd9;
-    padding-bottom: 0.5rem;
-    position: relative;
 }
 
-.related-posts h2::after {
-    content: '';
-    position: absolute;
-    bottom: -3px;
-    left: 0;
-    width: 80px;
-    height: 3px;
-    background: linear-gradient(90deg, #b19cd9, #9b7fc7);
-    border-radius: 2px;
+.section-header h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin: 0;
+    background: linear-gradient(135deg, var(--primary-color, #b19cd9), var(--primary-dark, #8a67b8));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.post-count {
+    background: var(--primary-color, #b19cd9);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
 }
 
 .related-posts-grid {
@@ -469,290 +765,391 @@
 
 .related-post-card {
     background: var(--entry);
-    border: 1px solid var(--border);
     border-radius: 16px;
-    padding: 1.8rem;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-    position: relative;
-    overflow: hidden;
-}
-
-.related-post-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, #b19cd9, #9b7fc7);
+    padding: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    border: 1px solid var(--border);
+    transition: all 0.2s ease;
 }
 
 .related-post-card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 16px 40px rgba(177, 156, 217, 0.2);
-    border-color: #b19cd9;
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(177, 156, 217, 0.1);
 }
 
-.related-post-card .post-header {
+.post-card-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 1rem;
-    font-size: 0.9rem;
+}
+
+.post-card-header time {
     color: var(--secondary);
+    font-size: 0.9rem;
 }
 
 .post-series {
-    background: linear-gradient(135deg, #b19cd9, #9b7fc7);
-    color: white;
+    background: var(--code-bg);
+    color: var(--primary-color, #b19cd9);
     padding: 0.3rem 0.8rem;
-    border-radius: 16px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    box-shadow: 0 2px 8px rgba(177, 156, 217, 0.3);
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
 }
 
-.related-post-card h3 {
-    margin: 0 0 1rem 0;
+.post-card-title {
+    margin: 0 0 1rem;
     font-size: 1.2rem;
     font-weight: 600;
 }
 
-.related-post-card h3 a {
+.post-card-title a {
     color: var(--primary);
     text-decoration: none;
-    transition: all 0.3s ease;
+    transition: color 0.2s ease;
 }
 
-.related-post-card h3 a:hover {
-    color: #b19cd9;
+.post-card-title a:hover {
+    color: var(--primary-color, #b19cd9);
 }
 
-.related-post-card .post-summary {
+.post-card-summary {
     color: var(--secondary);
-    margin-bottom: 1rem;
     line-height: 1.6;
+    margin-bottom: 1rem;
 }
 
-.related-post-card .post-tags {
+.post-card-tags {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.4rem;
-    margin-bottom: 1rem;
+    gap: 0.5rem;
 }
 
-.tag {
-    background: linear-gradient(135deg, rgba(177, 156, 217, 0.1), rgba(155, 127, 199, 0.1));
-    color: #b19cd9;
+.post-tag {
+    background: var(--code-bg);
+    color: var(--primary-color, #b19cd9);
     padding: 0.3rem 0.8rem;
-    border-radius: 16px;
-    font-size: 0.75rem;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    border: 1px solid rgba(177, 156, 217, 0.2);
+    border-radius: 12px;
+    font-size: 0.85rem;
     font-weight: 500;
+    border: 1px solid rgba(177, 156, 217, 0.1);
 }
 
-.tag:hover {
-    background: linear-gradient(135deg, #b19cd9, #9b7fc7);
+.tag-more {
+    background: var(--primary-color, #b19cd9);
     color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(177, 156, 217, 0.3);
+    padding: 0.3rem 0.8rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    align-content: center;
 }
 
-.post-footer {
-    text-align: right;
+/* 프로젝트 포스트 액션 */
+.project-posts-actions {
+    text-align: center;
+    margin-top: 2rem;
 }
 
-.read-more {
-    color: #b19cd9;
-    font-size: 0.9rem;
+.view-all-project-posts {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.8rem;
+    background: linear-gradient(135deg, var(--primary-color, #b19cd9), #9b7fc7);
+    color: white;
+    text-decoration: none;
+    padding: 1.2rem 2rem;
+    border-radius: 20px;
     font-weight: 600;
+    border: none;
     transition: all 0.3s ease;
-}
-
-.read-more:hover {
-    color: #9b7fc7;
-}
-
-.no-posts {
-    text-align: center;
-    padding: 3rem;
-    color: var(--secondary);
-    background: var(--entry);
-    border: 2px dashed rgba(177, 156, 217, 0.3);
-    border-radius: 16px;
-    position: relative;
-}
-
-.no-posts::before {
-    content: '📝';
-    display: block;
-    font-size: 3rem;
-    margin-bottom: 1rem;
-    opacity: 0.5;
-}
-
-/* 다른 프로젝트 */
-.other-projects h2 {
-    font-size: 1.8rem;
-    margin-bottom: 2rem;
-    color: var(--primary);
-    border-bottom: 3px solid #b19cd9;
-    padding-bottom: 0.5rem;
-    position: relative;
-}
-
-.other-projects h2::after {
-    content: '';
-    position: absolute;
-    bottom: -3px;
-    left: 0;
-    width: 120px;
-    height: 3px;
-    background: linear-gradient(90deg, #b19cd9, #9b7fc7);
-    border-radius: 2px;
-}
-
-.other-projects-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1.5rem;
-}
-
-.other-project-card {
-    background: var(--entry);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 1.5rem;
-    text-align: center;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    box-shadow: 0 4px 20px rgba(177, 156, 217, 0.3);
     position: relative;
     overflow: hidden;
 }
 
-.other-project-card::before {
+.view-all-project-posts::before {
     content: '';
     position: absolute;
     top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, #b19cd9, #9b7fc7);
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s ease;
 }
 
-.other-project-card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 16px 40px rgba(177, 156, 217, 0.2);
-    border-color: #b19cd9;
+.view-all-project-posts:hover::before {
+    left: 100%;
 }
 
-.other-project-card .project-icon {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+.view-all-project-posts:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 32px rgba(177, 156, 217, 0.4);
 }
 
-.other-project-card h3 {
-    margin: 0 0 0.8rem 0;
+.action-icon {
     font-size: 1.2rem;
+}
+
+.action-text {
+    font-size: 1rem;
     font-weight: 600;
 }
 
-.other-project-card h3 a {
-    color: var(--primary);
-    text-decoration: none;
-    transition: all 0.3s ease;
-}
-
-.other-project-card h3 a:hover {
-    color: #b19cd9;
-}
-
-.other-project-card p {
-    color: var(--secondary);
-    margin-bottom: 1rem;
-    font-size: 0.9rem;
-    line-height: 1.5;
-}
-
-.other-project-card .project-status {
-    background: linear-gradient(135deg, rgba(177, 156, 217, 0.1), rgba(155, 127, 199, 0.1));
-    color: #b19cd9;
-    border: 1px solid rgba(177, 156, 217, 0.2);
-    font-size: 0.7rem;
+.action-count {
+    background: rgba(255, 255, 255, 0.2);
     padding: 0.3rem 0.8rem;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.action-arrow {
+    font-size: 1.1rem;
+    transition: transform 0.3s ease;
+}
+
+.view-all-project-posts:hover .action-arrow {
+    transform: translateX(4px);
+}
+
+/* 모든 포스트 보기 링크 */
+.view-all-posts {
+    text-align: center;
+    margin-top: 2rem;
+}
+
+.view-all-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--entry);
+    color: var(--primary-color, #b19cd9);
+    text-decoration: none;
+    padding: 1rem 2rem;
+    border-radius: 16px;
+    font-weight: 500;
+    border: 2px solid var(--primary-color, #b19cd9);
+    transition: all 0.2s ease;
+}
+
+.view-all-link:hover {
+    background: var(--primary-color, #b19cd9);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(177, 156, 217, 0.2);
+}
+
+/* 네비게이션 */
+.project-navigation {
+    text-align: center;
+    padding: 2rem 0;
+}
+
+.nav-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--entry);
+    color: var(--primary-color, #b19cd9);
+    text-decoration: none;
+    padding: 1rem 2rem;
+    border-radius: 16px;
+    font-weight: 500;
+    border: 2px solid var(--primary-color, #b19cd9);
+    transition: all 0.2s ease;
+}
+
+.nav-back:hover {
+    background: var(--primary-color, #b19cd9);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(177, 156, 217, 0.2);
 }
 
 /* 반응형 디자인 */
 @media (max-width: 768px) {
     .project-single-container {
         padding: 1rem;
+        padding-top: 4rem;
     }
     
-    .project-header {
-        padding: 2rem 1.5rem;
-        margin-bottom: 2rem;
+    .project-hero {
+        padding: 3rem 1.5rem;
     }
     
-    .project-title {
-        font-size: 2.2rem;
-        flex-direction: column;
-        text-align: center;
-        gap: 0.5rem;
-    }
-    
-    .project-meta {
+    .project-header-main {
         flex-direction: column;
         align-items: flex-start;
+        gap: 1.5rem;
+    }
+    
+    .project-icon-title {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
         gap: 1rem;
     }
     
-    .project-info-grid {
+    .project-hero-title {
+        font-size: 2.2rem;
+    }
+    
+    .project-hero-icon {
+        font-size: 3rem;
+    }
+    
+    .hero-info-grid {
         grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .hero-info-item {
+        padding: 1.2rem;
+    }
+    
+    .project-links {
+        gap: 0.6rem;
+    }
+    
+    .project-link {
+        padding: 0.8rem;
     }
     
     .related-posts-grid {
         grid-template-columns: 1fr;
     }
     
-    .other-projects-grid {
-        grid-template-columns: 1fr;
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
     }
     
-    .project-content {
-        padding: 1.5rem;
+    .view-all-project-posts {
+        padding: 1rem 1.5rem;
+        font-size: 0.9rem;
+        gap: 0.6rem;
+    }
+    
+    .action-text {
+        font-size: 0.9rem;
+    }
+    
+    .action-count {
+        font-size: 0.8rem;
+        padding: 0.2rem 0.6rem;
+    }
+    
+    .floating-element {
+        animation-duration: 12s;
+    }
+}
+
+@media (max-width: 480px) {
+    .project-hero-title {
+        font-size: 1.8rem;
+    }
+    
+    .project-hero-icon {
+        font-size: 2.5rem;
+        animation: none;
+    }
+    
+    .floating-element {
+        display: none;
+    }
+    
+    .timeline-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
     }
 }
 
 /* 다크 모드 지원 */
-.dark .project-header {
+[data-theme="dark"] .project-hero {
     background: linear-gradient(135deg, #7b5a9e 0%, #6b4b8a 100%);
-    box-shadow: 0 12px 40px rgba(123, 90, 158, 0.4);
 }
 
-.dark .project-tech-stack,
-.dark .project-links,
-.dark .project-timeline {
+[data-theme="dark"] .hero-info-item {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .no-data {
+    color: rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .hero-info-item:hover {
     background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
-.dark .project-content,
-.dark .related-post-card,
-.dark .other-project-card {
-    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+[data-theme="dark"] .tech-tag {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.9);
 }
 
-.dark .related-post-card:hover,
-.dark .other-project-card:hover {
-    box-shadow: 0 16px 40px rgba(177, 156, 217, 0.4);
+[data-theme="dark"] .project-link {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+    border-color: rgba(255, 255, 255, 0.15);
 }
 
-.dark .no-posts {
-    border-color: rgba(177, 156, 217, 0.2);
+[data-theme="dark"] .project-link:hover {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.08));
+}
+
+[data-theme="dark"] .timeline-item {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.03));
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+[data-theme="dark"] .timeline-item:hover {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.06));
+}
+
+[data-theme="dark"] .content-card,
+[data-theme="dark"] .related-post-card {
+    background: var(--bg-secondary, #2d3748);
+    border-color: var(--border-color, #4a5568);
+}
+
+[data-theme="dark"] .post-tag,
+[data-theme="dark"] .post-series {
+    background: var(--bg-tertiary, #4a5568);
+    border-color: var(--primary-color, #b19cd9);
+    color: var(--primary-color, #b19cd9);
+}
+
+[data-theme="dark"] .nav-back,
+[data-theme="dark"] .view-all-link {
+    background: var(--bg-secondary, #2d3748);
+    border-color: var(--primary-color, #b19cd9);
+    color: var(--primary-color, #b19cd9);
+}
+
+[data-theme="dark"] .view-all-project-posts {
+    background: linear-gradient(135deg, #7b5a9e, #6b4b8a);
+    box-shadow: 0 4px 20px rgba(123, 90, 158, 0.4);
+}
+
+[data-theme="dark"] .view-all-project-posts:hover {
+    box-shadow: 0 8px 32px rgba(123, 90, 158, 0.5);
+}
+
+[data-theme="dark"] .action-count {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+[data-theme="dark"] .nav-back:hover,
+[data-theme="dark"] .view-all-link:hover {
+    background: var(--primary-color, #b19cd9);
+    color: white;
 }
 </style>
 {{- end }}

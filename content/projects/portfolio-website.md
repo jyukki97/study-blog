@@ -14,7 +14,6 @@ links:
     url: "https://portfolio.example.com"
     icon: "🌐"
 duration: "4주"
-tags: ["portfolio", "react", "typescript", "web"]
 ---
 
 # 포트폴리오 웹사이트 프로젝트

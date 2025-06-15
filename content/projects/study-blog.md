@@ -14,7 +14,6 @@ links:
     url: "https://jyukki.dev"
     icon: "🌐"
 duration: "6주"
-tags: ["blog", "hugo", "web", "javascript"]
 ---
 
 # Study Blog 프로젝트

@@ -15,9 +15,25 @@
                     <a href="{{ "tags" | absURL }}" class="more-link">More →</a>
                 </div>
                 <div class="all-tags">
-                    {{ range .Site.Taxonomies.tags }}
-                        <a href="{{ .Page.Permalink }}" class="tag-link">
-                            {{ .Page.Title }}
+                    {{ $tags := .Site.Taxonomies.tags }}
+                    {{ $tagsList := slice }}
+                    {{ range $tagName, $tagData := $tags }}
+                        {{ if gt (len $tagData) 0 }}
+                            {{ $tagsList = $tagsList | append (dict "name" $tagName "data" $tagData "count" (len $tagData)) }}
+                        {{ end }}
+                    {{ end }}
+                    {{ $sortedTags := sort $tagsList "count" "desc" }}
+                    {{ range $index, $tag := $sortedTags }}
+                        <a href="#" class="tag-link" data-index="{{ $index }}" data-tag="{{ .name }}" onclick="filterPostsByTag('{{ .name }}', this); return false;">
+                            {{ .name }} <span class="tag-count">({{ .count }})</span>
+                        </a>
+                    {{ end }}
+                    <a href="#" class="tag-link show-all-posts" onclick="showAllPosts(this); return false;" style="display: none;">
+                        전체 보기
+                    </a>
+                    {{ if gt (len $sortedTags) 18 }}
+                        <a href="{{ "tags" | absURL }}" class="tag-link more-tags" style="display: none;">
+                            <span class="more-text"></span>
                         </a>
                     {{ end }}
                 </div>
@@ -34,11 +50,13 @@
         <div class="post-grid">
             {{ $pages := .Pages }}
             {{ if .IsHome }}
-                {{ $pages = .Site.RegularPages }}
+                {{ $pages = where .Site.RegularPages "Section" "posts" }}
             {{ end }}
             {{ $paginator := .Paginate $pages }}
             {{ range $paginator.Pages }}
-                <article class="post-entry">
+                <article class="post-entry" 
+                         data-tags="{{ if .Params.tags }}{{ delimit .Params.tags "," }}{{ end }}"
+                         data-project="{{ if .Params.project }}{{ .Params.project }}{{ end }}">
                     {{ if .Params.cover.image }}
                         <a class="post-cover" href="{{ .Permalink }}">
                             <img src="{{ .Params.cover.image | absURL }}" alt="{{ .Title }}">
@@ -58,12 +76,6 @@
                                         <a href="{{ "tags/" | absURL }}{{ . | urlize }}" class="post-tag">{{ . }}</a>
                                     {{ end }}
                                 </div>
-                                {{ if gt (len .Params.tags) 3 }}
-                                <button class="show-more-tags" onclick="toggleTags('{{ .Permalink | urlize }}')">
-                                    <span class="show-text">더보기 (+{{ sub (len .Params.tags) 3 }})</span>
-                                    <span class="hide-text" style="display: none;">접기</span>
-                                </button>
-                                {{ end }}
                             </div>
                         {{ end }}
                         <h2 class="post-title">
@@ -101,7 +113,6 @@
     margin: 2rem 0;
     padding: 0 1rem;
     display: flex;
-    justify-content: space-between;
     align-items: center;
 }
 
@@ -216,7 +227,7 @@
     cursor: pointer;
     font-size: 0.9rem;
     padding: 0.5rem 1rem;
-    transition: all 0.3s ease;
+    transition: all 0.15s ease;
     border-radius: 20px;
     margin: 0.1rem 0 0 0;
     border: 1px solid transparent;
@@ -268,7 +279,6 @@
 
 .tags-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
     margin-bottom: 1rem;
 }
@@ -292,7 +302,7 @@
     padding: 0.5rem 1rem; /* 패딩 조정 */
     border-radius: 20px !important;
     background: var(--bg-secondary, #f8f9fa);
-    transition: all 0.3s ease;
+    transition: all 0.15s ease;
     font-size: 0.9rem;
     border: 1px solid var(--primary-color, #b19cd9);
     position: relative;
@@ -341,6 +351,62 @@
 .more-link {
     font-size: 0.9rem;
     padding: 0.3rem 0.8rem;
+    background: transparent !important;
+    border: none !important;
+    color: var(--primary-color, #b19cd9) !important;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.15s ease;
+}
+
+.more-link:hover {
+    color: var(--primary-hover, #9a7bc8) !important;
+    transform: translateX(4px);
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+.more-link::before {
+    display: none;
+}
+
+/* 더보기 태그 스타일 */
+.more-tags {
+    background: var(--primary-color, #b19cd9) !important;
+    color: white !important;
+    border: 1px solid var(--primary-color, #b19cd9) !important;
+}
+
+.more-tags:hover {
+    background: var(--primary-hover, #9a7bc8) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(177, 156, 217, 0.4);
+}
+
+/* 활성화된 태그 스타일 */
+.tag-link.active {
+    background: var(--primary-color, #b19cd9) !important;
+    color: white !important;
+    border: 1px solid var(--primary-color, #b19cd9) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(177, 156, 217, 0.4);
+}
+
+/* 전체 보기 태그 스타일 */
+.show-all-posts {
+    background: var(--secondary-color, #64748b) !important;
+    color: white !important;
+}
+
+.show-all-posts:hover {
+    background: var(--secondary-hover, #475569) !important;
+}
+
+/* 태그 개수 스타일 */
+.tag-count {
+    opacity: 0.7;
+    font-size: 0.8em;
+    margin-left: 0.2rem;
 }
 
 .pagination {
@@ -406,7 +472,7 @@
 [data-theme="dark"] .more-link:hover,
 [data-theme="dark"] .pagination a:hover {
     color: white;
-    border-radius: 20px !important; /* 다크모드에서도 둥근 모서리 유지 */
+    border-radius: 20px !important; /* 다크모드에서도 둥글린 모서리 유지 */
 }
 
 [data-theme="dark"] .pagination a:hover {
@@ -424,6 +490,32 @@
     border-radius: 16px !important;
 }
 
+[data-theme="dark"] .more-tags {
+    background: var(--primary-color, #b19cd9) !important;
+    color: white !important;
+    border: 1px solid var(--primary-color, #b19cd9) !important;
+}
+
+[data-theme="dark"] .more-tags:hover {
+    background: var(--primary-hover, #9a7bc8) !important;
+}
+
+[data-theme="dark"] .tag-link.active {
+    background: var(--primary-color, #b19cd9) !important;
+    color: white !important;
+    border: 1px solid var(--primary-color, #b19cd9) !important;
+}
+
+[data-theme="dark"] .show-all-posts {
+    background: var(--secondary-color, #64748b) !important;
+    color: white !important;
+    border: 1px solid var(--secondary-color, #64748b) !important;
+}
+
+[data-theme="dark"] .show-all-posts:hover {
+    background: var(--secondary-hover, #475569) !important;
+}
+
 /* 모바일 반응형 */
 @media (max-width: 768px) {
     .post-grid {
@@ -435,14 +527,7 @@
     .tags-section {
         padding: 0 0.5rem;
     }
-    
-    .post-header,
-    .tags-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1rem;
-    }
-    
+
     .post-header h2,
     .tags-header h2 {
         font-size: 1.5rem;
@@ -458,7 +543,7 @@
     .more-link {
         font-size: 0.8rem;
         padding: 0.5rem 0.8rem; /* 패딩 증가 */
-        border-radius: 16px !important; /* 모바일에서는 덜 둥글게 */
+        border-radius: 20px !important; /* 모바일에서는 덜 둥글게 */
         margin: 0.2rem 0; /* 상하 마진 추가 */
         min-height: 2rem; /* 최소 높이 설정 */
     }
@@ -512,5 +597,192 @@ function toggleTags(postId) {
         hideText.style.display = 'inline';
     }
 }
+
+function adjustTagDisplay() {
+    const allTags = document.querySelector('.all-tags');
+    if (!allTags) return;
+    
+    const tagLinks = allTags.querySelectorAll('.tag-link:not(.more-tags)');
+    const moreTagsLink = allTags.querySelector('.more-tags');
+    const moreText = allTags.querySelector('.more-text');
+    
+    if (tagLinks.length === 0) return;
+    
+    let maxTags;
+    const width = window.innerWidth;
+    
+    // 디바이스별 태그 개수 설정
+    if (width <= 768) {
+        maxTags = 8; // 모바일: 8개
+    } else if (width <= 1024) {
+        maxTags = 12; // 태블릿: 12개
+    } else {
+        maxTags = 18; // 데스크톱: 18개
+    }
+    
+    // 태그 표시/숨김 처리
+    tagLinks.forEach((tag, index) => {
+        if (index < maxTags) {
+            tag.style.display = 'inline-flex';
+        } else {
+            tag.style.display = 'none';
+        }
+    });
+    
+    // 더보기 링크 처리
+    if (moreTagsLink && tagLinks.length > maxTags) {
+        const hiddenCount = tagLinks.length - maxTags;
+        moreText.textContent = `+${hiddenCount}개 더보기`;
+        moreTagsLink.style.display = 'inline-flex';
+    } else if (moreTagsLink) {
+        moreTagsLink.style.display = 'none';
+    }
+}
+
+// 페이지 로드 시와 창 크기 변경 시 실행
+document.addEventListener('DOMContentLoaded', adjustTagDisplay);
+window.addEventListener('resize', adjustTagDisplay);
+
+// 태그별 포스트 필터링 함수
+function filterPostsByTag(tagName, clickedElement) {
+    const allPosts = document.querySelectorAll('.post-entry');
+    const allTagLinks = document.querySelectorAll('.tag-link:not(.more-tags):not(.show-all-posts)');
+    const showAllButton = document.querySelector('.show-all-posts');
+    
+    // 모든 태그에서 active 클래스 제거
+    allTagLinks.forEach(tag => tag.classList.remove('active'));
+    
+    // 클릭된 태그에 active 클래스 추가
+    clickedElement.classList.add('active');
+    
+    // 전체 보기 버튼 표시
+    if (showAllButton) {
+        showAllButton.style.display = 'inline-flex';
+        adjustTagDisplay(); // 태그 표시 재조정
+    }
+    
+    let visibleCount = 0;
+    
+    // 포스트 필터링
+    allPosts.forEach(post => {
+        const postTags = post.getAttribute('data-tags');
+        if (postTags && postTags.toLowerCase().includes(tagName.toLowerCase())) {
+            post.style.display = 'block';
+            visibleCount++;
+        } else {
+            post.style.display = 'none';
+        }
+    });
+    
+    // 포스트 헤더 업데이트
+    updatePostHeader(tagName, visibleCount);
+    
+    // 포스트 섹션으로 스크롤 (부드럽게)
+    const postHeader = document.querySelector('.post-header');
+    if (postHeader) {
+        postHeader.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+}
+
+// 모든 포스트 보기 함수
+function showAllPosts(clickedElement) {
+    const allPosts = document.querySelectorAll('.post-entry');
+    const allTagLinks = document.querySelectorAll('.tag-link:not(.more-tags):not(.show-all-posts)');
+    const showAllButton = document.querySelector('.show-all-posts');
+    
+    // 모든 태그에서 active 클래스 제거
+    allTagLinks.forEach(tag => tag.classList.remove('active'));
+    
+    // 전체 보기 버튼 숨기기
+    if (showAllButton) {
+        showAllButton.style.display = 'none';
+        adjustTagDisplay(); // 태그 표시 재조정
+    }
+    
+    // 모든 포스트 표시
+    allPosts.forEach(post => {
+        post.style.display = 'block';
+    });
+    
+    // 포스트 헤더를 원래대로 복원
+    updatePostHeader(null, allPosts.length);
+}
+
+// 포스트 헤더 업데이트 함수
+function updatePostHeader(tagName, count) {
+    const postHeader = document.querySelector('.post-header h2');
+    if (postHeader) {
+        if (tagName) {
+            postHeader.innerHTML = `Posts <span style="color: var(--primary-color, #b19cd9); font-size: 0.8em;">#${tagName} (${count})</span>`;
+        } else {
+            postHeader.textContent = 'Posts';
+        }
+    }
+}
+
+// 프로젝트별 포스트 필터링 함수
+function filterPostsByProject(projectName) {
+    const allPosts = document.querySelectorAll('.post-entry');
+    const allTagLinks = document.querySelectorAll('.tag-link:not(.more-tags):not(.show-all-posts)');
+    const showAllButton = document.querySelector('.show-all-posts');
+    
+    // 모든 태그에서 active 클래스 제거
+    allTagLinks.forEach(tag => tag.classList.remove('active'));
+    
+    // 전체 보기 버튼 표시
+    if (showAllButton) {
+        showAllButton.style.display = 'inline-flex';
+        adjustTagDisplay();
+    }
+    
+    let visibleCount = 0;
+    
+    // 포스트 필터링
+    allPosts.forEach(post => {
+        const postProject = post.getAttribute('data-project');
+        if (postProject && postProject.toLowerCase() === projectName.toLowerCase()) {
+            post.style.display = 'block';
+            visibleCount++;
+        } else {
+            post.style.display = 'none';
+        }
+    });
+    
+    // 포스트 헤더 업데이트
+    updateProjectHeader(projectName, visibleCount);
+    
+    // 포스트 섹션으로 스크롤
+    const postHeader = document.querySelector('.post-header');
+    if (postHeader) {
+        postHeader.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+}
+
+// 프로젝트별 헤더 업데이트 함수
+function updateProjectHeader(projectName, count) {
+    const postHeader = document.querySelector('.post-header h2');
+    if (postHeader) {
+        if (projectName) {
+            postHeader.innerHTML = `Posts <span style="color: var(--primary-color, #b19cd9); font-size: 0.8em;">🚀${projectName} (${count})</span>`;
+        } else {
+            postHeader.textContent = 'Posts';
+        }
+    }
+}
+
+// URL 파라미터 확인 및 자동 필터링
+document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const projectParam = urlParams.get('project');
+    
+    if (projectParam) {
+        // URL 디코딩
+        const projectName = decodeURIComponent(projectParam).replace(/-/g, ' ');
+        filterPostsByProject(projectName);
+    }
+    
+    // 기존 태그 디스플레이 조정
+    adjustTagDisplay();
+});
 </script>
 {{ end }}

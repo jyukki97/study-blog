@@ -1,185 +1,286 @@
 {{- define "main" }}
 <div class="projects-container">
-    <header class="projects-header">
-        <h1>{{- .Title -}}</h1>
-        {{- if .Content }}
-        <div class="projects-description">
-            {{- .Content -}}
+    <!-- 프로젝트 히어로 섹션 -->
+    <header class="projects-hero">
+        <div class="hero-content">
+            <div class="hero-icon">🚀</div>
+            <h1 class="hero-title">{{- .Title -}}</h1>
+            {{- if .Content }}
+            <p class="hero-description">{{- .Content -}}</p>
+            {{- end }}
         </div>
-        {{- end }}
+        <div class="hero-background">
+            <div class="floating-element"></div>
+            <div class="floating-element"></div>
+            <div class="floating-element"></div>
+        </div>
     </header>
 
     <!-- 프로젝트 카테고리 섹션 -->
     <section class="project-categories">
-        <h2>📁 프로젝트 카테고리</h2>
-        <div class="category-grid">
+        <div class="section-header">
+            <h2>📁 프로젝트</h2>
+            <div class="section-line"></div>
+        </div>
+        <div class="projects-grid">
             {{- range .Pages }}
-            <div class="project-card">
-                <div class="project-icon">
-                    {{- if .Params.icon }}
-                        {{ .Params.icon | safeHTML }}
-                    {{- else }}
-                        🚀
+            <article class="project-card">
+                <div class="project-card-header">
+                    <div class="project-icon">
+                        {{- if .Params.icon }}
+                            {{ .Params.icon | safeHTML }}
+                        {{- else }}
+                            🚀
+                        {{- end }}
+                    </div>
+                    {{- if .Params.status }}
+                    <span class="project-status status-{{ .Params.status }}">{{ .Params.status }}</span>
                     {{- end }}
                 </div>
                 <div class="project-info">
-                    <h3><a href="{{ .Permalink }}">{{ .Title }}</a></h3>
+                    <h3 class="project-title">
+                        <a href="{{ .Permalink }}">{{ .Title }}</a>
+                    </h3>
                     <p class="project-description">{{ .Params.description | default .Summary }}</p>
-                    <div class="project-meta">
-                        {{- if .Params.status }}
-                        <span class="project-status status-{{ .Params.status }}">{{ .Params.status }}</span>
+                    {{- if .Params.tech }}
+                    <div class="project-tech">
+                        {{- range first 3 .Params.tech }}
+                        <span class="tech-tag">{{ . }}</span>
                         {{- end }}
-                        {{- if .Params.tech }}
-                        <div class="project-tech">
-                            {{- range .Params.tech }}
-                            <span class="tech-tag">{{ . }}</span>
-                            {{- end }}
-                        </div>
+                        {{- if gt (len .Params.tech) 3 }}
+                        <span class="tech-more">+{{ sub (len .Params.tech) 3 }}</span>
                         {{- end }}
                     </div>
+                    {{- end }}
                 </div>
-            </div>
+                <div class="project-card-footer">
+                    <a href="{{ .Permalink }}" class="view-project-btn">
+                        프로젝트 보기 <span class="arrow">→</span>
+                    </a>
+                </div>
+            </article>
             {{- end }}
         </div>
     </section>
 
     <!-- 최근 프로젝트 포스트 섹션 -->
     <section class="recent-project-posts">
-        <h2>📝 최근 프로젝트 포스트 (최근 10개)</h2>
-        <div class="posts-list">
+        <div class="section-header">
+            <h2><span class="section-icon">●</span> 최근 프로젝트 포스트</h2>
+            <div class="section-line"></div>
+        </div>
+        <div class="recent-posts-grid">
             {{- $projectPosts := where site.RegularPages "Section" "posts" }}
             {{- $projectPosts = where $projectPosts "Params.project" "!=" nil }}
-            {{- range first 10 ($projectPosts.ByDate.Reverse) }}
-            <article class="project-post-item">
-                <div class="post-project-badge">
-                    [{{ .Params.project }}]
-                </div>
-                <h3><a href="{{ .Permalink }}">{{ .Title }}</a></h3>
-                <div class="post-meta">
+            {{- range first 6 ($projectPosts.ByDate.Reverse) }}
+            <article class="recent-post-card">
+                <div class="post-card-header">
+                    <span class="post-project-badge">{{ .Params.project }}</span>
                     <time datetime="{{ .Date.Format "2006-01-02" }}">
-                        {{ .Date.Format "2006/01/02 15:04" }}
+                        {{ .Date | time.Format (default "January 2, 2006" site.Params.DateFormat) }}
                     </time>
-                    {{- if .Params.tags }}
-                    <div class="post-tags">
-                        {{- range .Params.tags }}
-                        <span class="tag">{{ . }}</span>
-                        {{- end }}
-                    </div>
+                </div>
+                <h3 class="post-card-title">
+                    <a href="{{ .Permalink }}">{{ .Title }}</a>
+                </h3>
+                {{- if .Summary }}
+                <p class="post-card-summary">{{ .Summary | truncate 100 }}</p>
+                {{- end }}
+                {{- if .Params.tags }}
+                <div class="post-card-tags">
+                    {{- range first 3 .Params.tags }}
+                    <span class="post-tag">{{ . }}</span>
+                    {{- end }}
+                    {{- if gt (len .Params.tags) 3 }}
+                    <span class="tag-more">+{{ sub (len .Params.tags) 3 }}</span>
                     {{- end }}
                 </div>
-                {{- if .Summary }}
-                <p class="post-summary">{{ .Summary | truncate 100 }}</p>
                 {{- end }}
             </article>
             {{- end }}
         </div>
-    </section>
-
-    <!-- 모든 프로젝트 포스트 섹션 -->
-    <section class="all-project-posts">
-        <h2>📚 모든 프로젝트 포스트</h2>
-        <div class="posts-grid">
-            {{- range $projectPosts.ByDate.Reverse }}
-            <article class="project-post-card">
-                <div class="post-header">
-                    <div class="post-project-badge">
-                        [{{ .Params.project }}]
-                    </div>
-                    <time datetime="{{ .Date.Format "2006-01-02" }}">
-                        {{ .Date.Format "2006/01/02" }}
-                    </time>
-                </div>
-                <h3><a href="{{ .Permalink }}">{{ .Title }}</a></h3>
-                {{- if .Summary }}
-                <p class="post-summary">{{ .Summary | truncate 80 }}</p>
-                {{- end }}
-                {{- if .Params.tags }}
-                <div class="post-tags">
-                    {{- range first 3 .Params.tags }}
-                    <span class="tag">{{ . }}</span>
-                    {{- end }}
-                </div>
-                {{- end }}
-            </article>
-            {{- end }}
+        <div class="view-all-posts">
+            <a href="/posts/" class="view-all-btn">
+                모든 포스트 보기 <span class="arrow">→</span>
+            </a>
         </div>
     </section>
 </div>
 
 <style>
+/* 전체 컨테이너 */
 .projects-container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 2.5rem;
-    background: var(--entry);
+    padding: 2rem;
+    padding-top: 5rem; /* 헤더 높이를 고려한 상단 패딩 */
+    background: var(--theme);
     min-height: 100vh;
 }
 
-.projects-header {
-    text-align: center;
-    margin-bottom: 3rem;
-    padding: 2rem 0;
+/* 히어로 섹션 */
+.projects-hero {
+    position: relative;
     background: linear-gradient(135deg, #b19cd9 0%, #9b7fc7 100%);
-    border-radius: 16px;
-    color: white;
-    box-shadow: 0 8px 32px rgba(177, 156, 217, 0.3);
+    border-radius: 24px;
+    padding: 4rem 2rem;
+    margin-bottom: 4rem;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(177, 156, 217, 0.15);
 }
 
-.projects-header h1 {
-    font-size: 2.5rem;
+.hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
     color: white;
+}
+
+.hero-icon {
+    font-size: 4rem;
     margin-bottom: 1rem;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    display: inline-block;
+    animation: heroFloat 4s ease-in-out infinite;
+    will-change: transform;
+    transform: translateZ(0);
 }
 
-.projects-description {
-    font-size: 1.1rem;
-    color: rgba(255, 255, 255, 0.9);
+.hero-title {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    text-shadow: 0 2px 20px rgba(0,0,0,0.1);
+    background: linear-gradient(135deg, #ffffff 0%, #f0f8ff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.hero-description {
+    font-size: 1.2rem;
+    opacity: 0.95;
     max-width: 600px;
     margin: 0 auto;
     line-height: 1.6;
 }
 
-/* 프로젝트 카테고리 스타일 */
-.project-categories {
-    margin-bottom: 4rem;
-}
-
-.project-categories h2 {
-    font-size: 1.8rem;
-    margin-bottom: 2rem;
-    color: var(--primary);
-    border-bottom: 3px solid #b19cd9;
-    padding-bottom: 0.5rem;
-    position: relative;
-}
-
-.project-categories h2::after {
-    content: '';
+.hero-background {
     position: absolute;
-    bottom: -3px;
+    top: 0;
     left: 0;
-    width: 60px;
-    height: 3px;
-    background: linear-gradient(90deg, #b19cd9, #9b7fc7);
-    border-radius: 2px;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
 }
 
-.category-grid {
+.floating-element {
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: float 8s ease-in-out infinite;
+    will-change: transform;
+    transform: translateZ(0); /* GPU 가속 활성화 */
+}
+
+.floating-element:nth-child(1) {
+    top: 15%;
+    left: 15%;
+    animation-delay: 0s;
+}
+
+.floating-element:nth-child(2) {
+    top: 55%;
+    right: 20%;
+    animation-delay: 3s;
+}
+
+.floating-element:nth-child(3) {
+    bottom: 25%;
+    left: 25%;
+    animation-delay: 6s;
+}
+
+@keyframes float {
+    0%, 100% { 
+        transform: translateY(0px) translateZ(0); 
+    }
+    50% { 
+        transform: translateY(-15px) translateZ(0); 
+    }
+}
+
+@keyframes heroFloat {
+    0%, 100% { 
+        transform: translateY(0px) translateZ(0); 
+    }
+    50% { 
+        transform: translateY(-8px) translateZ(0); 
+    }
+}
+
+/* 섹션 헤더 */
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.section-header h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin: 0;
+    background: linear-gradient(135deg, var(--primary-color, #b19cd9), var(--primary-dark, #8a67b8));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.section-icon {
+    background: linear-gradient(135deg, var(--primary-color, #b19cd9), var(--primary-dark, #8a67b8));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-size: 1.5rem;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.section-line {
+    flex: 1;
+    height: 2px;
+    background: linear-gradient(90deg, var(--primary-color, #b19cd9), transparent);
+    border-radius: 1px;
+}
+
+/* 프로젝트 그리드 */
+.projects-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
+    margin-bottom: 4rem;
 }
 
 .project-card {
     background: var(--entry);
+    border-radius: 20px;
+    padding: 0;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.06);
     border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 2rem;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-    position: relative;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
     overflow: hidden;
+    position: relative;
+    will-change: transform;
 }
 
 .project-card::before {
@@ -189,432 +290,386 @@
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(90deg, #b19cd9, #9b7fc7);
+    background: linear-gradient(135deg, #b19cd9, #9b7fc7);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.2s ease;
+    will-change: transform;
 }
 
 .project-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 16px 40px rgba(177, 156, 217, 0.25);
-    border-color: #b19cd9;
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(177, 156, 217, 0.12);
+}
+
+.project-card:hover::before {
+    transform: scaleX(1);
+}
+
+.project-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 1.5rem 0;
 }
 
 .project-icon {
-    font-size: 3rem;
-    margin-bottom: 1.5rem;
-    text-align: center;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+    font-size: 2.5rem;
+    padding: 0.5rem;
+    background: linear-gradient(135deg, #b19cd9, #9b7fc7);
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(177, 156, 217, 0.15);
 }
 
-.project-info h3 {
-    margin: 0 0 0.8rem 0;
+.project-title {
+    margin: 0 0 0.5rem;
     font-size: 1.4rem;
     font-weight: 600;
 }
 
-.project-info h3 a {
+.project-title a {
     color: var(--primary);
     text-decoration: none;
-    transition: all 0.3s ease;
-    background: linear-gradient(135deg, transparent 0%, transparent 100%);
-    background-size: 0% 2px;
-    background-repeat: no-repeat;
-    background-position: 0% 100%;
+    transition: color 0.2s ease;
 }
 
-.project-info h3 a:hover {
-    color: #b19cd9;
-    background: linear-gradient(135deg, #b19cd9 0%, #9b7fc7 100%);
-    background-size: 100% 2px;
+.project-title a:hover {
+    color: var(--primary-color, #b19cd9);
 }
 
 .project-description {
     color: var(--secondary);
-    margin-bottom: 1.5rem;
     line-height: 1.6;
-    font-size: 0.95rem;
+    margin-bottom: 1rem;
 }
 
-.project-meta {
+.project-tech {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.8rem;
-    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
 }
 
+.tech-tag {
+    background: var(--code-bg);
+    color: var(--primary-color, #b19cd9);
+    padding: 0.3rem 0.8rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    border: 1px solid rgba(177, 156, 217, 0.2);
+}
+
+.tech-more {
+    background: var(--primary-color, #b19cd9);
+    color: white;
+    padding: 0.3rem 0.8rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.project-card-footer {
+    padding: 0 1.5rem 1.5rem;
+}
+
+.view-project-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, #b19cd9, #9b7fc7);
+    color: white;
+    text-decoration: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 16px;
+    font-weight: 500;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 2px 8px rgba(177, 156, 217, 0.15);
+    will-change: transform;
+}
+
+.view-project-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(177, 156, 217, 0.25);
+}
+
+.view-project-btn .arrow {
+    transition: transform 0.2s ease;
+}
+
+.view-project-btn:hover .arrow {
+    transform: translateX(3px);
+}
+
+/* 프로젝트 상태 */
 .project-status {
     padding: 0.4rem 1rem;
     border-radius: 20px;
     font-size: 0.8rem;
     font-weight: 600;
     text-transform: uppercase;
-    border: 2px solid transparent;
-    transition: all 0.3s ease;
+    letter-spacing: 0.5px;
 }
 
 .status-진행중 {
-    background: linear-gradient(135deg, #e3f2fd, #bbdefb);
-    color: #1976d2;
-    border-color: #90caf9;
+    background: linear-gradient(135deg, #4facfe, #00f2fe);
+    color: white;
 }
 
 .status-완료 {
-    background: linear-gradient(135deg, #e8f5e8, #c8e6c9);
-    color: #2e7d32;
-    border-color: #81c784;
+    background: linear-gradient(135deg, #43e97b, #38f9d7);
+    color: white;
 }
 
 .status-보류 {
-    background: linear-gradient(135deg, #fff3e0, #ffe0b2);
-    color: #f57c00;
-    border-color: #ffb74d;
+    background: linear-gradient(135deg, #fa709a, #fee140);
+    color: white;
 }
 
 .status-기획 {
-    background: linear-gradient(135deg, #f3e5f5, #e1bee7);
-    color: #7b1fa2;
-    border-color: #ce93d8;
+    background: linear-gradient(135deg, #a8edea, #fed6e3);
+    color: #333;
 }
 
-.project-tech {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-}
-
-.tech-tag {
-    background: linear-gradient(135deg, rgba(177, 156, 217, 0.1), rgba(155, 127, 199, 0.1));
-    color: #b19cd9;
-    padding: 0.3rem 0.8rem;
-    border-radius: 12px;
-    font-size: 0.75rem;
-    font-weight: 500;
-    border: 1px solid rgba(177, 156, 217, 0.2);
-    transition: all 0.3s ease;
-}
-
-.tech-tag:hover {
-    background: linear-gradient(135deg, #b19cd9, #9b7fc7);
-    color: white;
-    transform: translateY(-2px);
-}
-
-/* 최근 포스트 스타일 */
+/* 최근 포스트 섹션 */
 .recent-project-posts {
     margin-bottom: 4rem;
 }
 
-.recent-project-posts h2 {
-    font-size: 1.8rem;
-    margin-bottom: 2rem;
-    color: var(--primary);
-    border-bottom: 3px solid #b19cd9;
-    padding-bottom: 0.5rem;
-    position: relative;
-}
-
-.recent-project-posts h2::after {
-    content: '';
-    position: absolute;
-    bottom: -3px;
-    left: 0;
-    width: 80px;
-    height: 3px;
-    background: linear-gradient(90deg, #b19cd9, #9b7fc7);
-    border-radius: 2px;
-}
-
-.posts-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1.2rem;
-}
-
-.project-post-item {
-    background: var(--entry);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 1.8rem;
-    transition: all 0.3s ease;
-    position: relative;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.05);
-}
-
-.project-post-item::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 4px;
-    background: linear-gradient(180deg, #b19cd9, #9b7fc7);
-    border-radius: 0 2px 2px 0;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.project-post-item:hover {
-    border-color: #b19cd9;
-    transform: translateX(8px);
-    box-shadow: 0 8px 32px rgba(177, 156, 217, 0.15);
-}
-
-.project-post-item:hover::before {
-    opacity: 1;
-}
-
-.post-project-badge {
-    display: inline-block;
-    background: linear-gradient(135deg, #b19cd9, #9b7fc7);
-    color: white;
-    padding: 0.4rem 1rem;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    margin-bottom: 1rem;
-    box-shadow: 0 2px 8px rgba(177, 156, 217, 0.3);
-}
-
-.project-post-item h3 {
-    margin: 0 0 1rem 0;
-    font-size: 1.3rem;
-    font-weight: 600;
-}
-
-.project-post-item h3 a {
-    color: var(--primary);
-    text-decoration: none;
-    transition: all 0.3s ease;
-}
-
-.project-post-item h3 a:hover {
-    color: #b19cd9;
-}
-
-.post-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    align-items: center;
-    margin-bottom: 1rem;
-    font-size: 0.9rem;
-    color: var(--secondary);
-}
-
-.post-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-}
-
-.tag {
-    background: linear-gradient(135deg, rgba(177, 156, 217, 0.1), rgba(155, 127, 199, 0.1));
-    color: #b19cd9;
-    padding: 0.3rem 0.8rem;
-    border-radius: 16px;
-    font-size: 0.75rem;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    border: 1px solid rgba(177, 156, 217, 0.2);
-    font-weight: 500;
-}
-
-.tag:hover {
-    background: linear-gradient(135deg, #b19cd9, #9b7fc7);
-    color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(177, 156, 217, 0.3);
-}
-
-.post-summary {
-    color: var(--secondary);
-    margin: 0;
-    line-height: 1.6;
-    font-size: 0.95rem;
-}
-
-/* 모든 포스트 그리드 스타일 */
-.all-project-posts h2 {
-    font-size: 1.8rem;
-    margin-bottom: 2rem;
-    color: var(--primary);
-    border-bottom: 3px solid #b19cd9;
-    padding-bottom: 0.5rem;
-    position: relative;
-}
-
-.all-project-posts h2::after {
-    content: '';
-    position: absolute;
-    bottom: -3px;
-    left: 0;
-    width: 100px;
-    height: 3px;
-    background: linear-gradient(90deg, #b19cd9, #9b7fc7);
-    border-radius: 2px;
-}
-
-.posts-grid {
+.recent-posts-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 1.5rem;
+    margin-bottom: 2rem;
 }
 
-.project-post-card {
+.recent-post-card {
     background: var(--entry);
-    border: 1px solid var(--border);
     border-radius: 16px;
     padding: 1.5rem;
-    transition: all 0.3s ease;
-    height: fit-content;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-    position: relative;
-    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+    border: 1px solid var(--border);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    will-change: transform;
 }
 
-.project-post-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, #b19cd9, #9b7fc7);
+.recent-post-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(177, 156, 217, 0.08);
 }
 
-.project-post-card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 16px 40px rgba(177, 156, 217, 0.2);
-    border-color: #b19cd9;
-}
-
-.post-header {
+.post-card-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 1rem;
 }
 
-.project-post-card .post-project-badge {
-    font-size: 0.75rem;
+.post-project-badge {
+    background: var(--primary-color, #b19cd9);
+    color: white;
     padding: 0.3rem 0.8rem;
-    margin-bottom: 0;
-    border-radius: 16px;
-}
-
-.project-post-card time {
+    border-radius: 12px;
     font-size: 0.8rem;
-    color: var(--secondary);
-    font-weight: 500;
-}
-
-.project-post-card h3 {
-    margin: 0 0 1rem 0;
-    font-size: 1.2rem;
-    line-height: 1.4;
     font-weight: 600;
 }
 
-.project-post-card h3 a {
+.post-card-header time {
+    color: var(--secondary);
+    font-size: 0.9rem;
+}
+
+.post-card-title {
+    margin: 0 0 1rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.post-card-title a {
     color: var(--primary);
     text-decoration: none;
-    transition: all 0.3s ease;
+    transition: color 0.3s ease;
 }
 
-.project-post-card h3 a:hover {
-    color: #b19cd9;
+.post-card-title a:hover {
+    color: var(--primary-color, #b19cd9);
 }
 
-.project-post-card .post-summary {
-    font-size: 0.9rem;
-    margin-bottom: 1.2rem;
-    line-height: 1.5;
+.post-card-summary {
+    color: var(--secondary);
+    line-height: 1.6;
+    margin-bottom: 1rem;
 }
 
-.project-post-card .post-tags {
-    margin-top: auto;
+.post-card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.post-tag {
+    background: var(--code-bg);
+    color: var(--primary-color, #b19cd9);
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    border: 1px solid rgba(177, 156, 217, 0.2);
+}
+
+.tag-more {
+    background: var(--primary-color, #b19cd9);
+    color: white;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    align-content: center;
+}
+
+.view-all-posts {
+    text-align: center;
+}
+
+.view-all-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--entry);
+    color: var(--primary-color, #b19cd9);
+    text-decoration: none;
+    padding: 1rem 2rem;
+    border-radius: 16px;
+    font-weight: 500;
+    border: 2px solid var(--primary-color, #b19cd9);
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+    will-change: transform;
+}
+
+.view-all-btn:hover {
+    background: var(--primary-color, #b19cd9);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(177, 156, 217, 0.2);
+}
+
+.view-all-btn .arrow {
+    transition: transform 0.3s ease;
+}
+
+.view-all-btn:hover .arrow {
+    transform: translateX(4px);
 }
 
 /* 반응형 디자인 */
 @media (max-width: 768px) {
     .projects-container {
         padding: 1rem;
+        padding-top: 4rem; /* 모바일에서 헤더 높이를 고려한 상단 패딩 */
     }
     
-    .projects-header {
-        padding: 1.5rem 1rem;
-        margin-bottom: 2rem;
+    .projects-hero {
+        padding: 3rem 1.5rem;
+        margin-bottom: 3rem;
     }
     
-    .projects-header h1 {
+    .hero-title {
+        font-size: 2.2rem;
+    }
+    
+    .hero-description {
+        font-size: 1rem;
+    }
+    
+    .projects-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .recent-posts-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .section-header h2 {
+        font-size: 1.6rem;
+    }
+    
+    .project-card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .project-icon {
         font-size: 2rem;
     }
     
-    .category-grid {
-        grid-template-columns: 1fr;
+    /* 모바일에서 애니메이션 최소화 */
+    .floating-element {
+        animation-duration: 12s;
     }
     
-    .posts-grid {
-        grid-template-columns: 1fr;
+    .hero-icon {
+        animation-duration: 6s;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-title {
+        font-size: 1.8rem;
     }
     
-    .post-meta {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.5rem;
+    .hero-icon {
+        font-size: 3rem;
+        animation: none; /* 작은 화면에서 애니메이션 비활성화 */
+    }
+    
+    .floating-element {
+        display: none; /* 작은 화면에서 플로팅 요소 숨김 */
+    }
+    }
+    
+    .projects-grid {
+        grid-template-columns: 1fr;
     }
     
     .project-card {
-        padding: 1.5rem;
-    }
-    
-    .project-post-item {
-        padding: 1.5rem;
+        margin: 0;
     }
 }
 
 /* 다크 모드 지원 */
-.dark .projects-header {
+[data-theme="dark"] .projects-hero {
     background: linear-gradient(135deg, #7b5a9e 0%, #6b4b8a 100%);
-    box-shadow: 0 8px 32px rgba(123, 90, 158, 0.3);
 }
 
-.dark .project-card,
-.dark .project-post-item,
-.dark .project-post-card {
-    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+[data-theme="dark"] .project-card {
+    background: var(--bg-secondary, #2d3748);
+    border-color: var(--border-color, #4a5568);
 }
 
-.dark .project-card:hover,
-.dark .project-post-card:hover {
-    box-shadow: 0 16px 40px rgba(177, 156, 217, 0.4);
+[data-theme="dark"] .recent-post-card {
+    background: var(--bg-secondary, #2d3748);
+    border-color: var(--border-color, #4a5568);
 }
 
-.dark .project-post-item:hover {
-    box-shadow: 0 8px 32px rgba(177, 156, 217, 0.3);
+[data-theme="dark"] .tech-tag,
+[data-theme="dark"] .post-tag {
+    background: var(--bg-tertiary, #4a5568);
+    border-color: var(--primary-color, #b19cd9);
+    color: var(--primary-color, #b19cd9);
 }
 
-.dark .status-진행중 {
-    background: linear-gradient(135deg, #1a237e, #283593);
-    color: #90caf9;
-    border-color: #5c6bc0;
+[data-theme="dark"] .view-all-btn {
+    background: var(--bg-secondary, #2d3748);
+    border-color: var(--primary-color, #b19cd9);
+    color: var(--primary-color, #b19cd9);
 }
 
-.dark .status-완료 {
-    background: linear-gradient(135deg, #1b5e20, #2e7d32);
-    color: #a5d6a7;
-    border-color: #66bb6a;
-}
-
-.dark .status-보류 {
-    background: linear-gradient(135deg, #e65100, #f57c00);
-    color: #ffcc02;
-    border-color: #ff9800;
-}
-
-.dark .status-기획 {
-    background: linear-gradient(135deg, #4a148c, #6a1b9a);
-    color: #ce93d8;
-    border-color: #ab47bc;
+[data-theme="dark"] .view-all-btn:hover {
+    background: var(--primary-color, #b19cd9);
+    color: white;
 }
 </style>
 {{- end }}
