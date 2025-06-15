@@ -1,0 +1,9 @@
+{{- /* Footer custom content area start */ -}}
+{{- /*     Insert any custom code web-analytics, resources, etc. here */ -}}
+{{- /* Footer custom content area end */ -}}
+
+<!-- 분석 및 통계 위젯 (Phase 3.3) -->
+{{ if site.Params.stats.enabled }}
+  <div id="analytics-widgets-root"></div>
+  <script src="{{ "js/blog-analytics.js" | relURL }}" defer></script>
+{{ end }}

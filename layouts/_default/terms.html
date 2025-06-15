@@ -1,0 +1,74 @@
+{{ define "main" }}
+<main class="main">
+    {{ if .Site.Params.cover.enabled }}
+        {{ partial "cover.html" . }}
+    {{ end }}
+
+    <section class="terms-section">
+        <div class="terms-header">
+            <h2>{{ .Title }}</h2>
+        </div>
+
+        <div class="terms-grid">
+            {{ range .Data.Terms.Alphabetical }}
+                <a href="{{ .Page.RelPermalink }}" class="term-link">
+                    <span class="term-name">{{ .Page.Title }}</span>
+                    <span class="term-count">({{ .Count }})</span>
+                </a>
+            {{ end }}
+        </div>
+    </section>
+</main>
+
+<style>
+.terms-section {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+.terms-header {
+    margin-bottom: 2rem;
+}
+
+.terms-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #b19cd9;
+}
+
+.terms-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.term-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    background: var(--entry);
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--primary);
+    transition: all 0.2s;
+    border: 1px solid #b19cd9;
+}
+
+.term-link:hover {
+    background: #b19cd9;
+    color: var(--bg);
+    transform: translateY(-2px);
+}
+
+.term-name {
+    font-weight: 500;
+}
+
+.term-count {
+    color: inherit;
+    opacity: 0.8;
+}
+</style>
+{{ end }}
