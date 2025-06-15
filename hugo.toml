@@ -67,7 +67,7 @@ relativeURLs = false
   # Google Analytics 4 설정 (Phase 3.3)
   [params.analytics]
     [params.analytics.google]
-      GA_MEASUREMENT_ID = "G-4BH0XLL42M"  # Google Analytics 4 측정 ID
+      GA_MEASUREMENT_ID = "G-HCPY51YDJPZ"  # Google Analytics 4 측정 ID
       SiteVerificationTag = "UA-137248174-1"  # Google Search Console 인증 태그
       anonymizeIP = true  # IP 익명화
       respectDoNotTrack = true  # Do Not Track 헤더 존중
