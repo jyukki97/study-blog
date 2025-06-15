@@ -82,21 +82,33 @@ relativeURLs = false
   [params.assets]
     disableHLJS = false
     disableScrollBarStyle = false
-    favicon = "favicon.ico"
-    favicon16x16 = "favicon-16x16.png"
-    favicon32x32 = "favicon-32x32.png"
-    apple_touch_icon = "apple-touch-icon.png"
-    safari_pinned_tab = "safari-pinned-tab.svg"
+    favicon = "favicon.svg"
+    favicon16x16 = "favicon.svg"
+    favicon32x32 = "favicon.svg"
+    apple_touch_icon = "favicon.svg"
+    safari_pinned_tab = "favicon.svg"
     theme_color = "#b19cd9"
 
 [params.header]
   enable = true
+
+# 로고 설정
+[params.label]
+  text = "jyukki's Blog"
+  icon = "images/logo.svg"
+  iconHeight = 50
 
 [[menu.main]]
     identifier = "projects"
     name = "Projects"
     url = "/projects/"
     weight = 30
+
+[[menu.main]]
+    identifier = "about"
+    name = "About"
+    url = "/about/"
+    weight = 40
 
 [outputs]
 home = ["HTML", "RSS", "JSON"]
