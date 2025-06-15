@@ -99,16 +99,22 @@ relativeURLs = false
   iconHeight = 50
 
 [[menu.main]]
-    identifier = "projects"
-    name = "Projects"
-    url = "/projects/"
-    weight = 30
-
-[[menu.main]]
     identifier = "about"
     name = "About"
     url = "/about/"
-    weight = 40
+    weight = 10
+
+[[menu.main]]
+    identifier = "projects"
+    name = "Projects"
+    url = "/projects/"
+    weight = 20
+
+[[menu.main]]
+    identifier = "etc"
+    name = "etc"
+    url = "#"
+    weight = 30
 
 [outputs]
 home = ["HTML", "RSS", "JSON"]

@@ -38,6 +38,18 @@
   --shadow-medium: rgba(0, 0, 0, 0.4);
 }
 
+/* 전체 페이지 레이아웃 안정화 */
+html, body {
+  min-height: 100vh !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.main {
+  min-height: calc(100vh - 200px) !important;
+  width: 100% !important;
+}
+
 /* 포스트 레이아웃 컨테이너 */
 .post-layout-container {
   display: flex;
@@ -232,28 +244,74 @@
   line-height: 1.7;
 }
 
+/* 코드 블록 강력한 대비로 수정 */
 .post-content pre {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
+  background: #1e1e1e !important;
+  border: 1px solid #444 !important;
   border-radius: 8px;
   padding: 1.5rem;
   overflow-x: auto;
   margin: 2rem 0;
   font-size: 0.9rem;
+  color: #ffffff !important; /* 강제로 흰색 텍스트 */
 }
 
 .post-content code {
-  background: var(--bg-secondary);
+  background: #1e1e1e !important;
   padding: 0.2rem 0.4rem;
   border-radius: 4px;
   font-size: 0.9rem;
-  color: var(--primary-dark);
+  color: #ffffff !important; /* 강제로 흰색 텍스트 */
 }
 
 .post-content pre code {
-  background: none;
+  background: none !important;
   padding: 0;
-  color: inherit;
+  color: #ffffff !important; /* 강제로 흰색 텍스트 */
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+
+/* 인라인 코드는 브랜드 색상으로 */
+.post-content p code, .post-content li code {
+  background: #f0f0f0 !important;
+  color: #b19cd9 !important;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+/* etc 드롭다운 스타일 */
+.blog-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.blog-title {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+}
+
+.blog-description {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  opacity: 0.8;
+}
+
+/* etc 드롭다운 항목에 외부 링크 아이콘 스타일 */
+.dropdown-content .dropdown-item svg {
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+}
+
+.dropdown-content .dropdown-item:hover svg {
+  opacity: 1;
+}
+
+/* etc 드롭다운 아이템 호버 효과 강화 */
+.dropdown-content .dropdown-item:hover .blog-title {
+  color: var(--primary-color);
 }
 
 /* 모바일 반응형 */
@@ -288,4 +346,66 @@
   .post-content {
     font-size: 1rem;
   }
+}
+
+/* Footer 스타일 수정 */
+.footer {
+  background: var(--bg-primary) !important;
+  border-top: 1px solid var(--border-color) !important;
+  padding: 2rem 0 !important;
+  margin-top: 3rem !important;
+  text-align: center !important;
+  color: var(--text-secondary) !important;
+  font-size: 0.9rem !important;
+}
+
+.footer a {
+  color: var(--primary-color) !important;
+  text-decoration: none !important;
+  transition: color 0.2s ease !important;
+}
+
+.footer a:hover {
+  color: var(--primary-hover) !important;
+}
+
+/* 스크롤 투 탑 버튼 스타일 */
+.top-link {
+  background: var(--primary-color) !important;
+  color: white !important;
+  border-radius: 50% !important;
+  box-shadow: 0 4px 12px rgba(177, 156, 217, 0.3) !important;
+  transition: all 0.3s ease !important;
+}
+
+.top-link:hover {
+  background: var(--primary-hover) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 16px rgba(177, 156, 217, 0.4) !important;
+}
+
+/* 다크 모드 footer */
+[data-theme="dark"] .footer {
+  background: var(--bg-primary) !important;
+  border-top-color: var(--border-color) !important;
+  color: var(--text-secondary) !important;
+}
+
+/* 인라인 코드는 브랜드 색상으로 */
+
+/* 프로젝트 페이지 전용 project-info 패딩 조정 (매우 구체적 선택자) */
+.project-card .project-info {
+  padding: 1.5rem !important;
+  flex-direction: column !important;
+}
+
+/* 헤더 드롭다운의 project-info는 기존 스타일 유지 (제외) */
+.dropdown-content .project-info .project-title {
+  margin-bottom: 0.2rem !important;
+  padding: inherit !important;
+}
+
+.dropdown-content .project-info .project-status {
+  padding: 0.15rem 0.4rem !important;
+  margin: inherit !important;
 }

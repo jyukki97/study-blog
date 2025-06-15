@@ -87,13 +87,14 @@
             {{- $page_url:= $currentPage.Permalink | absLangURL }}
             {{- $is_search := eq (site.GetPage .KeyName).Layout `search` }}
             {{- $is_projects := eq .Name "Projects" }}
+            {{- $is_etc := eq .Name "etc" }}
             {{- $is_active := false }}
             {{- if $is_projects }}
                 {{- $is_active = or (eq $menu_item_url $page_url) (hasPrefix $page_url "/projects/") }}
             {{- else }}
                 {{- $is_active = eq $menu_item_url $page_url }}
             {{- end }}
-            <li {{- if $is_projects }} class="dropdown-menu" {{- end }}>
+            <li {{- if or $is_projects $is_etc }} class="dropdown-menu" {{- end }}>
                 <a href="{{ .URL | absLangURL }}" title="{{ .Title | default .Name }} {{- cond $is_search (" (Alt + /)" | safeHTMLAttr) ("" | safeHTMLAttr ) }}"
                 {{- cond $is_search (" accesskey=/" | safeHTMLAttr) ("" | safeHTMLAttr ) }}>
                     <span>
@@ -140,6 +141,28 @@
                             </svg>
                         </a>
                     </div>
+                </div>
+                {{- end }}
+                {{- if $is_etc }}
+                <div class="dropdown-content">
+                    <div class="dropdown-header">
+                        <h4>예전 블로그들</h4>
+                    </div>
+                    <a href="https://jyukki97.github.io" target="_blank" class="dropdown-item">
+                        <div class="blog-info">
+                            <div class="blog-title">알고리즘 Blog</div>
+                        </div>
+                    </a>
+                    <a href="https://velog.io/@jyukki97" target="_blank" class="dropdown-item">
+                        <div class="blog-info">
+                            <div class="blog-title">Velog</div>
+                        </div>
+                    </a>
+                    <a href="https://jyukki.tistory.com/" target="_blank" class="dropdown-item">
+                        <div class="blog-info">
+                            <div class="blog-title">Tistory</div>
+                        </div>
+                    </a>
                 </div>
                 {{- end }}
             </li>
@@ -834,6 +857,8 @@
 
 .project-info {
     width: 100%;
+    display: flex;
+    justify-content: space-between;
 }
 
 .dropdown-content .project-title {
@@ -850,6 +875,7 @@
     padding: 0.15rem 0.4rem;
     border-radius: 10px;
     display: inline-block;
+    align-content: center;
 }
 
 .dropdown-footer {
