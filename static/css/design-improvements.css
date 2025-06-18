@@ -335,6 +335,18 @@ html, body {
 }
 
 @media (max-width: 768px) {
+  .post-layout-container {
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+  
+  .post-single {
+      padding: 0 !important;
+      border: none !important;
+      box-shadow: none !important;
+  }
+
   .post-title {
     font-size: 2rem;
   }
