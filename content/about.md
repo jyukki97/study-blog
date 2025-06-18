@@ -27,7 +27,7 @@ description: "jyukki's blog 소개"
 - **Frontend**: HTML, CSS, JavaScript, React
 - **Backend**: java Spring
 - **Tools**: Git, VS Code
-- **Deployment**: GitHub Pages, Netlify
+- **Deployment**: GitHub Pages
 
 ## 📫 연락처
 

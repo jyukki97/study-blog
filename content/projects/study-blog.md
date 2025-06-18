@@ -1,8 +1,8 @@
 ---
 title: "Study Blog"
-date: 2024-03-19
+date: 2025-06-15
 draft: false
-description: "Hugo와 PaperMod 테마를 활용한 개인 학습 블로그 개발 프로젝트"
+description: "Hugo를 활용한 개인 학습 블로그 개발 프로젝트"
 icon: "📚"
 status: "운영중"
 tech: ["Hugo", "JavaScript", "CSS", "HTML", "GitHub Actions"]
@@ -13,7 +13,7 @@ links:
   - name: "Live Site"
     url: "https://jyukki.com"
     icon: "🌐"
-duration: "6주 개발, 현재 운영중"
+duration: "운영중"
 ---
 
 # Study Blog 프로젝트
