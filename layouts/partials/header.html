@@ -1188,18 +1188,28 @@ function search(query) {
     fetch('/searchindex.json')
         .then(response => response.json())
         .then(data => {
-            const results = data.filter(item => {
+            // 중복 제거를 위해 permalink 기준으로 유니크한 결과만 필터링
+            const uniqueData = data.filter((item, index, self) => 
+                index === self.findIndex(t => t.permalink === item.permalink)
+            );
+            
+            const results = uniqueData.filter(item => {
                 const searchContent = item.content.toLowerCase();
                 const searchTitle = item.title.toLowerCase();
                 const searchQuery = query.toLowerCase();
                 return searchContent.includes(searchQuery) || searchTitle.includes(searchQuery);
             });
 
+            // 검색 결과도 중복 제거
+            const uniqueResults = results.filter((item, index, self) => 
+                index === self.findIndex(t => t.permalink === item.permalink)
+            );
+
             const resultsContainer = document.getElementById('search-results');
-            if (results.length === 0) {
+            if (uniqueResults.length === 0) {
                 resultsContainer.innerHTML = '<div class="no-results">검색 결과가 없습니다.</div>';
             } else {
-                const resultsHtml = results.map(item => {
+                const resultsHtml = uniqueResults.slice(0, 10).map(item => { // 최대 10개 결과로 제한
                     // permalink가 없으면 url에서 slug 추출
                     let url = item.permalink;
                     if (!url) {
@@ -1217,7 +1227,8 @@ function search(query) {
                     const content = item.content
                         .replace(/<[^>]*>/g, '')
                         .replace(/\s+/g, ' ')
-                        .trim();
+                        .trim()
+                        .substring(0, 150) + '...'; // 내용을 150자로 제한
 
                     // 검색어 하이라이팅 함수
                     function highlightText(text, query) {
