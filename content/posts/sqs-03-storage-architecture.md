@@ -1,6 +1,6 @@
 ---
 title: "[3편] 메시지 큐에서 Redis를 쓰는게 맞을까?..."
-date: 2025-06-18
+date: 2025-06-19
 draft: false
 tags: ["Redis", "FIFO", "Spring Boot", "메시지큐"]
 categories: ["Development", "Learning"]
