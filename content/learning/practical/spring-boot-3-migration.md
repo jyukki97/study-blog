@@ -1,11 +1,11 @@
 ---
 title: "Spring Boot 3.x 마이그레이션 가이드"
 date: 2025-11-03
-draft: true
 topic: "Spring"
 tags: ["Spring Boot", "Migration", "Jakarta EE", "Java 17"]
 categories: ["Development", "Learning"]
 description: "Spring Boot 2.x에서 3.x로 마이그레이션 시 주요 변경사항과 Breaking Changes 정리"
+draft: true
 ---
 
 > **학습 목표**: Spring Boot 3.x의 주요 변경사항을 이해하고, 실제 프로젝트 마이그레이션 시 발생할 수 있는 문제와 해결 방법을 파악한다.

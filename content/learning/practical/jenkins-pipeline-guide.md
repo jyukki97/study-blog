@@ -6,7 +6,7 @@ topic_icon: "🔧"
 topic_description: "Jenkins를 활용한 CI/CD 파이프라인 설계 및 구축"
 tags: ["Jenkins", "CI/CD", "DevOps", "Automation", "Pipeline"]
 categories: ["DevOps", "CI/CD"]
-draft: false
+draft: true
 ---
 
 ## 1. 문제 상황

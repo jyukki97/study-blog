@@ -6,7 +6,7 @@ topic_icon: "🍃"
 topic_description: "Spring WebFlux 환경에서의 반응형 트랜잭션 관리"
 tags: ["Spring WebFlux", "R2DBC", "Transaction", "Reactive", "Backend"]
 categories: ["Backend", "Spring"]
-draft: false
+draft: true
 ---
 
 ## 1. 문제 상황

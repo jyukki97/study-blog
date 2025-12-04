@@ -1,13 +1,13 @@
 ---
 title: "Spring WebFlux 완전 정복"
 date: 2025-11-03
-draft: true
 topic: "Spring"
 topic_icon: "🍃"
 topic_description: "Spring Framework 및 생태계 학습"
 tags: ["Spring", "WebFlux", "Reactive", "Backend"]
 categories: ["Development", "Learning"]
 description: "Spring MVC vs WebFlux 구조 비교, Reactor 흐름, subscribe 시점 이해"
+draft: true
 ---
 
 > **학습 목표**: Spring WebFlux의 핵심 개념과 Spring MVC와의 차이점을 이해하고, Reactive Programming의 실제 동작 방식을 파악한다.

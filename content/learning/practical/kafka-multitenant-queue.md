@@ -1,13 +1,13 @@
 ---
 title: "Kafka 멀티테넌트 큐 서비스 설계기"
 date: 2025-11-03
-draft: true
 topic: "Kafka"
 topic_icon: "🔀"
 topic_description: "Apache Kafka 메시징 시스템 학습"
 tags: ["Kafka", "Message Queue", "Multi-tenant", "Architecture"]
 categories: ["Development", "Learning"]
 description: "EasyQueue 구조, Cluster 구성, SASL_SSL 인증, Consumer Group 전략"
+draft: true
 ---
 
 > **학습 목표**: Kafka를 활용한 멀티테넌트 메시지 큐 시스템 설계와 운영 경험 정리. 실제 프로젝트에서 마주한 아키텍처 결정과 트레이드오프를 기록한다.

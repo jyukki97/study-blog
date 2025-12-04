@@ -6,7 +6,7 @@ topic_icon: "⚛️"
 topic_description: "React로 구축하는 현대적인 AI 챗봇 인터페이스"
 tags: ["React", "AI", "ChatGPT", "Frontend", "UX", "TypeScript"]
 categories: ["Frontend", "React"]
-draft: false
+draft: true
 ---
 
 ## 1. 문제 상황

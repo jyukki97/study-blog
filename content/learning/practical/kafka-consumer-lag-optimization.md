@@ -6,7 +6,7 @@ topic_icon: "📨"
 topic_description: "Kafka 컨슈머 지연 최소화 및 처리 성능 향상"
 tags: ["Kafka", "Performance", "Consumer", "Optimization", "Scalability"]
 categories: ["Kafka", "Performance"]
-draft: false
+draft: true
 ---
 
 ## 1. 문제 상황

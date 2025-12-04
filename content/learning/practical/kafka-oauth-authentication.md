@@ -6,7 +6,7 @@ topic_icon: "🔐"
 topic_description: "Kafka OAuth2 인증 구현 및 Keycloak 통합"
 tags: ["Kafka", "OAuth2", "Security", "Keycloak", "SASL"]
 categories: ["Security", "Kafka"]
-draft: false
+draft: true
 ---
 
 ## 개요

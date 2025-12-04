@@ -1,13 +1,13 @@
 ---
 title: "WebSocket + gRPC 실시간 음성처리 서비스"
 date: 2025-11-03
-draft: true
 topic: "Architecture"
 topic_icon: "🏗️"
 topic_description: "시스템 아키텍처 및 설계 패턴"
 tags: ["WebSocket", "gRPC", "STT", "Real-time", "Architecture"]
 categories: ["Development", "Learning"]
 description: "STT 스트리밍 구조, backpressure 제어, 실시간 latency 관리"
+draft: true
 ---
 
 > **학습 목표**: WebSocket과 gRPC를 활용한 실시간 음성 처리 아키텍처를 이해하고, Backpressure와 지연시간 관리 전략을 학습한다.

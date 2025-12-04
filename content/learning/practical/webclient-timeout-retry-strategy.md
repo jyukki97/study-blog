@@ -6,7 +6,7 @@ topic_icon: "🍃"
 topic_description: "WebClient의 안정적인 타임아웃 설정과 재시도 전략"
 tags: ["Spring WebFlux", "WebClient", "Resilience", "Retry", "Circuit Breaker"]
 categories: ["Backend", "Spring"]
-draft: false
+draft: true
 ---
 
 ## 1. 문제 상황

@@ -6,7 +6,7 @@ topic_icon: "⎈"
 topic_description: "Kubernetes 애플리케이션 패키징 및 배포 자동화"
 tags: ["Kubernetes", "Helm", "DevOps", "Deployment", "Infrastructure"]
 categories: ["DevOps", "Kubernetes"]
-draft: false
+draft: true
 ---
 
 ## 1. 문제 상황

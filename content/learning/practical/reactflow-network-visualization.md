@@ -6,7 +6,7 @@ topic_icon: "⚛️"
 topic_description: "React Flow를 활용한 클라우드 인프라 네트워크 토폴로지 시각화"
 tags: ["React", "React Flow", "Visualization", "Frontend", "Cloud"]
 categories: ["Frontend", "React"]
-draft: false
+draft: true
 ---
 
 ## 1. 문제 상황

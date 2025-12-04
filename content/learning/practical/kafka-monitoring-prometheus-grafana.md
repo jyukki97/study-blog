@@ -6,7 +6,7 @@ topic_icon: "📊"
 topic_description: "Kafka 클러스터 모니터링 및 성능 분석 시스템 구축"
 tags: ["Kafka", "Prometheus", "Grafana", "Monitoring", "Observability"]
 categories: ["DevOps", "Kafka"]
-draft: false
+draft: true
 ---
 
 ## 1. 문제 상황

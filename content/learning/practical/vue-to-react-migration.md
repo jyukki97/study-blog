@@ -1,13 +1,13 @@
 ---
 title: "Vue.js → React 전환기"
 date: 2025-11-03
-draft: true
 topic: "Frontend"
 topic_icon: "⚛️"
 topic_description: "Frontend 개발 및 UI 라이브러리"
 tags: ["React", "Vue", "Migration", "Frontend", "Hooks"]
 categories: ["Development", "Learning"]
 description: "상태관리, 공통 훅 구조화, NCUI 컴포넌트 통합, 렌더링 최적화"
+draft: true
 ---
 
 > **학습 목표**: Vue.js에서 React로의 마이그레이션 과정에서 마주한 패러다임 차이를 이해하고, React의 효율적인 상태관리 및 최적화 패턴을 학습한다.
