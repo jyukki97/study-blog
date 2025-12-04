@@ -6,7 +6,7 @@ topic_icon: "💬"
 topic_description: "Mono/Flux 차이, subscribe 시점, Scheduler 종류에 대한 핵심 개념 정리"
 tags: ["Spring WebFlux", "Reactor", "Reactive", "Mono", "Flux"]
 categories: ["Spring"]
-draft: true
+draft: false
 ---
 
 ## Q1. Mono와 Flux의 차이는 무엇인가요?

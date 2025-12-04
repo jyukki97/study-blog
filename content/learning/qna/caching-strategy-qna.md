@@ -6,7 +6,7 @@ tags: ["캐싱", "Redis", "Caffeine", "Cache", "성능최적화"]
 categories: ["Backend"]
 series: ["핵심 개념 Q&A"]
 series_order: 20
-draft: true
+draft: false
 ---
 
 ## Q1. 캐싱의 기본 개념과 Cache-Aside, Write-Through, Write-Behind 전략을 설명해주세요.

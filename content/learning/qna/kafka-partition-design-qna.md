@@ -6,7 +6,7 @@ topic_icon: "💬"
 topic_description: "Kafka Partition 설계, Key 기반 분배, Ordering 보장 관련 핵심 개념과 실전 예제 정리"
 tags: ["Kafka", "Partition", "Ordering", "Key"]
 categories: ["Kafka"]
-draft: true
+draft: false
 ---
 
 # Kafka Partition 설계 정리

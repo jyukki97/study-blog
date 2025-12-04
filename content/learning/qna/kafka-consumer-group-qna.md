@@ -6,7 +6,7 @@ topic_icon: "💬"
 topic_description: "Kafka Consumer Group, Rebalance, Offset Commit 관련 핵심 개념과 실전 예제 정리"
 tags: ["Kafka", "Consumer Group", "Rebalance", "Offset"]
 categories: ["Kafka"]
-draft: true
+draft: false
 ---
 
 # Kafka Consumer Group 정리

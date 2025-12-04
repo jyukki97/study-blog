@@ -6,7 +6,7 @@ tags: ["OAuth2", "인증", "보안", "Spring Security", "JWT", "Token"]
 categories: ["Security"]
 series: ["핵심 개념 Q&A"]
 series_order: 17
-draft: true
+draft: false
 ---
 
 ## Q1. OAuth2 인증 흐름을 설명하고, 4가지 Grant Type의 차이점을 비교해주세요.

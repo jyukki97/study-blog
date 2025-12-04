@@ -6,7 +6,7 @@ topic_icon: "💬"
 topic_description: "ClassLoader, JIT, Thread 관리, Safepoint 관련 핵심 개념과 실전 예제 정리"
 tags: ["Java", "JVM", "ClassLoader", "JIT"]
 categories: ["Java"]
-draft: true
+draft: false
 ---
 
 ## Q1. JVM의 구조를 설명해주세요.

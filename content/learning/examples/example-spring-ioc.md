@@ -1,7 +1,7 @@
 ---
 title: "Spring IoC 컨테이너 이해하기"
 date: 2025-11-03
-draft: true
+draft: false
 topic: "Spring"
 topic_icon: "🍃"
 topic_description: "Spring Framework 학습 노트"

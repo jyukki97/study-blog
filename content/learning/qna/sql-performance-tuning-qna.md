@@ -6,7 +6,7 @@ topic_icon: "💬"
 topic_description: "SQL 성능 튜닝, Execution Plan, Join 전략 관련 핵심 개념과 실전 예제 정리"
 tags: ["SQL", "Performance", "Join", "Optimization"]
 categories: ["Database"]
-draft: true
+draft: false
 ---
 
 # SQL 성능 튜닝 정리

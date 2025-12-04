@@ -6,7 +6,7 @@ topic_icon: "💬"
 topic_description: "Docker, Kubernetes, Pod, Deployment, Probes, Scaling 관련 핵심 개념과 실전 예제 정리"
 tags: ["Docker", "Kubernetes", "DevOps", "Container"]
 categories: ["DevOps"]
-draft: true
+draft: false
 ---
 
 # Docker & Kubernetes 정리

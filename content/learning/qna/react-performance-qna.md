@@ -6,7 +6,7 @@ topic_icon: "💬"
 topic_description: "React 성능 최적화, Virtual DOM, memo, useCallback 관련 핵심 개념과 실전 예제 정리"
 tags: ["React", "Performance", "Virtual DOM", "Hooks"]
 categories: ["Frontend"]
-draft: true
+draft: false
 ---
 
 # React 성능 최적화 정리

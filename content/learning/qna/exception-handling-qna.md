@@ -6,7 +6,7 @@ tags: ["예외처리", "Spring", "ControllerAdvice", "에러처리", "GlobalExce
 categories: ["Spring"]
 series: ["핵심 개념 Q&A"]
 series_order: 18
-draft: true
+draft: false
 ---
 
 ## Q1. @ControllerAdvice와 @ExceptionHandler를 사용한 글로벌 예외 처리를 설명해주세요.

@@ -4,7 +4,7 @@ date: 2025-01-26
 topic: "Career"
 tags: ["백엔드", "이직", "로드맵", "학습", "면접준비"]
 categories: ["Career"]
-draft: true
+draft: false
 ---
 
 ## 들어가며
