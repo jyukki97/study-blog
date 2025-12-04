@@ -12,7 +12,6 @@
             <div class="tags-section">
                 <div class="tags-header">
                     <h2>Tags</h2>
-                    <a href="{{ "tags" | absURL }}" class="more-link">More →</a>
                 </div>
                 <div class="all-tags">
                     {{ $tags := .Site.Taxonomies.tags }}
@@ -42,27 +41,33 @@
 
         <div class="post-header">
             <h2>Posts</h2>
-            {{ if and .IsHome }}
-            <a href="{{ "posts" | absURL }}" class="more-link">More →</a>
-            {{ end }}
         </div>
 
         <div class="post-grid">
             {{ $pages := .Pages }}
             {{ if .IsHome }}
-                {{ $pages = where .Site.RegularPages "Section" "posts" }}
+                {{- /* 홈페이지에서는 posts와 learning 모두 표시 */ -}}
+                {{ $postPages := where .Site.RegularPages "Section" "posts" }}
+                {{ $learningPages := where .Site.RegularPages "Section" "learning" }}
+                {{- /* learning은 topic이 있는 것만 표시 (_index.md, README.md 제외) */ -}}
+                {{ $learningPages = where $learningPages "Params.topic" "!=" nil }}
+                {{ $pages = union $postPages $learningPages }}
+                {{- /* 날짜순 정렬 */ -}}
+                {{ $pages = sort $pages "Date" "desc" }}
             {{ end }}
             {{ $paginator := .Paginate $pages }}
             {{ range $paginator.Pages }}
-                <article class="post-entry" 
+                <article class="post-entry"
                          data-tags="{{ if .Params.tags }}{{ delimit .Params.tags "," }}{{ end }}"
-                         data-project="{{ if .Params.project }}{{ .Params.project }}{{ end }}">
+                         data-project="{{ if .Params.project }}{{ .Params.project }}{{ end }}"
+                         data-topic="{{ if .Params.topic }}{{ .Params.topic }}{{ end }}"
+                         data-section="{{ .Section }}">
                     {{ if .Params.cover.image }}
                         <a class="post-cover" href="{{ .Permalink }}">
                             <img src="{{ .Params.cover.image | absURL }}" alt="{{ .Title }}">
                         </a>
                     {{ else }}
-                        <a class="post-cover no-image" href="{{ .Permalink }}">
+                        <a class="post-cover no-image no-image-{{ .Section }}" href="{{ .Permalink }}">
                             <div class="title-overlay">
                                 <h2>{{ .Title }}</h2>
                             </div>
@@ -82,6 +87,15 @@
                             <a href="{{ .Permalink }}">{{ .Title }}</a>
                         </h2>
                         <div class="post-meta">
+                            {{- /* Section 배지 표시 */ -}}
+                            {{ if eq .Section "learning" }}
+                                <span class="section-badge learning-badge">
+                                    📚 Learning
+                                    {{ if .Params.topic }} · {{ .Params.topic }}{{ end }}
+                                </span>
+                            {{ else if .Params.project }}
+                                <span class="section-badge project-badge">🚀 {{ .Params.project }}</span>
+                            {{ end }}
                             <span title='{{ .Date }}'>{{ .Date | time.Format (default "January 2, 2006" site.Params.DateFormat) }}</span>
                         </div>
                         {{ if .Description }}
@@ -168,7 +182,20 @@
 }
 
 .no-image {
-    background: linear-gradient(45deg, #b19cd9, #8a6cb3);
+    background: linear-gradient(135deg, #b19cd9, #8a6cb3);
+}
+
+/* 섹션별 title-overlay 색상 */
+.no-image-posts {
+    background: linear-gradient(135deg, #b19cd9, #9a7bc8);
+}
+
+.no-image-learning {
+    background: linear-gradient(135deg, #a8c0ff, #9795f0);
+}
+
+.no-image-project {
+    background: linear-gradient(135deg, #fbc2eb, #a6c1ee);
 }
 
 .title-overlay {
@@ -193,6 +220,59 @@
 
 .post-content {
     padding: 1.5rem;
+}
+
+/* 카드 전체의 모든 요소 크기 제한 */
+.post-entry * {
+    font-size: 0.95rem !important;
+    font-weight: normal !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    line-height: 1.6 !important;
+}
+
+.post-entry .post-content {
+    color: var(--secondary);
+    padding: 1.5rem !important; /* padding은 유지 */
+}
+
+/* 카드 자체 스타일 복원 */
+.post-entry {
+    background: var(--bg-primary, #ffffff) !important;
+    border: 1px solid var(--border-color, #e2e8f0) !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    box-shadow: 0 4px 12px var(--shadow-light, rgba(0, 0, 0, 0.1)) !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* 커버 이미지 영역 복원 */
+.post-entry .post-cover {
+    display: block !important;
+    width: 100% !important;
+    height: 200px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.post-entry .post-cover img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+}
+
+/* 제목 오버레이 복원 */
+.post-entry .title-overlay {
+    padding: 1rem !important;
+}
+
+.post-entry .title-overlay h2 {
+    font-size: 1.5rem !important;
+    font-weight: 700 !important;
+    color: white !important;
+    margin: 0 !important;
 }
 
 .post-tags-container {
@@ -258,18 +338,79 @@
     text-decoration: none;
 }
 
-.post-summary {
-    color: var(--secondary);
-    margin-bottom: 1rem;
-    line-height: 1.6;
+/* 카드 제목만 원래 크기 유지 */
+.post-entry .post-title {
+    font-size: 1.25rem !important;
+    font-weight: 600 !important;
+    margin: 0 0 1rem !important;
+}
+
+.post-entry .post-title a {
+    color: var(--primary) !important;
+}
+
+/* 태그 원래 크기 유지 */
+.post-entry .post-tag {
+    font-size: 0.8rem !important;
+    font-weight: 500 !important;
+    padding: 0.35rem 0.75rem !important;
+    border-radius: 16px !important;
+    border: 1px solid var(--primary-color, #b19cd9) !important;
+}
+
+/* 메타 정보 원래 크기 유지 */
+.post-entry .post-meta {
+    font-size: 0.9rem !important;
+    margin-top: 1rem !important;
+    display: flex !important;
+    gap: 0.5rem !important;
+}
+
+.post-entry .section-badge {
+    font-size: 0.85rem !important;
+    font-weight: 600 !important;
+    padding: 0.25rem 0.75rem !important;
+    border-radius: 12px !important;
+}
+
+/* 태그 컨테이너 */
+.post-entry .post-tags-container {
+    margin-bottom: 0.5rem !important;
+}
+
+.post-entry .post-tags {
+    display: flex !important;
+    gap: 0.5rem !important;
+    padding: 0.5rem 0 !important;
 }
 
 .post-meta {
     display: flex;
-    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
     align-items: center;
     color: var(--secondary);
     font-size: 0.9rem;
+}
+
+.section-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-right: 0.5rem;
+}
+
+.learning-badge {
+    background: linear-gradient(135deg, #a8c0ff, #9795f0);
+    color: white;
+}
+
+.project-badge {
+    background: linear-gradient(135deg, #b19cd9, #9a7bc8);
+    color: white;
 }
 
 .tags-section {
@@ -299,11 +440,11 @@
 .more-link {
     color: var(--primary-color, #b19cd9);
     text-decoration: none;
-    padding: 0.5rem 1rem; /* 패딩 조정 */
-    border-radius: 20px !important;
+    padding: 0.35rem 0.75rem; /* 패딩 축소 */
+    border-radius: 16px !important;
     background: var(--bg-secondary, #f8f9fa);
     transition: all 0.15s ease;
-    font-size: 0.9rem;
+    font-size: 0.8rem; /* 폰트 크기 축소 */
     border: 1px solid var(--primary-color, #b19cd9);
     position: relative;
     overflow: visible;
@@ -312,8 +453,8 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    margin: 0.1rem 0; /* 마진 감소 */
-    min-height: 2rem; /* 최소 높이 감소 */
+    margin: 0.1rem 0;
+    min-height: 1.8rem; /* 최소 높이 축소 */
     box-sizing: border-box;
 }
 
@@ -521,16 +662,22 @@
     .post-grid {
         grid-template-columns: 1fr;
         gap: 1.5rem;
+        padding: 0 0.5rem;
     }
-    
+
     .post-header,
     .tags-section {
-        padding: 0 0.5rem;
+        padding: 0 1rem;
     }
 
     .post-header h2,
     .tags-header h2 {
         font-size: 1.5rem;
+    }
+
+    .post-entry {
+        border: none;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     }
     
     .post-tags,

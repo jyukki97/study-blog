@@ -86,6 +86,132 @@
   {{- end }}
 </div>
 
+<script>
+// TOC 자동 스크롤 및 활성화
+document.addEventListener('DOMContentLoaded', function() {
+  const tocSidebar = document.querySelector('.toc-sidebar');
+  const tocLinks = document.querySelectorAll('.toc a');
+  const headings = document.querySelectorAll('.post-content h1[id], .post-content h2[id], .post-content h3[id], .post-content h4[id], .post-content h5[id], .post-content h6[id]');
+  
+  if (!tocSidebar || tocLinks.length === 0 || headings.length === 0) return;
+
+  let isScrollingToSection = false;
+
+  // TOC 링크 클릭 시 해당 섹션으로 부드럽게 스크롤
+  tocLinks.forEach(link => {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      isScrollingToSection = true;
+      
+      const targetId = decodeURIComponent(this.getAttribute('href').substring(1));
+      const targetElement = document.getElementById(targetId);
+      
+      if (targetElement) {
+        window.scrollTo({
+          top: targetElement.offsetTop - 100,
+          behavior: 'smooth'
+        });
+        
+        setTimeout(() => {
+          isScrollingToSection = false;
+        }, 1000);
+      }
+    });
+  });
+
+  // 현재 보고 있는 섹션을 찾아서 TOC를 업데이트하는 함수
+  function updateTOC() {
+    if (isScrollingToSection) return;
+
+    const scrollPosition = window.scrollY + 150;
+    const windowHeight = window.innerHeight;
+    const documentHeight = document.documentElement.scrollHeight;
+    const isNearBottom = (window.scrollY + windowHeight) >= (documentHeight - 100);
+    
+    let currentHeading = null;
+
+    if (isNearBottom) {
+      // 페이지 맨 아래면 마지막 heading 활성화
+      currentHeading = headings[headings.length - 1];
+    } else {
+      // 현재 스크롤 위치에 해당하는 heading 찾기
+      for (let i = headings.length - 1; i >= 0; i--) {
+        if (headings[i].offsetTop <= scrollPosition) {
+          currentHeading = headings[i];
+          break;
+        }
+      }
+    }
+
+    // 모든 TOC 링크의 active 클래스 제거
+    tocLinks.forEach(link => link.classList.remove('active'));
+
+    // 현재 heading에 해당하는 TOC 링크 활성화
+    if (currentHeading) {
+      const currentId = currentHeading.getAttribute('id');
+      
+      // URL 인코딩된 TOC 링크와 매칭
+      let activeLink = null;
+      for (let link of tocLinks) {
+        const href = link.getAttribute('href');
+        if (href) {
+          const linkId = href.substring(1);
+          const decodedLinkId = decodeURIComponent(linkId);
+          
+          if (decodedLinkId === currentId || linkId === currentId) {
+            activeLink = link;
+            break;
+          }
+        }
+      }
+      
+      if (activeLink) {
+        activeLink.classList.add('active');
+        
+        // TOC 사이드바 내에서 활성 링크의 위치 계산
+        let linkOffsetTop = 0;
+        let element = activeLink;
+        while (element && element !== tocSidebar) {
+          linkOffsetTop += element.offsetTop;
+          element = element.offsetParent;
+        }
+        
+        // 활성 링크가 TOC 중앙에 오도록 계산
+        let centerPosition = linkOffsetTop - (tocSidebar.clientHeight / 2) + (activeLink.offsetHeight / 2);
+        
+        // 경계값 처리
+        const maxScroll = tocSidebar.scrollHeight - tocSidebar.clientHeight;
+        centerPosition = Math.max(0, Math.min(centerPosition, maxScroll));
+        
+        // 20px 이상 차이나면 스크롤
+        const scrollDiff = Math.abs(tocSidebar.scrollTop - centerPosition);
+        if (scrollDiff > 20) {
+          tocSidebar.scrollTo({
+            top: centerPosition,
+            behavior: 'smooth'
+          });
+        }
+      }
+    }
+  }
+
+  // 스크롤 이벤트 리스너 (성능 최적화)
+  let ticking = false;
+  window.addEventListener('scroll', function() {
+    if (!ticking) {
+      window.requestAnimationFrame(function() {
+        updateTOC();
+        ticking = false;
+      });
+      ticking = true;
+    }
+  });
+
+  // 페이지 로드 시 초기화
+  updateTOC();
+});
+</script>
+
 <style>
 /* 포스트 레이아웃 컨테이너 개선 */
 .post-layout-container {
@@ -94,7 +220,6 @@
   margin: 2.5rem auto 0 auto;
   padding: 2rem;
   gap: 3rem;
-  position: relative;
   background: var(--bg-primary);
   border-radius: 16px;
   box-shadow: 0 4px 20px var(--shadow-light);
@@ -115,8 +240,9 @@
   position: sticky;
   top: 100px;
   align-self: flex-start;
-  max-height: calc(100vh - 120px);
+  max-height: calc(100vh - 100px);
   overflow-y: auto;
+  scroll-behavior: smooth;
 }
 
 /* TOC 스타일 재정의 */
@@ -267,35 +393,47 @@
   .post-layout-container {
     flex-direction: column;
     padding: 1rem;
+    border-radius: 0;
+    box-shadow: none;
   }
-  
+
   .toc-sidebar {
     display: none;
   }
-  
+
   .toc-sidebar .toc {
     margin: 0;
   }
-  
+
   .post-single {
     max-width: none;
+    padding: 1.5rem;
+    box-shadow: none;
+    border-radius: 0;
   }
 }
 
 @media (max-width: 768px) {
   .post-layout-container {
-    padding: 0.5rem;
-    gap: 1rem;
+    padding: 0;
+    gap: 0;
+    margin-top: 0;
   }
-  
+
+  .post-single {
+    padding: 1rem;
+    box-shadow: none;
+    border-radius: 0;
+  }
+
   .toc-sidebar .toc {
     padding: 1rem;
   }
-  
+
   .toc-sidebar .toc summary {
     font-size: 1rem;
   }
-  
+
   .toc-sidebar .toc a {
     font-size: 0.85rem;
     padding: 0.4rem 0.6rem;

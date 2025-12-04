@@ -111,6 +111,12 @@ relativeURLs = false
     weight = 20
 
 [[menu.main]]
+    identifier = "learning"
+    name = "Learning"
+    url = "/learning/"
+    weight = 25
+
+[[menu.main]]
     identifier = "etc"
     name = "etc"
     url = "#"

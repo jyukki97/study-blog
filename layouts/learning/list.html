@@ -1,0 +1,914 @@
+{{- define "main" }}
+<div class="learning-container">
+    <!-- 학습 히어로 섹션 -->
+    <header class="learning-hero">
+        <div class="hero-content">
+            <div class="hero-icon">📚</div>
+            <h1 class="hero-title">{{- .Title -}}</h1>
+            {{- if .Content }}
+            <p class="hero-description">{{- .Content -}}</p>
+            {{- end }}
+        </div>
+        <div class="hero-background">
+            <div class="floating-element"></div>
+            <div class="floating-element"></div>
+            <div class="floating-element"></div>
+        </div>
+    </header>
+
+    <!-- 주제별 학습 섹션 (리스트 형태) -->
+    <section class="learning-topics">
+        <div class="section-header">
+            <h2>📂 학습 주제</h2>
+            <div class="section-line"></div>
+        </div>
+
+        {{- /* 모든 learning 포스트를 topic별로 그룹화 */ -}}
+        {{- $learningPosts := where site.RegularPages "Section" "learning" }}
+        {{- $learningPosts = where $learningPosts "Params.topic" "!=" nil }}
+
+        {{- /* 수동으로 topic별 그룹화 */ -}}
+        {{- $topicGroups := dict }}
+        {{- range $learningPosts }}
+            {{- $topic := .Params.topic }}
+            {{- $existing := index $topicGroups $topic }}
+            {{- if $existing }}
+                {{- $topicGroups = merge $topicGroups (dict $topic ($existing | append .)) }}
+            {{- else }}
+                {{- $topicGroups = merge $topicGroups (dict $topic (slice .)) }}
+            {{- end }}
+        {{- end }}
+
+        <div class="topics-list">
+            {{- range $topic, $posts := $topicGroups }}
+                {{- $firstPost := index $posts 0 }}
+                {{- $latestPost := index (sort $posts "Date" "desc") 0 }}
+                <div class="topic-card" onclick="filterByTopic('{{ $topic }}')">
+                    <div class="topic-card-left">
+                        <span class="topic-icon">
+                            {{- if $firstPost.Params.topic_icon }}
+                                {{ $firstPost.Params.topic_icon | safeHTML }}
+                            {{- else }}
+                                📖
+                            {{- end }}
+                        </span>
+                        <div class="topic-info">
+                            <h3 class="topic-name">{{ $topic }}</h3>
+                            <p class="topic-description">
+                                {{- if $firstPost.Params.topic_description }}
+                                    {{ $firstPost.Params.topic_description }}
+                                {{- else }}
+                                    학습 노트 모음
+                                {{- end }}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="topic-card-right">
+                        <div class="topic-meta">
+                            <span class="note-count">{{ len $posts }}개</span>
+                            <span class="last-update desktop-only">{{ $latestPost.Date | time.Format "01/02" }}</span>
+                        </div>
+                        <span class="topic-arrow">→</span>
+                    </div>
+                </div>
+            {{- end }}
+
+            {{- /* 주제가 없는 경우 */ -}}
+            {{- if eq (len $topicGroups) 0 }}
+            <div class="empty-state">
+                <div class="empty-icon">📝</div>
+                <h3>아직 학습 노트가 없습니다</h3>
+                <p>새로운 학습 내용을 추가해보세요!</p>
+            </div>
+            {{- end }}
+        </div>
+    </section>
+
+    <!-- 모든 학습 노트 섹션 -->
+    <section class="all-learning-notes" id="learning-notes">
+        <div class="section-header">
+            <h2>
+                <span class="section-icon">●</span>
+                <span id="notes-title">최근 학습 노트</span>
+            </h2>
+            <div class="section-line"></div>
+            <button id="show-all-btn" class="show-all-btn" onclick="showAllNotes()" style="display: none;">
+                전체 보기
+            </button>
+        </div>
+        <div class="learning-notes-grid">
+            {{- range $index, $post := $learningPosts.ByDate.Reverse }}
+            <article class="learning-note-card {{ if ge $index 12 }}hidden-note{{- end }}" data-topic="{{ .Params.topic }}">
+                <div class="note-card-header">
+                    {{- if .Params.topic }}
+                    <span class="note-topic-badge">{{ .Params.topic }}</span>
+                    {{- end }}
+                    <time datetime="{{ .Date.Format "2006-01-02" }}">
+                        {{ .Date | time.Format (default "01/02" site.Params.DateFormat) }}
+                    </time>
+                </div>
+                <h3 class="note-card-title">
+                    <a href="{{ .Permalink }}">{{ .Title }}</a>
+                </h3>
+                {{- if .Params.description }}
+                <p class="note-card-summary">{{ .Params.description | truncate 100 }}</p>
+                {{- else if .Summary }}
+                <p class="note-card-summary">{{ .Summary | truncate 100 }}</p>
+                {{- end }}
+                {{- if .Params.tags }}
+                <div class="note-card-tags">
+                    {{- range first 3 .Params.tags }}
+                    <span class="note-tag">{{ . }}</span>
+                    {{- end }}
+                    {{- if gt (len .Params.tags) 3 }}
+                    <span class="tag-more">+{{ sub (len .Params.tags) 3 }}</span>
+                    {{- end }}
+                </div>
+                {{- end }}
+            </article>
+            {{- end }}
+        </div>
+
+        {{- if gt (len $learningPosts) 12 }}
+        <div class="load-more-container">
+            <button class="load-more-btn" onclick="loadMoreNotes()">
+                더 보기 <span id="remaining-count">({{ sub (len $learningPosts) 12 }}개 남음)</span>
+            </button>
+        </div>
+        {{- end }}
+    </section>
+</div>
+
+<style>
+/* 전체 컨테이너 */
+.learning-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    padding-top: 5rem;
+    background: var(--theme);
+    min-height: 100vh;
+}
+
+/* 히어로 섹션 */
+.learning-hero {
+    position: relative;
+    background: linear-gradient(135deg, #a8c0ff 0%, #9795f0 100%);
+    border-radius: 24px;
+    padding: 4rem 2rem;
+    margin-bottom: 4rem;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(168, 192, 255, 0.15);
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    color: white;
+}
+
+.hero-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    display: inline-block;
+    animation: heroFloat 4s ease-in-out infinite;
+    will-change: transform;
+    transform: translateZ(0);
+}
+
+.hero-title {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    text-shadow: 0 2px 20px rgba(0,0,0,0.1);
+    background: linear-gradient(135deg, #ffffff 0%, #f0f8ff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.hero-description {
+    font-size: 1.2rem;
+    opacity: 0.95;
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+.hero-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+}
+
+.floating-element {
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: float 8s ease-in-out infinite;
+    will-change: transform;
+    transform: translateZ(0);
+}
+
+.floating-element:nth-child(1) {
+    top: 15%;
+    left: 15%;
+    animation-delay: 0s;
+}
+
+.floating-element:nth-child(2) {
+    top: 55%;
+    right: 20%;
+    animation-delay: 3s;
+}
+
+.floating-element:nth-child(3) {
+    bottom: 25%;
+    left: 25%;
+    animation-delay: 6s;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px) translateZ(0);
+    }
+    50% {
+        transform: translateY(-15px) translateZ(0);
+    }
+}
+
+@keyframes heroFloat {
+    0%, 100% {
+        transform: translateY(0px) translateZ(0);
+    }
+    50% {
+        transform: translateY(-8px) translateZ(0);
+    }
+}
+
+/* 섹션 헤더 */
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    position: relative;
+}
+
+.section-header h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin: 0;
+    background: linear-gradient(135deg, #a8c0ff, #9795f0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.section-icon {
+    background: linear-gradient(135deg, #a8c0ff, #9795f0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-size: 1.5rem;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.section-line {
+    flex: 1;
+    height: 2px;
+    background: linear-gradient(90deg, #a8c0ff, transparent);
+    border-radius: 1px;
+}
+
+.show-all-btn {
+    background: var(--secondary-color, #64748b);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-left: auto;
+}
+
+.show-all-btn:hover {
+    background: var(--secondary-hover, #475569);
+    transform: translateY(-1px);
+}
+
+/* 주제 리스트 */
+.topics-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 3rem;
+}
+
+.topic-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--entry);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.topic-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(168, 192, 255, 0.12);
+    border-color: #a8c0ff;
+    background: var(--code-bg);
+}
+
+.topic-card-left {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    flex: 1;
+    min-width: 0;
+}
+
+.topic-icon {
+    font-size: 2.5rem;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, rgba(168, 192, 255, 0.1), rgba(151, 149, 240, 0.1));
+    border-radius: 14px;
+    transition: all 0.3s ease;
+}
+
+.topic-card:hover .topic-icon {
+    transform: scale(1.1);
+    background: linear-gradient(135deg, rgba(168, 192, 255, 0.2), rgba(151, 149, 240, 0.2));
+}
+
+.topic-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.topic-name {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin: 0 0 0.4rem 0;
+    background: linear-gradient(135deg, #a8c0ff, #9795f0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.topic-description {
+    font-size: 0.95rem;
+    color: var(--secondary);
+    margin: 0;
+    line-height: 1.4;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.topic-card-right {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex-shrink: 0;
+}
+
+.topic-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.3rem;
+}
+
+.note-count {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #a8c0ff;
+    background: linear-gradient(135deg, rgba(168, 192, 255, 0.15), rgba(151, 149, 240, 0.15));
+    padding: 0.3rem 0.8rem;
+    border-radius: 12px;
+}
+
+.last-update {
+    font-size: 0.85rem;
+    color: var(--secondary);
+}
+
+.topic-arrow {
+    font-size: 1.5rem;
+    color: #a8c0ff;
+    opacity: 0.5;
+    transition: all 0.3s ease;
+}
+
+.topic-card:hover .topic-arrow {
+    opacity: 1;
+    transform: translateX(4px);
+}
+
+/* 학습 노트 그리드 */
+.learning-notes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.learning-note-card {
+    background: var(--entry);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+    border: 1px solid var(--border);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    will-change: transform;
+}
+
+.hidden-note {
+    display: none;
+}
+
+.learning-note-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(168, 192, 255, 0.08);
+}
+
+.note-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.note-topic-badge {
+    background: linear-gradient(135deg, #a8c0ff, #9795f0);
+    color: white;
+    padding: 0.3rem 0.8rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.note-card-header time {
+    color: var(--secondary);
+    font-size: 0.9rem;
+}
+
+.note-card-title {
+    margin: 0 0 1rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.note-card-title a {
+    color: var(--primary);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.note-card-title a:hover {
+    color: #a8c0ff;
+}
+
+/* 학습 노트 카드의 모든 콘텐츠 크기 제한 (제목 제외) */
+.learning-note-card * {
+    font-size: 0.95rem !important;
+    font-weight: normal !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    line-height: 1.6 !important;
+}
+
+/* 카드 제목만 원래 크기 유지 */
+.learning-note-card .note-card-title,
+.learning-note-card .note-card-title * {
+    font-size: 1.2rem !important;
+    font-weight: 600 !important;
+    margin: 0 0 1rem !important;
+}
+
+/* 카드 헤더 원래 크기 유지 */
+.learning-note-card .note-card-header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-bottom: 1rem !important;
+}
+
+/* 주제 배지와 날짜 원래 크기 유지 */
+.learning-note-card .note-topic-badge {
+    font-size: 0.8rem !important;
+    font-weight: 600 !important;
+    padding: 0.3rem 0.8rem !important;
+    border-radius: 12px !important;
+}
+
+.learning-note-card time {
+    font-size: 0.9rem !important;
+}
+
+/* 태그 컨테이너 */
+.learning-note-card .note-card-tags {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 0.5rem !important;
+    margin-top: 1rem !important;
+}
+
+/* 태그 원래 크기 유지 */
+.learning-note-card .note-tag,
+.learning-note-card .tag-more {
+    font-size: 0.85rem !important;
+    font-weight: 500 !important;
+    padding: 0.3rem 0.8rem !important;
+    border-radius: 20px !important;
+    border: 1px solid rgba(168, 192, 255, 0.2) !important;
+}
+
+/* 카드 자체 스타일 복원 */
+.learning-note-card {
+    background: var(--entry) !important;
+    border-radius: 16px !important;
+    padding: 1.5rem !important;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.04) !important;
+    border: 1px solid var(--border) !important;
+}
+
+/* 주제 카드의 설명 영역 */
+.topic-card .topic-description * {
+    font-size: 0.95rem !important;
+    font-weight: normal !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    line-height: 1.6 !important;
+}
+
+.note-card-summary {
+    color: var(--secondary);
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.note-card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.note-tag {
+    background: var(--code-bg);
+    color: #a8c0ff;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    border: 1px solid rgba(168, 192, 255, 0.2);
+}
+
+.tag-more {
+    background: #a8c0ff;
+    color: white;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    align-content: center;
+}
+
+/* 더 보기 버튼 */
+.load-more-container {
+    text-align: center;
+    margin: 2rem 0;
+}
+
+.load-more-btn {
+    background: linear-gradient(135deg, #a8c0ff, #9795f0);
+    color: white;
+    border: none;
+    padding: 1rem 2.5rem;
+    border-radius: 24px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(168, 192, 255, 0.3);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.load-more-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(168, 192, 255, 0.4);
+}
+
+.load-more-btn:active {
+    transform: translateY(0);
+}
+
+#remaining-count {
+    opacity: 0.9;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+/* 빈 상태 */
+.empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 4rem 2rem;
+}
+
+.empty-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.empty-state h3 {
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+}
+
+.empty-state p {
+    color: var(--secondary);
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .learning-container {
+        padding: 1rem;
+        padding-top: 4rem;
+    }
+
+    .learning-hero {
+        padding: 3rem 1.5rem;
+        margin-bottom: 3rem;
+    }
+
+    .hero-title {
+        font-size: 2.2rem;
+    }
+
+    .hero-description {
+        font-size: 1rem;
+    }
+
+    .desktop-only {
+        display: none;
+    }
+
+    .topic-card {
+        padding: 1rem;
+    }
+
+    .topic-card-left {
+        gap: 1rem;
+    }
+
+    .topic-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 2rem;
+    }
+
+    .topic-name {
+        font-size: 1.1rem;
+    }
+
+    .topic-description {
+        font-size: 0.85rem;
+    }
+
+    .topic-card-right {
+        gap: 1rem;
+    }
+
+    .note-count {
+        font-size: 1rem;
+    }
+
+    .topic-arrow {
+        font-size: 1.3rem;
+    }
+
+    .learning-notes-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .section-header h2 {
+        font-size: 1.6rem;
+    }
+
+    .floating-element {
+        animation-duration: 12s;
+    }
+
+    .hero-icon {
+        animation-duration: 6s;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-title {
+        font-size: 1.8rem;
+    }
+
+    .hero-icon {
+        font-size: 3rem;
+        animation: none;
+    }
+
+    .floating-element {
+        display: none;
+    }
+
+    .topic-card {
+        padding: 0.9rem;
+    }
+
+    .topic-icon {
+        width: 45px;
+        height: 45px;
+        font-size: 1.8rem;
+    }
+
+    .topic-name {
+        font-size: 1rem;
+    }
+
+    .topic-description {
+        display: none;
+    }
+
+    .topic-card-right {
+        gap: 0.8rem;
+    }
+
+    .note-count {
+        font-size: 0.9rem;
+        padding: 0.25rem 0.6rem;
+    }
+}
+
+/* 다크 모드 지원 */
+[data-theme="dark"] .learning-hero {
+    background: linear-gradient(135deg, #8ba3d7 0%, #7d7bc8 100%);
+}
+
+[data-theme="dark"] .topic-card {
+    background: var(--entry);
+    border-color: var(--border);
+}
+
+[data-theme="dark"] .topic-card:hover {
+    background: rgba(168, 192, 255, 0.08);
+    border-color: #a8c0ff;
+}
+
+[data-theme="dark"] .learning-note-card {
+    background: var(--entry);
+    border-color: var(--border);
+}
+
+[data-theme="dark"] .note-tag {
+    background: rgba(168, 192, 255, 0.15);
+    border-color: rgba(168, 192, 255, 0.3);
+    color: #b8ccff;
+}
+</style>
+
+<script>
+let currentlyShowingAll = false;
+
+function filterByTopic(topic) {
+    const allNotes = document.querySelectorAll('.learning-note-card');
+    const notesTitle = document.getElementById('notes-title');
+    const showAllBtn = document.getElementById('show-all-btn');
+    const loadMoreContainer = document.querySelector('.load-more-container');
+    const notesSection = document.getElementById('learning-notes');
+
+    let visibleCount = 0;
+
+    allNotes.forEach(note => {
+        const noteTopic = note.getAttribute('data-topic');
+        note.classList.remove('hidden-note');
+        if (noteTopic === topic) {
+            note.style.display = 'block';
+            visibleCount++;
+        } else {
+            note.style.display = 'none';
+        }
+    });
+
+    notesTitle.innerHTML = `${topic} 학습 노트 <span style="color: var(--secondary); font-size: 0.8em;">(${visibleCount}개)</span>`;
+    showAllBtn.style.display = 'block';
+
+    // 필터링 시 "더 보기" 버튼 숨김
+    if (loadMoreContainer) {
+        loadMoreContainer.style.display = 'none';
+    }
+
+    currentlyShowingAll = true;
+
+    // 스크롤
+    notesSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function showAllNotes() {
+    const allNotes = document.querySelectorAll('.learning-note-card');
+    const notesTitle = document.getElementById('notes-title');
+    const showAllBtn = document.getElementById('show-all-btn');
+    const loadMoreContainer = document.querySelector('.load-more-container');
+
+    // 처음 12개만 보이도록 초기화
+    allNotes.forEach((note, index) => {
+        note.style.display = 'block';
+        if (index >= 12) {
+            note.classList.add('hidden-note');
+        } else {
+            note.classList.remove('hidden-note');
+        }
+    });
+
+    notesTitle.textContent = '최근 학습 노트';
+    showAllBtn.style.display = 'none';
+
+    // "더 보기" 버튼 다시 표시
+    if (loadMoreContainer && allNotes.length > 12) {
+        loadMoreContainer.style.display = 'block';
+        updateRemainingCount();
+    }
+
+    currentlyShowingAll = false;
+}
+
+function loadMoreNotes() {
+    const hiddenNotes = document.querySelectorAll('.learning-note-card.hidden-note');
+    const loadMoreBtn = document.querySelector('.load-more-btn');
+    const loadMoreContainer = document.querySelector('.load-more-container');
+    const notesTitle = document.getElementById('notes-title');
+
+    // 한 번에 12개씩 더 보여주기
+    let count = 0;
+    hiddenNotes.forEach(note => {
+        if (count < 12) {
+            note.classList.remove('hidden-note');
+            count++;
+        }
+    });
+
+    // 남은 개수 업데이트
+    const remainingCount = document.querySelectorAll('.learning-note-card.hidden-note').length;
+
+    if (remainingCount === 0) {
+        // 모두 표시되면 버튼 숨기고 제목 변경
+        loadMoreContainer.style.display = 'none';
+        notesTitle.textContent = '모든 학습 노트';
+        currentlyShowingAll = true;
+    } else {
+        updateRemainingCount();
+    }
+}
+
+function updateRemainingCount() {
+    const remainingCount = document.querySelectorAll('.learning-note-card.hidden-note').length;
+    const remainingCountSpan = document.getElementById('remaining-count');
+    if (remainingCountSpan) {
+        remainingCountSpan.textContent = `(${remainingCount}개 남음)`;
+    }
+}
+</script>
+
+{{- end }}
