@@ -10,8 +10,6 @@ categories: ["Development", "Learning"]
 description: "Spring의 핵심 개념인 IoC(Inversion of Control)와 DI(Dependency Injection) 정리"
 ---
 
-> 이 파일은 예시입니다. 실제 학습 노트를 작성할 때 참고하세요!
-
 ## IoC란?
 
 IoC(Inversion of Control)는 제어의 역전을 의미합니다. 객체의 생성과 생명주기를 개발자가 아닌 프레임워크가 관리합니다.

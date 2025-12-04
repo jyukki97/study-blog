@@ -10,8 +10,6 @@ categories: ["Development", "Learning"]
 description: "React Hooks의 기본 개념과 사용법 정리"
 ---
 
-> 이 파일은 예시입니다. 실제 학습 노트를 작성할 때 참고하세요!
-
 ## useState 기초
 
 useState는 함수형 컴포넌트에서 상태를 관리할 수 있게 해주는 Hook입니다.
