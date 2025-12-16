@@ -9,6 +9,7 @@ tags: ["Spring", "Transaction", "@Transactional", "Rollback"]
 categories: ["Development", "Learning"]
 description: "가장 많이 사용하는 @Transactional 패턴과 실수하기 쉬운 포인트 정리"
 module: "spring-core"
+study_order: 18
 ---
 
 ## 1. 서비스 레이어에서 @Transactional 사용
