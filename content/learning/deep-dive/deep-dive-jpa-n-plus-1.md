@@ -1,20 +1,29 @@
 ---
-title: "JPA N+1 문제 완벽 해결 가이드"
-date: 2025-01-26
-topic: "Backend"
-tags: ["JPA", "Hibernate", "N+1", "성능최적화", "FetchJoin"]
-categories: ["Backend"]
-series: ["백엔드 심화 학습"]
-series_order: 4
-draft: true
+title: "JPA N+1: 원인부터 해결까지(페치 전략/배치/DTO)"
+date: 2025-12-16
+draft: false
+topic: "JPA"
+tags: ["JPA", "Hibernate", "N+1", "Fetch Join", "Batch Size"]
+categories: ["Backend Deep Dive"]
+description: "N+1을 재현하고 원인을 설명한 뒤, Fetch Join/배치 로딩/DTO 조회로 해결하는 실무 패턴"
 module: "data-system"
+study_order: 212
 ---
 
-## 들어가며
+## 이 글에서 얻는 것
 
-JPA를 사용하면서 가장 흔하게 마주치는 성능 문제가 바로 **N+1 문제**입니다. 이 문제를 제대로 이해하지 못하면 간단한 조회 쿼리가 수백, 수천 개의 SQL을 실행하여 심각한 성능 저하를 일으킬 수 있습니다.
+- N+1이 “Lazy가 나빠서”가 아니라, **조회 패턴과 객체 그래프 로딩 방식이 맞지 않아서** 생긴다는 걸 이해합니다.
+- “로그에 쿼리가 많이 찍힌다” 수준을 넘어, 어떤 관계/어떤 코드에서 N+1이 터지는지 재현하고 진단할 수 있습니다.
+- Fetch Join, Batch Size, DTO 조회(프로젝션) 중 무엇을 언제 쓰는지 선택 기준이 생깁니다.
 
----
+## 0) N+1은 ‘성능 문제’이자 ‘설계 문제’다
+
+N+1은 단순히 “쿼리가 많이 나간다”가 아니라,
+
+- 트래픽이 늘수록 폭발적으로 느려지고,
+- DB 커넥션 풀/락/캐시까지 연쇄적으로 흔드는
+
+대표적인 실무 장애 원인입니다. 그래서 원인과 해결 루틴을 “습관”으로 만들어두는 게 중요합니다.
 
 ## 1. N+1 문제란?
 
@@ -669,32 +678,23 @@ class TeamServiceTest {
 
 ---
 
-## 요약 체크리스트
+## 요약: 실무에서 기억할 것
 
-### N+1 문제 이해
-- [ ] 1번의 쿼리 + N번의 추가 쿼리 발생
-- [ ] FetchType.EAGER로 해결 안 됨 (오히려 악화)
-- [ ] 모든 연관관계는 LAZY로 설정
+### N+1 문제 감각
 
-### 해결 방법
-- [ ] **Fetch Join**: 1번의 쿼리로 해결, JPQL 작성 필요
-- [ ] **@EntityGraph**: Annotation 기반 Fetch Join
-- [ ] **@BatchSize**: IN 절로 배치 조회, 페이징 가능
-- [ ] **DTO Projection**: 필요한 컬럼만 조회, 성능 최고
+- “1번의 쿼리 + N번의 추가 쿼리”로 폭발합니다(데이터/트래픽이 커질수록 치명적).
+- `FetchType.EAGER`로 해결되지 않고, 오히려 예측하기 어려운 쿼리를 만들 수 있습니다.
+- 기본은 `LAZY`로 두고, “화면/유스케이스” 단위로 로딩 전략을 선택합니다.
 
-### 실무 전략
-- [ ] 글로벌 BatchSize 설정: 100
-- [ ] ToOne 관계: Fetch Join 또는 @BatchSize
-- [ ] ToMany 관계: @BatchSize (페이징 시)
-- [ ] 깊은 연관관계: 계층적 @BatchSize
+### 해결 옵션(상황별 선택)
 
-### 성능 최적화
-- [ ] 쿼리 로그 확인: show-sql, p6spy
-- [ ] 테스트 코드로 쿼리 개수 검증
-- [ ] 페이징 + Fetch Join 조합 주의
-- [ ] DISTINCT 사용 (중복 제거)
+- **Fetch Join**: 한 번에 당겨오되, 컬렉션/페이징 조합에 주의가 필요합니다.
+- **@EntityGraph**: 어노테이션 기반 Fetch Join(사용성 좋음).
+- **@BatchSize**: IN 절 배치 조회로 N을 줄이기(페이징과 함께 쓰기 쉬움).
+- **DTO Projection**: 필요한 컬럼만 가져오는 조회(성능/명확성↑, 대신 엔티티 그래프 활용↓).
 
-### 디버깅
-- [ ] N+1 발생 시: 쿼리 로그에서 반복 패턴 확인
-- [ ] Hibernate 쿼리 통계: statistics 활성화
-- [ ] APM 도구 활용: Pinpoint, New Relic
+### 운영/검증 루틴
+
+- Batch size는 전역/국소로 근거 있게 설정(무작정 크게 하면 IN 절/메모리 비용이 생길 수 있음)
+- ToOne은 Fetch Join/배치로 해결하기 쉬운 편, ToMany는 페이징/중복에 더 민감
+- 쿼리 로그/통계로 “쿼리 수”를 측정하고, 테스트로 회귀를 막는 습관이 중요합니다

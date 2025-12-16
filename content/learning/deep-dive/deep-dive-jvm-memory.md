@@ -1,20 +1,29 @@
 ---
-title: "JVM 내부 구조와 메모리 관리 완벽 가이드"
-date: 2025-01-26
-topic: "Backend"
-tags: ["Java", "JVM", "메모리", "ClassLoader", "Runtime"]
-categories: ["Backend"]
-series: ["백엔드 심화 학습"]
-series_order: 1
-draft: true
+title: "JVM 메모리 구조: 스택/힙/메타스페이스와 장애 디버깅"
+date: 2025-12-16
+draft: false
+topic: "JVM"
+tags: ["Java", "JVM", "Memory", "Metaspace", "JIT"]
+categories: ["Backend Deep Dive"]
+description: "JVM 메모리 영역과 GC Root, OOM/Metaspace/StackOverflow 같은 장애를 빠르게 진단하는 기본기"
 module: "foundation"
+study_order: 68
 ---
 
-## 들어가며
+## 이 글에서 얻는 것
 
-Java 개발자라면 반드시 알아야 할 JVM(Java Virtual Machine)의 내부 구조와 메모리 관리 메커니즘을 깊이 있게 다룹니다. "Write Once, Run Anywhere"를 가능하게 하는 JVM의 핵심 원리를 이해하면, 성능 문제 해결과 최적화에 큰 도움이 됩니다.
+- JVM의 메모리 영역(Runtime Data Areas: Stack/Heap/Metaspace)을 “정의”가 아니라 **장애/성능 문제와 연결된 모델**로 이해합니다.
+- `OutOfMemoryError`가 “힙 부족”만이 아니라, **Metaspace/Direct Memory/Thread Stack** 등 여러 원인으로 나뉜다는 감각을 잡습니다.
+- heap dump / thread dump / GC 로그를 어떤 순서로 보면 되는지, 최소한의 디버깅 루틴을 갖춥니다.
 
----
+## 0) 이 주제가 필요한 순간(실무 신호)
+
+아래 신호가 보이면 JVM 메모리 모델이 “필수”가 됩니다.
+
+- 갑자기 응답이 느려지고 GC 로그에 pause가 길어진다
+- `java.lang.OutOfMemoryError: Java heap space` / `Metaspace` / `GC overhead limit exceeded`
+- `StackOverflowError`가 특정 요청/작업에서 반복된다
+- 컨테이너(K8s)에서 메모리 제한에 걸려 OOMKilled가 난다(힙만 봐서는 해결이 안 됨)
 
 ## 1. JVM 아키텍처 전체 구조
 
@@ -866,32 +875,23 @@ jstat -gcutil <pid> 1000
 
 ---
 
-## 요약 체크리스트
+## 요약: 꼭 남겨야 하는 감각
 
-### JVM 아키텍처
-- [ ] Class Loader Subsystem (Loading → Linking → Initialization)
-- [ ] Runtime Data Areas (Method Area, Heap, Stack, PC, Native Stack)
-- [ ] Execution Engine (Interpreter, JIT Compiler, GC)
+### JVM 아키텍처(큰 그림)
 
-### 메모리 영역
-- [ ] Method Area: 클래스 메타데이터, static 변수 (Metaspace in Java 8+)
-- [ ] Heap: 객체 인스턴스 (Young/Old Generation)
-- [ ] Stack: 메서드 호출, 지역 변수 (Thread별 독립)
-- [ ] PC Register: 현재 실행 중인 명령어 주소
+- Class Loader Subsystem(Loading → Linking → Initialization)
+- Runtime Data Areas(Method Area/Heap/Stack/PC/Native Stack)
+- Execution Engine(Interpreter/JIT/GC)
 
-### 메모리 관리
-- [ ] Generational Heap: Eden, Survivor, Old
-- [ ] GC 알고리즘: Serial, Parallel, CMS, G1, ZGC
-- [ ] 메모리 누수 방지: SoftReference, WeakHashMap, ThreadLocal.remove()
+### 메모리 영역(무엇이 어디에 있나)
 
-### JVM 튜닝
-- [ ] Heap 크기: -Xms, -Xmx 동일하게 설정
-- [ ] Young/Old 비율: -XX:NewRatio
-- [ ] GC 로깅: -Xlog:gc*
-- [ ] 디버깅 도구: jmap, jstat, VisualVM, Eclipse MAT
+- Method Area/Metaspace: 클래스 메타데이터, 일부 static 영역
+- Heap: 객체 인스턴스(Young/Old)
+- Stack: 호출 프레임/지역 변수(스레드별)
+- PC Register: 현재 실행 중인 명령어 위치(스레드별)
 
-### 실무 팁
-- [ ] OOM 발생 시 Heap Dump 자동 생성: -XX:+HeapDumpOnOutOfMemoryError
-- [ ] GC 로그 분석으로 성능 병목 파악
-- [ ] 프로덕션 환경: G1GC 또는 ZGC 사용
-- [ ] 메모리 누수 정기 점검 (MAT Leak Suspects)
+### 운영 관점(문제 좁히기)
+
+- 힙 OOM만이 아니라 Metaspace/Direct/Stack 같은 다양한 메모리 한계가 있다
+- GC 로그/heap dump/thread dump를 조합하면 원인을 빨리 좁힐 수 있다
+- 플래그 튜닝은 마지막이고, “할당/생존/구조”를 먼저 본다

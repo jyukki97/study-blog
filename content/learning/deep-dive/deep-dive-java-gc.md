@@ -1,20 +1,30 @@
 ---
-title: "Java GC (Garbage Collector) 완벽 가이드"
-date: 2025-01-26
-topic: "Backend"
-tags: ["Java", "GC", "메모리", "성능최적화", "튜닝"]
-categories: ["Backend"]
-series: ["백엔드 심화 학습"]
-series_order: 2
-draft: true
+title: "Java GC 기본: 세대별 GC와 로그로 문제 좁히기"
+date: 2025-12-16
+draft: false
+topic: "JVM"
+tags: ["Java", "GC", "JVM", "GC Logs", "G1GC"]
+categories: ["Backend Deep Dive"]
+description: "할당/생존/승격 관점으로 GC를 이해하고, STW/메모리 문제를 로그로 진단하는 기본기"
 module: "foundation"
+study_order: 72
 ---
 
-## 들어가며
+## 이 글에서 얻는 것
 
-Java의 자동 메모리 관리 시스템인 GC(Garbage Collector)는 개발자가 직접 메모리를 해제하지 않아도 되게 해주지만, 성능 최적화를 위해서는 GC의 동작 원리와 각 알고리즘의 특성을 이해하는 것이 필수적입니다.
+- GC를 “종류 암기”가 아니라, **할당률(allocation rate)·생존률(survival)·승격(promotion)** 관점으로 이해합니다.
+- Minor/ Major/ Full GC가 언제 늘어나는지, 그리고 무엇을 보면 원인을 좁힐 수 있는지(힙 구성/GC 로그/지표) 기준이 생깁니다.
+- 튜닝을 하기 전에 반드시 해야 하는 것(관측/재현/가설 검증)을 알고, GC 튜닝 글을 읽을 준비를 합니다.
 
----
+## 0) GC는 ‘자동’이지만, 문제는 자동으로 해결되지 않는다
+
+GC는 메모리를 자동으로 회수해주지만, 아래는 자동으로 해결되지 않습니다.
+
+- 너무 많이 할당한다(객체를 지나치게 만든다) → GC 빈도가 증가
+- 오래 사는 객체가 많다 → Old 영역이 커지고 STW가 길어질 수 있음
+- 캐시/버퍼 구조가 잘못됐다 → 힙이 커지거나, pause가 길어짐
+
+그래서 GC는 “플래그로 해결”이 아니라 **코드/구조/관측**이 함께 가야 합니다.
 
 ## 1. GC 기본 개념
 
@@ -728,35 +738,21 @@ private static Map<String, SoftReference<Object>> cache;
 
 ---
 
-## 요약 체크리스트
+## 요약: GC를 이해하는 최소 감각
 
 ### GC 기본
-- [ ] Reachability: GC Roots에서 도달 가능한 객체만 살아남음
-- [ ] Generational Hypothesis: 대부분의 객체는 금방 죽는다
-- [ ] STW (Stop-The-World): GC 실행 중 애플리케이션 중지
-- [ ] Minor GC vs Major GC (Full GC)
 
-### GC 알고리즘
-- [ ] Serial GC: 단일 스레드 (사용 안 함)
-- [ ] Parallel GC: Throughput 최적화 (배치)
-- [ ] CMS GC: Low Latency (Deprecated)
-- [ ] G1 GC: Balanced (Java 9+ 기본, Heap < 32GB)
-- [ ] ZGC: Ultra-low Latency (Heap > 32GB, < 10ms pause)
+- Reachability: GC Root에서 도달 가능한 객체만 살아남습니다.
+- Generational 가정: 대부분의 객체는 금방 죽고, 오래 사는 객체는 일부입니다.
+- STW(Stop-The-World)는 “피할 수 없는 비용”이므로, 관측하고 줄이는 방향으로 접근합니다.
+- Minor(Young) / Major(Old) / Full GC가 언제 늘어나는지 구분하면 원인 좁히기가 쉬워집니다.
 
-### GC 튜닝
-- [ ] Heap 크기: -Xms, -Xmx 동일하게 설정
-- [ ] Young/Old 비율: -XX:NewRatio=2
-- [ ] GC 로깅: -Xlog:gc*
-- [ ] 목표 설정: -XX:MaxGCPauseMillis (G1, ZGC)
+### 알고리즘 선택(결국 트레이드오프)
 
-### 디버깅
-- [ ] jstat: GC 통계 모니터링
-- [ ] jmap: Heap Dump 생성
-- [ ] Eclipse MAT: 메모리 누수 분석
-- [ ] VisualVM: 실시간 모니터링
+- Throughput(배치) vs Latency(온라인)
+- G1은 “대부분의 온라인 서비스 기본값”으로 자주 쓰이고, ZGC는 더 낮은 pause를 목표로 합니다(운영/힙 크기/버전 전제).
 
-### 실무 팁
-- [ ] Full GC 빈번: Heap 크기 증가 또는 객체 생명주기 단축
-- [ ] Old Generation 90% 이상: 메모리 누수 의심
-- [ ] Pause time 목표: G1 (200ms), ZGC (10ms)
-- [ ] 프로덕션: G1 GC 또는 ZGC 사용 권장
+### 튜닝 전에 먼저 할 것
+
+- GC 로그/지표를 켜고(관측), 재현 가능한 부하/트래픽에서 비교한다(가설 검증).
+- 플래그보다 코드/구조(할당률/객체 생존/캐시/버퍼)를 먼저 본다.
