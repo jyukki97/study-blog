@@ -180,83 +180,52 @@ pool.awaitTermination(10, TimeUnit.SECONDS);
 
 ## 6) 디버깅: 무엇부터 보면 좋은가
 
-- 스레드 덤프: blocked/waiting 스레드가 어디서 멈췄는지(락/모니터)
-- JFR: CPU/락 경쟁/할당/GC pause를 한 번에 보기
-- 로그: 작업 큐 길이/거부 횟수/타임아웃 횟수(“포화” 신호)
+### 6-1) Thread dump: “어디에서 멈췄나”를 먼저 본다
+
+수집 방법(상황에 맞게 하나만):
+
+- `jcmd <pid> Thread.print`
+- `jstack -l <pid>`
+- (리눅스) `kill -3 <pid>`: 표준 에러로 스레드 덤프가 출력되는 경우가 많습니다
+
+읽는 순서:
+
+1) 스레드 상태(`java.lang.Thread.State`)가 `BLOCKED/WAITING/TIMED_WAITING`에 몰려 있나?  
+2) 스택 최상단에 공통으로 반복되는 프레임이 있나? (같은 락/같은 외부 호출/같은 큐 대기)  
+3) 한 락을 기다리는 스레드가 수십 개면 “핫 락” 가능성이 큽니다.
+
+상태 해석(최소만):
+
+- `BLOCKED`: 모니터 락 진입 대기(대부분 `synchronized`)
+- `WAITING/TIMED_WAITING`: `Object.wait`, `LockSupport.park`, `Condition.await` 등 “대기/슬립”
+- `RUNNABLE`: 실제 CPU 사용 중일 수도 있고, 네이티브 IO에서 대기 중일 수도 있습니다(스택 프레임을 같이 봅니다)
+
+### 6-2) JFR: “경합/CPU/할당”을 같이 본다
+
+스레드 덤프가 “정지 화면”이라면, JFR은 “동영상”에 가깝습니다.
+
+- CPU가 바쁜지 vs 락 경합이 심한지 vs 할당이 폭증하는지(→ GC) 를 한 번에 구분하는 데 좋습니다.
+
+### 6-3) 풀/큐 지표: 포화를 조기에 감지한다
+
+- 작업 큐 길이, reject 횟수, 타임아웃 비율, 평균/상위 퍼센타일 지연
+- “포화”는 동시성 버그처럼 보일 수 있으니(지연/타임아웃) 지표로 먼저 확인합니다.
 
 ## 연습(추천)
 
 - `AtomicInteger`/`synchronized`/`LongAdder`로 동일 카운터를 구현하고 “경쟁이 심할 때” 어떤 차이가 나는지 비교해보기
 - bounded queue + CallerRunsPolicy로 포화 시 지연이 어떻게 바뀌는지 관찰하기
 
+## 요약: 실무에서 자주 틀리는 지점
+
+- 공유 상태는 동시성 컬렉션 + 락/원자 연산으로 “한 곳에서” 보호합니다. (단일 핫 카운터는 `LongAdder` 고려)
+- `volatile`은 가시성/순서 보장이지 원자성이 아닙니다. `count++` 같은 복합 업데이트엔 쓰지 않습니다.
+- 스레드풀은 `core/max/queue/rejection`을 명시하고, 포화 신호(큐 길이/거부/timeout)를 지표로 남깁니다.
+- CPU 바운드와 블로킹 IO를 같은 풀에 섞지 않습니다. (전용 풀 + 타임아웃/취소 경로)
+- 재현이 어렵다면 `Thread dump` → `JFR` 순으로 범위를 줄입니다. (`RUNNABLE/BLOCKED/WAITING` 상태 해석 포함)
+- 종료 시 `shutdown()`/`awaitTermination()`로 자원을 회수합니다.
+
 ## 추가 학습
 
 - Java Concurrency in Practice
 - Effective Java 아이템 78~82
-
-- **Thread 생성/수명주기**: new → runnable → running → terminated
-- **Executor**: 스레드풀로 작업 제출 (`submit()`, `execute()`), 큐 적재/거부 정책
-- **Lock/동시성 컬렉션**: `ReentrantLock`, `ReadWriteLock`, `ConcurrentHashMap`
-- **가시성/원자성**: `volatile`, `Atomic*`, happens-before
-- **메모리 모델(HBM)**: 같은 락/동일 Atomic 연산 사이, `volatile` write→read 사이에 happens-before 보장
-
-### 스레드풀 선택 가이드
-
-- CPU 바운드: `newFixedThreadPool(n_cores)` 혹은 명시적 ThreadPoolExecutor (core=max)
-- IO 바운드: core는 CPU보다 크게, 큐 크기/거부 정책 설정 필수
-- 블로킹 작업 분리: IO 전용 풀, 타임아웃과 취소 경로 제공
-
-## 코드 스니펫
-
-```java
-ExecutorService pool = new ThreadPoolExecutor(
-    4, 8,
-    60, TimeUnit.SECONDS,
-    new LinkedBlockingQueue<>(100),
-    new ThreadPoolExecutor.CallerRunsPolicy() // 거부 시 호출 스레드가 실행
-);
-
-Lock lock = new ReentrantLock();
-Map<String, Integer> counter = new ConcurrentHashMap<>();
-
-void increase(String key) {
-    lock.lock();
-    try {
-        counter.merge(key, 1, Integer::sum);
-    } finally {
-        lock.unlock();
-    }
-}
-```
-
-```java
-// 종료 시그널 처리
-pool.shutdown();
-pool.awaitTermination(10, TimeUnit.SECONDS);
-```
-
-```java
-// synchronized vs ReentrantLock 예시
-class Counter {
-  private final Lock lock = new ReentrantLock();
-  private int value;
-  public void inc() {
-    lock.lock();
-    try { value++; }
-    finally { lock.unlock(); }
-  }
-}
-```
-
-## 체크리스트
-
-- [ ] 스레드풀 생성 시 core/max/queue/거부 정책을 명시적으로 설정했는가?
-- [ ] 공유 상태는 동시성 컬렉션 + 락/원자 연산으로 보호되는가?
-- [ ] 긴 블로킹 작업은 별도 풀로 분리했는가? (IO vs CPU)
-- [ ] 종료 시 `shutdown()`/`awaitTermination()` 호출로 자원 해제하는가?
-- [ ] `volatile`은 원자성이 아님을 기억하고 복합 연산에는 락/원자 클래스 사용
-- [ ] 재현 어려운 문제는 스레드 덤프(jstack)와 JFR로 원인 파악
-
-## 추가 학습
-
-- Java Concurrency in Practice, Effective Java 아이템 78~82
