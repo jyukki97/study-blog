@@ -25,6 +25,26 @@
       <h2>📑 학습 타임라인</h2>
       <div class="section-line"></div>
     </div>
+    {{- if .Content }}
+    <article class="learning-rich-content timeline-intro">
+      {{- .Content -}}
+    </article>
+    {{- end }}
+    {{- if gt (len $modules) 0 }}
+    <nav class="timeline-nav" aria-label="모듈 바로가기">
+      {{- range $modules }}
+      {{- $moduleKey := .Params.module_key }}
+      {{- $navPosts := where site.RegularPages "Params.module" $moduleKey }}
+      {{- $navPosts = where $navPosts "Params.study_order" "!=" nil }}
+      {{- $navPosts = sort $navPosts "Params.study_order" }}
+      <a class="timeline-nav-item" href="#module-{{ $moduleKey }}">
+        <span class="nav-step">STEP {{ .Weight }}</span>
+        <span class="nav-title">{{ .Title }}</span>
+        <span class="nav-count">{{ len $navPosts }}개</span>
+      </a>
+      {{- end }}
+    </nav>
+    {{- end }}
     {{- if gt (len $modules) 0 }}
     <div class="timeline-list grouped">
       {{- range $modules }}
@@ -32,13 +52,25 @@
       {{- $modulePosts := where site.RegularPages "Params.module" $moduleKey }}
       {{- $modulePosts = where $modulePosts "Params.study_order" "!=" nil }}
       {{- $modulePosts = sort $modulePosts "Params.study_order" }}
-      <article class="timeline-item module-head">
+      <article id="module-{{ $moduleKey }}" class="timeline-item module-head">
         <div class="timeline-order">STEP {{ .Weight }}</div>
         <div class="timeline-body">
-          <h3 class="timeline-title"><a href="{{ .Permalink }}">{{ .Title }}</a></h3>
+          <div class="module-head-row">
+            <h3 class="timeline-title"><a href="{{ .Permalink }}">{{ .Title }}</a></h3>
+            <div class="module-head-meta">
+              <span class="module-count">{{ len $modulePosts }}개</span>
+              <a class="module-link" href="{{ .Permalink }}">모듈 페이지 →</a>
+            </div>
+          </div>
           <p class="timeline-desc">
             {{- with .Params.description }}{{ . }}{{- else }}{{ .Summary | plainify | truncate 140 }}{{- end }}
           </p>
+          {{- if and (eq (len $modulePosts) 0) (eq $moduleKey "overview") }}
+          <p class="module-note">이 단계는 전체 흐름 안내입니다. 아래 STEP 1부터 순서대로 진행하면 됩니다.</p>
+          {{- end }}
+          {{- if and (eq (len $modulePosts) 0) (eq $moduleKey "qna") }}
+          <p class="module-note">Q&A는 복습용이라 타임라인 번호 없이 모듈 페이지에서 최신순으로 정리됩니다.</p>
+          {{- end }}
         </div>
       </article>
       {{- range $modulePosts }}
@@ -99,6 +131,13 @@
 .section-header { display:flex; align-items:center; gap:1rem; margin-bottom:1.5rem; }
 .section-header h2 { font-size:1.8rem; font-weight:800; margin:0; background: linear-gradient(135deg, #a8c0ff, #9795f0); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
 .section-line { flex:1; height:2px; background: linear-gradient(90deg, #a8c0ff, transparent); border-radius:1px; }
+.timeline-intro { margin-bottom: 1.4rem; }
+.timeline-nav { display:flex; flex-wrap:wrap; gap:0.6rem; margin: 0 0 1.6rem; }
+.timeline-nav-item { display:inline-flex; align-items:center; gap:0.55rem; padding:0.55rem 0.85rem; border-radius:999px; background: var(--entry); border:1px solid var(--border); text-decoration:none; color:var(--primary); transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease; box-shadow: 0 4px 14px rgba(0,0,0,0.04); }
+.timeline-nav-item:hover { transform: translateY(-1px); box-shadow: 0 10px 22px rgba(168,192,255,0.14); border-color:#a8c0ff; }
+.nav-step { font-size:0.8rem; font-weight:800; color:#6b7cff; background: var(--code-bg); border:1px solid rgba(168, 192, 255, 0.25); padding:0.2rem 0.55rem; border-radius:999px; white-space:nowrap; }
+.nav-title { font-weight:700; font-size:0.95rem; max-width: 22ch; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.nav-count { font-size:0.85rem; color:var(--secondary); font-variant-numeric:tabular-nums; white-space:nowrap; }
 .learning-timeline { margin: 2rem 0 2rem; }
 .timeline-list { display:flex; flex-direction:column; gap:1rem; }
 .timeline-list.grouped { gap:1.4rem; }
@@ -110,6 +149,13 @@
 .timeline-title a { color:var(--primary); text-decoration:none; }
 .timeline-title a:hover { color:#6b7cff; }
 .timeline-desc { color:var(--secondary); line-height:1.6; margin:0; }
+.module-head-row { display:flex; align-items:flex-start; justify-content:space-between; gap:0.9rem; }
+.module-head-meta { display:inline-flex; align-items:center; gap:0.5rem; flex:0 0 auto; }
+.module-count { background: var(--code-bg); padding:0.25rem 0.65rem; border-radius:999px; color:#6b7cff; border:1px solid rgba(168,192,255,0.25); font-weight:700; font-size:0.85rem; font-variant-numeric:tabular-nums; white-space:nowrap; }
+.module-link { color:var(--primary); text-decoration:none; font-weight:800; font-size:0.9rem; white-space:nowrap; }
+.module-link:hover { color:#6b7cff; }
+.module-note { color: var(--secondary); margin: 0.1rem 0 0; font-size: 0.9rem; }
+.timeline-item.module-head { scroll-margin-top: 96px; }
 .timeline-meta { display:flex; align-items:center; gap:0.6rem; font-size:0.9rem; color:var(--secondary); }
 .timeline-tag { background: var(--code-bg); padding:0.25rem 0.65rem; border-radius:10px; color:#6b7cff; border:1px solid rgba(168,192,255,0.25); font-weight:600; }
 .module-head { border-left: 4px solid #a8c0ff; }
@@ -128,6 +174,8 @@
   .hero-description{font-size:1rem;}
   .hero-actions{flex-direction:column; align-items:center;}
   .hero-btn{width:100%; justify-content:center;}
+  .timeline-nav-item{width:100%; justify-content:space-between;}
+  .nav-title{max-width: 100%;}
   .timeline-item{grid-template-columns:1fr;}
   .timeline-order{width:44px; height:44px;}
 }
