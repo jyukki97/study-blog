@@ -34,7 +34,7 @@
       {{- $modulePosts = where $modulePosts "File.Dir" "!=" "learning/qna/" }}
       {{- $modulePosts = sort $modulePosts "Params.study_order" }}
       <article class="timeline-item module-head">
-        <div class="timeline-order">STEP {{ printf "%d" .Weight }}</div>
+        <div class="timeline-order">STEP {{ .Weight }}</div>
         <div class="timeline-body">
           <h3 class="timeline-title"><a href="{{ .Permalink }}">{{ .Title }}</a></h3>
           <p class="timeline-desc">
