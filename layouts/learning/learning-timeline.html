@@ -29,11 +29,6 @@
         <button type="button" class="timeline-control" data-action="collapse">전체 접기</button>
       </div>
     </div>
-    {{- if .Content }}
-    <article class="learning-rich-content timeline-intro">
-      {{- .Content -}}
-    </article>
-    {{- end }}
     {{- if gt (len $modules) 0 }}
     <nav class="timeline-nav" aria-label="모듈 바로가기">
       {{- range $modules }}
@@ -65,7 +60,6 @@
               <h3 class="timeline-title"><a href="{{ .Permalink }}">{{ .Title }}</a></h3>
               <div class="module-head-meta">
                 <span class="module-count">{{ len $modulePosts }}개</span>
-                <a class="module-link" href="{{ .Permalink }}">모듈 페이지 →</a>
                 {{- if gt (len $modulePosts) 0 }}
                 <button
                   type="button"
@@ -179,8 +173,6 @@
 .module-head-row { display:flex; align-items:flex-start; justify-content:space-between; gap:0.9rem; }
 .module-head-meta { display:inline-flex; align-items:center; gap:0.5rem; flex:0 0 auto; }
 .module-count { background: var(--code-bg); padding:0.25rem 0.65rem; border-radius:999px; color:#6b7cff; border:1px solid rgba(168,192,255,0.25); font-weight:700; font-size:0.85rem; font-variant-numeric:tabular-nums; white-space:nowrap; }
-.module-link { color:var(--primary); text-decoration:none; font-weight:800; font-size:0.9rem; white-space:nowrap; }
-.module-link:hover { color:#6b7cff; }
 .module-toggle { background: var(--code-bg); color:#6b7cff; border:1px solid rgba(168,192,255,0.25); padding:0.25rem 0.65rem; border-radius:999px; font-weight:800; font-size:0.85rem; cursor:pointer; transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease; white-space:nowrap; }
 .module-toggle:hover { border-color:#a8c0ff; box-shadow: 0 8px 18px rgba(168,192,255,0.14); transform: translateY(-1px); }
 .module-toggle:active { transform: translateY(0); }
@@ -188,6 +180,7 @@
 .module-toggle[aria-expanded="false"]::after { transform: rotate(-90deg); }
 .module-note { color: var(--secondary); margin: 0.1rem 0 0; font-size: 0.9rem; }
 .timeline-item.module-head { scroll-margin-top: 96px; }
+.timeline-step-posts[hidden] { display:none !important; }
 .timeline-meta { display:flex; align-items:center; gap:0.6rem; font-size:0.9rem; color:var(--secondary); }
 .timeline-tag { background: var(--code-bg); padding:0.25rem 0.65rem; border-radius:10px; color:#6b7cff; border:1px solid rgba(168,192,255,0.25); font-weight:600; }
 .module-head { border-left: 4px solid #a8c0ff; }
