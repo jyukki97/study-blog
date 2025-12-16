@@ -1750,35 +1750,35 @@ public class LockMonitor {
 
 ---
 
-## 요약 체크리스트
+## 요약
 
 ### 낙관적 락 vs 비관적 락
-- [ ] 낙관적 락: @Version, 충돌 적을 때 유리, OptimisticLockException
-- [ ] 비관적 락: SELECT FOR UPDATE, 충돌 많을 때 유리, 데드락 가능
-- [ ] 낙관적 락: Application 레벨, 비관적 락: DB 레벨
-- [ ] 데드락 방지: Lock Ordering, 타임아웃, 재시도
+- 낙관적 락: @Version, 충돌 적을 때 유리, OptimisticLockException
+- 비관적 락: SELECT FOR UPDATE, 충돌 많을 때 유리, 데드락 가능
+- 낙관적 락: Application 레벨, 비관적 락: DB 레벨
+- 데드락 방지: Lock Ordering, 타임아웃, 재시도
 
 ### 분산 락
-- [ ] Redis 분산 락: Lettuce (Spin Lock), Redisson (Pub/Sub)
-- [ ] Redisson 권장: 효율적 대기, tryLock + leaseTime
-- [ ] 트랜잭션 분리: 락 획득 → 트랜잭션 시작 → 커밋 → 락 해제
-- [ ] Redlock: 다중 Redis로 안전한 분산 락
+- Redis 분산 락: Lettuce (Spin Lock), Redisson (Pub/Sub)
+- Redisson 권장: 효율적 대기, tryLock + leaseTime
+- 트랜잭션 분리: 락 획득 → 트랜잭션 시작 → 커밋 → 락 해제
+- Redlock: 다중 Redis로 안전한 분산 락
 
 ### 재고 차감 시나리오
-- [ ] 낙관적 락: 충돌 적음, 재시도 필요
-- [ ] 비관적 락: 충돌 많음, 확실한 제어
-- [ ] Redis 분산 락: MSA 환경
-- [ ] Redis Atomic: 초고속 처리 (10000+ TPS)
+- 낙관적 락: 충돌 적음, 재시도 필요
+- 비관적 락: 충돌 많음, 확실한 제어
+- Redis 분산 락: MSA 환경
+- Redis Atomic: 초고속 처리 (10000+ TPS)
 
 ### Java 멀티스레드
-- [ ] synchronized: 간단, 성능 저하, 데드락 가능
-- [ ] ReentrantLock: 타임아웃, 공정성, Condition
-- [ ] Atomic 클래스: Lock-Free, 단순 연산
-- [ ] volatile: 가시성 보장, 원자성 X
-- [ ] ThreadLocal: 스레드별 독립 변수, remove() 필수
+- synchronized: 간단, 성능 저하, 데드락 가능
+- ReentrantLock: 타임아웃, 공정성, Condition
+- Atomic 클래스: Lock-Free, 단순 연산
+- volatile: 가시성 보장, 원자성 X
+- ThreadLocal: 스레드별 독립 변수, remove() 필수
 
 ### 실무 주의사항
-- [ ] 재고 음수 방지: DB Constraint, UPDATE 조건
-- [ ] 분산 락: try-finally, leaseTime 설정
-- [ ] Redis-DB 동기화: 정기 배치, Eventual Consistency
-- [ ] Lock Monitoring: 오래된 락 감지 및 알림
+- 재고 음수 방지: DB Constraint, UPDATE 조건
+- 분산 락: try-finally, leaseTime 설정
+- Redis-DB 동기화: 정기 배치, Eventual Consistency
+- Lock Monitoring: 오래된 락 감지 및 알림

@@ -1111,24 +1111,24 @@ function UserProfile() {
 
 ---
 
-## 요약 체크리스트
+## 요약
 
 ### Context API vs Redux
-- [ ] **Context API**: 간단한 전역 상태, 작은 앱에 적합
-- [ ] **Redux**: 예측 가능한 상태 관리, 대규모 앱에 적합
-- [ ] **Context 성능**: Context 분리, useMemo로 최적화
+- **Context API**: 간단한 전역 상태, 작은 앱에 적합
+- **Redux**: 예측 가능한 상태 관리, 대규모 앱에 적합
+- **Context 성능**: Context 분리, useMemo로 최적화
 
 ### Redux Toolkit
-- [ ] **createSlice**: Action + Reducer 자동 생성
-- [ ] **Immer**: 불변성 자동 유지 (직접 수정 가능)
-- [ ] **createAsyncThunk**: 비동기 처리 간소화
+- **createSlice**: Action + Reducer 자동 생성
+- **Immer**: 불변성 자동 유지 (직접 수정 가능)
+- **createAsyncThunk**: 비동기 처리 간소화
 
 ### Zustand
-- [ ] **초경량**: 1KB, Provider 불필요
-- [ ] **간결함**: 보일러플레이트 최소
-- [ ] **Selector**: 필요한 값만 구독하여 최적화
+- **초경량**: 1KB, Provider 불필요
+- **간결함**: 보일러플레이트 최소
+- **Selector**: 필요한 값만 구독하여 최적화
 
 ### 상태 배치 원칙
-- [ ] **로컬 우선**: 가능한 한 로컬 상태 사용
-- [ ] **전역 최소**: 여러 곳에서 공유 시에만 전역 상태
-- [ ] **Server State**: React Query, SWR로 분리
+- **로컬 우선**: 가능한 한 로컬 상태 사용
+- **전역 최소**: 여러 곳에서 공유 시에만 전역 상태
+- **Server State**: React Query, SWR로 분리

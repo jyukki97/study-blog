@@ -916,30 +916,30 @@ Limit  (cost=0..500 rows=100)
 
 ---
 
-## 요약 체크리스트
+## 요약
 
 ### Execution Plan 읽기
-- [ ] **type**: const > eq_ref > ref > range > index > ALL
-- [ ] **key**: 실제 사용된 인덱스 확인
-- [ ] **rows**: 예상 스캔 Row 수 (적을수록 좋음)
-- [ ] **Extra**: Using index (좋음), Using filesort/temporary (나쁨)
+- **type**: const > eq_ref > ref > range > index > ALL
+- **key**: 실제 사용된 인덱스 확인
+- **rows**: 예상 스캔 Row 수 (적을수록 좋음)
+- **Extra**: Using index (좋음), Using filesort/temporary (나쁨)
 
 ### Join 전략
-- [ ] **Nested Loop**: 외부 테이블 작고, 내부에 인덱스 있을 때
-- [ ] **Hash Join**: 큰 테이블 조인, 등호 조건
-- [ ] **Merge Join**: 이미 정렬된 데이터
+- **Nested Loop**: 외부 테이블 작고, 내부에 인덱스 있을 때
+- **Hash Join**: 큰 테이블 조인, 등호 조건
+- **Merge Join**: 이미 정렬된 데이터
 
 ### N+1 문제 해결
-- [ ] **Fetch Join**: 1:N 관계, 단일 컬렉션
-- [ ] **Batch Fetch**: 1:N 관계, 여러 컬렉션
-- [ ] **Subquery**: 집계만 필요
+- **Fetch Join**: 1:N 관계, 단일 컬렉션
+- **Batch Fetch**: 1:N 관계, 여러 컬렉션
+- **Subquery**: 집계만 필요
 
 ### 서브쿼리 최적화
-- [ ] **Correlated Subquery → JOIN**: 성능 크게 향상
-- [ ] **IN → EXISTS**: 큰 결과 집합일 때 유리
-- [ ] **SELECT 절 서브쿼리 → JOIN**: 한 번에 집계
+- **Correlated Subquery → JOIN**: 성능 크게 향상
+- **IN → EXISTS**: 큰 결과 집합일 때 유리
+- **SELECT 절 서브쿼리 → JOIN**: 한 번에 집계
 
 ### Slow Query 최적화
-- [ ] **인덱스 추가**: 자주 사용되는 WHERE, JOIN 컬럼
-- [ ] **실행 계획 분석**: EXPLAIN ANALYZE로 병목 지점 찾기
-- [ ] **쿼리 재작성**: Subquery → JOIN, 불필요한 컬럼 제거
+- **인덱스 추가**: 자주 사용되는 WHERE, JOIN 컬럼
+- **실행 계획 분석**: EXPLAIN ANALYZE로 병목 지점 찾기
+- **쿼리 재작성**: Subquery → JOIN, 불필요한 컬럼 제거

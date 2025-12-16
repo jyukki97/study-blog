@@ -470,30 +470,30 @@ for (long i = 0; i < VERY_LARGE_NUMBER; i++) {
 ### 학습 체크리스트
 
 **JVM 구조**:
-- [ ] Class Loader, Runtime Data Area, Execution Engine 설명
-- [ ] 각 영역의 역할 이해
+- Class Loader, Runtime Data Area, Execution Engine 설명
+- 각 영역의 역할 이해
 
 **ClassLoader**:
-- [ ] Bootstrap, Extension, Application ClassLoader 구분
-- [ ] Delegation Model 원리 및 이유
-- [ ] Custom ClassLoader 사용 사례
+- Bootstrap, Extension, Application ClassLoader 구분
+- Delegation Model 원리 및 이유
+- Custom ClassLoader 사용 사례
 
 **JIT Compiler**:
-- [ ] Interpreter vs JIT 차이
-- [ ] C1 vs C2 컴파일러
-- [ ] Tiered Compilation 개념
-- [ ] 주요 최적화 기법 (Inlining, Dead Code Elimination 등)
+- Interpreter vs JIT 차이
+- C1 vs C2 컴파일러
+- Tiered Compilation 개념
+- 주요 최적화 기법 (Inlining, Dead Code Elimination 등)
 
 **Thread 관리**:
-- [ ] 1:1 스레드 모델
-- [ ] Thread별 메모리 영역 vs 공유 메모리
-- [ ] Virtual Thread 개념 (Java 19+)
-- [ ] Thread Dump 분석 방법
+- 1:1 스레드 모델
+- Thread별 메모리 영역 vs 공유 메모리
+- Virtual Thread 개념 (Java 19+)
+- Thread Dump 분석 방법
 
 **Safepoint**:
-- [ ] Safepoint란 무엇인가
-- [ ] 필요한 경우 및 동작 방식
-- [ ] TTSP (Time To Safepoint) 최적화
+- Safepoint란 무엇인가
+- 필요한 경우 및 동작 방식
+- TTSP (Time To Safepoint) 최적화
 
 ### 실무 핵심 포인트
 

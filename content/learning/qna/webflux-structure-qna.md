@@ -549,25 +549,25 @@ public Mono<User> findUser(Long id) {
 ### 학습 체크리스트
 
 **Mono vs Flux**:
-- [ ] Mono는 0..1, Flux는 0..N 데이터 처리
-- [ ] Mono.empty() vs Mono.just(null) 차이
-- [ ] Mono vs CompletableFuture 차이 (Lazy, Cancellation)
+- Mono는 0..1, Flux는 0..N 데이터 처리
+- Mono.empty() vs Mono.just(null) 차이
+- Mono vs CompletableFuture 차이 (Lazy, Cancellation)
 
 **subscribe**:
-- [ ] subscribe 전까지 실행 안 됨 (Lazy)
-- [ ] WebFlux가 자동으로 subscribe 호출
-- [ ] 여러 번 subscribe 시 각각 독립 실행
-- [ ] block()은 WebFlux Controller에서 금지
+- subscribe 전까지 실행 안 됨 (Lazy)
+- WebFlux가 자동으로 subscribe 호출
+- 여러 번 subscribe 시 각각 독립 실행
+- block()은 WebFlux Controller에서 금지
 
 **Scheduler**:
-- [ ] immediate, single, parallel, boundedElastic 차이
-- [ ] subscribeOn vs publishOn
-- [ ] Blocking 작업은 boundedElastic 사용
+- immediate, single, parallel, boundedElastic 차이
+- subscribeOn vs publishOn
+- Blocking 작업은 boundedElastic 사용
 
 **Operators**:
-- [ ] map (동기) vs flatMap (비동기)
-- [ ] flatMap vs concatMap (순서 보장)
-- [ ] onErrorReturn vs onErrorResume
+- map (동기) vs flatMap (비동기)
+- flatMap vs concatMap (순서 보장)
+- onErrorReturn vs onErrorResume
 
 ### 실무 핵심 포인트
 

@@ -1565,37 +1565,37 @@ management:
 
 ---
 
-## 요약 체크리스트
+## 요약
 
 ### 캐싱 전략
-- [ ] Cache-Aside: 필요할 때만 캐싱, 가장 일반적
-- [ ] Write-Through: DB + 캐시 동시 업데이트, 일관성 보장
-- [ ] Write-Behind: 캐시만 업데이트, 비동기 DB 반영, 초고속
-- [ ] Cache Stampede: Lock (Single Flight), Early Expiration
+- Cache-Aside: 필요할 때만 캐싱, 가장 일반적
+- Write-Through: DB + 캐시 동시 업데이트, 일관성 보장
+- Write-Behind: 캐시만 업데이트, 비동기 DB 반영, 초고속
+- Cache Stampede: Lock (Single Flight), Early Expiration
 
 ### 2-Level Cache
-- [ ] L1 (Caffeine): 1ms, 로컬 캐시, 초고빈도 데이터
-- [ ] L2 (Redis): 10ms, 글로벌 캐시, 빈번한 조회 데이터
-- [ ] Redis Pub/Sub으로 L1 캐시 동기화
-- [ ] Caffeine: Window TinyLFU, 비동기 로딩, 통계
+- L1 (Caffeine): 1ms, 로컬 캐시, 초고빈도 데이터
+- L2 (Redis): 10ms, 글로벌 캐시, 빈번한 조회 데이터
+- Redis Pub/Sub으로 L1 캐시 동기화
+- Caffeine: Window TinyLFU, 비동기 로딩, 통계
 
 ### 캐시 무효화
-- [ ] TTL: 자동 만료, 가장 간단
-- [ ] Event-Driven: 데이터 변경 시 즉시 삭제
-- [ ] Dependency-Based: 연관 캐시 함께 삭제
-- [ ] Cache Tagging: 태그 기반 일괄 삭제
-- [ ] Write-Invalidate: 쓰기 시 삭제, 다음 읽기 시 재생성
+- TTL: 자동 만료, 가장 간단
+- Event-Driven: 데이터 변경 시 즉시 삭제
+- Dependency-Based: 연관 캐시 함께 삭제
+- Cache Tagging: 태그 기반 일괄 삭제
+- Write-Invalidate: 쓰기 시 삭제, 다음 읽기 시 재생성
 
 ### 실무 주의사항
-- [ ] 모든 캐시에 TTL 설정 (메모리 누수 방지)
-- [ ] Redis maxmemory-policy 설정 (allkeys-lru)
-- [ ] Redis SETNX로 Race Condition 방지
-- [ ] TransactionSynchronization으로 트랜잭션 후 캐시 업데이트
-- [ ] Circuit Breaker + Local Cache Fallback
+- 모든 캐시에 TTL 설정 (메모리 누수 방지)
+- Redis maxmemory-policy 설정 (allkeys-lru)
+- Redis SETNX로 Race Condition 방지
+- TransactionSynchronization으로 트랜잭션 후 캐시 업데이트
+- Circuit Breaker + Local Cache Fallback
 
 ### 모니터링
-- [ ] Hit Rate >80% 목표
-- [ ] Memory Usage <80%
-- [ ] Eviction Count 모니터링
-- [ ] Prometheus + Grafana 대시보드
-- [ ] 알림: Memory >80%, Hit Rate <70%
+- Hit Rate >80% 목표
+- Memory Usage <80%
+- Eviction Count 모니터링
+- Prometheus + Grafana 대시보드
+- 알림: Memory >80%, Hit Rate <70%

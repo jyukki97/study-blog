@@ -614,27 +614,27 @@ spring:
 ### 학습 체크리스트
 
 **Bean Lifecycle**:
-- [ ] 생성 → 의존성 주입 → 초기화 → 소멸 단계
-- [ ] @PostConstruct, InitializingBean, @Bean(initMethod) 순서
-- [ ] 순환 참조 문제 및 해결 방법
+- 생성 → 의존성 주입 → 초기화 → 소멸 단계
+- @PostConstruct, InitializingBean, @Bean(initMethod) 순서
+- 순환 참조 문제 및 해결 방법
 
 **Proxy**:
-- [ ] JDK Dynamic Proxy vs CGLIB
-- [ ] 내부 메서드 호출 시 프록시 미적용 이유
-- [ ] CGLIB 제약사항 (final, private)
+- JDK Dynamic Proxy vs CGLIB
+- 내부 메서드 호출 시 프록시 미적용 이유
+- CGLIB 제약사항 (final, private)
 
 **@Configuration**:
-- [ ] @Configuration vs @Component 차이
-- [ ] CGLIB 프록시를 통한 싱글톤 보장
-- [ ] proxyBeanMethods = false 사용 시기
+- @Configuration vs @Component 차이
+- CGLIB 프록시를 통한 싱글톤 보장
+- proxyBeanMethods = false 사용 시기
 
 **Post Processor**:
-- [ ] BeanPostProcessor vs BeanFactoryPostProcessor
-- [ ] 실행 순서 및 사용 사례
+- BeanPostProcessor vs BeanFactoryPostProcessor
+- 실행 순서 및 사용 사례
 
 **Lazy Initialization**:
-- [ ] 장단점 및 사용 시기
-- [ ] 전역 vs 개별 Lazy 설정
+- 장단점 및 사용 시기
+- 전역 vs 개별 Lazy 설정
 
 ### 실무 포인트
 

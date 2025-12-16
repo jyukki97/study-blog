@@ -1500,35 +1500,35 @@ public ResponseEntity<ErrorResponse> handleException(Exception ex) {
 
 ---
 
-## 요약 체크리스트
+## 요약
 
 ### @ControllerAdvice 글로벌 예외 처리
-- [ ] @RestControllerAdvice로 전역 예외 처리
-- [ ] ErrorResponse 표준 구조 정의
-- [ ] 특정 패키지/Controller로 적용 범위 제한 가능
-- [ ] Controller 내부 @ExceptionHandler가 우선순위 높음
+- @RestControllerAdvice로 전역 예외 처리
+- ErrorResponse 표준 구조 정의
+- 특정 패키지/Controller로 적용 범위 제한 가능
+- Controller 내부 @ExceptionHandler가 우선순위 높음
 
 ### Checked vs Unchecked Exception
-- [ ] Checked: 복구 가능한 예외, 컴파일 시점 검사
-- [ ] Unchecked: 프로그래밍 오류, 런타임 예외
-- [ ] Spring에서는 Unchecked 권장 (트랜잭션 롤백, 코드 가독성)
-- [ ] Custom Exception은 RuntimeException 상속
+- Checked: 복구 가능한 예외, 컴파일 시점 검사
+- Unchecked: 프로그래밍 오류, 런타임 예외
+- Spring에서는 Unchecked 권장 (트랜잭션 롤백, 코드 가독성)
+- Custom Exception은 RuntimeException 상속
 
 ### 계층별 예외 처리
-- [ ] Domain: 도메인 규칙 검증 (InvalidEmailException)
-- [ ] Application: 비즈니스 로직 예외 (InsufficientStockException)
-- [ ] Infrastructure: DB 예외를 비즈니스 예외로 변환
-- [ ] Presentation: HTTP 상태 코드 + ErrorResponse 반환
-- [ ] ErrorCode Enum으로 중앙 관리
+- Domain: 도메인 규칙 검증 (InvalidEmailException)
+- Application: 비즈니스 로직 예외 (InsufficientStockException)
+- Infrastructure: DB 예외를 비즈니스 예외로 변환
+- Presentation: HTTP 상태 코드 + ErrorResponse 반환
+- ErrorCode Enum으로 중앙 관리
 
 ### 비동기 예외 처리
-- [ ] @Async 메서드는 호출자가 예외를 받지 못함
-- [ ] AsyncUncaughtExceptionHandler로 전역 처리
-- [ ] CompletableFuture 반환으로 예외 처리 가능
-- [ ] @Async + @Transactional: 별도 트랜잭션, DTO 전달 필요
+- @Async 메서드는 호출자가 예외를 받지 못함
+- AsyncUncaughtExceptionHandler로 전역 처리
+- CompletableFuture 반환으로 예외 처리 가능
+- @Async + @Transactional: 별도 트랜잭션, DTO 전달 필요
 
 ### 실무 주의사항
-- [ ] 예외 로그에 민감 정보 마스킹 (password, cardNumber)
-- [ ] 재시도 시 멱등성 키 사용 (중복 방지)
-- [ ] 엔티티 순환 참조 방지 (@JsonIgnore, DTO 변환)
-- [ ] 외부 API: Circuit Breaker, Retry, Fallback
+- 예외 로그에 민감 정보 마스킹 (password, cardNumber)
+- 재시도 시 멱등성 키 사용 (중복 방지)
+- 엔티티 순환 참조 방지 (@JsonIgnore, DTO 변환)
+- 외부 API: Circuit Breaker, Retry, Fallback

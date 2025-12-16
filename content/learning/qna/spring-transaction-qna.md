@@ -1016,24 +1016,24 @@ public class OrderTransactionService {
 
 ---
 
-## 요약 체크리스트
+## 요약
 
 ### @Transactional 동작
-- [ ] **프록시 패턴**: AOP로 트랜잭션 관리
-- [ ] **Self-Invocation**: 내부 호출 시 프록시 우회 (동작 X)
-- [ ] **rollbackFor**: Checked Exception은 명시 필요
+- **프록시 패턴**: AOP로 트랜잭션 관리
+- **Self-Invocation**: 내부 호출 시 프록시 우회 (동작 X)
+- **rollbackFor**: Checked Exception은 명시 필요
 
 ### Propagation
-- [ ] **REQUIRED**: 기존 재사용, 없으면 생성 (기본값)
-- [ ] **REQUIRES_NEW**: 항상 새 트랜잭션 생성
-- [ ] **NESTED**: Savepoint로 부분 롤백
+- **REQUIRED**: 기존 재사용, 없으면 생성 (기본값)
+- **REQUIRES_NEW**: 항상 새 트랜잭션 생성
+- **NESTED**: Savepoint로 부분 롤백
 
 ### Isolation Level
-- [ ] **READ_COMMITTED**: 커밋된 데이터만 읽기 (일반적)
-- [ ] **REPEATABLE_READ**: 동일 row 반복 읽기 보장
-- [ ] **SERIALIZABLE**: 완전 격리 (성능 저하)
+- **READ_COMMITTED**: 커밋된 데이터만 읽기 (일반적)
+- **REPEATABLE_READ**: 동일 row 반복 읽기 보장
+- **SERIALIZABLE**: 완전 격리 (성능 저하)
 
 ### 분산 트랜잭션
-- [ ] **Saga Pattern**: 로컬 트랜잭션 + 보상 트랜잭션
-- [ ] **Outbox Pattern**: 이벤트 발행 보장
-- [ ] **2PC**: 실무에서 거의 사용 안 함
+- **Saga Pattern**: 로컬 트랜잭션 + 보상 트랜잭션
+- **Outbox Pattern**: 이벤트 발행 보장
+- **2PC**: 실무에서 거의 사용 안 함

@@ -670,24 +670,24 @@ public class WebConfig implements WebMvcConfigurer {
 ### 학습 체크리스트
 
 **DispatcherServlet 흐름**:
-- [ ] HandlerMapping → HandlerAdapter → Controller → ViewResolver 순서
-- [ ] 각 컴포넌트의 역할 이해
-- [ ] HandlerAdapter가 필요한 이유 (어댑터 패턴)
+- HandlerMapping → HandlerAdapter → Controller → ViewResolver 순서
+- 각 컴포넌트의 역할 이해
+- HandlerAdapter가 필요한 이유 (어댑터 패턴)
 
 **Interceptor**:
-- [ ] preHandle, postHandle, afterCompletion 실행 순서
-- [ ] Filter vs Interceptor 차이
-- [ ] preHandle false 반환 시 동작
+- preHandle, postHandle, afterCompletion 실행 순서
+- Filter vs Interceptor 차이
+- preHandle false 반환 시 동작
 
 **예외 처리**:
-- [ ] @ControllerAdvice 동작 위치 (HandlerExceptionResolver)
-- [ ] @ExceptionHandler 우선순위
-- [ ] 예외 발생 시 Interceptor 실행 흐름
+- @ControllerAdvice 동작 위치 (HandlerExceptionResolver)
+- @ExceptionHandler 우선순위
+- 예외 발생 시 Interceptor 실행 흐름
 
 **확장 포인트**:
-- [ ] ArgumentResolver: 파라미터 처리
-- [ ] ReturnValueHandler: 반환값 처리
-- [ ] MessageConverter: 요청/응답 본문 변환
+- ArgumentResolver: 파라미터 처리
+- ReturnValueHandler: 반환값 처리
+- MessageConverter: 요청/응답 본문 변환
 
 ### 실무 활용
 

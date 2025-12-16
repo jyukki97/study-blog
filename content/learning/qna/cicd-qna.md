@@ -1217,24 +1217,24 @@ spec:
 
 ---
 
-## 요약 체크리스트
+## 요약
 
 ### CI/CD 기본 개념
-- [ ] **CI**: 코드 통합 자동화 (빌드, 테스트)
-- [ ] **Continuous Delivery**: 배포 준비 자동화 (수동 승인)
-- [ ] **Continuous Deployment**: 배포까지 완전 자동화
+- **CI**: 코드 통합 자동화 (빌드, 테스트)
+- **Continuous Delivery**: 배포 준비 자동화 (수동 승인)
+- **Continuous Deployment**: 배포까지 완전 자동화
 
 ### Jenkins Pipeline
-- [ ] **Stage**: 논리적 단계 (Build, Test, Deploy)
-- [ ] **병렬 실행**: 독립적인 Stage는 parallel로 실행
-- [ ] **when 조건**: 특정 조건에서만 실행
+- **Stage**: 논리적 단계 (Build, Test, Deploy)
+- **병렬 실행**: 독립적인 Stage는 parallel로 실행
+- **when 조건**: 특정 조건에서만 실행
 
 ### Rollback 전략
-- [ ] **Blue-Green**: 즉시 롤백 (5초), 리소스 2배
-- [ ] **Canary**: 단계적 배포, 위험도 최소
-- [ ] **Rolling Update**: 순차 배포, 기본 전략
+- **Blue-Green**: 즉시 롤백 (5초), 리소스 2배
+- **Canary**: 단계적 배포, 위험도 최소
+- **Rolling Update**: 순차 배포, 기본 전략
 
 ### ArgoCD (GitOps)
-- [ ] **GitOps**: Git = Single Source of Truth
-- [ ] **Drift 감지**: 자동 복구 (selfHeal)
-- [ ] **간단한 롤백**: Git Revert로 이전 버전 배포
+- **GitOps**: Git = Single Source of Truth
+- **Drift 감지**: 자동 복구 (selfHeal)
+- **간단한 롤백**: Git Revert로 이전 버전 배포

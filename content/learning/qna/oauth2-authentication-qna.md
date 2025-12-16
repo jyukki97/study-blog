@@ -1516,33 +1516,33 @@ public class SecretsManagerConfig {
 
 ---
 
-## 요약 체크리스트
+## 요약
 
 ### OAuth2 핵심 개념
-- [ ] OAuth2는 **인가(Authorization) 프로토콜**이지 인증이 아님
-- [ ] 4가지 역할: Resource Owner, Client, Authorization Server, Resource Server
-- [ ] Grant Type: Authorization Code (권장), Implicit (Deprecated), Password, Client Credentials
+- OAuth2는 **인가(Authorization) 프로토콜**이지 인증이 아님
+- 4가지 역할: Resource Owner, Client, Authorization Server, Resource Server
+- Grant Type: Authorization Code (권장), Implicit (Deprecated), Password, Client Credentials
 
 ### JWT vs Opaque Token
-- [ ] JWT: Stateless, 로컬 검증 가능, 즉시 무효화 불가
-- [ ] Opaque Token: Stateful, Introspection 필요, 즉시 무효화 가능
-- [ ] JWT 무효화 방법: Blacklist, 짧은 만료 시간, Token Versioning
+- JWT: Stateless, 로컬 검증 가능, 즉시 무효화 불가
+- Opaque Token: Stateful, Introspection 필요, 즉시 무효화 가능
+- JWT 무효화 방법: Blacklist, 짧은 만료 시간, Token Versioning
 
 ### Refresh Token 관리
-- [ ] DB 또는 Redis에 저장하여 즉시 무효화 가능
-- [ ] Refresh Token Rotation으로 탈취 감지
-- [ ] 디바이스별 관리로 세션 제어
-- [ ] IP/User-Agent 검증으로 보안 강화
+- DB 또는 Redis에 저장하여 즉시 무효화 가능
+- Refresh Token Rotation으로 탈취 감지
+- 디바이스별 관리로 세션 제어
+- IP/User-Agent 검증으로 보안 강화
 
 ### Spring Security 구현
-- [ ] Authorization Server: OAuth2 인증 서버 구현
-- [ ] Resource Server: JWT 또는 Opaque Token 검증
-- [ ] MSA: API Gateway 검증 또는 각 서비스 독립 검증
-- [ ] JWK Set으로 공개키 자동 Rotation
+- Authorization Server: OAuth2 인증 서버 구현
+- Resource Server: JWT 또는 Opaque Token 검증
+- MSA: API Gateway 검증 또는 각 서비스 독립 검증
+- JWK Set으로 공개키 자동 Rotation
 
 ### 보안 모범 사례
-- [ ] Refresh Token: HttpOnly Cookie + SameSite=Strict
-- [ ] Access Token: 짧은 만료 시간 (30분)
-- [ ] PKCE: SPA/모바일 앱 필수
-- [ ] Secret Key: 환경 변수 또는 Secrets Manager
-- [ ] 의심 활동 모니터링 및 알림
+- Refresh Token: HttpOnly Cookie + SameSite=Strict
+- Access Token: 짧은 만료 시간 (30분)
+- PKCE: SPA/모바일 앱 필수
+- Secret Key: 환경 변수 또는 Secrets Manager
+- 의심 활동 모니터링 및 알림

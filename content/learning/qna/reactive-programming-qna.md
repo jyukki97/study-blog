@@ -744,32 +744,32 @@ public class LegacyService {
 
 ---
 
-## 요약 체크리스트
+## 요약
 
 ### Reactive Programming 핵심 개념
-- [ ] Reactive Programming은 **비동기 데이터 스트림**을 선언적으로 처리
-- [ ] **논블로킹 I/O**로 적은 스레드로 높은 동시성 처리
-- [ ] CPU 바운드 작업에는 부적합, I/O 바운드에 유리
+- Reactive Programming은 **비동기 데이터 스트림**을 선언적으로 처리
+- **논블로킹 I/O**로 적은 스레드로 높은 동시성 처리
+- CPU 바운드 작업에는 부적합, I/O 바운드에 유리
 
 ### Publisher-Subscriber 패턴
-- [ ] **4가지 인터페이스**: Publisher, Subscriber, Subscription, Processor
-- [ ] **Lazy Evaluation**: `subscribe()` 호출 시점에 실행
-- [ ] `Subscription.request(n)`으로 Backpressure 제어
+- **4가지 인터페이스**: Publisher, Subscriber, Subscription, Processor
+- **Lazy Evaluation**: `subscribe()` 호출 시점에 실행
+- `Subscription.request(n)`으로 Backpressure 제어
 
 ### Backpressure 전략
-- [ ] **`onBackpressureBuffer()`**: 버퍼에 저장
-- [ ] **`onBackpressureDrop()`**: 초과 데이터 버림
-- [ ] **`onBackpressureLatest()`**: 최신 데이터만 유지
-- [ ] **`onBackpressureError()`**: 에러 발생
+- **`onBackpressureBuffer()`**: 버퍼에 저장
+- **`onBackpressureDrop()`**: 초과 데이터 버림
+- **`onBackpressureLatest()`**: 최신 데이터만 유지
+- **`onBackpressureError()`**: 에러 발생
 
 ### Cold vs Hot Publisher
-- [ ] **Cold**: 구독 시마다 새로운 스트림 생성 (HTTP, DB)
-- [ ] **Hot**: 구독 여부와 무관하게 데이터 발행 (이벤트, 센서)
-- [ ] `share()`, `cache()`로 Cold → Hot 변환
+- **Cold**: 구독 시마다 새로운 스트림 생성 (HTTP, DB)
+- **Hot**: 구독 여부와 무관하게 데이터 발행 (이벤트, 센서)
+- `share()`, `cache()`로 Cold → Hot 변환
 
 ### 실무 주의사항
-- [ ] **블로킹 코드**는 `subscribeOn(Schedulers.boundedElastic())`에서 실행
-- [ ] **에러 처리** 필수: `onErrorResume()`, `onErrorReturn()`
-- [ ] **Context 전파**: ThreadLocal 대신 Reactor Context 사용
-- [ ] **메모리 누수**: Disposable로 구독 관리
-- [ ] **테스트**: StepVerifier로 Reactive 코드 테스트
+- **블로킹 코드**는 `subscribeOn(Schedulers.boundedElastic())`에서 실행
+- **에러 처리** 필수: `onErrorResume()`, `onErrorReturn()`
+- **Context 전파**: ThreadLocal 대신 Reactor Context 사용
+- **메모리 누수**: Disposable로 구독 관리
+- **테스트**: StepVerifier로 Reactive 코드 테스트

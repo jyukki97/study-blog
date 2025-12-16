@@ -777,30 +777,30 @@ public void processOrder(Order order) {
 
 ---
 
-## 요약 체크리스트
+## 요약
 
 ### Consumer Group 기본 개념
-- [ ] **Consumer Group**: 여러 Consumer가 Partition을 분산 처리
-- [ ] **Partition 할당**: Consumer Group 내에서 각 Partition은 1개 Consumer에게만 할당
-- [ ] **최적 비율**: Consumer 수 ≤ Partition 수
+- **Consumer Group**: 여러 Consumer가 Partition을 분산 처리
+- **Partition 할당**: Consumer Group 내에서 각 Partition은 1개 Consumer에게만 할당
+- **최적 비율**: Consumer 수 ≤ Partition 수
 
 ### Rebalance 메커니즘
-- [ ] **발생 조건**: Consumer 추가/제거, Partition 증가, Heartbeat 실패
-- [ ] **Rebalance 과정**: Stop the World → Partition 재할당 → 재시작
-- [ ] **최소화 전략**: Static Membership, Incremental Cooperative Rebalance
+- **발생 조건**: Consumer 추가/제거, Partition 증가, Heartbeat 실패
+- **Rebalance 과정**: Stop the World → Partition 재할당 → 재시작
+- **최소화 전략**: Static Membership, Incremental Cooperative Rebalance
 
 ### Offset Commit 전략
-- [ ] **Auto Commit**: 편리하지만 중복/유실 가능
-- [ ] **Sync Commit**: 정확하지만 성능 저하
-- [ ] **Async Commit**: 성능 좋지만 실패 처리 복잡
-- [ ] **Exactly-Once**: Kafka Transactions + 멱등성 Producer
+- **Auto Commit**: 편리하지만 중복/유실 가능
+- **Sync Commit**: 정확하지만 성능 저하
+- **Async Commit**: 성능 좋지만 실패 처리 복잡
+- **Exactly-Once**: Kafka Transactions + 멱등성 Producer
 
 ### Group Coordinator
-- [ ] **역할**: Consumer 등록/해제, Heartbeat 수신, Rebalance 조율
-- [ ] **Heartbeat**: `session.timeout.ms` 내에 전송 필수
-- [ ] **Assignment Strategy**: Range, RoundRobin, Sticky
+- **역할**: Consumer 등록/해제, Heartbeat 수신, Rebalance 조율
+- **Heartbeat**: `session.timeout.ms` 내에 전송 필수
+- **Assignment Strategy**: Range, RoundRobin, Sticky
 
 ### 실무 장애 대응
-- [ ] **Consumer Lag**: Consumer 증가, 배치 처리, Partition 증가
-- [ ] **잦은 Rebalance**: `max.poll.interval.ms` 조정, 별도 스레드 처리
-- [ ] **중복 처리**: 멱등성 보장 (Offset 기반 중복 체크)
+- **Consumer Lag**: Consumer 증가, 배치 처리, Partition 증가
+- **잦은 Rebalance**: `max.poll.interval.ms` 조정, 별도 스레드 처리
+- **중복 처리**: 멱등성 보장 (Offset 기반 중복 체크)

@@ -817,29 +817,29 @@ DROP INDEX idx_user_id;
 
 ---
 
-## 요약 체크리스트
+## 요약
 
 ### B-Tree 인덱스
-- [ ] **구조**: Root → Branch → Leaf (Balanced Tree)
-- [ ] **시간 복잡도**: 검색/삽입/삭제 O(log N)
-- [ ] **Clustered vs Non-Clustered**: PK는 Clustered, 나머지는 Non-Clustered
+- **구조**: Root → Branch → Leaf (Balanced Tree)
+- **시간 복잡도**: 검색/삽입/삭제 O(log N)
+- **Clustered vs Non-Clustered**: PK는 Clustered, 나머지는 Non-Clustered
 
 ### 복합 인덱스 설계
-- [ ] **컬럼 순서**: 선택도 높은 컬럼 우선, 범위 검색은 마지막
-- [ ] **Leftmost Prefix**: 첫 컬럼부터 순서대로 사용해야 인덱스 활용
-- [ ] **쿼리 패턴**: 자주 사용되는 조건 조합을 복합 인덱스로
+- **컬럼 순서**: 선택도 높은 컬럼 우선, 범위 검색은 마지막
+- **Leftmost Prefix**: 첫 컬럼부터 순서대로 사용해야 인덱스 활용
+- **쿼리 패턴**: 자주 사용되는 조건 조합을 복합 인덱스로
 
 ### Covering Index
-- [ ] **정의**: 쿼리에 필요한 모든 컬럼을 인덱스에 포함
-- [ ] **효과**: 테이블 접근 없이 인덱스만으로 결과 반환
-- [ ] **주의**: 인덱스 크기 증가, Write Penalty
+- **정의**: 쿼리에 필요한 모든 컬럼을 인덱스에 포함
+- **효과**: 테이블 접근 없이 인덱스만으로 결과 반환
+- **주의**: 인덱스 크기 증가, Write Penalty
 
 ### Index Selectivity
-- [ ] **계산**: Distinct 값 / 전체 Row (1에 가까울수록 좋음)
-- [ ] **높은 선택도**: PK, Unique (인덱스 효과적)
-- [ ] **낮은 선택도**: Gender, Boolean (인덱스 비효율적)
+- **계산**: Distinct 값 / 전체 Row (1에 가까울수록 좋음)
+- **높은 선택도**: PK, Unique (인덱스 효과적)
+- **낮은 선택도**: Gender, Boolean (인덱스 비효율적)
 
 ### 실무 최적화
-- [ ] **실행 계획**: EXPLAIN ANALYZE로 인덱스 사용 확인
-- [ ] **통계 분석**: 컬럼별 선택도, 쿼리 패턴 분석
-- [ ] **인덱스 정리**: 미사용 인덱스 제거, 중복 인덱스 통합
+- **실행 계획**: EXPLAIN ANALYZE로 인덱스 사용 확인
+- **통계 분석**: 컬럼별 선택도, 쿼리 패턴 분석
+- **인덱스 정리**: 미사용 인덱스 제거, 중복 인덱스 통합

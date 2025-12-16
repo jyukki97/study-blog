@@ -832,31 +832,31 @@ while (true) {
 
 ---
 
-## 요약 체크리스트
+## 요약
 
 ### Partition 분배 방식
-- [ ] **Key 기반**: `hash(key) % partition_count` (동일 Key는 동일 Partition)
-- [ ] **Round-Robin**: Key 없으면 균등 분산
-- [ ] **Custom Partitioner**: 비즈니스 로직 기반 분배
+- **Key 기반**: `hash(key) % partition_count` (동일 Key는 동일 Partition)
+- **Round-Robin**: Key 없으면 균등 분산
+- **Custom Partitioner**: 비즈니스 로직 기반 분배
 
 ### 순서 보장
-- [ ] **Partition 단위**: Partition 내에서만 순서 보장
-- [ ] **Key 선택**: 순서가 중요한 Entity를 Key로 사용
-- [ ] **Idempotence**: `enable.idempotence=true`로 재전송 시 순서 유지
+- **Partition 단위**: Partition 내에서만 순서 보장
+- **Key 선택**: 순서가 중요한 Entity를 Key로 사용
+- **Idempotence**: `enable.idempotence=true`로 재전송 시 순서 유지
 
 ### Hot Partition 해결
-- [ ] **Key 재설계**: Random Suffix로 추가 분산
-- [ ] **Custom Partitioner**: 트래픽 패턴 기반 분배
-- [ ] **Partition 증가**: 세밀한 분산 (일관성 주의)
-- [ ] **Topic 분리**: 별도 Topic으로 격리
+- **Key 재설계**: Random Suffix로 추가 분산
+- **Custom Partitioner**: 트래픽 패턴 기반 분배
+- **Partition 증가**: 세밀한 분산 (일관성 주의)
+- **Topic 분리**: 별도 Topic으로 격리
 
 ### Partition Key 설계
-- [ ] **순서 요구사항**: Entity ID 사용
-- [ ] **Cardinality**: Key 개수 ≥ Partition × 10
-- [ ] **트래픽 패턴**: Hot Key 분산 전략
-- [ ] **확장성**: Partition 증가 시 일관성 고려
+- **순서 요구사항**: Entity ID 사용
+- **Cardinality**: Key 개수 ≥ Partition × 10
+- **트래픽 패턴**: Hot Key 분산 전략
+- **확장성**: Partition 증가 시 일관성 고려
 
 ### 실무 장애 대응
-- [ ] **Hot Partition**: Celebrity 사용자 분산 처리
-- [ ] **순서 깨짐**: Consistent Partitioner로 일관성 유지
-- [ ] **중복 처리**: Offset 기반 멱등성 보장
+- **Hot Partition**: Celebrity 사용자 분산 처리
+- **순서 깨짐**: Consistent Partitioner로 일관성 유지
+- **중복 처리**: Offset 기반 멱등성 보장

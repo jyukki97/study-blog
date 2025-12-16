@@ -1047,25 +1047,25 @@ function ProductImage({ src, alt }) {
 
 ---
 
-## 요약 체크리스트
+## 요약
 
 ### Virtual DOM
-- [ ] **동작 원리**: 실제 DOM의 가벼운 복사본으로 Diffing 후 변경사항만 적용
-- [ ] **Reconciliation**: O(n³) → O(n) 최적화
-- [ ] **key**: 리스트 렌더링 시 고유한 key 사용 필수
+- **동작 원리**: 실제 DOM의 가벼운 복사본으로 Diffing 후 변경사항만 적용
+- **Reconciliation**: O(n³) → O(n) 최적화
+- **key**: 리스트 렌더링 시 고유한 key 사용 필수
 
 ### React.memo
-- [ ] **용도**: 컴포넌트 메모이제이션으로 불필요한 리렌더링 방지
-- [ ] **얕은 비교**: 기본적으로 props를 얕게 비교
-- [ ] **Custom Comparison**: 깊은 비교가 필요하면 비교 함수 제공
+- **용도**: 컴포넌트 메모이제이션으로 불필요한 리렌더링 방지
+- **얕은 비교**: 기본적으로 props를 얕게 비교
+- **Custom Comparison**: 깊은 비교가 필요하면 비교 함수 제공
 
 ### useCallback vs useMemo
-- [ ] **useCallback**: 함수 메모이제이션 (이벤트 핸들러)
-- [ ] **useMemo**: 값 메모이제이션 (무거운 계산 결과)
-- [ ] **사용 시점**: React.memo와 함께, useEffect 의존성, 무거운 계산
+- **useCallback**: 함수 메모이제이션 (이벤트 핸들러)
+- **useMemo**: 값 메모이제이션 (무거운 계산 결과)
+- **사용 시점**: React.memo와 함께, useEffect 의존성, 무거운 계산
 
 ### 리스트 최적화
-- [ ] **key**: 고유 ID 사용 (index, random 금지)
-- [ ] **Virtualization**: react-window로 대량 리스트 최적화
-- [ ] **Lazy Loading**: Intersection Observer로 지연 로딩
-- [ ] **Pagination**: 페이지 단위로 데이터 로드
+- **key**: 고유 ID 사용 (index, random 금지)
+- **Virtualization**: react-window로 대량 리스트 최적화
+- **Lazy Loading**: Intersection Observer로 지연 로딩
+- **Pagination**: 페이지 단위로 데이터 로드

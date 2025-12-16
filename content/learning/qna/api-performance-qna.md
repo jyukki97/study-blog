@@ -978,24 +978,24 @@ public List<OrderResponse> getOrders(String email) {
 
 ---
 
-## 요약 체크리스트
+## 요약
 
 ### Thread Dump
-- [ ] **수집**: jstack으로 3~5번 수집 (10초 간격)
-- [ ] **Deadlock**: "Found one Java-level deadlock" 확인
-- [ ] **Thread Pool Exhaustion**: 모든 스레드가 WAITING
+- **수집**: jstack으로 3~5번 수집 (10초 간격)
+- **Deadlock**: "Found one Java-level deadlock" 확인
+- **Thread Pool Exhaustion**: 모든 스레드가 WAITING
 
 ### Slow Query
-- [ ] **Slow Query Log**: long_query_time 설정
-- [ ] **EXPLAIN**: type, rows 확인
-- [ ] **인덱스**: Full Scan → Index Scan
+- **Slow Query Log**: long_query_time 설정
+- **EXPLAIN**: type, rows 확인
+- **인덱스**: Full Scan → Index Scan
 
 ### 캐싱
-- [ ] **로컬 캐시**: Caffeine (작은 데이터)
-- [ ] **Redis**: 분산 환경, 대용량
-- [ ] **Cache Stampede**: Lock으로 해결
+- **로컬 캐시**: Caffeine (작은 데이터)
+- **Redis**: 분산 환경, 대용량
+- **Cache Stampede**: Lock으로 해결
 
 ### Connection Pool
-- [ ] **Pool Size**: (Core × 2) + Spindle Count
-- [ ] **Leak Detection**: leak-detection-threshold 설정
-- [ ] **try-with-resources**: 자동 반환
+- **Pool Size**: (Core × 2) + Spindle Count
+- **Leak Detection**: leak-detection-threshold 설정
+- **try-with-resources**: 자동 반환

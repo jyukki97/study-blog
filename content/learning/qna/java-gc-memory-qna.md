@@ -472,25 +472,25 @@ public void cleanupOldEvents() {
 ### 학습 체크리스트
 
 **메모리 구조**:
-- [ ] Heap vs Stack 차이점 명확히 설명
-- [ ] StackOverflowError vs OutOfMemoryError 구분
-- [ ] String Constant Pool 위치 변경 이유 (Java 7+)
+- Heap vs Stack 차이점 명확히 설명
+- StackOverflowError vs OutOfMemoryError 구분
+- String Constant Pool 위치 변경 이유 (Java 7+)
 
 **GC 원리**:
-- [ ] Mark and Sweep 알고리즘 설명
-- [ ] Generational GC (Young/Old) 이해
-- [ ] Minor GC vs Full GC 차이
+- Mark and Sweep 알고리즘 설명
+- Generational GC (Young/Old) 이해
+- Minor GC vs Full GC 차이
 
 **GC 종류**:
-- [ ] G1 GC vs ZGC 비교
-- [ ] 각 GC의 장단점 및 사용 사례
-- [ ] GC 선택 기준 (Heap 크기, Latency 요구사항)
+- G1 GC vs ZGC 비교
+- 각 GC의 장단점 및 사용 사례
+- GC 선택 기준 (Heap 크기, Latency 요구사항)
 
 **실무 대응**:
-- [ ] OutOfMemoryError 유형별 대응 방법
-- [ ] Heap Dump 분석 도구 사용 경험
-- [ ] GC 튜닝 지표 및 실제 적용 사례
-- [ ] Memory Leak 탐지 및 해결 방법
+- OutOfMemoryError 유형별 대응 방법
+- Heap Dump 분석 도구 사용 경험
+- GC 튜닝 지표 및 실제 적용 사례
+- Memory Leak 탐지 및 해결 방법
 
 ### 추가 학습 자료
 

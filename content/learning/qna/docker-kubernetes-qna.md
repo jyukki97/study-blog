@@ -886,29 +886,29 @@ readinessProbe:
 
 ---
 
-## 요약 체크리스트
+## 요약
 
 ### Docker vs VM
-- [ ] **Docker**: OS 커널 공유, 프로세스 레벨 격리, 빠른 시작 (초)
-- [ ] **VM**: 독립 OS, 하드웨어 레벨 격리, 느린 시작 (분)
-- [ ] **레이어**: Image는 여러 레이어로 구성, 레이어 재사용으로 디스크 절약
+- **Docker**: OS 커널 공유, 프로세스 레벨 격리, 빠른 시작 (초)
+- **VM**: 독립 OS, 하드웨어 레벨 격리, 느린 시작 (분)
+- **레이어**: Image는 여러 레이어로 구성, 레이어 재사용으로 디스크 절약
 
 ### Pod vs Deployment
-- [ ] **Pod**: 최소 배포 단위, 임시 리소스
-- [ ] **Deployment**: Pod 관리 (복제, 롤링 업데이트, 롤백)
-- [ ] **ReplicaSet**: Deployment가 내부적으로 사용
+- **Pod**: 최소 배포 단위, 임시 리소스
+- **Deployment**: Pod 관리 (복제, 롤링 업데이트, 롤백)
+- **ReplicaSet**: Deployment가 내부적으로 사용
 
 ### Probes (Health Check)
-- [ ] **Liveness**: 데드락 감지 → 재시작
-- [ ] **Readiness**: 초기화 확인 → Service에서 제외
-- [ ] **Startup**: 느린 시작 허용 → 재시작
+- **Liveness**: 데드락 감지 → 재시작
+- **Readiness**: 초기화 확인 → Service에서 제외
+- **Startup**: 느린 시작 허용 → 재시작
 
 ### Scaling
-- [ ] **HPA**: Pod 개수 자동 조정 (CPU, 메모리, 커스텀 메트릭)
-- [ ] **VPA**: Pod requests/limits 자동 조정
-- [ ] **CA**: 노드 개수 자동 조정
+- **HPA**: Pod 개수 자동 조정 (CPU, 메모리, 커스텀 메트릭)
+- **VPA**: Pod requests/limits 자동 조정
+- **CA**: 노드 개수 자동 조정
 
 ### 트러블슈팅
-- [ ] **CrashLoopBackOff**: 로그 확인 (kubectl logs)
-- [ ] **ImagePullBackOff**: Registry 인증 (imagePullSecrets)
-- [ ] **Readiness 실패**: Probe 경로 및 초기화 시간 확인
+- **CrashLoopBackOff**: 로그 확인 (kubectl logs)
+- **ImagePullBackOff**: Registry 인증 (imagePullSecrets)
+- **Readiness 실패**: Probe 경로 및 초기화 시간 확인
