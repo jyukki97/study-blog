@@ -7,6 +7,7 @@ topic_description: "React 성능 최적화, Virtual DOM, memo, useCallback 관�
 tags: ["React", "Performance", "Virtual DOM", "Hooks"]
 categories: ["Frontend"]
 draft: false
+module: "qna"
 ---
 
 # React 성능 최적화 정리

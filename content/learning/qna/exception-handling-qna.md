@@ -7,6 +7,7 @@ categories: ["Spring"]
 series: ["핵심 개념 Q&A"]
 series_order: 18
 draft: false
+module: "qna"
 ---
 
 ## Q1. @ControllerAdvice와 @ExceptionHandler를 사용한 글로벌 예외 처리를 설명해주세요.

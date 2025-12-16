@@ -7,6 +7,7 @@ categories: ["Backend"]
 series: ["핵심 개념 Q&A"]
 series_order: 20
 draft: false
+module: "qna"
 ---
 
 ## Q1. 캐싱의 기본 개념과 Cache-Aside, Write-Through, Write-Behind 전략을 설명해주세요.

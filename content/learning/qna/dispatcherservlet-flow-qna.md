@@ -7,6 +7,7 @@ topic_description: "DispatcherServlet, HandlerMapping, Interceptor, Controller �
 tags: ["Spring", "Spring MVC", "DispatcherServlet", "Interceptor"]
 categories: ["Spring"]
 draft: false
+module: "qna"
 ---
 
 ## Q1. DispatcherServlet의 동작 흐름을 설명해주세요.

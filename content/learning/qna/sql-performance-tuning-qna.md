@@ -7,6 +7,7 @@ topic_description: "SQL 성능 튜닝, Execution Plan, Join 전략 관련 핵심
 tags: ["SQL", "Performance", "Join", "Optimization"]
 categories: ["Database"]
 draft: false
+module: "qna"
 ---
 
 # SQL 성능 튜닝 정리

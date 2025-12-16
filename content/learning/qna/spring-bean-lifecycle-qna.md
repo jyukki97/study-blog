@@ -7,6 +7,7 @@ topic_description: "Spring Bean 생성 순서, Proxy 객체, @Configuration 관�
 tags: ["Spring", "Bean", "Lifecycle", "Proxy"]
 categories: ["Spring"]
 draft: false
+module: "qna"
 ---
 
 ## Q1. Spring Bean의 생명주기를 설명해주세요.

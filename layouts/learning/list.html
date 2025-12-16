@@ -1,13 +1,41 @@
 {{- define "main" }}
+{{- $curriculumOverview := site.GetPage "/learning/career/backend-curriculum-overview" }}
+{{- $curriculumPages := where site.RegularPages "Params.topic" "Backend Roadmap" }}
+{{- $curriculumPages = where $curriculumPages "Params.module_key" "!=" "overview" }}
+{{- $curriculumPages = sort $curriculumPages "Weight" }}
+{{- $timelinePages := where site.RegularPages "Section" "learning" }}
+{{- $timelinePages = where $timelinePages "Params.study_order" "!=" nil }}
+{{- $timelinePages = where $timelinePages "File.Dir" "!=" "learning/qna/" }}
+{{- $timelinePages = sort $timelinePages "Params.study_order" }}
 <div class="learning-container">
     <!-- 학습 히어로 섹션 -->
     <header class="learning-hero">
         <div class="hero-content">
             <div class="hero-icon">📚</div>
             <h1 class="hero-title">{{- .Title -}}</h1>
-            {{- if .Content }}
-            <p class="hero-description">{{- .Content -}}</p>
-            {{- end }}
+            <p class="hero-description">
+                {{- with .Params.description -}}
+                    {{ . }}
+                {{- else -}}
+                    백엔드 학습 로드맵과 실습 체크리스트를 한 곳에 모았습니다.
+                {{- end -}}
+            </p>
+            <div class="hero-actions">
+                {{- with $curriculumOverview }}
+                <a class="hero-btn primary" href="{{ .Permalink }}">커리큘럼 보기</a>
+                {{- end }}
+                {{- with first 1 (where $curriculumPages "Weight" 1) }}
+                    {{- $p := index . 0 }}
+                    <a class="hero-btn ghost" href="{{ $p.Permalink }}">기초 단계</a>
+                {{- end }}
+                <a class="hero-btn ghost" href="/learning/timeline/">타임라인</a>
+                <a class="hero-btn ghost" href="#learning-notes">최근 노트</a>
+            </div>
+            <div class="hero-badges">
+                <span>지속 업데이트</span>
+                <span>스프링 · JPA · DB</span>
+                <span>운영 · 모니터링</span>
+            </div>
         </div>
         <div class="hero-background">
             <div class="floating-element"></div>
@@ -16,9 +44,90 @@
         </div>
     </header>
 
+    <!-- 학습 타임라인 (자동 정렬) -->
+    <section class="learning-timeline">
+        <div class="section-header">
+            <h2>🧭 학습 타임라인</h2>
+            <div class="section-line"></div>
+        </div>
+        {{- if gt (len $timelinePages) 0 }}
+        <div class="timeline-list">
+            {{- range $timelinePages }}
+            <article class="timeline-item">
+                <div class="timeline-order">#{{ printf "%02d" .Params.study_order }}</div>
+                <div class="timeline-body">
+                    <h3 class="timeline-title"><a href="{{ .Permalink }}">{{ .Title }}</a></h3>
+                    <p class="timeline-desc">
+                        {{- with .Params.description -}}
+                            {{ . }}
+                        {{- else -}}
+                            {{ .Summary | plainify | truncate 140 }}
+                        {{- end -}}
+                    </p>
+                    <div class="timeline-meta">
+                        {{- if .Params.topic }}
+                        <span class="timeline-tag">{{ .Params.topic }}</span>
+                        {{- end }}
+                        <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date | time.Format "01/02" }}</time>
+                    </div>
+                </div>
+            </article>
+            {{- end }}
+        </div>
+        {{- else }}
+        <p class="empty-state">학습 타임라인을 준비 중입니다.</p>
+        {{- end }}
+    </section>
+
+    <!-- 백엔드 커리큘럼 섹션 -->
+    <section class="learning-curriculum">
+        <div class="section-header">
+            <h2>🚀 백엔드 커리큘럼</h2>
+            <div class="section-line"></div>
+        </div>
+        {{- if gt (len $curriculumPages) 0 }}
+            <div class="curriculum-grid">
+                {{- range $idx, $page := $curriculumPages }}
+                <article class="curriculum-card">
+                    <div class="curriculum-step">STEP {{ add $idx 1 }}</div>
+                    <h3 class="curriculum-title"><a href="{{ $page.Permalink }}">{{ $page.Title }}</a></h3>
+                    <p class="curriculum-desc">
+                        {{- with $page.Params.description -}}
+                            {{ . }}
+                        {{- else -}}
+                            {{ $page.Summary | plainify | truncate 140 }}
+                        {{- end -}}
+                    </p>
+                    <div class="curriculum-meta">
+                        {{- if $page.Params.topic }}
+                        <span class="curriculum-tag">{{ $page.Params.topic }}</span>
+                        {{- end }}
+                        <span class="curriculum-date">{{ $page.Date | time.Format "01/02" }}</span>
+                    </div>
+                </article>
+                {{- end }}
+            </div>
+        {{- else }}
+            <p class="empty-state">커리큘럼을 준비 중입니다.</p>
+        {{- end }}
+    </section>
+
+    <!-- 개요/가이드 섹션 -->
+    {{- if .Content }}
+    <section class="learning-overview" id="overview">
+        <div class="section-header">
+            <h2>🗺️ 학습 가이드</h2>
+            <div class="section-line"></div>
+        </div>
+        <article class="learning-rich-content">
+            {{- .Content -}}
+        </article>
+    </section>
+    {{- end }}
+
     <!-- 주제별 학습 섹션 (리스트 형태) -->
     <section class="learning-topics">
-        <div class="section-header">
+        <div class="section-header compact">
             <h2>📂 학습 주제</h2>
             <div class="section-line"></div>
         </div>
@@ -196,6 +305,57 @@
     line-height: 1.6;
 }
 
+.hero-actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    margin: 1.8rem 0 0.8rem;
+    flex-wrap: wrap;
+}
+
+.hero-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.85rem 1.4rem;
+    border-radius: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border: 1px solid rgba(255,255,255,0.3);
+    color: white;
+    background: rgba(255,255,255,0.12);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+}
+
+.hero-btn.primary {
+    background: white;
+    color: #5b6cff;
+    border-color: white;
+}
+
+.hero-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+}
+
+.hero-badges {
+    display: inline-flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 0.8rem;
+}
+
+.hero-badges span {
+    background: rgba(255,255,255,0.18);
+    color: white;
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    border: 1px solid rgba(255,255,255,0.25);
+}
+
 .hero-background {
     position: absolute;
     top: 0;
@@ -250,6 +410,266 @@
     50% {
         transform: translateY(-8px) translateZ(0);
     }
+}
+
+/* 타임라인 섹션 */
+.learning-timeline {
+    margin: 2.5rem 0 2rem;
+}
+
+.timeline-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.timeline-item {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 1rem;
+    align-items: start;
+    background: var(--entry);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1rem 1.25rem;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.04);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.timeline-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px rgba(168,192,255,0.14);
+    border-color: #a8c0ff;
+}
+
+.timeline-order {
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(168,192,255,0.18), rgba(151,149,240,0.16));
+    color: #5b6cff;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-variant-numeric: tabular-nums;
+    box-shadow: inset 0 0 0 1px rgba(168,192,255,0.3);
+}
+
+.timeline-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.timeline-title {
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.timeline-title a {
+    color: var(--primary);
+    text-decoration: none;
+}
+
+.timeline-title a:hover {
+    color: #6b7cff;
+}
+
+.timeline-desc {
+    color: var(--secondary);
+    line-height: 1.6;
+    margin: 0;
+}
+
+.timeline-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.9rem;
+    color: var(--secondary);
+}
+
+.timeline-tag {
+    background: var(--code-bg);
+    padding: 0.25rem 0.65rem;
+    border-radius: 10px;
+    color: #6b7cff;
+    border: 1px solid rgba(168,192,255,0.25);
+    font-weight: 600;
+}
+
+/* 커리큘럼 섹션 */
+.learning-curriculum {
+    margin: 3rem 0 2rem;
+}
+
+.curriculum-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.2rem;
+}
+
+.curriculum-card {
+    background: var(--entry);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.25rem;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.05);
+    transition: all 0.25s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.curriculum-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(168,192,255,0.12), rgba(151,149,240,0.1));
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    pointer-events: none;
+}
+
+.curriculum-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 28px rgba(168,192,255,0.18);
+    border-color: #a8c0ff;
+}
+
+.curriculum-card:hover::before {
+    opacity: 1;
+}
+
+.curriculum-step {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #8295ff;
+    background: rgba(168,192,255,0.15);
+    padding: 0.35rem 0.75rem;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-bottom: 0.6rem;
+}
+
+.curriculum-title {
+    margin: 0 0 0.5rem;
+    font-size: 1.1rem;
+}
+
+.curriculum-title a {
+    color: var(--primary);
+    text-decoration: none;
+}
+
+.curriculum-title a:hover {
+    color: #6b7cff;
+}
+
+.curriculum-desc {
+    color: var(--secondary);
+    line-height: 1.5;
+    font-size: 0.95rem;
+    margin: 0 0 0.75rem;
+}
+
+.curriculum-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--secondary);
+}
+
+.curriculum-tag {
+    background: var(--code-bg);
+    padding: 0.3rem 0.7rem;
+    border-radius: 12px;
+    color: #6b7cff;
+    border: 1px solid rgba(168,192,255,0.25);
+}
+
+.curriculum-date {
+    font-variant-numeric: tabular-nums;
+}
+
+/* 개요 섹션 (리치 콘텐츠) */
+.learning-overview {
+    margin: 2.5rem 0 2rem;
+}
+
+.learning-rich-content {
+    background: var(--entry);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.04);
+}
+
+.learning-rich-content h2,
+.learning-rich-content h3 {
+    margin-top: 1.8rem;
+    margin-bottom: 0.8rem;
+}
+
+.learning-rich-content p,
+.learning-rich-content ul,
+.learning-rich-content ol {
+    color: var(--secondary);
+    line-height: 1.7;
+}
+
+.learning-rich-content ul,
+.learning-rich-content ol {
+    padding-left: 1.1rem;
+    margin: 0.6rem 0 1rem;
+}
+
+.learning-rich-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.2rem 0;
+    font-size: 0.95rem;
+    overflow: hidden;
+    border-radius: 12px;
+}
+
+.learning-rich-content table th,
+.learning-rich-content table td {
+    border: 1px solid var(--border);
+    padding: 0.75rem 0.8rem;
+    text-align: left;
+}
+
+.learning-rich-content table th {
+    background: var(--code-bg);
+    color: var(--primary);
+}
+
+.learning-rich-content table tr:nth-child(even) {
+    background: rgba(168,192,255,0.06);
+}
+
+.learning-rich-content code {
+    background: var(--code-bg);
+    padding: 0.1rem 0.35rem;
+    border-radius: 6px;
+}
+
+.learning-rich-content pre {
+    background: var(--code-bg);
+    padding: 1rem;
+    border-radius: 12px;
+    overflow-x: auto;
+}
+
+.learning-rich-content a {
+    color: #6b7cff;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
 }
 
 /* 섹션 헤더 */
@@ -316,122 +736,74 @@
 
 /* 주제 리스트 */
 .topics-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    margin-bottom: 3rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 2rem;
 }
 
 .topic-card {
-    display: flex;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 0.8rem;
     align-items: center;
-    justify-content: space-between;
     background: var(--entry);
     border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 1.5rem;
+    border-radius: 14px;
+    padding: 0.9rem 1rem;
     cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
 }
 
 .topic-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(168, 192, 255, 0.12);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(168, 192, 255, 0.12);
     border-color: #a8c0ff;
     background: var(--code-bg);
 }
 
-.topic-card-left {
-    display: flex;
-    align-items: center;
-    gap: 1.2rem;
-    flex: 1;
-    min-width: 0;
-}
-
 .topic-icon {
-    font-size: 2.5rem;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 60px;
-    height: 60px;
-    background: linear-gradient(135deg, rgba(168, 192, 255, 0.1), rgba(151, 149, 240, 0.1));
-    border-radius: 14px;
-    transition: all 0.3s ease;
+    font-size: 1.6rem;
 }
 
-.topic-card:hover .topic-icon {
-    transform: scale(1.1);
-    background: linear-gradient(135deg, rgba(168, 192, 255, 0.2), rgba(151, 149, 240, 0.2));
-}
-
-.topic-info {
-    flex: 1;
-    min-width: 0;
-}
-
-.topic-name {
-    font-size: 1.25rem;
+.topic-info h3 {
+    margin: 0;
+    font-size: 1rem;
     font-weight: 700;
     color: var(--primary);
-    margin: 0 0 0.4rem 0;
-    background: linear-gradient(135deg, #a8c0ff, #9795f0);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
 }
 
 .topic-description {
-    font-size: 0.95rem;
+    font-size: 0.85rem;
     color: var(--secondary);
-    margin: 0;
-    line-height: 1.4;
+    margin: 0.15rem 0 0;
+    line-height: 1.35;
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.topic-card-right {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-    flex-shrink: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
 }
 
 .topic-meta {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    gap: 0.3rem;
+    gap: 0.2rem;
+    text-align: right;
+    min-width: 64px;
 }
 
 .note-count {
-    font-size: 1.1rem;
+    font-size: 0.95rem;
     font-weight: 700;
     color: #a8c0ff;
-    background: linear-gradient(135deg, rgba(168, 192, 255, 0.15), rgba(151, 149, 240, 0.15));
-    padding: 0.3rem 0.8rem;
-    border-radius: 12px;
 }
 
 .last-update {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     color: var(--secondary);
-}
-
-.topic-arrow {
-    font-size: 1.5rem;
-    color: #a8c0ff;
-    opacity: 0.5;
-    transition: all 0.3s ease;
-}
-
-.topic-card:hover .topic-arrow {
-    opacity: 1;
-    transform: translateX(4px);
 }
 
 /* 학습 노트 그리드 */
@@ -685,6 +1057,16 @@
         font-size: 1rem;
     }
 
+    .hero-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .hero-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
     .desktop-only {
         display: none;
     }
@@ -779,6 +1161,16 @@
     .note-count {
         font-size: 0.9rem;
         padding: 0.25rem 0.6rem;
+    }
+
+    .timeline-item {
+        grid-template-columns: 1fr;
+    }
+
+    .timeline-order {
+        width: 44px;
+        height: 44px;
+        font-size: 0.95rem;
     }
 }
 

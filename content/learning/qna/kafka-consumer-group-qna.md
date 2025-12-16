@@ -7,6 +7,7 @@ topic_description: "Kafka Consumer Group, Rebalance, Offset Commit 관련 핵심
 tags: ["Kafka", "Consumer Group", "Rebalance", "Offset"]
 categories: ["Kafka"]
 draft: false
+module: "qna"
 ---
 
 # Kafka Consumer Group 정리

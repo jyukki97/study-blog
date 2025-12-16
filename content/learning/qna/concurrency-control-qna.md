@@ -7,6 +7,7 @@ categories: ["Backend"]
 series: ["핵심 개념 Q&A"]
 series_order: 19
 draft: false
+module: "qna"
 ---
 
 ## Q1. 낙관적 락(Optimistic Lock)과 비관적 락(Pessimistic Lock)의 차이점과 사용 사례를 설명해주세요.

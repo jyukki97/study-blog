@@ -7,6 +7,7 @@ topic_description: "Kafka Partition 설계, Key 기반 분배, Ordering 보장 �
 tags: ["Kafka", "Partition", "Ordering", "Key"]
 categories: ["Kafka"]
 draft: false
+module: "qna"
 ---
 
 # Kafka Partition 설계 정리

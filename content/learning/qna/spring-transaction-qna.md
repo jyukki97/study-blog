@@ -7,6 +7,7 @@ topic_description: "@Transactional, Propagation, Isolation Level 관련 핵심 �
 tags: ["Spring", "Transaction", "ACID", "Database"]
 categories: ["Backend"]
 draft: false
+module: "qna"
 ---
 
 # Spring Transaction 관리 정리

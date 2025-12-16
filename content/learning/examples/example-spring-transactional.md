@@ -8,6 +8,7 @@ topic_description: "스프링 트랜잭션 전파, 롤백 규칙 기본 예제"
 tags: ["Spring", "Transaction", "@Transactional", "Rollback"]
 categories: ["Development", "Learning"]
 description: "가장 많이 사용하는 @Transactional 패턴과 실수하기 쉬운 포인트 정리"
+module: "spring-core"
 ---
 
 ## 1. 서비스 레이어에서 @Transactional 사용
@@ -89,4 +90,3 @@ public class UserService {
 - 의도적으로 예외를 던져 롤백 로그 확인하기
 - `@Transactional` 유무에 따라 DB에 commit 되는지 비교
 - `readOnly = true` 와 일반 트랜잭션의 성능 차이 측정
-

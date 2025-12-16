@@ -7,6 +7,7 @@ topic_description: "Reactive Programming, Publisher/Subscriber, Backpressure 관
 tags: ["Reactive", "Backpressure", "Publisher", "Subscriber"]
 categories: ["Reactive"]
 draft: false
+module: "qna"
 ---
 
 # Reactive Programming 개념 정리

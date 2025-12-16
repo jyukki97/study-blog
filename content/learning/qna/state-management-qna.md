@@ -7,6 +7,7 @@ topic_description: "Redux, Zustand, Context API 비교 및 상태관리 패턴 �
 tags: ["React", "Redux", "Zustand", "Context API", "State Management"]
 categories: ["Frontend"]
 draft: false
+module: "qna"
 ---
 
 # 상태관리 비교 정리

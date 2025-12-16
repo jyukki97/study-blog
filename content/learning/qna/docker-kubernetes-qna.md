@@ -7,6 +7,7 @@ topic_description: "Docker, Kubernetes, Pod, Deployment, Probes, Scaling 관련 
 tags: ["Docker", "Kubernetes", "DevOps", "Container"]
 categories: ["DevOps"]
 draft: false
+module: "qna"
 ---
 
 # Docker & Kubernetes 정리

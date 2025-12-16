@@ -7,6 +7,7 @@ topic_description: "CI/CD, Jenkins, ArgoCD, Rollback 전략 관련 핵심 개념
 tags: ["CI/CD", "Jenkins", "ArgoCD", "DevOps"]
 categories: ["DevOps"]
 draft: false
+module: "qna"
 ---
 
 # CI/CD 개념 정리

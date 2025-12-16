@@ -7,6 +7,7 @@ topic_description: "DB 인덱스, B-Tree, 복합 인덱스, Index Scan 관련 �
 tags: ["Database", "Index", "B-Tree", "Optimization"]
 categories: ["Database"]
 draft: false
+module: "qna"
 ---
 
 # DB 인덱스 최적화 정리

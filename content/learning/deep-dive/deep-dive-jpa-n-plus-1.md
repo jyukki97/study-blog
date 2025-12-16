@@ -7,6 +7,7 @@ categories: ["Backend"]
 series: ["백엔드 심화 학습"]
 series_order: 4
 draft: true
+module: "data-system"
 ---
 
 ## 들어가며

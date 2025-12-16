@@ -7,6 +7,7 @@ topic_description: "Thread Dump, Slow Query, 캐싱, Connection Pool 관련 핵�
 tags: ["Performance", "API", "Thread Dump", "Caching"]
 categories: ["Backend"]
 draft: false
+module: "qna"
 ---
 
 # API 성능 문제 해결 정리

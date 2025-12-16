@@ -7,6 +7,7 @@ categories: ["Backend"]
 series: ["백엔드 심화 학습"]
 series_order: 1
 draft: true
+module: "foundation"
 ---
 
 ## 들어가며

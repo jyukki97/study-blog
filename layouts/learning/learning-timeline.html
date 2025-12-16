@@ -1,0 +1,123 @@
+{{ define "main" }}
+{{- $timelinePages := where site.RegularPages "Section" "learning" }}
+{{- $timelinePages = where $timelinePages "Params.study_order" "!=" nil }}
+{{- $timelinePages = where $timelinePages "File.Dir" "!=" "learning/qna/" }}
+{{- $timelinePages = sort $timelinePages "Params.study_order" }}
+<div class="learning-container">
+  <header class="learning-hero">
+    <div class="hero-content">
+      <div class="hero-icon">🧭</div>
+      <h1 class="hero-title">{{ .Title }}</h1>
+      <p class="hero-description">{{ .Description }}</p>
+      <div class="hero-actions">
+        <a class="hero-btn ghost" href="/learning/">Learning 메인</a>
+      </div>
+    </div>
+    <div class="hero-background">
+      <div class="floating-element"></div>
+      <div class="floating-element"></div>
+      <div class="floating-element"></div>
+    </div>
+  </header>
+
+  <section class="learning-timeline">
+    <div class="section-header">
+      <h2>📑 학습 타임라인</h2>
+      <div class="section-line"></div>
+    </div>
+    {{- if gt (len $timelinePages) 0 }}
+    <div class="timeline-list">
+      {{- range $timelinePages }}
+      <article class="timeline-item">
+        <div class="timeline-order">#{{ printf "%02d" .Params.study_order }}</div>
+        <div class="timeline-body">
+          <h3 class="timeline-title"><a href="{{ .Permalink }}">{{ .Title }}</a></h3>
+          <p class="timeline-desc">
+            {{- with .Params.description -}}
+              {{ . }}
+            {{- else -}}
+              {{ .Summary | plainify | truncate 140 }}
+            {{- end -}}
+          </p>
+          <div class="timeline-meta">
+            {{- if .Params.topic }}
+            <span class="timeline-tag">{{ .Params.topic }}</span>
+            {{- end }}
+            <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date | time.Format "01/02" }}</time>
+          </div>
+        </div>
+      </article>
+      {{- end }}
+    </div>
+    {{- else }}
+    <p class="empty-state">타임라인에 표시할 글이 없습니다. front matter에 study_order를 추가하세요.</p>
+    {{- end }}
+  </section>
+</div>
+<style>
+.learning-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  padding-top: 5rem;
+  min-height: 100vh;
+}
+.learning-hero {
+  position: relative;
+  background: linear-gradient(135deg, #a8c0ff 0%, #9795f0 100%);
+  border-radius: 24px;
+  padding: 4rem 2rem;
+  margin-bottom: 3rem;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(168, 192, 255, 0.15);
+}
+.hero-content { position: relative; z-index: 2; text-align: center; color: white; }
+.hero-icon { font-size: 3.5rem; margin-bottom: 0.8rem; display: inline-block; animation: heroFloat 4s ease-in-out infinite; }
+.hero-title { font-size: 2.8rem; font-weight: 800; margin-bottom: 0.8rem; background: linear-gradient(135deg, #ffffff 0%, #f0f8ff 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.hero-description { font-size: 1.1rem; opacity: 0.95; max-width: 700px; margin: 0 auto; line-height: 1.6; }
+.hero-actions { display: flex; gap: 0.75rem; justify-content: center; margin: 1.6rem 0 0.5rem; flex-wrap: wrap; }
+.hero-btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.85rem 1.4rem; border-radius: 14px; font-weight: 700; text-decoration: none; transition: all 0.2s ease; border: 1px solid rgba(255,255,255,0.3); color: white; background: rgba(255,255,255,0.12); box-shadow: 0 10px 30px rgba(0,0,0,0.08); }
+.hero-btn.primary { background: white; color: #5b6cff; border-color: white; }
+.hero-btn:hover { transform: translateY(-1px); box-shadow: 0 12px 30px rgba(0,0,0,0.12); }
+.hero-badges { display: inline-flex; gap: 0.6rem; flex-wrap: wrap; justify-content: center; margin-top: 0.8rem; }
+.hero-badges span { background: rgba(255,255,255,0.18); color: white; padding: 0.35rem 0.75rem; border-radius: 999px; font-size: 0.9rem; border: 1px solid rgba(255,255,255,0.25); }
+.hero-background { position: absolute; inset: 0; z-index: 1; }
+.floating-element { position: absolute; width: 80px; height: 80px; background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%); border-radius: 50%; animation: float 8s ease-in-out infinite; }
+.floating-element:nth-child(1){ top:15%; left:15%; }
+.floating-element:nth-child(2){ top:55%; right:20%; animation-delay:3s; }
+.floating-element:nth-child(3){ bottom:25%; left:25%; animation-delay:6s; }
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-15px)}}@keyframes heroFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.section-header { display:flex; align-items:center; gap:1rem; margin-bottom:1.5rem; }
+.section-header h2 { font-size:1.8rem; font-weight:800; margin:0; background: linear-gradient(135deg, #a8c0ff, #9795f0); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.section-line { flex:1; height:2px; background: linear-gradient(90deg, #a8c0ff, transparent); border-radius:1px; }
+.learning-timeline { margin: 2rem 0 2rem; }
+.timeline-list { display:flex; flex-direction:column; gap:1rem; }
+.timeline-item { display:grid; grid-template-columns:auto 1fr; gap:1rem; align-items:start; background: var(--entry); border:1px solid var(--border); border-radius:14px; padding:1rem 1.25rem; box-shadow:0 6px 16px rgba(0,0,0,0.04); transition: transform 0.2s ease, box-shadow 0.2s ease; }
+.timeline-item:hover { transform: translateY(-2px); box-shadow:0 12px 24px rgba(168,192,255,0.14); border-color:#a8c0ff; }
+.timeline-order { width:52px; height:52px; border-radius:12px; background: linear-gradient(135deg, rgba(168,192,255,0.18), rgba(151,149,240,0.16)); color:#5b6cff; font-weight:800; display:inline-flex; align-items:center; justify-content:center; font-variant-numeric:tabular-nums; box-shadow: inset 0 0 0 1px rgba(168,192,255,0.3); }
+.timeline-body { display:flex; flex-direction:column; gap:0.35rem; }
+.timeline-title { margin:0; font-size:1.1rem; }
+.timeline-title a { color:var(--primary); text-decoration:none; }
+.timeline-title a:hover { color:#6b7cff; }
+.timeline-desc { color:var(--secondary); line-height:1.6; margin:0; }
+.timeline-meta { display:flex; align-items:center; gap:0.6rem; font-size:0.9rem; color:var(--secondary); }
+.timeline-tag { background: var(--code-bg); padding:0.25rem 0.65rem; border-radius:10px; color:#6b7cff; border:1px solid rgba(168,192,255,0.25); font-weight:600; }
+.empty-state { padding:2rem 0; color:var(--secondary); }
+.learning-rich-content { background: var(--entry); border:1px solid var(--border); border-radius:16px; padding:1.5rem; box-shadow:0 8px 20px rgba(0,0,0,0.04); }
+.learning-rich-content h2, .learning-rich-content h3 { margin-top:1.6rem; margin-bottom:0.8rem; }
+.learning-rich-content p, .learning-rich-content ul, .learning-rich-content ol { color:var(--secondary); line-height:1.7; }
+.learning-rich-content ul, .learning-rich-content ol { padding-left:1.1rem; margin:0.6rem 0 1rem; }
+.learning-rich-content code { background: var(--code-bg); padding:0.1rem 0.35rem; border-radius:6px; }
+.learning-rich-content pre { background: var(--code-bg); padding:1rem; border-radius:12px; overflow-x:auto; }
+@media (max-width: 768px){
+  .learning-container{padding:1rem; padding-top:4rem;}
+  .learning-hero{padding:3rem 1.5rem;}
+  .hero-title{font-size:2.1rem;}
+  .hero-description{font-size:1rem;}
+  .hero-actions{flex-direction:column; align-items:center;}
+  .hero-btn{width:100%; justify-content:center;}
+  .timeline-item{grid-template-columns:1fr;}
+  .timeline-order{width:44px; height:44px;}
+}
+</style>
+{{ end }}
