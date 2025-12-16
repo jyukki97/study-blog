@@ -31,7 +31,6 @@
       {{- $moduleKey := .Params.module_key }}
       {{- $modulePosts := where site.RegularPages "Params.module" $moduleKey }}
       {{- $modulePosts = where $modulePosts "Params.study_order" "!=" nil }}
-      {{- $modulePosts = where $modulePosts "File.Dir" "!=" "learning/qna/" }}
       {{- $modulePosts = sort $modulePosts "Params.study_order" }}
       <article class="timeline-item module-head">
         <div class="timeline-order">STEP {{ .Weight }}</div>
