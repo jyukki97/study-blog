@@ -24,6 +24,10 @@
     <div class="section-header">
       <h2>📑 학습 타임라인</h2>
       <div class="section-line"></div>
+      <div class="timeline-controls">
+        <button type="button" class="timeline-control" data-action="expand">전체 펼치기</button>
+        <button type="button" class="timeline-control" data-action="collapse">전체 접기</button>
+      </div>
     </div>
     {{- if .Content }}
     <article class="learning-rich-content timeline-intro">
@@ -52,42 +56,59 @@
       {{- $modulePosts := where site.RegularPages "Params.module" $moduleKey }}
       {{- $modulePosts = where $modulePosts "Params.study_order" "!=" nil }}
       {{- $modulePosts = sort $modulePosts "Params.study_order" }}
-      <article id="module-{{ $moduleKey }}" class="timeline-item module-head">
-        <div class="timeline-order">STEP {{ .Weight }}</div>
-        <div class="timeline-body">
-          <div class="module-head-row">
-            <h3 class="timeline-title"><a href="{{ .Permalink }}">{{ .Title }}</a></h3>
-            <div class="module-head-meta">
-              <span class="module-count">{{ len $modulePosts }}개</span>
-              <a class="module-link" href="{{ .Permalink }}">모듈 페이지 →</a>
+      {{- $isCollapsed := and (gt (len $modulePosts) 0) (ne .Weight 1) }}
+      <div class="timeline-step{{ if $isCollapsed }} is-collapsed{{ end }}" data-module="{{ $moduleKey }}">
+        <article id="module-{{ $moduleKey }}" class="timeline-item module-head">
+          <div class="timeline-order">STEP {{ .Weight }}</div>
+          <div class="timeline-body">
+            <div class="module-head-row">
+              <h3 class="timeline-title"><a href="{{ .Permalink }}">{{ .Title }}</a></h3>
+              <div class="module-head-meta">
+                <span class="module-count">{{ len $modulePosts }}개</span>
+                <a class="module-link" href="{{ .Permalink }}">모듈 페이지 →</a>
+                {{- if gt (len $modulePosts) 0 }}
+                <button
+                  type="button"
+                  class="module-toggle"
+                  aria-expanded="{{ if $isCollapsed }}false{{ else }}true{{ end }}"
+                  aria-controls="module-posts-{{ $moduleKey }}"
+                >
+                  {{- if $isCollapsed }}펼치기{{ else }}접기{{ end -}}
+                </button>
+                {{- end }}
+              </div>
             </div>
+            <p class="timeline-desc">
+              {{- with .Params.description }}{{ . }}{{- else }}{{ .Summary | plainify | truncate 140 }}{{- end }}
+            </p>
+            {{- if and (eq (len $modulePosts) 0) (eq $moduleKey "overview") }}
+            <p class="module-note">이 단계는 전체 흐름 안내입니다. 아래 STEP 1부터 순서대로 진행하면 됩니다.</p>
+            {{- end }}
+            {{- if and (eq (len $modulePosts) 0) (eq $moduleKey "qna") }}
+            <p class="module-note">Q&A는 복습용이라 타임라인 번호 없이 모듈 페이지에서 최신순으로 정리됩니다.</p>
+            {{- end }}
           </div>
-          <p class="timeline-desc">
-            {{- with .Params.description }}{{ . }}{{- else }}{{ .Summary | plainify | truncate 140 }}{{- end }}
-          </p>
-          {{- if and (eq (len $modulePosts) 0) (eq $moduleKey "overview") }}
-          <p class="module-note">이 단계는 전체 흐름 안내입니다. 아래 STEP 1부터 순서대로 진행하면 됩니다.</p>
-          {{- end }}
-          {{- if and (eq (len $modulePosts) 0) (eq $moduleKey "qna") }}
-          <p class="module-note">Q&A는 복습용이라 타임라인 번호 없이 모듈 페이지에서 최신순으로 정리됩니다.</p>
+        </article>
+        {{- if gt (len $modulePosts) 0 }}
+        <div id="module-posts-{{ $moduleKey }}" class="timeline-step-posts"{{ if $isCollapsed }} hidden{{ end }}>
+          {{- range $modulePosts }}
+          <article class="timeline-item child">
+            <div class="timeline-order">#{{ printf "%02d" .Params.study_order }}</div>
+            <div class="timeline-body">
+              <h4 class="timeline-title"><a href="{{ .Permalink }}">{{ .Title }}</a></h4>
+              <p class="timeline-desc">
+                {{- with .Params.description -}}{{ . }}{{- else -}}{{ .Summary | plainify | truncate 140 }}{{- end -}}
+              </p>
+              <div class="timeline-meta">
+                {{- if .Params.topic }}<span class="timeline-tag">{{ .Params.topic }}</span>{{- end }}
+                <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date | time.Format "01/02" }}</time>
+              </div>
+            </div>
+          </article>
           {{- end }}
         </div>
-      </article>
-      {{- range $modulePosts }}
-      <article class="timeline-item child">
-        <div class="timeline-order">#{{ printf "%02d" .Params.study_order }}</div>
-        <div class="timeline-body">
-          <h4 class="timeline-title"><a href="{{ .Permalink }}">{{ .Title }}</a></h4>
-          <p class="timeline-desc">
-            {{- with .Params.description -}}{{ . }}{{- else -}}{{ .Summary | plainify | truncate 140 }}{{- end -}}
-          </p>
-          <div class="timeline-meta">
-            {{- if .Params.topic }}<span class="timeline-tag">{{ .Params.topic }}</span>{{- end }}
-            <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date | time.Format "01/02" }}</time>
-          </div>
-        </div>
-      </article>
-      {{- end }}
+        {{- end }}
+      </div>
       {{- end }}
     </div>
     {{- else }}
@@ -131,6 +152,10 @@
 .section-header { display:flex; align-items:center; gap:1rem; margin-bottom:1.5rem; }
 .section-header h2 { font-size:1.8rem; font-weight:800; margin:0; background: linear-gradient(135deg, #a8c0ff, #9795f0); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
 .section-line { flex:1; height:2px; background: linear-gradient(90deg, #a8c0ff, transparent); border-radius:1px; }
+.timeline-controls { display:inline-flex; gap:0.5rem; flex:0 0 auto; }
+.timeline-control { background: var(--entry); color: var(--primary); border:1px solid var(--border); padding:0.45rem 0.8rem; border-radius:999px; font-weight:800; font-size:0.85rem; cursor:pointer; transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease; box-shadow: 0 4px 14px rgba(0,0,0,0.04); }
+.timeline-control:hover { transform: translateY(-1px); box-shadow: 0 10px 22px rgba(168,192,255,0.14); border-color:#a8c0ff; }
+.timeline-control:active { transform: translateY(0); }
 .timeline-intro { margin-bottom: 1.4rem; }
 .timeline-nav { display:flex; flex-wrap:wrap; gap:0.6rem; margin: 0 0 1.6rem; }
 .timeline-nav-item { display:inline-flex; align-items:center; gap:0.55rem; padding:0.55rem 0.85rem; border-radius:999px; background: var(--entry); border:1px solid var(--border); text-decoration:none; color:var(--primary); transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease; box-shadow: 0 4px 14px rgba(0,0,0,0.04); }
@@ -141,6 +166,8 @@
 .learning-timeline { margin: 2rem 0 2rem; }
 .timeline-list { display:flex; flex-direction:column; gap:1rem; }
 .timeline-list.grouped { gap:1.4rem; }
+.timeline-step { display:flex; flex-direction:column; gap:1rem; }
+.timeline-step-posts { display:flex; flex-direction:column; gap:1rem; }
 .timeline-item { display:grid; grid-template-columns:auto 1fr; gap:1rem; align-items:start; background: var(--entry); border:1px solid var(--border); border-radius:14px; padding:1rem 1.25rem; box-shadow:0 6px 16px rgba(0,0,0,0.04); transition: transform 0.2s ease, box-shadow 0.2s ease; }
 .timeline-item:hover { transform: translateY(-2px); box-shadow:0 12px 24px rgba(168,192,255,0.14); border-color:#a8c0ff; }
 .timeline-order { min-width:70px; height:44px; padding:0 10px; border-radius:12px; background: linear-gradient(135deg, rgba(168,192,255,0.18), rgba(151,149,240,0.16)); color:#5b6cff; font-weight:800; display:inline-flex; align-items:center; justify-content:center; font-variant-numeric:tabular-nums; box-shadow: inset 0 0 0 1px rgba(168,192,255,0.3); font-size:0.95rem; white-space: nowrap; }
@@ -154,6 +181,11 @@
 .module-count { background: var(--code-bg); padding:0.25rem 0.65rem; border-radius:999px; color:#6b7cff; border:1px solid rgba(168,192,255,0.25); font-weight:700; font-size:0.85rem; font-variant-numeric:tabular-nums; white-space:nowrap; }
 .module-link { color:var(--primary); text-decoration:none; font-weight:800; font-size:0.9rem; white-space:nowrap; }
 .module-link:hover { color:#6b7cff; }
+.module-toggle { background: var(--code-bg); color:#6b7cff; border:1px solid rgba(168,192,255,0.25); padding:0.25rem 0.65rem; border-radius:999px; font-weight:800; font-size:0.85rem; cursor:pointer; transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease; white-space:nowrap; }
+.module-toggle:hover { border-color:#a8c0ff; box-shadow: 0 8px 18px rgba(168,192,255,0.14); transform: translateY(-1px); }
+.module-toggle:active { transform: translateY(0); }
+.module-toggle::after { content:"▾"; display:inline-block; margin-left:0.35rem; transition: transform 0.2s ease; }
+.module-toggle[aria-expanded="false"]::after { transform: rotate(-90deg); }
 .module-note { color: var(--secondary); margin: 0.1rem 0 0; font-size: 0.9rem; }
 .timeline-item.module-head { scroll-margin-top: 96px; }
 .timeline-meta { display:flex; align-items:center; gap:0.6rem; font-size:0.9rem; color:var(--secondary); }
@@ -174,10 +206,59 @@
   .hero-description{font-size:1rem;}
   .hero-actions{flex-direction:column; align-items:center;}
   .hero-btn{width:100%; justify-content:center;}
+  .section-header{flex-wrap:wrap;}
+  .timeline-controls{width:100%; justify-content:flex-start;}
   .timeline-nav-item{width:100%; justify-content:space-between;}
   .nav-title{max-width: 100%;}
   .timeline-item{grid-template-columns:1fr;}
   .timeline-order{width:44px; height:44px;}
 }
 </style>
+<script>
+(() => {
+  function setExpanded(step, expanded) {
+    const toggle = step.querySelector(".module-toggle");
+    if (!toggle) return;
+    const postsId = toggle.getAttribute("aria-controls");
+    const posts = postsId ? document.getElementById(postsId) : null;
+    if (!posts) return;
+    toggle.setAttribute("aria-expanded", expanded ? "true" : "false");
+    toggle.textContent = expanded ? "접기" : "펼치기";
+    posts.hidden = !expanded;
+    step.classList.toggle("is-collapsed", !expanded);
+  }
+
+  function allSteps() {
+    return Array.from(document.querySelectorAll(".timeline-step"));
+  }
+
+  document.addEventListener("click", (e) => {
+    const btn = e.target.closest(".module-toggle");
+    if (!btn) return;
+    const step = btn.closest(".timeline-step");
+    if (!step) return;
+    const expanded = btn.getAttribute("aria-expanded") === "true";
+    setExpanded(step, !expanded);
+  });
+
+  document.addEventListener("click", (e) => {
+    const ctrl = e.target.closest(".timeline-control");
+    if (!ctrl) return;
+    const expand = ctrl.getAttribute("data-action") === "expand";
+    allSteps().forEach((step) => setExpanded(step, expand));
+  });
+
+  function openFromHash() {
+    const id = decodeURIComponent(location.hash.slice(1));
+    if (!id) return;
+    const el = document.getElementById(id);
+    if (!el) return;
+    const step = el.closest(".timeline-step");
+    if (step) setExpanded(step, true);
+  }
+
+  window.addEventListener("hashchange", openFromHash);
+  openFromHash();
+})();
+</script>
 {{ end }}
