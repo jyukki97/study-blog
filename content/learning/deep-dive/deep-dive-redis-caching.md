@@ -1,13 +1,20 @@
 ---
-title: "Redis 캐싱 전략 완벽 가이드 - 실전 패턴부터 성능 최적화까지"
-date: 2025-01-26
-topic: "Backend"
-tags: ["Redis", "Caching", "Performance", "Cache Strategy", "Distributed System"]
+title: "Redis 캐싱: 패턴/무효화/운영 함정까지"
+date: 2025-12-16
+draft: false
+topic: "Caching"
+tags: ["Redis", "Caching", "Cache Aside", "Cache Invalidation", "Hot Key"]
 categories: ["Backend Deep Dive"]
-series: "백엔드 심화 학습"
-series_order: 8
-draft: true
+description: "Cache-Aside/Write-through/Write-behind 선택, 무효화/스탬피드/핫키 같은 실전 문제와 운영 지표까지 정리"
+module: "data-system"
+study_order: 225
 ---
+
+## 이 글에서 얻는 것
+
+- 캐시를 “빠르게 만들기”가 아니라, **일관성/운영/비용**까지 포함해 설계하는 감각을 얻습니다.
+- Cache-Aside/Write-through/Write-behind를 트래픽/정합성 요구에 맞춰 선택할 수 있습니다.
+- 캐시에서 자주 터지는 함정(Stampede/Penetration/Hot Key/무효화 지옥)을 예방하는 기준이 생깁니다.
 
 ## 들어가며
 
@@ -1061,34 +1068,24 @@ management:
 
 ---
 
-## 체크리스트
+## 요약
 
-Redis 캐싱을 제대로 이해했는지 확인해보세요:
+### 캐시 전략 선택
 
-**기초:**
-- [ ] Redis 자료구조 5가지를 설명할 수 있다
-- [ ] 인메모리 DB의 장단점을 안다
-- [ ] TTL과 영속성(RDB/AOF)의 차이를 이해한다
+- Cache-Aside: 가장 흔한 기본값(읽기 많고, 쓰기 적을 때 유리)
+- Write-through: 일관성은 좋지만 쓰기 비용이 늘 수 있음
+- Write-behind: 매우 빠르지만 최종 일관성/손실 리스크를 감수
 
-**캐싱 전략:**
-- [ ] Cache-Aside 패턴을 구현할 수 있다
-- [ ] Write-Through와 Write-Behind의 차이를 안다
-- [ ] 비즈니스 요구사항에 맞는 전략을 선택할 수 있다
+### 실전 함정과 대응
 
-**문제 해결:**
-- [ ] Cache Stampede를 Lock으로 해결할 수 있다
-- [ ] Cache Penetration을 Null 캐싱/Bloom Filter로 방지할 수 있다
-- [ ] Hot Key 문제를 2-Level Cache로 해결할 수 있다
+- Stampede(동시 미스): single flight/락/조기 만료(early refresh)
+- Penetration(없는 키 조회 폭탄): null 캐싱/블룸 필터
+- Hot key(특정 키 폭주): 2-level cache, 샤딩, 최신값 코얼레싱
 
-**Spring 통합:**
-- [ ] @Cacheable, @CachePut, @CacheEvict을 사용할 수 있다
-- [ ] 커스텀 키 생성 전략을 구현할 수 있다
-- [ ] RedisCacheManager 설정을 할 수 있다
+### 운영 포인트
 
-**모니터링:**
-- [ ] Cache Hit Rate을 측정하고 분석할 수 있다
-- [ ] Redis INFO 명령으로 통계를 확인할 수 있다
-- [ ] Prometheus/Grafana로 메트릭을 시각화할 수 있다
+- 무효화 전략(TTL/event-driven/tagging)을 “도메인 이벤트/쓰기 경로”와 연결해 설계
+- Hit rate, eviction, 메모리 사용량, p95/p99 레이턴시를 함께 본다
 
 ---
 

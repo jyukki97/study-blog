@@ -1,13 +1,20 @@
 ---
-title: "Spring AOP 완벽 가이드 - 이론부터 실전까지"
-date: 2025-01-26
-topic: "Backend"
-tags: ["Spring", "AOP", "Proxy", "트랜잭션", "로깅"]
-categories: ["Backend"]
-series: ["백엔드 심화 학습"]
-series_order: 3
-draft: true
+title: "Spring AOP 기본: 프록시/포인트컷/실전 함정"
+date: 2025-12-16
+draft: false
+topic: "Spring"
+tags: ["Spring", "AOP", "Proxy", "Pointcut", "Advice"]
+categories: ["Backend Deep Dive"]
+description: "Spring AOP의 동작(프록시)과 포인트컷/어드바이스를 이해하고, self-invocation 같은 실전 함정을 피하는 방법"
+module: "spring-core"
+study_order: 142
 ---
+
+## 이 글에서 얻는 것
+
+- Spring AOP가 “마법”이 아니라 **프록시 기반**이라는 점을 이해하고, 왜 특정 상황에서 동작하지 않는지 설명할 수 있습니다.
+- 포인트컷/어드바이스/조인포인트 같은 용어를 외우는 수준을 넘어, 실무에서 로그/트랜잭션/권한/메트릭에 적용할 수 있습니다.
+- self-invocation, final, 실행 순서(@Order) 같은 함정을 알고 설계/디버깅 실수를 줄일 수 있습니다.
 
 ## 들어가며
 
@@ -829,43 +836,43 @@ public class LoggingAspect {
 
 ---
 
-## 요약 체크리스트
+## 요약
 
 ### AOP 기본 개념
-- [ ] 횡단 관심사 (Cross-Cutting Concerns): 로깅, 트랜잭션, 보안 등
-- [ ] Target: Advice가 적용되는 대상 객체
-- [ ] Join Point: Advice 적용 가능한 지점
-- [ ] Pointcut: 실제 Advice가 적용되는 지점 선택
-- [ ] Advice: 실행되는 코드 (Before, After, Around 등)
-- [ ] Aspect: Pointcut + Advice
+- 횡단 관심사(Cross-Cutting Concerns): 로깅, 트랜잭션, 보안 등
+- Target: Advice가 적용되는 대상 객체
+- Join Point: Advice 적용 가능한 지점
+- Pointcut: 실제 Advice가 적용되는 지점 선택
+- Advice: 실행되는 코드(Before, After, Around 등)
+- Aspect: Pointcut + Advice
 
 ### Proxy 패턴
-- [ ] JDK Dynamic Proxy: 인터페이스 기반
-- [ ] CGLIB: 클래스 상속 기반 (Spring Boot 2.0+ 기본)
-- [ ] Proxy 생성: 런타임에 동적으로 생성
-- [ ] Bean 주입: Proxy 객체가 주입됨
+- JDK Dynamic Proxy: 인터페이스 기반
+- CGLIB: 클래스 상속 기반(Spring Boot 기본)
+- Proxy 생성: 런타임에 동적으로 생성
+- Bean 주입: 실제로는 Proxy 객체가 주입됨
 
 ### Pointcut Expression
-- [ ] execution: 가장 많이 사용, 메서드 시그니처 기반
-- [ ] @annotation: Custom Annotation 기반
-- [ ] within: 특정 타입 내 모든 메서드
-- [ ] 조합: &&, ||, ! 사용 가능
+- `execution`: 가장 많이 사용, 메서드 시그니처 기반
+- `@annotation`: Custom Annotation 기반
+- `within`: 특정 타입 내 모든 메서드
+- 조합: `&&`, `||`, `!` 사용 가능
 
 ### Advice 타입
-- [ ] @Before: 메서드 실행 전
-- [ ] @AfterReturning: 정상 반환 후
-- [ ] @AfterThrowing: 예외 발생 후
-- [ ] @After: 항상 실행 (finally)
-- [ ] @Around: 가장 강력, 전후 제어 가능
+- `@Before`: 메서드 실행 전
+- `@AfterReturning`: 정상 반환 후
+- `@AfterThrowing`: 예외 발생 후
+- `@After`: 항상 실행(finally)
+- `@Around`: 가장 강력, 전후 제어 가능
 
 ### 실전 활용
-- [ ] 트랜잭션 로깅, 성능 모니터링
-- [ ] 캐싱, 재시도(Retry) 로직
-- [ ] API 응답 시간 측정
-- [ ] 예외 알림 (Slack, Email)
+- 트랜잭션 로깅, 성능 모니터링
+- 캐싱, 재시도(Retry) 로직
+- API 응답 시간 측정
+- 예외 알림(Slack, Email)
 
 ### 주의사항
-- [ ] Self-Invocation: 같은 클래스 메서드 호출 시 AOP 미적용
-- [ ] final 메서드: CGLIB Proxy 불가
-- [ ] @Order: 여러 Aspect 실행 순서 제어
-- [ ] 성능: Around Advice는 반드시 proceed() 호출
+- Self-Invocation: 같은 클래스 내부 호출 시 AOP 미적용
+- final 메서드/클래스: CGLIB 제약(구조에 따라)
+- `@Order`: 여러 Aspect 실행 순서 제어
+- 성능: Around Advice는 반드시 `proceed()` 호출

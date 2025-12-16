@@ -1,13 +1,20 @@
 ---
-title: "Spring Security 완벽 가이드 - 인증/인가부터 JWT, OAuth2까지"
-date: 2025-01-26
-topic: "Backend"
-tags: ["Spring Security", "Authentication", "JWT", "OAuth2", "Security"]
+title: "Spring Security 기본: Filter Chain, JWT, OAuth2 감각"
+date: 2025-12-16
+draft: false
+topic: "Security"
+tags: ["Spring Security", "Authentication", "Authorization", "JWT", "OAuth2"]
 categories: ["Backend Deep Dive"]
-series: "백엔드 심화 학습"
-series_order: 6
-draft: true
+description: "Security Filter Chain 흐름을 잡고, JWT/OAuth2를 언제 어떻게 쓰는지 실무 기준으로 정리"
+module: "spring-core"
+study_order: 155
 ---
+
+## 이 글에서 얻는 것
+
+- Spring Security의 핵심 흐름(Security Filter Chain)을 잡고, 인증/인가가 어디에서 결정되는지 설명할 수 있습니다.
+- 세션 기반/토큰 기반(JWT) 인증을 구분하고, Refresh Token/회수/만료 같은 운영 이슈를 고려할 수 있습니다.
+- OAuth2 Authorization Code 흐름을 이해하고, “왜 PKCE가 필요한지” 같은 실무 질문에 답할 수 있습니다.
 
 ## 들어가며
 
@@ -1277,34 +1284,27 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
 ---
 
-## 체크리스트
+## 요약
 
-Spring Security를 제대로 이해했는지 확인해보세요:
+### Filter Chain 감각
 
-**기초:**
-- [ ] Security Filter Chain의 동작 순서를 설명할 수 있다
-- [ ] Authentication과 Authorization의 차이를 안다
-- [ ] UserDetails와 UserDetailsService의 역할을 이해한다
+- 요청은 Filter Chain을 순서대로 지나며 인증/인가가 결정됩니다.
+- 인증(Authentication)과 인가(Authorization)를 분리해서 생각해야 설정이 덜 꼬입니다.
 
-**JWT:**
-- [ ] JWT의 구조(Header, Payload, Signature)를 설명할 수 있다
-- [ ] Access Token과 Refresh Token의 차이를 안다
-- [ ] JWT의 단점과 보완 방법을 안다
+### JWT 감각
 
-**OAuth2:**
-- [ ] Authorization Code Grant 흐름을 설명할 수 있다
-- [ ] OAuth2와 JWT를 함께 사용하는 방법을 안다
-- [ ] 소셜 로그인(Google, Kakao)을 구현할 수 있다
+- Access/Refresh 토큰을 분리하고, 회수/만료/탈취 대응(회전, 블랙리스트 등)을 운영까지 포함해 설계합니다.
+- “stateless”는 편하지만, 즉시 무효화가 어렵다는 트레이드오프가 있습니다.
 
-**권한 관리:**
-- [ ] @PreAuthorize와 @Secured의 차이를 안다
-- [ ] 계층적 권한(Role Hierarchy)을 구현할 수 있다
-- [ ] 커스텀 권한 검사 로직을 작성할 수 있다
+### OAuth2 감각
 
-**보안:**
-- [ ] CORS와 CSRF의 차이를 설명할 수 있다
-- [ ] 비밀번호 암호화(BCrypt)를 적용할 수 있다
-- [ ] Rate Limiting으로 무차별 대입 공격을 방지할 수 있다
+- Authorization Code(+PKCE)는 웹/모바일에서 가장 안전한 기본값입니다.
+- 리소스 서버는 토큰 검증(JWK/서명)과 scope/role 정책을 명확히 가져가야 합니다.
+
+### 권한/보안 포인트
+
+- 메서드 레벨 권한(@PreAuthorize 등)은 “마지막 방어선”으로 두면 실수에 강해집니다.
+- CORS/CSRF, 보안 헤더, 레이트리밋은 “기본 보안 베이스라인”입니다.
 
 ---
 

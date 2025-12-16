@@ -1,13 +1,20 @@
 ---
-title: "Spring Transaction 완벽 가이드 - @Transactional 동작 원리부터 실전까지"
-date: 2025-01-26
-topic: "Backend"
-tags: ["Spring", "Transaction", "Database", "AOP", "Proxy"]
+title: "Spring Transaction: @Transactional 동작 원리와 실전 함정"
+date: 2025-12-16
+draft: false
+topic: "Spring"
+tags: ["Spring", "Transaction", "@Transactional", "Propagation", "Isolation"]
 categories: ["Backend Deep Dive"]
-series: "백엔드 심화 학습"
-series_order: 5
-draft: true
+description: "전파/격리/롤백 규칙과 프록시 동작, self-invocation/checked exception 같은 실무 함정을 한 번에 정리"
+module: "spring-core"
+study_order: 144
 ---
+
+## 이 글에서 얻는 것
+
+- `@Transactional`이 **프록시(AOP)** 로 동작한다는 걸 이해하고, 왜 특정 호출에서 적용되지 않는지 설명할 수 있습니다.
+- 전파(Propagation)와 격리(Isolation)를 “암기”가 아니라, 실무 시나리오(재시도/보상/락)로 선택할 수 있습니다.
+- 자주 터지는 함정(checked exception 롤백, private/self-invocation, OSIV, LazyInitializationException)을 예방/디버깅할 수 있습니다.
 
 ## 들어가며
 
@@ -976,39 +983,31 @@ spring.jpa.open-in-view: true  # 기본값: true (성능 이슈)
 
 ---
 
-## 체크리스트
+## 요약
 
-트랜잭션 관리를 제대로 이해했는지 확인해보세요:
+### 핵심 개념
 
-**기초 개념:**
-- [ ] ACID 속성의 의미를 설명할 수 있다
-- [ ] Spring Transaction의 AOP 기반 Proxy 동작을 이해한다
-- [ ] TransactionSynchronizationManager의 역할을 안다
+- ACID와 트랜잭션 경계(“어디부터 어디까지 원자적으로 묶을지”)
+- Spring 트랜잭션은 AOP 프록시 기반으로 동작
+- 트랜잭션 동기화(커밋/롤백 타이밍에 맞춘 후처리)가 중요해지는 순간이 있다
 
-**Propagation:**
-- [ ] REQUIRED와 REQUIRES_NEW의 차이를 설명할 수 있다
-- [ ] NESTED와 Savepoint 개념을 이해한다
-- [ ] 실무에서 어떤 전파 속성을 쓸지 판단할 수 있다
+### Propagation(전파) 감각
 
-**Isolation Level:**
-- [ ] 4가지 격리 수준과 발생 가능한 문제를 안다
-- [ ] MySQL InnoDB의 MVCC 동작을 이해한다
-- [ ] 비즈니스 요구사항에 맞는 격리 수준을 선택할 수 있다
+- `REQUIRED`: 기본값(가능하면 기존 트랜잭션에 참여)
+- `REQUIRES_NEW`: 완전히 분리된 트랜잭션(실패 격리/감사 로그 등)
+- `NESTED`: savepoint 기반(지원/운영 제약이 있어 신중)
 
-**흔한 함정:**
-- [ ] Private 메서드에 @Transactional이 왜 안 되는지 안다
-- [ ] Checked Exception과 롤백 관계를 이해한다
-- [ ] readOnly 트랜잭션의 최적화 효과를 안다
+### Isolation(격리) 감각
 
-**실전 패턴:**
-- [ ] 트랜잭션 범위를 최소화할 수 있다
-- [ ] TransactionalEventListener를 활용할 수 있다
-- [ ] Connection Pool을 적절히 설정할 수 있다
+- 격리는 “안전성 vs 성능” 트레이드오프
+- InnoDB에서는 MVCC/락과 함께 이해해야 한다(읽기/쓰기 경쟁, 데드락)
 
-**모니터링:**
-- [ ] 트랜잭션 로그를 활성화하고 분석할 수 있다
-- [ ] Deadlock 발생 시 원인을 파악하고 해결할 수 있다
-- [ ] LazyInitializationException을 해결할 수 있다
+### 자주 터지는 함정
+
+- private/self-invocation으로 `@Transactional`이 적용되지 않음
+- checked exception 롤백 규칙(기본값) 오해
+- `readOnly`의 의미/최적화 범위 오해
+- OSIV/지연 로딩으로 `LazyInitializationException` 발생
 
 ---
 
