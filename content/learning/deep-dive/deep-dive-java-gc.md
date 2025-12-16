@@ -7,7 +7,7 @@ tags: ["Java", "GC", "JVM", "GC Logs", "G1GC"]
 categories: ["Backend Deep Dive"]
 description: "할당/생존/승격 관점으로 GC를 이해하고, STW/메모리 문제를 로그로 진단하는 기본기"
 module: "foundation"
-study_order: 72
+study_order: 90
 ---
 
 ## 이 글에서 얻는 것

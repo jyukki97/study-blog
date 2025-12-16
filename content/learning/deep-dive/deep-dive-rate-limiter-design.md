@@ -6,8 +6,8 @@ topic: "System Design"
 tags: ["Rate Limiting", "Token Bucket", "Sliding Window", "Redis"]
 categories: ["Backend Deep Dive"]
 description: "Token Bucket, Leaky Bucket, Sliding Window 알고리즘과 분산 환경에서의 구현 전략"
-module: "data-system"
-study_order: 295
+module: "architecture"
+study_order: 458
 ---
 
 ## 이 글에서 얻는 것

@@ -7,7 +7,7 @@ tags: ["Linux", "CLI", "Debugging", "Logs", "Networking"]
 categories: ["Backend Deep Dive"]
 description: "프로세스/리소스/로그/네트워크를 ps/top/journalctl/ss/curl/dig로 확인하며 장애 범위를 좁히는 방법"
 module: "foundation"
-study_order: 45
+study_order: 20
 ---
 
 ## 이 글에서 얻는 것

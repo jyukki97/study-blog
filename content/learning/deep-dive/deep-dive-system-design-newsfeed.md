@@ -6,8 +6,8 @@ topic: "System Design"
 tags: ["System Design", "Newsfeed", "Fanout", "Cache"]
 categories: ["Backend Deep Dive"]
 description: "Fan-out on write/read, 캐시/타임라인 테이블 설계, 지연/일관성 트레이드오프 정리"
-module: "data-system"
-study_order: 290
+module: "architecture"
+study_order: 457
 ---
 
 ## 이 글에서 얻는 것

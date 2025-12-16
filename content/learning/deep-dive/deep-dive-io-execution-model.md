@@ -7,7 +7,7 @@ tags: ["IO", "Blocking", "NonBlocking", "Async", "Sync", "Thread", "EventLoop"]
 categories: ["Backend Deep Dive"]
 description: "동기/비동기 vs 블로킹/논블로킹을 명확히 구분하고, 스레드풀·이벤트 루프·MVC/WebFlux 선택 기준까지 연결"
 module: "foundation"
-study_order: 80
+study_order: 50
 ---
 
 ## 이 글에서 얻는 것

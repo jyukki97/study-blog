@@ -7,7 +7,7 @@ tags: ["Java", "JVM", "Memory", "Metaspace", "JIT"]
 categories: ["Backend Deep Dive"]
 description: "JVM 메모리 영역과 GC Root, OOM/Metaspace/StackOverflow 같은 장애를 빠르게 진단하는 기본기"
 module: "foundation"
-study_order: 68
+study_order: 85
 ---
 
 ## 이 글에서 얻는 것

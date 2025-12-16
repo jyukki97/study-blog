@@ -7,7 +7,7 @@ tags: ["TCP", "HTTP2", "Handshake", "Multiplexing"]
 categories: ["Backend Deep Dive"]
 description: "TCP 3-way, 흐름/혼잡 제어, HTTP/2 멀티플렉싱·HPACK·헤더 압축 핵심"
 module: "foundation"
-study_order: 35
+study_order: 40
 ---
 
 ## 이 글에서 얻는 것

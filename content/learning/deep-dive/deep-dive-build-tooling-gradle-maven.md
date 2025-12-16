@@ -7,7 +7,7 @@ tags: ["Gradle", "Maven", "Dependencies", "Multi-module", "Build"]
 categories: ["Backend Deep Dive"]
 description: "의존성 해석/버전 충돌, 빌드·테스트 파이프라인, 멀티모듈 분리의 기준을 잡는 글"
 module: "foundation"
-study_order: 48
+study_order: 30
 ---
 
 ## 이 글에서 얻는 것

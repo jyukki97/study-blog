@@ -7,7 +7,7 @@ tags: ["Java", "Collections", "Performance", "HashMap", "ArrayList"]
 categories: ["Backend Deep Dive"]
 description: "ArrayList/LinkedList/HashMap/ConcurrentHashMap 등 주요 컬렉션의 성능 특성과 튜닝 포인트"
 module: "foundation"
-study_order: 65
+study_order: 70
 ---
 
 ## 이 글에서 얻는 것

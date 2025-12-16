@@ -7,7 +7,7 @@ tags: ["HTTP", "REST", "TLS", "Caching"]
 categories: ["Development", "Learning"]
 description: "메서드/상태코드/헤더/캐시/HTTPS 기본을 빠르게 복습"
 module: "foundation"
-study_order: 40
+study_order: 35
 ---
 
 ## 이 글에서 얻는 것

@@ -7,7 +7,7 @@ tags: ["Git", "Commit", "Rebase", "Merge", "Revert"]
 categories: ["Backend Deep Dive"]
 description: "좋은 커밋 단위, rebase/merge 선택, revert/reset 차이까지: 팀 개발에서 사고를 줄이는 Git 루틴"
 module: "foundation"
-study_order: 47
+study_order: 25
 ---
 
 ## 이 글에서 얻는 것

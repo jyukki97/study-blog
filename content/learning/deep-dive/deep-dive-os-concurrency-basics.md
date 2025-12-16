@@ -7,7 +7,7 @@ tags: ["OS", "Process", "Thread", "Scheduling", "Concurrency"]
 categories: ["Backend Deep Dive"]
 description: "프로세스/스레드 차이, 컨텍스트 스위칭, 스케줄링 알고리즘, 동기화 기본"
 module: "foundation"
-study_order: 25
+study_order: 80
 ---
 
 ## 이 글에서 얻는 것

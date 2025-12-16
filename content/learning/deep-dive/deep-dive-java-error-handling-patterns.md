@@ -7,7 +7,7 @@ tags: ["Java", "Exception", "Optional", "Stream"]
 categories: ["Backend Deep Dive"]
 description: "체크예외 vs 런타임예외, Optional/Stream에서 흔한 함정과 안전한 사용 패턴 정리"
 module: "foundation"
-study_order: 50
+study_order: 65
 ---
 
 ## 이 글에서 얻는 것

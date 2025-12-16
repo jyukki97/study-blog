@@ -6,8 +6,8 @@ topic: "System Design"
 tags: ["System Design", "S3", "CDN", "파일업로드"]
 categories: ["Backend Deep Dive"]
 description: "Presigned URL, 멀티파트 업로드, CDN 캐싱 전략으로 파일을 안전하게 업로드/서빙하는 방법"
-module: "data-system"
-study_order: 280
+module: "architecture"
+study_order: 456
 ---
 
 ## 이 글에서 얻는 것

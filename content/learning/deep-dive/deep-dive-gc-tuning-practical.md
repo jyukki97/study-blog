@@ -7,7 +7,7 @@ tags: ["JVM", "GC", "Tuning", "Performance"]
 categories: ["Backend Deep Dive"]
 description: "GC 로그 해석, Young/Old 튜닝 포인트, GC 선택(G1/ZGC) 가이드"
 module: "foundation"
-study_order: 75
+study_order: 95
 ---
 
 ## 이 글에서 얻는 것
