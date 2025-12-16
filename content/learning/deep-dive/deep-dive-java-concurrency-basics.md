@@ -17,6 +17,12 @@ study_order: 20
 - **Lock/동시성 컬렉션**: `ReentrantLock`, `ReadWriteLock`, `ConcurrentHashMap`
 - **가시성/원자성**: `volatile`, `Atomic*`, happens-before
 
+### 스레드풀 선택 가이드
+
+- CPU 바운드: `newFixedThreadPool(n_cores)` 혹은 명시적 ThreadPoolExecutor (core=max)
+- IO 바운드: core는 CPU보다 크게, 큐 크기/거부 정책 설정 필수
+- 블로킹 작업 분리: IO 전용 풀, 타임아웃과 취소 경로 제공
+
 ## 코드 스니펫
 
 ```java
@@ -40,6 +46,12 @@ void increase(String key) {
 }
 ```
 
+```java
+// 종료 시그널 처리
+pool.shutdown();
+pool.awaitTermination(10, TimeUnit.SECONDS);
+```
+
 ## 체크리스트
 
 - [ ] 스레드풀 생성 시 core/max/queue/거부 정책을 명시적으로 설정했는가?
@@ -51,4 +63,3 @@ void increase(String key) {
 ## 추가 학습
 
 - Java Concurrency in Practice, Effective Java 아이템 78~82
-*** End Patch***"
