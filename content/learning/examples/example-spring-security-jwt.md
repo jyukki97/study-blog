@@ -7,7 +7,7 @@ tags: ["Spring Security", "JWT", "Authentication", "Authorization"]
 categories: ["Development", "Learning"]
 description: "JWT 기반 인증 필터, 토큰 발급/검증, Stateless 세션 구성을 코드로 정리"
 module: "spring-core"
-study_order: 22
+study_order: 150
 ---
 
 ## 필터 체인 구성

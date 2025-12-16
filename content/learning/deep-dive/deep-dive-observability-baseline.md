@@ -7,7 +7,7 @@ tags: ["Observability", "Logging", "Metrics", "Tracing", "Prometheus", "ELK"]
 categories: ["DevOps"]
 description: "로그/메트릭/트레이스 3대 기둥과 Spring Boot 기반 기본 설정 가이드"
 module: "ops-observability"
-study_order: 43
+study_order: 330
 ---
 
 ## 로그

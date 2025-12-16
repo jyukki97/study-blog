@@ -9,7 +9,7 @@ tags: ["Spring", "IoC", "DI", "Backend"]
 categories: ["Development", "Learning"]
 description: "Spring의 핵심 개념인 IoC(Inversion of Control)와 DI(Dependency Injection) 정리"
 module: "spring-core"
-study_order: 17
+study_order: 110
 module: "spring-core"
 ---
 

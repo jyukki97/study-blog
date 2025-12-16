@@ -7,7 +7,7 @@ tags: ["Docker", "CI", "GitHub Actions", "멀티스테이지"]
 categories: ["Development", "Learning"]
 description: "멀티스테이지 Dockerfile과 GitHub Actions로 테스트/빌드/이미지 푸시 자동화"
 module: "ops-observability"
-study_order: 41
+study_order: 310
 ---
 
 ## Dockerfile 예시

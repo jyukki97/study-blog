@@ -7,7 +7,7 @@ tags: ["데이터베이스", "시스템설계", "Redis", "백엔드"]
 categories: ["Learning"]
 description: "인덱스/트랜잭션/캐싱과 시스템 설계 연습을 묶은 모듈"
 weight: 3
-study_order: 30
+study_order: 200
 layout: "learning-module"
 module_key: "data-system"
 url: "/learning/career/backend-data-system-phase/"

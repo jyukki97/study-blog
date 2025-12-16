@@ -7,7 +7,7 @@ tags: ["MySQL", "Isolation", "Lock", "InnoDB"]
 categories: ["Backend Deep Dive"]
 description: "READ COMMITTED/REPEATABLE READ 차이, Gap/Next-Key Lock과 데드락 예방법"
 module: "data-system"
-study_order: 32
+study_order: 220
 ---
 
 ## 격리 수준 핵심

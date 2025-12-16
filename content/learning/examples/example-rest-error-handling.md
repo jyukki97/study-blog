@@ -7,7 +7,7 @@ tags: ["REST", "Error Handling", "Spring Boot", "Validation"]
 categories: ["Development", "Learning"]
 description: "표준 에러 응답 포맷, 글로벌 예외 처리, 검증 에러 응답 설계"
 module: "spring-core"
-study_order: 19
+study_order: 130
 ---
 
 ## 에러 응답 포맷 예시

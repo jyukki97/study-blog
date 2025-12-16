@@ -7,7 +7,7 @@ tags: ["QueryDSL", "JPA", "Repository", "페이징"]
 categories: ["Backend Deep Dive"]
 description: "기본 문법, 동적 where, 페이징/정렬 패턴을 예제로 정리"
 module: "spring-core"
-study_order: 26
+study_order: 190
 ---
 
 ```java

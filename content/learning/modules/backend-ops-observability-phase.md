@@ -7,7 +7,7 @@ tags: ["DevOps", "CI/CD", "모니터링", "AWS", "Docker"]
 categories: ["Learning"]
 description: "Docker, CI/CD, 모니터링, 클라우드 배포까지 운영 스택을 갖추는 모듈"
 weight: 4
-study_order: 40
+study_order: 300
 layout: "learning-module"
 module_key: "ops-observability"
 url: "/learning/career/backend-ops-observability-phase/"

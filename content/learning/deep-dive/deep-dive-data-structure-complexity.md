@@ -7,7 +7,7 @@ tags: ["자료구조", "시간복잡도", "공간복잡도", "빅오"]
 categories: ["Backend Deep Dive"]
 description: "주요 자료구조의 삽입/삭제/탐색 시간복잡도와 사용 시 주의점 정리"
 module: "foundation"
-study_order: 12
+study_order: 30
 ---
 
 ## 복잡도 표

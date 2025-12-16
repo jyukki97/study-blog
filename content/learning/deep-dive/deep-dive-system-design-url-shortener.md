@@ -7,7 +7,7 @@ tags: ["System Design", "URL Shortener", "Hash", "Cache", "DB"]
 categories: ["Backend Deep Dive"]
 description: "Key 생성, 충돌 방지, 캐시/DB 설계, 확장성·가용성 고려사항 정리"
 module: "data-system"
-study_order: 34
+study_order: 240
 ---
 
 ## 요구사항 요약

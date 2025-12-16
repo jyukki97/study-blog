@@ -7,7 +7,7 @@ tags: ["Java", "Concurrency", "Executor", "Lock", "ThreadPool"]
 categories: ["Backend Deep Dive"]
 description: "스레드, Executor, Lock 기본기를 잡고 안전한 동시성 코드를 작성하기 위한 체크리스트"
 module: "foundation"
-study_order: 11
+study_order: 20
 ---
 
 ## 핵심 개념

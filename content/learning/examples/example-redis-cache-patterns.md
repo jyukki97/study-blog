@@ -7,7 +7,7 @@ tags: ["Redis", "Cache Aside", "Write Through", "TTL", "분산락"]
 categories: ["Development", "Learning"]
 description: "Cache-Aside, Write-Through, Write-Behind, 분산락 패턴을 코드 예시와 함께 정리"
 module: "data-system"
-study_order: 33
+study_order: 230
 ---
 
 ## Cache-Aside

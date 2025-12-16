@@ -7,7 +7,7 @@ tags: ["TDD", "JUnit 5", "Mockito", "테스트"]
 categories: ["Backend Deep Dive"]
 description: "레드-그린-리팩터 사이클, 단위/슬라이스 테스트 작성과 Mock 활용 패턴"
 module: "foundation"
-study_order: 15
+study_order: 60
 ---
 
 ## TDD 3단계

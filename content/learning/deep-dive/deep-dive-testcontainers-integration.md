@@ -7,7 +7,7 @@ tags: ["Testcontainers", "Spring Boot", "Integration Test", "JPA", "Redis"]
 categories: ["Backend Deep Dive"]
 description: "MySQL/Redis/Kafka를 Testcontainers로 올려 실제 환경과 유사한 통합 테스트를 구성하는 방법"
 module: "spring-core"
-study_order: 28
+study_order: 197
 ---
 
 ```java

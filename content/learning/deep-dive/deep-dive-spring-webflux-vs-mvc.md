@@ -7,7 +7,7 @@ tags: ["WebFlux", "Spring MVC", "Reactive", "비동기"]
 categories: ["Backend Deep Dive"]
 description: "Reactive 필요성 판단 기준, 스레드 모델 차이, 적용/비적용 시나리오 정리"
 module: "spring-core"
-study_order: 24
+study_order: 170
 ---
 
 ## 선택 기준

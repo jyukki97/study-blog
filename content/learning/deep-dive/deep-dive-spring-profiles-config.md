@@ -7,7 +7,7 @@ tags: ["Spring", "Profile", "Configuration", "YAML"]
 categories: ["Backend Deep Dive"]
 description: "dev/stage/prod 설정 분리, @ConfigurationProperties, Secret 관리 전략 정리"
 module: "spring-core"
-study_order: 27
+study_order: 195
 ---
 
 ## 프로필 분리 예시

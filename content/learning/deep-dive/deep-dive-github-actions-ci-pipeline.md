@@ -7,7 +7,7 @@ tags: ["GitHub Actions", "CI", "Test", "Build"]
 categories: ["DevOps"]
 description: "테스트·빌드·린트·아티팩트 업로드를 포함한 백엔드 CI 파이프라인 예시와 베스트 프랙티스"
 module: "ops-observability"
-study_order: 42
+study_order: 320
 ---
 
 ## 기본 워크플로

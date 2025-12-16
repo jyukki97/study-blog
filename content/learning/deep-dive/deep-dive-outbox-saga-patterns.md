@@ -7,7 +7,7 @@ tags: ["Outbox", "Saga", "Event Driven", "분산트랜잭션"]
 categories: ["Backend Deep Dive"]
 description: "Outbox 패턴, Saga(Choreography/Orchestration)로 데이터 일관성을 유지하는 방법"
 module: "data-system"
-study_order: 37
+study_order: 270
 ---
 
 ## Outbox 패턴

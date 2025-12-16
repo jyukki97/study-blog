@@ -7,7 +7,7 @@ tags: ["Kafka", "Partition", "Consumer Group", "Offset"]
 categories: ["Backend Deep Dive"]
 description: "Kafka 핵심 개념과 메시지 흐름, Ordering/스루풋 설계를 위한 기초"
 module: "data-system"
-study_order: 35
+study_order: 250
 ---
 
 ## 메시지 흐름

@@ -7,7 +7,7 @@ tags: ["Spring", "JPA", "테스트", "백엔드"]
 categories: ["Learning"]
 description: "스프링 코어, 부트 자동설정, JPA, 테스트 전략을 집중적으로 다지는 모듈"
 weight: 2
-study_order: 20
+study_order: 100
 layout: "learning-module"
 module_key: "spring-core"
 url: "/learning/career/backend-spring-core-phase/"

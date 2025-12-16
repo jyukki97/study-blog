@@ -7,6 +7,7 @@ tags: ["Kubernetes", "Deployment", "RollingUpdate", "BlueGreen", "Canary"]
 categories: ["DevOps"]
 description: "RollingUpdate, Canary, Blue/Green 전략과 실습 체크리스트"
 module: "ops-observability"
+study_order: 315
 ---
 
 ## 핵심 전략 비교

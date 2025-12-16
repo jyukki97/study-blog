@@ -7,7 +7,7 @@ tags: ["JPA", "Transaction", "Flush", "영속성컨텍스트"]
 categories: ["Backend Deep Dive"]
 description: "트랜잭션 경계, flush 시점, 지연 쓰기와 N+1 예방을 정리"
 module: "data-system"
-study_order: 31
+study_order: 210
 ---
 
 ## 핵심 포인트

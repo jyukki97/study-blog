@@ -7,7 +7,7 @@ tags: ["OAuth2", "Authorization Code", "Spring Security"]
 categories: ["Development", "Learning"]
 description: "Authorization Server 없이 외부 프로바이더(Google 등) 연동하는 OAuth2 로그인 흐름 정리"
 module: "spring-core"
-study_order: 23
+study_order: 160
 ---
 
 ## 핵심 설정

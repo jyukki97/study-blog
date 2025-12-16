@@ -7,7 +7,7 @@ tags: ["Q&A", "백엔드", "정리", "개념"]
 categories: ["Learning"]
 description: "학습하며 남긴 Q&A를 한 번에 모아 복습하는 단계"
 weight: 5
-study_order: 50
+study_order: 500
 layout: "learning-module"
 module_key: "qna"
 url: "/learning/career/backend-qna-phase/"

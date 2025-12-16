@@ -7,7 +7,7 @@ tags: ["Kafka", "Consumer Lag", "Rebalance", "Offset"]
 categories: ["Backend Deep Dive"]
 description: "Lag 모니터링, 리밸런스 원인, 처리량/중복/손실 사이 트레이드오프 정리"
 module: "data-system"
-study_order: 36
+study_order: 260
 ---
 
 ## Lag 원인과 대응

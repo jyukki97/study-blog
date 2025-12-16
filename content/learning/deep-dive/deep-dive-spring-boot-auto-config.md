@@ -7,7 +7,7 @@ tags: ["Spring Boot", "AutoConfiguration", "Condition", "Classpath"]
 categories: ["Backend Deep Dive"]
 description: "자동 설정 동작 원리, 조건부 빈 등록, 커스터마이징 포인트 정리"
 module: "spring-core"
-study_order: 21
+study_order: 140
 ---
 
 ## 동작 흐름

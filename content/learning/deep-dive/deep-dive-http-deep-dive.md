@@ -7,7 +7,7 @@ tags: ["HTTP", "Caching", "TLS", "Conditional Request"]
 categories: ["Backend Deep Dive"]
 description: "메서드/상태코드 복습 후 캐시 제어, ETag 조건부 요청, TLS 핸드셰이크를 실무 관점에서 정리"
 module: "foundation"
-study_order: 16
+study_order: 70
 ---
 
 ## 캐시 제어 핵심

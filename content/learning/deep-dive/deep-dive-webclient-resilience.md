@@ -7,7 +7,7 @@ tags: ["WebClient", "Timeout", "Retry", "Resilience", "Reactive"]
 categories: ["Backend Deep Dive"]
 description: "WebClient로 외부 API 호출 시 타임아웃/재시도/서킷 브레이커/백프레셔 설정 가이드"
 module: "spring-core"
-study_order: 25
+study_order: 180
 ---
 
 ## 기본 타임아웃 설정
