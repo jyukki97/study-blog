@@ -114,31 +114,19 @@
                 {{- $firstPost := index $posts 0 }}
                 {{- $latestPost := index (sort $posts "Date" "desc") 0 }}
                 <div class="topic-card" onclick="filterByTopic('{{ $topic }}')">
-                    <div class="topic-card-left">
-                        <span class="topic-icon">
-                            {{- if $firstPost.Params.topic_icon }}
-                                {{ $firstPost.Params.topic_icon | safeHTML }}
+                    <div class="topic-main">
+                        <h3 class="topic-name">{{ $topic }}</h3>
+                        <p class="topic-description">
+                            {{- if $firstPost.Params.topic_description }}
+                                {{ $firstPost.Params.topic_description }}
                             {{- else }}
-                                📖
+                                학습 노트 모음
                             {{- end }}
-                        </span>
-                        <div class="topic-info">
-                            <h3 class="topic-name">{{ $topic }}</h3>
-                            <p class="topic-description">
-                                {{- if $firstPost.Params.topic_description }}
-                                    {{ $firstPost.Params.topic_description }}
-                                {{- else }}
-                                    학습 노트 모음
-                                {{- end }}
-                            </p>
-                        </div>
+                        </p>
                     </div>
-                    <div class="topic-card-right">
-                        <div class="topic-meta">
-                            <span class="note-count">{{ len $posts }}개</span>
-                            <span class="last-update desktop-only">{{ $latestPost.Date | time.Format "01/02" }}</span>
-                        </div>
-                        <span class="topic-arrow">→</span>
+                    <div class="topic-meta">
+                        <span class="note-count">{{ len $posts }}개</span>
+                        <span class="last-update desktop-only">{{ $latestPost.Date | time.Format "01/02" }}</span>
                     </div>
                 </div>
             {{- end }}
@@ -617,31 +605,31 @@
 }
 
 .topic-card {
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    gap: 0.8rem;
+    display: flex;
+    justify-content: space-between;
     align-items: center;
     background: var(--entry);
     border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 0.9rem 1rem;
+    border-radius: 12px;
+    padding: 0.85rem 1rem;
     cursor: pointer;
     transition: all 0.2s ease;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    box-shadow: 0 1px 6px rgba(0,0,0,0.04);
 }
 
 .topic-card:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(168, 192, 255, 0.12);
-    border-color: #a8c0ff;
-    background: var(--code-bg);
+    border-color: rgba(168,192,255,0.55);
+    box-shadow: 0 6px 18px rgba(168, 192, 255, 0.10);
 }
 
-.topic-icon {
-    font-size: 1.6rem;
+.topic-main {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
 }
 
-.topic-info h3 {
+.topic-name {
     margin: 0;
     font-size: 1rem;
     font-weight: 700;
@@ -651,7 +639,7 @@
 .topic-description {
     font-size: 0.85rem;
     color: var(--secondary);
-    margin: 0.15rem 0 0;
+    margin: 0;
     line-height: 1.35;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -661,18 +649,17 @@
 }
 
 .topic-meta {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 0.2rem;
-    text-align: right;
-    min-width: 64px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex: 0 0 auto;
+    font-variant-numeric: tabular-nums;
 }
 
 .note-count {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     font-weight: 700;
-    color: #a8c0ff;
+    color: var(--primary);
 }
 
 .last-update {
@@ -949,16 +936,6 @@
         padding: 1rem;
     }
 
-    .topic-card-left {
-        gap: 1rem;
-    }
-
-    .topic-icon {
-        width: 50px;
-        height: 50px;
-        font-size: 2rem;
-    }
-
     .topic-name {
         font-size: 1.1rem;
     }
@@ -967,16 +944,8 @@
         font-size: 0.85rem;
     }
 
-    .topic-card-right {
-        gap: 1rem;
-    }
-
     .note-count {
         font-size: 1rem;
-    }
-
-    .topic-arrow {
-        font-size: 1.3rem;
     }
 
     .learning-notes-grid {
@@ -1014,12 +983,6 @@
         padding: 0.9rem;
     }
 
-    .topic-icon {
-        width: 45px;
-        height: 45px;
-        font-size: 1.8rem;
-    }
-
     .topic-name {
         font-size: 1rem;
     }
@@ -1028,23 +991,8 @@
         display: none;
     }
 
-    .topic-card-right {
-        gap: 0.8rem;
-    }
-
     .note-count {
         font-size: 0.9rem;
-        padding: 0.25rem 0.6rem;
-    }
-
-    .timeline-item {
-        grid-template-columns: 1fr;
-    }
-
-    .timeline-order {
-        width: 44px;
-        height: 44px;
-        font-size: 0.95rem;
     }
 }
 
