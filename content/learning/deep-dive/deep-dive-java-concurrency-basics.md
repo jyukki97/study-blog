@@ -229,3 +229,8 @@ pool.awaitTermination(10, TimeUnit.SECONDS);
 
 - Java Concurrency in Practice
 - Effective Java 아이템 78~82
+
+## 연결해서 읽기
+
+- OS 관점(스케줄링/컨텍스트 스위칭): `/learning/deep-dive/deep-dive-os-concurrency-basics/`
+- 실행 모델(동기/비동기, 블로킹/논블로킹): `/learning/deep-dive/deep-dive-io-execution-model/`
