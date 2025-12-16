@@ -3,7 +3,14 @@
 {{- $modulePosts := slice }}
 {{- if $moduleKey }}
   {{- $modulePosts = where site.RegularPages "Params.module" $moduleKey }}
-  {{- $modulePosts = sort $modulePosts "Date" "desc" }}
+  {{- $orderedPosts := where $modulePosts "Params.study_order" "!=" nil }}
+  {{- $orderedPosts = sort $orderedPosts "Params.study_order" }}
+  {{- $unorderedPosts := where $modulePosts "Params.study_order" "==" nil }}
+  {{- $unorderedPosts = sort $unorderedPosts "Date" "desc" }}
+  {{- $modulePosts = $orderedPosts }}
+  {{- range $unorderedPosts }}
+    {{- $modulePosts = $modulePosts | append . }}
+  {{- end }}
 {{- end }}
 
 <div class="learning-container">

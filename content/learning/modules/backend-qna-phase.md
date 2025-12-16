@@ -1,12 +1,12 @@
 ---
-title: "5단계: 핵심 개념 Q&A 모음"
+title: "6단계: 복습(Q&A)"
 date: 2025-12-16
 draft: false
 topic: "Backend Roadmap"
 tags: ["Q&A", "백엔드", "정리", "개념"]
 categories: ["Learning"]
 description: "학습하며 남긴 Q&A를 한 번에 모아 복습하는 단계"
-weight: 5
+weight: 6
 study_order: 500
 layout: "learning-module"
 module_key: "qna"
