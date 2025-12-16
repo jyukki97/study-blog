@@ -50,28 +50,42 @@
             <h2>🧭 학습 타임라인</h2>
             <div class="section-line"></div>
         </div>
-        {{- if gt (len $timelinePages) 0 }}
-        <div class="timeline-list">
-            {{- range $timelinePages }}
-            <article class="timeline-item">
-                <div class="timeline-order">#{{ printf "%02d" .Params.study_order }}</div>
+        {{- $modules := where site.RegularPages "Params.module_key" "!=" nil }}
+        {{- $modules = where $modules "Section" "learning" }}
+        {{- $modules = where $modules "File.Dir" "==" "learning/modules/" }}
+        {{- $modules = sort $modules "Weight" }}
+        {{- if gt (len $modules) 0 }}
+        <div class="timeline-list grouped">
+            {{- range $modules }}
+            {{- $moduleKey := .Params.module_key }}
+            {{- $modulePosts := where site.RegularPages "Params.module" $moduleKey }}
+            {{- $modulePosts = where $modulePosts "Params.study_order" "!=" nil }}
+            {{- $modulePosts = where $modulePosts "File.Dir" "!=" "learning/qna/" }}
+            {{- $modulePosts = sort $modulePosts "Params.study_order" }}
+            <article class="timeline-item module-head">
+                <div class="timeline-order">STEP {{ printf "%d" .Weight }}</div>
                 <div class="timeline-body">
                     <h3 class="timeline-title"><a href="{{ .Permalink }}">{{ .Title }}</a></h3>
                     <p class="timeline-desc">
-                        {{- with .Params.description -}}
-                            {{ . }}
-                        {{- else -}}
-                            {{ .Summary | plainify | truncate 140 }}
-                        {{- end -}}
+                        {{- with .Params.description }}{{ . }}{{- else }}{{ .Summary | plainify | truncate 140 }}{{- end }}
+                    </p>
+                </div>
+            </article>
+            {{- range $modulePosts }}
+            <article class="timeline-item child">
+                <div class="timeline-order">#{{ printf "%02d" .Params.study_order }}</div>
+                <div class="timeline-body">
+                    <h4 class="timeline-title"><a href="{{ .Permalink }}">{{ .Title }}</a></h4>
+                    <p class="timeline-desc">
+                        {{- with .Params.description -}}{{ . }}{{- else -}}{{ .Summary | plainify | truncate 140 }}{{- end -}}
                     </p>
                     <div class="timeline-meta">
-                        {{- if .Params.topic }}
-                        <span class="timeline-tag">{{ .Params.topic }}</span>
-                        {{- end }}
+                        {{- if .Params.topic }}<span class="timeline-tag">{{ .Params.topic }}</span>{{- end }}
                         <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date | time.Format "01/02" }}</time>
                     </div>
                 </div>
             </article>
+            {{- end }}
             {{- end }}
         </div>
         {{- else }}
@@ -422,6 +436,9 @@
     flex-direction: column;
     gap: 1rem;
 }
+.timeline-list.grouped {
+    gap: 1.4rem;
+}
 
 .timeline-item {
     display: grid;
@@ -497,6 +514,12 @@
     color: #6b7cff;
     border: 1px solid rgba(168,192,255,0.25);
     font-weight: 600;
+}
+.module-head {
+    border-left: 4px solid #a8c0ff;
+}
+.timeline-item.child {
+    margin-left: 1.5rem;
 }
 
 /* 커리큘럼 섹션 */

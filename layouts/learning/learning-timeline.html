@@ -1,8 +1,8 @@
 {{ define "main" }}
-{{- $timelinePages := where site.RegularPages "Section" "learning" }}
-{{- $timelinePages = where $timelinePages "Params.study_order" "!=" nil }}
-{{- $timelinePages = where $timelinePages "File.Dir" "!=" "learning/qna/" }}
-{{- $timelinePages = sort $timelinePages "Params.study_order" }}
+{{- $modules := where site.RegularPages "Params.module_key" "!=" nil }}
+{{- $modules = where $modules "Section" "learning" }}
+{{- $modules = where $modules "File.Dir" "==" "learning/modules/" }}
+{{- $modules = sort $modules "Weight" }}
 <div class="learning-container">
   <header class="learning-hero">
     <div class="hero-content">
@@ -25,28 +25,38 @@
       <h2>📑 학습 타임라인</h2>
       <div class="section-line"></div>
     </div>
-    {{- if gt (len $timelinePages) 0 }}
-    <div class="timeline-list">
-      {{- range $timelinePages }}
-      <article class="timeline-item">
-        <div class="timeline-order">#{{ printf "%02d" .Params.study_order }}</div>
+    {{- if gt (len $modules) 0 }}
+    <div class="timeline-list grouped">
+      {{- range $modules }}
+      {{- $moduleKey := .Params.module_key }}
+      {{- $modulePosts := where site.RegularPages "Params.module" $moduleKey }}
+      {{- $modulePosts = where $modulePosts "Params.study_order" "!=" nil }}
+      {{- $modulePosts = where $modulePosts "File.Dir" "!=" "learning/qna/" }}
+      {{- $modulePosts = sort $modulePosts "Params.study_order" }}
+      <article class="timeline-item module-head">
+        <div class="timeline-order">STEP {{ printf "%d" .Weight }}</div>
         <div class="timeline-body">
           <h3 class="timeline-title"><a href="{{ .Permalink }}">{{ .Title }}</a></h3>
           <p class="timeline-desc">
-            {{- with .Params.description -}}
-              {{ . }}
-            {{- else -}}
-              {{ .Summary | plainify | truncate 140 }}
-            {{- end -}}
+            {{- with .Params.description }}{{ . }}{{- else }}{{ .Summary | plainify | truncate 140 }}{{- end }}
+          </p>
+        </div>
+      </article>
+      {{- range $modulePosts }}
+      <article class="timeline-item child">
+        <div class="timeline-order">#{{ printf "%02d" .Params.study_order }}</div>
+        <div class="timeline-body">
+          <h4 class="timeline-title"><a href="{{ .Permalink }}">{{ .Title }}</a></h4>
+          <p class="timeline-desc">
+            {{- with .Params.description -}}{{ . }}{{- else -}}{{ .Summary | plainify | truncate 140 }}{{- end -}}
           </p>
           <div class="timeline-meta">
-            {{- if .Params.topic }}
-            <span class="timeline-tag">{{ .Params.topic }}</span>
-            {{- end }}
+            {{- if .Params.topic }}<span class="timeline-tag">{{ .Params.topic }}</span>{{- end }}
             <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date | time.Format "01/02" }}</time>
           </div>
         </div>
       </article>
+      {{- end }}
       {{- end }}
     </div>
     {{- else }}
@@ -92,6 +102,7 @@
 .section-line { flex:1; height:2px; background: linear-gradient(90deg, #a8c0ff, transparent); border-radius:1px; }
 .learning-timeline { margin: 2rem 0 2rem; }
 .timeline-list { display:flex; flex-direction:column; gap:1rem; }
+.timeline-list.grouped { gap:1.4rem; }
 .timeline-item { display:grid; grid-template-columns:auto 1fr; gap:1rem; align-items:start; background: var(--entry); border:1px solid var(--border); border-radius:14px; padding:1rem 1.25rem; box-shadow:0 6px 16px rgba(0,0,0,0.04); transition: transform 0.2s ease, box-shadow 0.2s ease; }
 .timeline-item:hover { transform: translateY(-2px); box-shadow:0 12px 24px rgba(168,192,255,0.14); border-color:#a8c0ff; }
 .timeline-order { width:52px; height:52px; border-radius:12px; background: linear-gradient(135deg, rgba(168,192,255,0.18), rgba(151,149,240,0.16)); color:#5b6cff; font-weight:800; display:inline-flex; align-items:center; justify-content:center; font-variant-numeric:tabular-nums; box-shadow: inset 0 0 0 1px rgba(168,192,255,0.3); }
@@ -102,6 +113,8 @@
 .timeline-desc { color:var(--secondary); line-height:1.6; margin:0; }
 .timeline-meta { display:flex; align-items:center; gap:0.6rem; font-size:0.9rem; color:var(--secondary); }
 .timeline-tag { background: var(--code-bg); padding:0.25rem 0.65rem; border-radius:10px; color:#6b7cff; border:1px solid rgba(168,192,255,0.25); font-weight:600; }
+.module-head { border-left: 4px solid #a8c0ff; }
+.timeline-item.child { margin-left: 1.5rem; }
 .empty-state { padding:2rem 0; color:var(--secondary); }
 .learning-rich-content { background: var(--entry); border:1px solid var(--border); border-radius:16px; padding:1.5rem; box-shadow:0 8px 20px rgba(0,0,0,0.04); }
 .learning-rich-content h2, .learning-rich-content h3 { margin-top:1.6rem; margin-bottom:0.8rem; }
