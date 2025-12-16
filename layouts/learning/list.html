@@ -608,18 +608,36 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 0.9rem;
     background: var(--entry);
     border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 0.85rem 1rem;
+    border-radius: 16px;
+    padding: 1.05rem 1.15rem;
     cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+    transition: all 0.25s ease;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.05);
+    position: relative;
+    overflow: hidden;
+}
+
+.topic-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(168,192,255,0.12), rgba(151,149,240,0.1));
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    pointer-events: none;
 }
 
 .topic-card:hover {
-    border-color: rgba(168,192,255,0.55);
-    box-shadow: 0 6px 18px rgba(168, 192, 255, 0.10);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(168,192,255,0.16);
+    border-color: #a8c0ff;
+}
+
+.topic-card:hover::before {
+    opacity: 1;
 }
 
 .topic-main {
@@ -627,20 +645,22 @@
     flex-direction: column;
     gap: 0.15rem;
     min-width: 0;
+    position: relative;
+    z-index: 1;
 }
 
 .topic-name {
     margin: 0;
-    font-size: 1rem;
+    font-size: 1.05rem;
     font-weight: 700;
     color: var(--primary);
 }
 
 .topic-description {
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     color: var(--secondary);
     margin: 0;
-    line-height: 1.35;
+    line-height: 1.45;
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;
@@ -654,12 +674,18 @@
     gap: 0.5rem;
     flex: 0 0 auto;
     font-variant-numeric: tabular-nums;
+    position: relative;
+    z-index: 1;
 }
 
 .note-count {
-    font-size: 0.9rem;
+    background: var(--code-bg);
+    padding: 0.28rem 0.7rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
     font-weight: 700;
-    color: var(--primary);
+    color: #6b7cff;
+    border: 1px solid rgba(168, 192, 255, 0.25);
 }
 
 .last-update {
