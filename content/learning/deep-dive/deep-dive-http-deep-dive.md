@@ -32,6 +32,7 @@ curl -H "If-None-Match: <etag>" -I https://example.com   # 304 확인
 - 2xx: 200/201/204, 304(캐시), 206(부분 콘텐츠)
 - 4xx: 400 vs 422, 401 vs 403, 404/410
 - 5xx: 500/502/503/504 구분(알람/SLI)
+- 범위 요청: `206 Partial Content`, `Range` 헤더로 대용량 파일 분할 전송
 
 ## 체크리스트
 

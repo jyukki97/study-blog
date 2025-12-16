@@ -16,6 +16,7 @@ study_order: 20
 - **Executor**: 스레드풀로 작업 제출 (`submit()`, `execute()`), 큐 적재/거부 정책
 - **Lock/동시성 컬렉션**: `ReentrantLock`, `ReadWriteLock`, `ConcurrentHashMap`
 - **가시성/원자성**: `volatile`, `Atomic*`, happens-before
+- **메모리 모델(HBM)**: 같은 락/동일 Atomic 연산 사이, `volatile` write→read 사이에 happens-before 보장
 
 ### 스레드풀 선택 가이드
 
@@ -52,6 +53,19 @@ pool.shutdown();
 pool.awaitTermination(10, TimeUnit.SECONDS);
 ```
 
+```java
+// synchronized vs ReentrantLock 예시
+class Counter {
+  private final Lock lock = new ReentrantLock();
+  private int value;
+  public void inc() {
+    lock.lock();
+    try { value++; }
+    finally { lock.unlock(); }
+  }
+}
+```
+
 ## 체크리스트
 
 - [ ] 스레드풀 생성 시 core/max/queue/거부 정책을 명시적으로 설정했는가?
@@ -59,6 +73,7 @@ pool.awaitTermination(10, TimeUnit.SECONDS);
 - [ ] 긴 블로킹 작업은 별도 풀로 분리했는가? (IO vs CPU)
 - [ ] 종료 시 `shutdown()`/`awaitTermination()` 호출로 자원 해제하는가?
 - [ ] `volatile`은 원자성이 아님을 기억하고 복합 연산에는 락/원자 클래스 사용
+- [ ] 재현 어려운 문제는 스레드 덤프(jstack)와 JFR로 원인 파악
 
 ## 추가 학습
 

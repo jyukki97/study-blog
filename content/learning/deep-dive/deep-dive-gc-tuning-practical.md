@@ -19,6 +19,8 @@ study_order: 75
 
 - `-Xlog:gc*:file=gc.log:time,uptime,level,tags`
 - 지표: GC Pause, Frequency, Promotion Failed, Concurrent Cycle 시간
+- 예시(G1): `[GC pause (G1 Evacuation Pause) 128M->64M(1024M), 0.0123456 secs]`
+  - 전/후 힙 크기, 총 힙(괄호), 정지시간 확인 → p95/p99로 SLO 대비
 
 ## 튜닝 포인트
 
@@ -28,6 +30,9 @@ study_order: 75
 - 추천 기본값 예시(G1):
   - `-XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+AlwaysPreTouch`
   - 필요 시 `-XX:InitiatingHeapOccupancyPercent=45` 등 최소만 조정
+- 전환 판단:
+  - **저지연** 필요: ZGC/SHENANDOAH 고려(힙 커질수록 효과↑)
+  - **스루풋** 우선: Parallel GC, 단 정지 시간이 길어질 수 있음
 
 ## 체크리스트
 

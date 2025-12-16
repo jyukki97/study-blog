@@ -14,6 +14,7 @@ study_order: 35
 
 - 3-way handshake, 4-way close, TIME_WAIT 의미
 - 흐름 제어(Window), 혼잡 제어(Slow start, AIMD)
+- RTT/대역폭에 따른 윈도 크기 튜닝이 레이턴시에 영향
 
 ## HTTP/2 특징
 
