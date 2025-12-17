@@ -7,7 +7,7 @@ tags: ["Spring Security", "Authentication", "Authorization", "JWT", "OAuth2"]
 categories: ["Backend Deep Dive"]
 description: "Security Filter Chain 흐름을 잡고, JWT/OAuth2를 언제 어떻게 쓰는지 실무 기준으로 정리"
 module: "spring-core"
-study_order: 155
+study_order: 168
 ---
 
 ## 이 글에서 얻는 것

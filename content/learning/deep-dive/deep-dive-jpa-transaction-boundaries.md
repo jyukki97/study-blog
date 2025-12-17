@@ -6,8 +6,8 @@ topic: "Spring"
 tags: ["JPA", "Transaction", "Flush", "영속성컨텍스트"]
 categories: ["Backend Deep Dive"]
 description: "트랜잭션 경계, flush 시점, 지연 쓰기와 N+1 예방을 정리"
-module: "data-system"
-study_order: 210
+module: "spring-core"
+study_order: 157
 ---
 
 ## 이 글에서 얻는 것

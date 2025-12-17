@@ -6,8 +6,8 @@ topic: "JPA"
 tags: ["JPA", "Hibernate", "N+1", "Fetch Join", "Batch Size"]
 categories: ["Backend Deep Dive"]
 description: "N+1을 재현하고 원인을 설명한 뒤, Fetch Join/배치 로딩/DTO 조회로 해결하는 실무 패턴"
-module: "data-system"
-study_order: 212
+module: "spring-core"
+study_order: 156
 ---
 
 ## 이 글에서 얻는 것
