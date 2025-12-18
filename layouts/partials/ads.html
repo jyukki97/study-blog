@@ -1,65 +1,82 @@
 {{- /* Google AdSense 광고 컴포넌트 */ -}}
-{{- if site.Params.adsense.enabled }}
+{{- if and site.Params.adsense.enabled site.Params.adsense.client }}
+
+{{- $position := .position | default "content" -}}
+{{- $slots := site.Params.adsense.slots | default (dict) -}}
+{{- $slot := (index $slots $position) | default "" -}}
+{{- if $slot }}
 
 {{- /* 사이드바 광고 */ -}}
-{{- if eq .position "sidebar" }}
-<div class="ad-container sidebar-ad">
+{{- if eq $position "sidebar" }}
+<div class="ad-container sidebar-ad" data-ad-state="loading">
     <div class="ad-label">Advertisement</div>
     <ins class="adsbygoogle"
          style="display:block"
          data-ad-client="{{ site.Params.adsense.client }}"
-         data-ad-slot="1234567890"
+         data-ad-slot="{{ $slot }}"
          data-ad-format="rectangle"
          data-full-width-responsive="true"></ins>
+    <script>
+      try { (adsbygoogle = window.adsbygoogle || []).push({}); } catch (e) {}
+    </script>
 </div>
 {{- end }}
 
 {{- /* 콘텐츠 내 광고 */ -}}
-{{- if eq .position "content" }}
-<div class="ad-container content-ad">
+{{- if eq $position "content" }}
+<div class="ad-container content-ad" data-ad-state="loading">
     <div class="ad-label">Advertisement</div>
     <ins class="adsbygoogle"
          style="display:block; text-align:center;"
          data-ad-layout="in-article"
          data-ad-format="fluid"
          data-ad-client="{{ site.Params.adsense.client }}"
-         data-ad-slot="9876543210"></ins>
+         data-ad-slot="{{ $slot }}"></ins>
+    <script>
+      try { (adsbygoogle = window.adsbygoogle || []).push({}); } catch (e) {}
+    </script>
 </div>
 {{- end }}
 
 {{- /* 반응형 배너 광고 */ -}}
-{{- if eq .position "banner" }}
-<div class="ad-container banner-ad">
+{{- if eq $position "banner" }}
+<div class="ad-container banner-ad" data-ad-state="loading">
     <div class="ad-label">Advertisement</div>
     <ins class="adsbygoogle"
          style="display:block"
          data-ad-client="{{ site.Params.adsense.client }}"
-         data-ad-slot="1122334455"
+         data-ad-slot="{{ $slot }}"
          data-ad-format="auto"
          data-full-width-responsive="true"></ins>
+    <script>
+      try { (adsbygoogle = window.adsbygoogle || []).push({}); } catch (e) {}
+    </script>
 </div>
 {{- end }}
 
 {{- /* 푸터 광고 */ -}}
-{{- if eq .position "footer" }}
-<div class="ad-container footer-ad">
+{{- if eq $position "footer" }}
+<div class="ad-container footer-ad" data-ad-state="loading">
     <div class="ad-label">Advertisement</div>
     <ins class="adsbygoogle"
          style="display:block"
          data-ad-client="{{ site.Params.adsense.client }}"
-         data-ad-slot="5566778899"
+         data-ad-slot="{{ $slot }}"
          data-ad-format="auto"
          data-full-width-responsive="true"></ins>
+    <script>
+      try { (adsbygoogle = window.adsbygoogle || []).push({}); } catch (e) {}
+    </script>
 </div>
 {{- end }}
 
 <style>
 .ad-container {
-    margin: 1.5rem auto;
-    padding: 1rem;
-    background: var(--bg-secondary, #f8f9fa);
-    border: 1px solid var(--border-color, #e2e8f0);
-    border-radius: 8px;
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
     text-align: center;
 }
 
@@ -69,16 +86,19 @@
     margin-bottom: 0.5rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    display: none;
+}
+
+.ad-container[data-ad-state="filled"] .ad-label {
+    display: block;
 }
 
 .sidebar-ad {
     max-width: 300px;
-    margin: 1rem 0;
 }
 
 .content-ad {
     max-width: 728px;
-    margin: 2rem auto;
 }
 
 .banner-ad {
@@ -91,12 +111,12 @@
     max-width: 728px;
 }
 
-/* 다크 모드 지원 */
-[data-theme="dark"] .ad-container {
-    background: var(--bg-secondary, #2d3748);
-    border-color: var(--border-color, #4a5568);
-}
+.sidebar-ad[data-ad-state="filled"] { margin: 1rem 0; }
+.content-ad[data-ad-state="filled"] { margin: 2rem auto; }
+.banner-ad[data-ad-state="filled"] { margin: 1.75rem auto; }
+.footer-ad[data-ad-state="filled"] { margin: 1.75rem auto; }
 
+/* 다크 모드 지원 */
 [data-theme="dark"] .ad-label {
     color: var(--text-muted, #a0aec0);
 }
@@ -105,7 +125,6 @@
 @media (max-width: 768px) {
     .ad-container {
         margin: 1rem 0;
-        padding: 0.75rem;
     }
     
     .banner-ad,
@@ -115,4 +134,5 @@
 }
 </style>
 
+{{- end }}
 {{- end }}

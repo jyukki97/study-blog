@@ -181,9 +181,10 @@
 <!-- Phase 3.3: 분석 시스템 -->
 <script src="{{ "js/blog-analytics.js" | absURL }}" defer></script>
 
-<!-- Phase 3.3: 광고 시스템 -->
-{{- if site.Params.adsense.enabled }}
-<script src="{{ "js/advertisement-system.js" | absURL }}" defer></script>
+<!-- Google AdSense -->
+{{- if and site.Params.adsense.enabled site.Params.adsense.client }}
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site.Params.adsense.client }}" crossorigin="anonymous"></script>
+<script src="{{ "js/adsense-utils.js" | absURL }}" defer></script>
 {{- end }}
 
 <!-- Phase 5.3: 소셜 기능 -->

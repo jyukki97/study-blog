@@ -136,3 +136,10 @@ notAlternative = true
 [params.adsense]
 enabled = true  # 애드센스 활성화
 client = "ca-pub-4944031426200690"  # 실제 AdSense 클라이언트 ID로 교체 필요
+
+# 각 위치별 "광고 단위"의 슬롯 ID (AdSense에서 생성한 값으로 교체)
+[params.adsense.slots]
+sidebar = ""
+content = ""
+banner = ""
+footer = ""
