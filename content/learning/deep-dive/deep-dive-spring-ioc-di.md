@@ -1,6 +1,6 @@
 ---
 title: "Spring IoC/DI 핵심: 컨테이너, 빈 생명주기, 의존성 주입 이해하기"
-date: 2025-12-16
+date: 2025-10-18
 draft: false
 topic: "Spring"
 tags: ["Spring", "IoC", "DI", "Bean", "ApplicationContext", "Dependency Injection"]

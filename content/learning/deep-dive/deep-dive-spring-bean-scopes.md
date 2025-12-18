@@ -1,6 +1,6 @@
 ---
 title: "Spring 빈 스코프와 프록시: Singleton vs Prototype 완벽 이해"
-date: 2025-12-16
+date: 2025-10-21
 draft: false
 topic: "Spring"
 tags: ["Spring", "Bean Scope", "Singleton", "Prototype", "Proxy"]

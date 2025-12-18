@@ -1,6 +1,6 @@
 ---
 title: "Service Mesh (Istio): 마이크로서비스 통신 관리"
-date: 2025-12-16
+date: 2025-12-05
 draft: false
 topic: "DevOps"
 tags: ["Service Mesh", "Istio", "Microservices", "Traffic Management", "Security"]

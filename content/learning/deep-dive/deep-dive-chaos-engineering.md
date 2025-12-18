@@ -1,6 +1,6 @@
 ---
 title: "Chaos Engineering: 장애를 주입하여 시스템 회복력 검증"
-date: 2025-12-16
+date: 2025-12-13
 draft: false
 topic: "DevOps"
 tags: ["Chaos Engineering", "Resilience", "Fault Injection", "Testing"]

@@ -1,6 +1,6 @@
 ---
 title: "JPA 기초: 엔티티, 영속성 컨텍스트, 기본 CRUD 이해하기"
-date: 2025-12-16
+date: 2025-10-27
 draft: false
 topic: "JPA"
 tags: ["JPA", "Hibernate", "ORM", "Entity", "Persistence Context", "EntityManager"]

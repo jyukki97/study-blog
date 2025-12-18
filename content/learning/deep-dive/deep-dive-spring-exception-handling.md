@@ -1,6 +1,6 @@
 ---
 title: "Spring 전역 예외 처리: @ControllerAdvice로 에러 응답 통일하기"
-date: 2025-12-16
+date: 2025-10-24
 draft: false
 topic: "Spring"
 tags: ["Spring", "Exception Handling", "ControllerAdvice", "Error Response", "REST API"]

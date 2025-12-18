@@ -1,6 +1,6 @@
 ---
 title: "Spring Data JPA: Repository 패턴과 쿼리 메서드로 생산성 극대화"
-date: 2025-12-16
+date: 2025-11-02
 draft: false
 topic: "Spring Data JPA"
 tags: ["Spring Data JPA", "JPA", "Repository", "Query Methods", "Specification"]

@@ -1,6 +1,6 @@
 ---
 title: "Spring 비동기 프로그래밍: @Async와 CompletableFuture"
-date: 2025-12-16
+date: 2025-11-05
 draft: false
 topic: "Spring"
 tags: ["Spring", "Async", "CompletableFuture", "Thread Pool", "Non-blocking"]

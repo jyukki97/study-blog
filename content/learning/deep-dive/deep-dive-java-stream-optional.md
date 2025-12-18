@@ -1,6 +1,6 @@
 ---
 title: "Java 8+ 핵심: Stream API와 Optional로 안전하고 간결한 코드 작성"
-date: 2025-12-16
+date: 2025-10-03
 draft: false
 topic: "Java"
 tags: ["Java", "Stream", "Optional", "Lambda", "Functional Programming"]

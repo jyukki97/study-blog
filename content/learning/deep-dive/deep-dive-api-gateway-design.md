@@ -1,6 +1,6 @@
 ---
 title: "API Gateway 설계: 마이크로서비스의 단일 진입점"
-date: 2025-12-16
+date: 2025-12-14
 draft: false
 topic: "Architecture"
 tags: ["API Gateway", "Microservices", "Kong", "Spring Cloud Gateway", "Routing"]

@@ -1,6 +1,6 @@
 ---
 title: "객체지향 설계 원칙 SOLID: 실무 관점으로 이해하기"
-date: 2025-12-16
+date: 2025-10-06
 draft: false
 topic: "OOP"
 tags: ["OOP", "SOLID", "Design Principles", "Clean Code", "Architecture"]

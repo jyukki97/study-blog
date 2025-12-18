@@ -1,6 +1,6 @@
 ---
 title: "Prometheus + Grafana: 메트릭 수집과 모니터링 대시보드"
-date: 2025-12-16
+date: 2025-12-11
 draft: false
 topic: "DevOps"
 tags: ["Prometheus", "Grafana", "Monitoring", "Metrics", "Alerting"]

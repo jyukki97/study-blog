@@ -1,6 +1,6 @@
 ---
 title: "DB 스키마 설계 기본기: 키/제약조건/정규화"
-date: 2025-12-16
+date: 2025-11-15
 draft: false
 topic: "Database"
 tags: ["Database", "Schema", "Modeling", "Normalization", "Constraint", "Index"]

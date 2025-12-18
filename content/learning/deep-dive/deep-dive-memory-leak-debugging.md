@@ -1,6 +1,6 @@
 ---
 title: "JVM 메모리 누수 디버깅: 힙 덤프 분석과 프로파일링"
-date: 2025-12-16
+date: 2025-10-15
 draft: false
 topic: "Java"
 tags: ["JVM", "Memory Leak", "Heap Dump", "Profiling", "MAT", "VisualVM"]

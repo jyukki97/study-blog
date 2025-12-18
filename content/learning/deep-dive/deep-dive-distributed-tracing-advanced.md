@@ -1,6 +1,6 @@
 ---
 title: "분산 추적 심화: Zipkin/Jaeger로 마이크로서비스 디버깅"
-date: 2025-12-16
+date: 2025-12-12
 draft: false
 topic: "DevOps"
 tags: ["Distributed Tracing", "Zipkin", "Jaeger", "OpenTelemetry", "Microservices"]

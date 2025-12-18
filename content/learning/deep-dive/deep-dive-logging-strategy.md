@@ -1,6 +1,6 @@
 ---
 title: "로깅 전략: 효과적인 로그 설계와 관리"
-date: 2025-12-16
+date: 2025-12-07
 draft: false
 topic: "DevOps"
 tags: ["Logging", "Logback", "SLF4J", "Structured Logging", "MDC", "ELK"]

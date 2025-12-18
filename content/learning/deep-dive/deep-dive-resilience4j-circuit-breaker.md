@@ -1,6 +1,6 @@
 ---
 title: "Circuit Breaker 패턴: Resilience4j로 장애 전파 차단하기"
-date: 2025-12-16
+date: 2025-11-08
 draft: false
 topic: "Spring"
 tags: ["Circuit Breaker", "Resilience4j", "Fault Tolerance", "Microservices"]

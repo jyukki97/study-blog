@@ -1,6 +1,6 @@
 ---
 title: "Kubernetes 기초: 컨테이너 오케스트레이션 시작하기"
-date: 2025-12-16
+date: 2025-12-03
 draft: false
 topic: "DevOps"
 tags: ["Kubernetes", "K8s", "Pod", "Deployment", "Service", "Container Orchestration"]

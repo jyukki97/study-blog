@@ -1,6 +1,6 @@
 ---
 title: "JPA 연관관계 매핑: @OneToMany, @ManyToOne, @ManyToMany 완벽 가이드"
-date: 2025-12-16
+date: 2025-10-30
 draft: false
 topic: "JPA"
 tags: ["JPA", "Association", "OneToMany", "ManyToOne", "ManyToMany", "ForeignKey"]

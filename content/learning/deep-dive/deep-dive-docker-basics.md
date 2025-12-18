@@ -1,6 +1,6 @@
 ---
 title: "Docker 기초: 컨테이너로 애플리케이션 격리하고 배포하기"
-date: 2025-12-16
+date: 2025-12-01
 draft: false
 topic: "DevOps"
 tags: ["Docker", "Container", "Dockerfile", "Docker Compose", "Image"]

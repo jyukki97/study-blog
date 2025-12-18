@@ -1,6 +1,6 @@
 ---
 title: "APM 기초: 애플리케이션 성능 모니터링 시작하기"
-date: 2025-12-16
+date: 2025-12-10
 draft: false
 topic: "DevOps"
 tags: ["APM", "Monitoring", "Spring Boot Actuator", "Metrics", "Performance"]

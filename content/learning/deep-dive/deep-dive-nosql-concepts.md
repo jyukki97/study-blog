@@ -1,6 +1,6 @@
 ---
 title: "NoSQL 기초: RDBMS와 비교하고 언제 사용할지 판단하기"
-date: 2025-12-16
+date: 2025-11-19
 draft: false
 topic: "Database"
 tags: ["NoSQL", "MongoDB", "Redis", "CAP Theorem", "Document DB", "Key-Value Store"]

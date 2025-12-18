@@ -1,6 +1,6 @@
 ---
 title: "데이터베이스 마이그레이션: Flyway로 스키마 버전 관리하기"
-date: 2025-12-16
+date: 2025-11-27
 draft: false
 topic: "Database"
 tags: ["Database Migration", "Flyway", "Schema", "Version Control", "Spring Boot"]

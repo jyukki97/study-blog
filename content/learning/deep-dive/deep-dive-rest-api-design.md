@@ -1,6 +1,6 @@
 ---
 title: "REST API 설계 원칙: 리소스, HTTP 메서드, 상태코드 완벽 가이드"
-date: 2025-12-16
+date: 2025-10-12
 draft: false
 topic: "API Design"
 tags: ["REST", "API", "HTTP", "RESTful", "Web"]

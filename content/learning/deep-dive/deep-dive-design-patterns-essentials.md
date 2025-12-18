@@ -1,6 +1,6 @@
 ---
 title: "백엔드 필수 디자인 패턴: Factory, Strategy, Template Method"
-date: 2025-12-16
+date: 2025-10-09
 draft: false
 topic: "Design Patterns"
 tags: ["Design Patterns", "Factory", "Strategy", "Template Method", "OOP"]

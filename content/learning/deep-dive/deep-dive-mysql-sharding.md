@@ -1,6 +1,6 @@
 ---
 title: "MySQL 대용량 처리: 파티셔닝과 샤딩 전략"
-date: 2025-12-16
+date: 2025-11-21
 draft: false
 topic: "Database"
 tags: ["MySQL", "Partitioning", "Sharding", "Scalability", "Database"]

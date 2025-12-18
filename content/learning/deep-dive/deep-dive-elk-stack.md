@@ -1,6 +1,6 @@
 ---
 title: "ELK Stack: 로그 수집과 분석 플랫폼 구축하기"
-date: 2025-12-16
+date: 2025-12-09
 draft: false
 topic: "DevOps"
 tags: ["ELK", "Elasticsearch", "Logstash", "Kibana", "Filebeat", "Log Analysis"]

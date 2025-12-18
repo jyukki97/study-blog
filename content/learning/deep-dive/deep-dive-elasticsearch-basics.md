@@ -1,6 +1,6 @@
 ---
 title: "Elasticsearch 기초: 전문 검색 엔진 시작하기"
-date: 2025-12-16
+date: 2025-11-25
 draft: false
 topic: "Database"
 tags: ["Elasticsearch", "Search", "Full-text Search", "Inverted Index"]

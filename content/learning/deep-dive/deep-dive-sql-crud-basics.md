@@ -1,6 +1,6 @@
 ---
 title: "SQL 기초: SELECT/INSERT/UPDATE/DELETE 완벽 정리"
-date: 2025-12-16
+date: 2025-11-11
 draft: false
 topic: "Database"
 tags: ["SQL", "Database", "MySQL", "CRUD", "Query"]

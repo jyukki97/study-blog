@@ -1,6 +1,6 @@
 ---
 title: "분산 잠금: Redis와 Redisson으로 동시성 제어하기"
-date: 2025-12-16
+date: 2025-11-29
 draft: false
 topic: "Database"
 tags: ["Distributed Lock", "Redis", "Redisson", "Concurrency", "Synchronization"]

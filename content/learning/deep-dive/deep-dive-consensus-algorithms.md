@@ -1,6 +1,6 @@
 ---
 title: "Consensus 알고리즘: 분산 시스템의 합의"
-date: 2025-12-16
+date: 2025-12-15
 draft: false
 topic: "Architecture"
 tags: ["Consensus", "Raft", "Paxos", "Distributed Systems", "CAP Theorem"]
