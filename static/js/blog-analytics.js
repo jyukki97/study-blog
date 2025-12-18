@@ -663,255 +663,267 @@ class BlogAnalytics {
 
 // CSS 스타일 추가
 const analyticsCSS = `
-  .analytics-container {
-    position: fixed;
-    top: 50%;
-    right: 20px;
-    transform: translateY(-50%);
-    z-index: 1000;
-    max-width: 300px;
-  }
+	  .analytics-container {
+	    position: fixed;
+	    top: 50%;
+	    right: 20px;
+	    transform: translateY(-50%);
+	    z-index: 1000;
+	    max-width: 300px;
+	  }
 
-  .analytics-widget {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-    margin-bottom: 16px;
-    overflow: hidden;
-    transition: all 0.3s ease;
-  }
+	  .analytics-container .analytics-widget {
+	    background: white;
+	    border-radius: 12px;
+	    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+	    margin-bottom: 16px;
+	    overflow: hidden;
+	    transition: all 0.3s ease;
+	  }
 
-  .analytics-widget:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
-  }
+	  .analytics-container .analytics-widget:hover {
+	    transform: translateY(-2px);
+	    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+	  }
 
-  .widget-header {
-    background: linear-gradient(135deg, #b19cd9 0%, #9a7bc8 100%);
-    color: white;
-    padding: 12px 16px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
+	  .analytics-container .widget-header {
+	    background: linear-gradient(135deg, #b19cd9 0%, #9a7bc8 100%);
+	    color: white;
+	    padding: 12px 16px;
+	    display: flex;
+	    align-items: center;
+	    gap: 8px;
+	  }
 
-  .widget-header h3 {
-    margin: 0;
-    font-size: 14px;
-    font-weight: 600;
-    flex: 1;
-  }
+	  .analytics-container .widget-header h3 {
+	    margin: 0;
+	    font-size: 14px;
+	    font-weight: 600;
+	    flex: 1;
+	  }
 
-  .widget-icon {
-    font-size: 16px;
-  }
+	  .analytics-container .widget-icon {
+	    font-size: 16px;
+	  }
 
-  .pulse-indicator {
-    width: 8px;
-    height: 8px;
-    background: #4CAF50;
-    border-radius: 50%;
-    animation: pulse 2s infinite;
-  }
+	  .analytics-container .pulse-indicator {
+	    width: 8px;
+	    height: 8px;
+	    background: #4CAF50;
+	    border-radius: 50%;
+	    animation: pulse 2s infinite;
+	  }
 
   @keyframes pulse {
     0%, 100% { opacity: 1; transform: scale(1); }
     50% { opacity: 0.5; transform: scale(1.2); }
   }
 
-  .widget-content {
-    padding: 16px;
-  }
+	  .analytics-container .widget-content {
+	    padding: 16px;
+	  }
 
-  .realtime-count {
-    text-align: center;
-    margin-bottom: 16px;
-  }
+	  .analytics-container .realtime-count {
+	    text-align: center;
+	    margin-bottom: 16px;
+	  }
 
-  .count-number {
-    display: block;
-    font-size: 2em;
-    font-weight: bold;
-    color: #4CAF50;
-    transition: all 0.3s ease;
-  }
+	  .analytics-container .count-number {
+	    display: block;
+	    font-size: 2em;
+	    font-weight: bold;
+	    color: #4CAF50;
+	    transition: all 0.3s ease;
+	  }
 
-  .count-number.updated {
-    transform: scale(1.2);
-    color: #ff9800;
-  }
+	  .analytics-container .count-number.updated {
+	    transform: scale(1.2);
+	    color: #ff9800;
+	  }
 
-  .count-label {
-    font-size: 12px;
-    color: #666;
-  }
+	  .analytics-container .count-label {
+	    font-size: 12px;
+	    color: #666;
+	  }
 
-  .realtime-stats {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-  }
+	  .analytics-container .realtime-stats {
+	    display: grid;
+	    grid-template-columns: 1fr 1fr;
+	    gap: 12px;
+	  }
 
-  .stat-item {
-    text-align: center;
-    padding: 8px;
-    background: #f8f9fa;
-    border-radius: 6px;
-  }
+	  .analytics-container .stat-item {
+	    text-align: center;
+	    padding: 8px;
+	    background: #f8f9fa;
+	    border-radius: 6px;
+	  }
 
-  .stat-value {
-    display: block;
-    font-weight: bold;
-    color: #333;
-  }
+	  .analytics-container .stat-value {
+	    display: block;
+	    font-weight: bold;
+	    color: #333;
+	  }
 
-  .stat-label {
-    font-size: 11px;
-    color: #666;
-  }
+	  .analytics-container .stat-label {
+	    font-size: 11px;
+	    color: #666;
+	  }
 
-  .popular-posts-list, .search-keywords-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
+	  .analytics-container .popular-posts-list,
+	  .analytics-container .search-keywords-list {
+	    list-style: none;
+	    padding: 0;
+	    margin: 0;
+	  }
 
-  .popular-post-item, .keyword-item {
-    display: flex;
-    align-items: center;
-    padding: 8px 0;
-    border-bottom: 1px solid #eee;
-  }
+	  .analytics-container .popular-post-item,
+	  .analytics-container .keyword-item {
+	    display: flex;
+	    align-items: center;
+	    padding: 8px 0;
+	    border-bottom: 1px solid #eee;
+	  }
 
-  .popular-post-item:last-child, .keyword-item:last-child {
-    border-bottom: none;
-  }
+	  .analytics-container .popular-post-item:last-child,
+	  .analytics-container .keyword-item:last-child {
+	    border-bottom: none;
+	  }
 
-  .post-rank {
-    background: #b19cd9;
-    color: white;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
+	  .analytics-container .post-rank {
+	    background: #b19cd9;
+	    color: white;
+	    width: 20px;
+	    height: 20px;
+	    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 11px;
-    font-weight: bold;
-    margin-right: 8px;
-  }
+	    font-weight: bold;
+	    margin-right: 8px;
+	  }
 
-  .post-info {
-    flex: 1;
-    min-width: 0;
-  }
+	  .analytics-container .post-info {
+	    flex: 1;
+	    min-width: 0;
+	  }
 
-  .post-title {
-    display: block;
-    color: #333;
-    text-decoration: none;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
+	  .analytics-container .post-title {
+	    display: block;
+	    color: #333;
+	    text-decoration: none;
+	    white-space: nowrap;
+	    overflow: hidden;
+	    text-overflow: ellipsis;
+	  }
 
-  .post-stats, .keyword-stats {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 10px;
-    color: #666;
-  }
+	  .analytics-container .post-stats,
+	  .analytics-container .keyword-stats {
+	    display: flex;
+	    align-items: center;
+	    gap: 8px;
+	    font-size: 10px;
+	    color: #666;
+	  }
 
-  .keyword-text {
-    flex: 1;
-    font-size: 12px;
-    color: #333;
-  }
+	  .analytics-container .keyword-text {
+	    flex: 1;
+	    font-size: 12px;
+	    color: #333;
+	  }
 
-  .keyword-bar {
-    width: 40px;
-    height: 4px;
-    background: #eee;
-    border-radius: 2px;
-    overflow: hidden;
-  }
+	  .analytics-container .keyword-bar {
+	    width: 40px;
+	    height: 4px;
+	    background: #eee;
+	    border-radius: 2px;
+	    overflow: hidden;
+	  }
 
-  .keyword-progress {
-    height: 100%;
-    background: #b19cd9;
-    transition: width 0.3s ease;
-  }
+	  .analytics-container .keyword-progress {
+	    height: 100%;
+	    background: #b19cd9;
+	    transition: width 0.3s ease;
+	  }
 
-  .behavior-stats {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-  }
+	  .analytics-container .behavior-stats {
+	    display: grid;
+	    grid-template-columns: 1fr 1fr;
+	    gap: 12px;
+	  }
 
-  .behavior-item {
-    text-align: center;
-    padding: 8px;
-    background: #f8f9fa;
-    border-radius: 6px;
-  }
+	  .analytics-container .behavior-item {
+	    text-align: center;
+	    padding: 8px;
+	    background: #f8f9fa;
+	    border-radius: 6px;
+	  }
 
-  .behavior-label {
-    display: block;
-    font-size: 10px;
-    color: #666;
-    margin-bottom: 4px;
-  }
+	  .analytics-container .behavior-label {
+	    display: block;
+	    font-size: 10px;
+	    color: #666;
+	    margin-bottom: 4px;
+	  }
 
-  .behavior-value {
-    display: block;
-    font-weight: bold;
-    color: #333;
-    font-size: 12px;
-  }
+	  .analytics-container .behavior-value {
+	    display: block;
+	    font-weight: bold;
+	    color: #333;
+	    font-size: 12px;
+	  }
 
-  /* 다크모드 지원 */
-  [data-theme="dark"] .analytics-widget {
-    background: #2d3748;
-    color: #e2e8f0;
-  }
+	  /* 다크모드 지원 */
+	  .dark .analytics-container .analytics-widget,
+	  [data-theme="dark"] .analytics-container .analytics-widget {
+	    background: #2d3748;
+	    color: #e2e8f0;
+	  }
 
-  [data-theme="dark"] .post-title,
-  [data-theme="dark"] .keyword-text,
-  [data-theme="dark"] .behavior-value {
-    color: #e2e8f0;
-  }
+	  .dark .analytics-container .post-title,
+	  .dark .analytics-container .keyword-text,
+	  .dark .analytics-container .behavior-value,
+	  [data-theme="dark"] .analytics-container .post-title,
+	  [data-theme="dark"] .analytics-container .keyword-text,
+	  [data-theme="dark"] .analytics-container .behavior-value {
+	    color: #e2e8f0;
+	  }
 
-  [data-theme="dark"] .stat-item,
-  [data-theme="dark"] .behavior-item {
-    background: #4a5568;
-  }
+	  .dark .analytics-container .stat-item,
+	  .dark .analytics-container .behavior-item,
+	  [data-theme="dark"] .analytics-container .stat-item,
+	  [data-theme="dark"] .analytics-container .behavior-item {
+	    background: #4a5568;
+	  }
 
-  [data-theme="dark"] .stat-label,
-  [data-theme="dark"] .behavior-label {
-    color: #a0aec0;
-  }
+	  .dark .analytics-container .stat-label,
+	  .dark .analytics-container .behavior-label,
+	  [data-theme="dark"] .analytics-container .stat-label,
+	  [data-theme="dark"] .analytics-container .behavior-label {
+	    color: #a0aec0;
+	  }
 
-  /* 모바일 대응 */
-  @media (max-width: 768px) {
-    .analytics-container {
-      position: static;
-      right: auto;
-      top: auto;
-      transform: none;
-      max-width: 100%;
-      margin: 20px;
-    }
+	  /* 모바일 대응 */
+	  @media (max-width: 768px) {
+	    .analytics-container {
+	      position: static;
+	      right: auto;
+	      top: auto;
+	      transform: none;
+	      max-width: 100%;
+	      margin: 20px;
+	    }
 
-    .analytics-widget {
-      margin-bottom: 12px;
-    }
+	    .analytics-container .analytics-widget {
+	      margin-bottom: 12px;
+	    }
 
-    .realtime-stats,
-    .behavior-stats {
-      grid-template-columns: 1fr;
-    }
-  }
+	    .analytics-container .realtime-stats,
+	    .analytics-container .behavior-stats {
+	      grid-template-columns: 1fr;
+	    }
+	  }
 
   /* 인쇄시 숨김 */
   @media print {
