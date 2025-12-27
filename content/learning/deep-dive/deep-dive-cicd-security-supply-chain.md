@@ -1,103 +1,103 @@
 ---
-title: "CI/CD 보안과 소프트웨어 공급망 보호"
+title: "CI/CD 보안: 공급망 공격 막기"
 date: 2025-12-16
 draft: false
 topic: "Security"
 tags: ["CI/CD", "Supply Chain", "SBOM", "Signing"]
 categories: ["DevOps"]
-description: "서명/검증, SBOM, 의존성 스캔, 시크릿 관리 등 공급망 보안 기본기"
+description: "내 코드는 안전해도 빌드 도구가 해킹당하면? 소스부터 배포까지 신뢰 루프 만들기"
 module: "ops-observability"
 study_order: 395
 ---
 
-## 이 글에서 얻는 것
+## ⛓️ 1. 공급망 공격(Supply Chain Attack)이란?
 
-- 소프트웨어 공급망(의존성 → 빌드 → 아티팩트 → 배포)에서 **어디가 공격면인지** 구분할 수 있습니다.
-- 팀 규모와 무관하게 바로 적용 가능한 “최소 베이스라인”을 만들 수 있습니다(권한 최소화, 시크릿 보호, 의존성 관리).
-- SBOM/서명/검증을 “왜 하는지” 이해하고, 배포 파이프라인에 어떻게 붙이는지 큰 흐름을 잡을 수 있습니다.
+해커들이 애플리케이션 보안이 너무 튼튼하니까, **그 애플리케이션을 만드는 도구(파이프라인)** 를 공격하기 시작했습니다.
+SolarWinds 사태처럼, 정상적인 업데이트 파일인 줄 알았는데 그 안에 악성코드가 심어져 배포되는 것이죠.
 
-## 0) 공급망 보안은 ‘운영’의 일부다
+---
 
-현대 서비스는 코드만으로 구성되지 않습니다.
+## 🏭 2. 파이프라인의 약한 고리들
 
-- 오픈소스 의존성
-- 빌드 러너/CI 파이프라인
-- 컨테이너 이미지/레지스트리
-- 배포 시스템(k8s/서버리스)
+```mermaid
+flowchart TD
+    subgraph Supply_Chain [Supply Chain Flow]
+        Source[Dev Code] -->|Push| Repo[Git Repo]
+        Repo -->|Trigger| CI[CI Server]
+        CI -->|Build| Artifact[Docker Image]
+        Artifact -->|Push| Registry[Registry]
+        Registry -->|Pull| Prod[Production]
+    end
+    
+    Attack1(Typosquatting) -.->|Poison| Source
+    Attack2(Leaked Keys) -.->|Compromise| CI
+    Attack3(Image tampering) -.->|Inject| Registry
+    
+    style Attack1 fill:#ffcdd2,stroke:#d32f2f
+    style Attack2 fill:#ffcdd2,stroke:#d32f2f
+    style Attack3 fill:#ffcdd2,stroke:#d32f2f
+```
 
-중 하나가 뚫리면 “내 코드가 안전해도” 공격이 가능합니다.
-그래서 공급망 보안은 개발/보안의 영역이면서 동시에 운영의 영역입니다.
+1. **의존성 오염**: `npm install` 했는데 해커가 만든 가짜 라이브러리가 깔림 (Typosquatting).
+2. **CI 탈취**: CI 서버의 환경 변수(AWS Key)를 훔쳐감.
+3. **이미지 변조**: 레지스트리에 있는 이미지를 몰래 바꿔치기함.
 
-## 1) 공격면을 나누면 대응이 보인다
+---
 
-1) **의존성(Dependencies)**: 취약한 라이브러리, 타이포스쿼팅, 잠긴 버전이 풀리는 순간  
-2) **CI(빌드 시스템)**: 과한 권한 토큰, PR에서 시크릿 사용, 서드파티 액션 오염  
-3) **아티팩트(Artifacts)**: 레지스트리/스토리지 변조, ‘누가 만들었는지’ 불명확  
-4) **배포(Deploy)**: 서명 없는 이미지 배포, 정책 없는 프로모션(Dev→Prod)  
+## 🛡️ 3. 방어 전략: "아무도 믿지 마라"
 
-각 단계는 “보호 방식”이 다릅니다.
+### 3-1. SBOM (Software Bill of Materials)
+"이 소프트웨어에 들어간 재료 명세서"입니다.
+`log4j` 사태 때, 우리 회사 서비스 중 어디에 log4j가 쓰였는지 몰라 발을 동동 굴렀던 기억이 있나요?
+빌드할 때마다 SBOM을 생성해두면, 취약점 발견 즉시 영향 범위를 알 수 있습니다.
 
-## 2) 최소 베이스라인(바로 적용 가능한 것들)
+### 3-2. 이미지 서명 (Signing)
+**"이 이미지는 우리 CI 서버가 만든 게 확실해."** 라고 도장을 찍는 것입니다. (Cosign 등 사용)
 
-### 2-1) CI 권한 최소화
+```mermaid
+sequenceDiagram
+    participant Dev as Developer
+    participant CI as CI Server
+    participant Sign as Private Key
+    participant Reg as Registry
+    participant K8s as Kubernetes
+    
+    Dev->>CI: Git Push
+    CI->>CI: Build Image
+    CI->>Sign: Sign Image (서명)
+    Sign-->>CI: Signature
+    CI->>Reg: Push Image + Signature
+    
+    K8s->>Reg: Pull Image
+    K8s->>K8s: Verify Signature (Public Key)
+    alt Valid
+        K8s->>K8s: Deploy Success
+    else Invalid
+        K8s->>K8s: Block Deployment 🛑
+    end
+```
 
-- GitHub Actions라면 `permissions:`를 최소로 설정(기본 read-all을 피하기)
-- 장기 토큰(PAT) 대신 OIDC 같은 단기 자격 증명 사용(클라우드 연동 시 특히)
-- PR(특히 fork)에서 시크릿이 노출되지 않도록 워크플로우 분리
+- **Build**: 이미지 생성 후 Private Key로 서명.
+- **Deploy**: k8s가 Public Key로 서명을 확인. 서명 없으면 배포 거부.
 
-### 2-2) 서드파티 액션/플러그인 고정(pinning)
+### 3-3. CI 권한 최소화 (Least Privilege)
+GitHub Actions에 `Administrator` 권한을 주지 마세요.
 
-- `@v1` 같은 태그가 아니라 커밋 SHA로 pinning하면 공급망 리스크를 줄일 수 있습니다.
-- 신뢰할 수 있는 액션만 허용하고, 새 액션 도입은 리뷰 프로세스를 둡니다.
+| 보안 항목 | 권장 사항 | 이유 |
+| :--- | :--- | :--- |
+| **Action** | `v1` 태그 대신 **Commit Hash** 사용 | 태그는 덮어쓰기가 가능해 변조 위험 |
+| **Secrets** | Long-lived Key 대신 **OIDC** 사용 | 키 유출 시 피해 최소화 (임시 토큰) |
+| **MFA** | 모든 개발자 계정 **2FA 강제** | 계정 탈취 방지 |
 
-### 2-3) 의존성 관리(SCA + 업데이트 루프)
+## 요약
 
-- SCA(의존성 취약점 스캔) + 자동 업데이트(Dependabot 등)로 “묵은 취약점”을 줄입니다.
-- lockfile(버전 고정)을 유지하고, 업데이트는 “작게/자주”가 안전합니다.
+> [!TIP]
+> **Secure Supply Chain Checklist**:
+> - [ ] **Code**: Main 브랜치 직접 푸시 금지 (PR & 리뷰 필수)
+> - [ ] **Build**: 빌드 시 SBOM 생성 및 보관
+> - [ ] **Sign**: 모든 컨테이너 이미지 서명 (Cosign)
+> - [ ] **Deploy**: 서명 검증된 이미지만 배포 허용 (Policy)
 
-### 2-4) 시크릿 보호
-
-- CI 로그에 시크릿이 찍히지 않게(마스킹/출력 금지)
-- secret scanning(gitleaks 등)으로 실수 커밋을 빠르게 탐지
-- 배포 환경에서 시크릿은 Secret Manager/Vault로 주입(레포/이미지에 넣지 않기)
-
-## 3) SBOM/서명: “이게 무엇인지”를 남기는 것
-
-### 3-1) SBOM(Software Bill of Materials)
-
-SBOM은 “이 아티팩트가 어떤 구성요소로 만들어졌는지” 목록입니다.
-
-- 취약점 대응 속도가 빨라집니다(영향 범위 파악)
-- 규제/감사 대응에도 도움이 됩니다
-
-### 3-2) 아티팩트 서명(Signing)과 검증(Verification)
-
-서명은 “이 이미지를 누가 만들었는지”를 증명합니다.
-
-- 빌드 단계에서 이미지/아티팩트를 서명하고,
-- 배포 단계에서 “서명된 것만” 받아들이면,
-
-레지스트리 오염/중간 변조 위험을 크게 줄일 수 있습니다.
-
-추가로, provenance(SLSA 개념)는 “어떤 빌드 과정으로 만들어졌는지”까지 증명하려는 방향입니다.
-
-## 4) 정책으로 강제하라(사람이 지키게 하지 말고)
-
-공급망 보안은 규칙을 문서로만 두면 반드시 깨집니다.
-
-- 취약점 임계치(CVSS 등) 기준으로 빌드 fail/예외 승인 프로세스 정의
-- 서명/스캔 통과한 아티팩트만 프로덕션으로 승격
-- (가능하면) 배포 시점에 정책 검사(이미지 서명/스캔 결과)로 차단
-
-## 5) 흔한 함정
-
-- CI에 “만능 토큰(PAT)”을 넣어두고 모든 권한을 열어둔다
-- 서드파티 액션을 pinning하지 않아 upstream 변경에 그대로 노출된다
-- `latest` 베이스 이미지/패키지를 써서 동일한 커밋인데 빌드 결과가 달라진다
-- PR에서 시크릿이 필요한 작업을 돌려 시크릿이 유출된다
-
-## 연습(추천)
-
-- GitHub Actions 워크플로우에 `permissions:`를 최소로 설정하고, 필요한 권한만 점진적으로 추가해보기
-- SBOM을 생성해(도구는 자유) 빌드 아티팩트로 보관하고, 취약점 스캔의 입력으로 연결해보기
-- 이미지 서명/검증(예: cosign)을 “빌드 단계 서명 → 배포 단계 검증” 흐름으로 구성해보기
+1. **의존성**: 내가 쓰는 라이브러리를 믿지 마라. (Lock file 필수)
+2. **CI**: 빌드 환경은 언제든 오염될 수 있다. (일회성 격리 환경 권장)
+3. **서명**: 배포되는 아티팩트가 내가 만든 게 맞는지 암호학적으로 검증해라.

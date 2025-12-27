@@ -19,15 +19,33 @@ study_order: 18
 
 ## 0) Stream과 Optional은 "null과 반복문"을 더 안전하게 만든다
 
-Java 8 이전:
-```java
-// ❌ 명령형 스타일: 어떻게(how) 할지 명시
-List<String> result = new ArrayList<>();
-for (Order order : orders) {
-    if (order.getStatus() == OrderStatus.COMPLETED) {
-        result.add(order.getCustomerName());
-    }
-}
+> [!NOTE]
+> **Stream의 핵심**: 데이터의 흐름(Flow)을 정의하는 것입니다. "어떻게(How)"가 아니라 "**무엇을(What)**" 할지 기술합니다.
+
+### Imperative vs Declarative 비교
+
+| 스타일 | 방식 | 장점 | 단점 |
+| :--- | :--- | :--- | :--- |
+| **명령형(Imperative)** | `for`, `if` 로 직접 제어 | 세밀한 성능 튜닝 가능 | 코드가 길고 실수하기 쉬움 |
+| **선언형(Declarative)** | `filter`, `map` 으로 선언 | 가독성 높음, 병렬화 쉬움 | 디버깅이 조금 더 어려움 |
+
+### 1-0) Stream Pipeline 시각화
+
+```mermaid
+flowchart LR
+    Source[Source] -->|Stream 생성| Op1[Intermediate Ops]
+    Op1 -->|변환/필터링| Op2[Intermediate Ops]
+    Op2 -->|최종 연산| Terminal[Terminal Op]
+    Terminal --> Result[Result]
+
+    subgraph Lazy Evaluation
+    Op1
+    Op2
+    end
+    
+    style Source fill:#e1bee7
+    style Terminal fill:#c5cae9
+    style Result fill:#b2dfdb
 ```
 
 Java 8 이후:
@@ -75,7 +93,18 @@ IntStream range = IntStream.range(1, 5);      // [1, 2, 3, 4]
 IntStream rangeClosed = IntStream.rangeClosed(1, 5);  // [1, 2, 3, 4, 5]
 ```
 
-### 1-2) 중간 연산 (Intermediate Operations)
+### 1-2) 중간 연산 vs 최종 연산 비교
+
+| 구분 | 역할 | Lazy 여부 | 반환값 | 예시 |
+| :--- | :--- | :--- | :--- | :--- |
+| **중간 연산** (Intermediate) | 스트림 변환, 필터링 | ✅ Yes | `Stream<T>` | `filter`, `map`, `sorted` |
+| **최종 연산** (Terminal) | 결과 도출, 부수 효과 | ❌ No | 비-스트림 (List, int 등) | `collect`, `forEach`, `count` |
+
+> [!TIP]
+> **Lazy Evaluation (지연 평가)**:
+> 최종 연산이 호출되기 전까지는 중간 연산이 실행되지 않습니다. 덕분에 필요한 만큼만 계산하는 최적화(Short-circuit)가 가능합니다.
+
+### 1-3) 중간 연산 (Intermediate Operations)
 
 중간 연산은 **lazy 평가**됩니다 (최종 연산이 호출되기 전까지 실행 안 됨).
 
@@ -129,7 +158,7 @@ List<String> result = list.stream()
     .collect(Collectors.toList());
 ```
 
-### 1-3) 최종 연산 (Terminal Operations)
+### 1-4) 최종 연산 (Terminal Operations)
 
 최종 연산이 호출되어야 **실제로 실행**됩니다.
 
@@ -260,6 +289,10 @@ List<String> allProductNames = orders.stream()
 
 ## 3) Optional: null 안전성 확보
 
+> [!NOTE]
+> **Optional은 "값을 감싸는 상자"입니다.**
+> 상자가 비어있을 수도(null), 차있을 수도 있습니다. 우리는 상자를 열어보지 않고도 안전하게 메서드(`map`, `orElse`)를 사용할 수 있습니다.
+
 ### 3-1) Optional 기본 사용법
 
 ```java
@@ -336,6 +369,28 @@ void updateUser(Optional<String> name) { }  // ❌ 복잡도만 증가
 void updateUser(String name) { }  // name이 null일 수 있음을 문서화
 ```
 
+### 3-5) Optional 올바른 사용법 결정 트리
+
+```mermaid
+graph TD
+    Start{"값이 Null일 수 있나?"}
+    Start -->|No| Safe["Optional 필요 없음<br/>(직접 사용)"]
+    Start -->|Yes| Check{"Return Type인가?"}
+    
+    Check -->|Yes| Ret["Optional&lt;T&gt; 반환"]
+    Check -->|No| Field{"필드/파라미터인가?"}
+    
+    Field -->|Yes| Direct["직접 null 체크<br/>or @Nullable"]
+    Field -->|No| Stream{"스트림 내부인가?"}
+    
+    Stream -->|Yes| Op["Optional 사용 가능"]
+    Stream -->|No| Dont["복잡도 증가<br/>(사용 지양)"]
+    
+    style Ret fill:#c8e6c9
+    style Direct fill:#ffccbc
+    style Safe fill:#e1bee7
+```
+
 ### 3-4) Optional 체이닝
 
 ```java
@@ -387,6 +442,9 @@ return optional.orElse("default");
 
 ### 4-3) Stream에서 부수 효과 (Side Effects)
 
+> [!WARNING]
+> **Functional Style 위반**: 스트림 내부에서 외부 변수(`results`)를 수정하면 안 됩니다. 이는 병렬 처리 시 심각한 동시성 문제를 일으킵니다.
+
 ```java
 // ❌ Stream 안에서 외부 상태 변경
 List<String> results = new ArrayList<>();
@@ -436,11 +494,15 @@ long count = list.parallelStream()
 // - 상태 공유 시 동기화 문제 발생
 ```
 
+> [!WARNING]
+> **병렬 스트림 주의사항**:
+> 무조건 빨라지지 않습니다. 스레드 생성/관리 오버헤드가 더 클 수 있으며, 데이터 소스가 `ArrayList`나 배열처럼 분할이 쉬워야 효과적입니다. `LinkedList`는 병렬 처리에 최악입니다.
+
 **병렬 Stream 사용 기준:**
 - 데이터가 충분히 큼 (수천 개 이상)
 - CPU 집약적 작업
 - 순서가 중요하지 않음
-- 부수 효과가 없음
+- 부수 효과(Side Effect)가 없음
 
 ## 6) 실전 예제
 

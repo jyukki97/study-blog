@@ -23,6 +23,32 @@ study_order: 75
 
 ## 1) 문제에서 시작하기: Race condition
 
+> [!NOTE]
+> **스레드의 생애(Lifecycle)**: 스레드는 태어나서(`NEW`) 일하다가(`RUNNABLE`), 자리가 없으면 기다리고(`BLOCKED/WAITING`), 일이 끝나면 죽습니다(`TERMINATED`).
+
+```mermaid
+stateDiagram-v2
+    [*] --> NEW: new Thread()
+    NEW --> RUNNABLE: start()
+    
+    state RUNNABLE {
+        Running
+        Ready
+    }
+    
+    RUNNABLE --> BLOCKED: synchronized 진입 시도
+    BLOCKED --> RUNNABLE: 락 획득
+    
+    RUNNABLE --> WAITING: wait() / join()
+    WAITING --> RUNNABLE: notify() / notifyAll()
+    
+    RUNNABLE --> TIMED_WAITING: sleep(t) / wait(t)
+    TIMED_WAITING --> RUNNABLE: 시간 종료 / notify()
+    
+    RUNNABLE --> TERMINATED: run() 종료
+    TERMINATED --> [*]
+```
+
 아래 코드는 “겉보기엔” 맞아 보이지만, 멀티 스레드에서 값이 틀어질 수 있습니다.
 
 ```java
@@ -105,6 +131,14 @@ class Flag {
 
 ## 3) 락 선택: synchronized vs ReentrantLock vs ReadWriteLock
 
+### 주요 락 비교
+
+| 락 종류 | 특징 | 장점 | 단점 |
+| :--- | :--- | :--- | :--- |
+| **synchronized** | 키워드(언어 내장) | 간편함, JVM 최적화(자동) | 타임아웃/공정성 설정 불가 |
+| **ReentrantLock** | 클래스(API) | 타임아웃(`tryLock`), 공정성 제어 | `unlock()` 필수(복잡도↑) |
+| **ReadWriteLock** | 읽기/쓰기 분리 | 읽기끼리는 락 공유 (성능↑) | 구현 복잡, 쓰기 기아 발생 가능 |
+
 ```java
 class Counter {
     private final Lock lock = new ReentrantLock();
@@ -116,10 +150,6 @@ class Counter {
     }
 }
 ```
-
-- `synchronized`: 가장 단순, JVM 최적화(편향/경량/중량 락) 혜택
-- `ReentrantLock`: tryLock/타임아웃/공정성 옵션 등 제어력
-- `ReadWriteLock`: 읽기 많은 경우 동시 읽기 허용(쓰기 희생 가능)
 
 실무 결론은 보통 “단순하면 synchronized, 더 많은 제어가 필요하면 ReentrantLock”입니다.
 
@@ -133,7 +163,21 @@ class Counter {
 
 그래서 서버는 보통 스레드풀(Executor)을 씁니다.
 
-### ThreadPoolExecutor 구성요소(그림 없이 핵심만)
+### ThreadPoolExecutor 동작 원리
+
+```mermaid
+graph LR
+    Task[Task 제출] --> Q{Queue 꽉 찼나?}
+    Q -->|No| Queue[Blocking Queue]
+    Q -->|Yes| Max{Max Thread 도달?}
+    
+    Queue -->|Take| Core[Core Threads]
+    Max -->|No| New[New Thread 생성]
+    Max -->|Yes| Reject[Rejection Policy]
+    
+    style Core fill:#c8e6c9
+    style Reject fill:#ffcdd2
+```
 
 - core/max: 기본/최대 스레드 수
 - queue: 작업 대기열(무제한 큐는 OOM 위험, bounded 큐 권장)

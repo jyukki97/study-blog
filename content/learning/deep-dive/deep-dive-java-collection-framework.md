@@ -22,28 +22,77 @@ study_order: 15
 Java Collection Framework는 데이터를 저장하고 조작하는 표준화된 방법을 제공합니다.
 핵심은 **"어떤 데이터를 어떻게 저장하고 찾을 것인가"**를 상황에 맞게 선택하는 것입니다.
 
-```
-Collection Framework 계층 구조:
+```mermaid
+classDiagram
+    direction TB
+    class Iterable {
+        <<interface>>
+    }
+    class Collection {
+        <<interface>>
+    }
+    class List {
+        <<interface>>
+        +ORDERED
+        +DUPLICATES_OK
+    }
+    class Set {
+        <<interface>>
+        +UNIQUE
+    }
+    class Queue {
+        <<interface>>
+    }
+    class Map {
+        <<interface>>
+        +KEY_VALUE
+    }
 
-          Iterable
-              ↓
-          Collection
-         /    |    \
-      List   Set   Queue
-       |      |      |
-  ArrayList HashSet PriorityQueue
-  LinkedList TreeSet ArrayDeque
-  Vector
+    Iterable <|-- Collection
+    Collection <|-- List
+    Collection <|-- Set
+    Collection <|-- Queue
 
-          Map (별도 계층)
-           |
-      HashMap
-      TreeMap
-      LinkedHashMap
-      ConcurrentHashMap
+    List <|.. ArrayList
+    List <|.. LinkedList
+    List <|.. Vector
+
+    Set <|.. HashSet
+    Set <|.. LinkedHashSet
+    Set <|.. TreeSet
+
+    Queue <|.. PriorityQueue
+    Queue <|.. ArrayDeque
+
+    Map <|.. HashMap
+    Map <|.. LinkedHashMap
+    Map <|.. TreeMap
+    Map <|.. ConcurrentHashMap
+    
+    style Map fill:#f9f,stroke:#333,stroke-width:2px
+    style Collection fill:#bbf,stroke:#333,stroke-width:2px
 ```
 
 ## 1) List: 순서가 있고, 중복을 허용하는 컬렉션
+
+> [!TIP]
+> **List의 핵심**: "줄 서기"입니다. 들어온 순서대로 저장되고, 번호표(Index)로 찾습니다.
+
+```mermaid
+graph LR
+    subgraph ArrayList [ArrayList: 연속된 메모리]
+    A1[0: Apple] --- A2[1: Banana] --- A3[2: Cherry]
+    end
+    
+    subgraph LinkedList [LinkedList: 흩어진 메모리]
+    L1((Apple)) --> L2((Banana)) --> L3((Cherry))
+    L2 --> L1
+    L3 --> L2
+    end
+    
+    style ArrayList fill:#e1f5fe
+    style LinkedList fill:#fff3e0
+```
 
 ### 1-1) ArrayList: 가장 많이 쓰는 리스트
 
@@ -117,26 +166,25 @@ for (int i = 0; i < 1000; i++) {
 
 ## 2) Set: 중복을 허용하지 않는 컬렉션
 
-### 2-1) HashSet: 가장 빠른 Set
+> [!NOTE]
+> **Set의 핵심**: "주머니 속 구슬"입니다. 순서가 없고, 같은 구슬(데이터)은 두 번 넣을 수 없습니다.
 
-```java
-Set<String> uniqueEmails = new HashSet<>();
-uniqueEmails.add("user@example.com");   // O(1)
-uniqueEmails.add("user@example.com");   // 중복 무시
-uniqueEmails.contains("test@test.com"); // O(1)
+### 2-1) 주요 구현체 비교
 
-// 중복 제거
-List<Integer> numbers = Arrays.asList(1, 2, 2, 3, 3, 4);
-Set<Integer> unique = new HashSet<>(numbers);  // [1, 2, 3, 4]
+| 구현체 | 특징 | 정렬/순서 | 시간 복잡도 |
+| :--- | :--- | :--- | :--- |
+| **HashSet** | 가장 빠름 (일반적 선택) | X | $O(1)$ |
+| **TreeSet** | 데이터가 자동 정렬됨 | 정렬됨 (Binary Tree) | $O(\log n)$ |
+| **LinkedHashSet** | 입력한 순서대로 조회 가능 | 입력 순서 유지 | $O(1)$ |
+
+### 2-2) HashSet: 가장 빠른 Set
+
+```mermaid
+graph TD
+    Input["데이터 입력: 'Apple'"] --> Hash{해시 함수}
+    Hash -->|Hash: 123| Bucket[버킷 위치]
+    Bucket -->|중복 체크| Store[저장 또는 무시]
 ```
-
-**언제 사용:**
-- 중복 제거가 목적
-- 빠른 조회(contains)가 필요
-- 순서가 중요하지 않을 때
-
-**시간 복잡도:**
-- add/remove/contains: O(1) average
 
 ### 2-2) TreeSet: 정렬된 Set
 
@@ -175,7 +223,32 @@ System.out.println(insertOrder);  // [Banana, Apple, Cherry] - 삽입 순서 유
 
 ## 3) Map: Key-Value 쌍을 저장하는 컬렉션
 
-### 3-1) HashMap: 가장 많이 쓰는 Map
+> [!IMPORTANT]
+> **Map의 핵심**: "사물함"입니다. 열쇠(Key)로 사물함(Value)을 엽니다. 열쇠는 중복될 수 없습니다.
+
+```mermaid
+graph LR
+    subgraph BucketArray [HashMap 내부 구조]
+    idx0["0: null"]
+    idx1["1: Key1 -> Val1"]
+    idx2["2: Key2 -> Val2 -> Key3 -> Val3"]
+    idx3["3: null"]
+    end
+    
+    style idx2 fill:#ffccbc
+    Note["충돌 발생 시, 같은 버킷에 연결 리스트(또는 트리)로 저장"]
+```
+
+### 3-1) 주요 구현체 비교
+
+| 구현체 | 특징 | 정렬/순서 | 시간 복잡도 |
+| :--- | :--- | :--- | :--- |
+| **HashMap** | 가장 빠름 (표준) | X | $O(1)$ |
+| **TreeMap** | Key 기준 자동 정렬 | 정렬됨 (Red-Black Tree) | $O(\log n)$ |
+| **LinkedHashMap** | 입력 순서 or 접근 순서 유지 | 입력/LRU 순서 | $O(1)$ |
+
+
+### 3-2) HashMap: 가장 많이 쓰는 Map
 
 ```java
 Map<String, Integer> ages = new HashMap<>();
@@ -288,62 +361,30 @@ listeners.forEach(l -> l.onEvent());  // 반복 중 수정 안전
 
 ## 5) 실전 선택 가이드
 
-### 5-1) 상황별 컬렉션 선택
+### 5-1) 상황별 컬렉션 선택 Cheat Sheet
+
+> [!TIP]
+> 5초 안에 결정하는 법:
+> 1. 순서 중요? → **List** (대부분 `ArrayList`)
+> 2. 중복 제거? → **Set** (`HashSet`)
+> 3. Key-Value? → **Map** (`HashMap`)
+
+### 5-2) 자주 하는 실수 (Performance Anti-patterns)
+
+> [!WARNING]
+> **Anti-pattern 1: 초기 용량(Initial Capacity) 무시**
+> `new ArrayList<>()`는 크기가 찰 때마다 배열을 2배로 늘리고 데이터를 **복사**합니다. 데이터 개수를 안다면 `new ArrayList<>(10000)`처럼 지정하세요.
 
 ```java
-// ✅ 일반적인 리스트 → ArrayList
-List<Order> orders = new ArrayList<>();
-
-// ✅ 중복 제거 → HashSet
-Set<String> uniqueIds = new HashSet<>();
-
-// ✅ Key-Value 조회 → HashMap
-Map<Long, User> userCache = new HashMap<>();
-
-// ✅ 정렬된 컬렉션 → TreeSet / TreeMap
-TreeSet<Integer> sortedScores = new TreeSet<>();
-
-// ✅ 삽입 순서 유지 → LinkedHashSet / LinkedHashMap
-LinkedHashMap<String, String> properties = new LinkedHashMap<>();
-
-// ✅ 멀티스레드 환경 → ConcurrentHashMap
-ConcurrentHashMap<String, Session> sessions = new ConcurrentHashMap<>();
-
-// ✅ 큐/스택 → ArrayDeque
-Deque<Task> queue = new ArrayDeque<>();
-```
-
-### 5-2) 자주 하는 실수
-
-```java
-// ❌ 실수 1: 불필요한 복사
-List<String> original = getList();
-List<String> copy = new ArrayList<>(original);  // 복사 비용
-// 읽기만 한다면 복사 불필요
-
-// ✅ 수정:
-List<String> readOnly = Collections.unmodifiableList(original);
-
-// ❌ 실수 2: contains()를 반복문에서 사용 (O(n²))
-List<Integer> list = new ArrayList<>();
-for (Integer num : candidates) {
-    if (!list.contains(num)) {  // O(n)
-        list.add(num);
-    }
-}
-
-// ✅ 수정: Set 사용 (O(n))
-Set<Integer> set = new HashSet<>(candidates);
-
-// ❌ 실수 3: HashMap 초기 용량 미지정
-Map<String, User> users = new HashMap<>();  // 기본 16, 부족하면 재할당
-for (int i = 0; i < 10000; i++) {
-    users.put("user" + i, new User());  // 여러 번 재할당 발생
-}
-
+// ❌ 실수: 여러 번 재할당 발생
+Map<String, User> users = new HashMap<>(); 
 // ✅ 수정: 초기 용량 지정
 Map<String, User> users = new HashMap<>(10000);
 ```
+
+> [!WARNING]
+> **Anti-pattern 2: `contains()` 남발**
+> `ArrayList.contains()`는 $O(n)$입니다. 반복문 안에서 쓰면 $O(n^2)$이 됩니다. 존재 여부 확인은 **Set**($O(1)$)을 쓰세요.
 
 ### 5-3) 성능 체크리스트
 

@@ -6,6 +6,7 @@
 .post-content {
     line-height: 1.8;
     font-size: 17px;
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     color: var(--content);
     letter-spacing: -0.003em;
     word-spacing: 0.05em;
@@ -78,7 +79,7 @@
     margin-bottom: 0.5rem;
 }
 
-.post-content li > p {
+.post-content li>p {
     margin-bottom: 0.5rem;
 }
 
@@ -125,7 +126,7 @@
     border-radius: 8px;
     overflow-x: auto;
     border: 1px solid var(--border);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .post-content pre code {
@@ -143,7 +144,7 @@
     margin: 2rem 0;
     border-collapse: collapse;
     font-size: 0.95rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     border-radius: 8px;
     overflow: hidden;
 }
@@ -179,7 +180,7 @@
     height: auto;
     border-radius: 8px;
     margin: 2rem 0;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 /* 수평선 스타일 개선 */

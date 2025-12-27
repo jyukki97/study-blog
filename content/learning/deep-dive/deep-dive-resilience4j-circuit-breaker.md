@@ -1,532 +1,91 @@
 ---
-title: "Circuit Breaker 패턴: Resilience4j로 장애 전파 차단하기"
+title: "Circuit Breaker 패턴: 장애 전파를 끊는 두꺼비집"
 date: 2025-11-08
 draft: false
 topic: "Spring"
 tags: ["Circuit Breaker", "Resilience4j", "Fault Tolerance", "Microservices"]
 categories: ["Backend Deep Dive"]
-description: "Circuit Breaker 패턴으로 장애를 격리하고 Resilience4j로 구현하는 실전 가이드"
+description: "외부 API/DB 장애가 내 서비스까지 번지지 않게 막는 Resilience4j 패턴과 설정값 가이드"
 module: "spring-core"
 study_order: 185
 ---
 
-## 이 글에서 얻는 것
+## 🔌 1. 왜 "두꺼비집"이라고 부를까?
 
-- **Circuit Breaker 패턴**의 동작 원리를 이해합니다.
-- **Resilience4j**로 Circuit Breaker를 구현할 수 있습니다.
-- **장애 전파**를 차단하고 시스템을 보호할 수 있습니다.
-- **재시도, 타임아웃, 폴백** 전략을 조합할 수 있습니다.
+집에 누전이 되면 전체 정전을 막기 위해 두꺼비집(배선 차단기)이 내려갑니다.
+MSA에서도 마찬가지입니다. **B 서비스가 죽었을 때, 이를 호출하는 A 서비스까지 같이 느려지다 죽는 것(Cascade Failure)** 을 막기 위해 회로를 끊어버립니다.
 
-## 0) Circuit Breaker는 "전기 차단기"다
+---
 
-### 문제 상황
+## 🚦 2. 상태 기계 (State Machine)
 
-```
-마이크로서비스 A → B → C
+서킷 브레이커는 3가지 상태를 오가며 시스템을 보호합니다.
 
-C 서비스 장애 발생!
-↓
-B는 C에 계속 요청 (타임아웃 대기)
-↓
-A도 B를 기다림
-↓
-전체 시스템 다운!
-```
-
-**Circuit Breaker 적용:**
-```
-C 서비스 장애 감지
-↓
-Circuit Open (차단)
-↓
-C로의 요청 즉시 차단
-↓
-Fallback 응답 반환
-↓
-시스템 전체는 정상 동작
+```mermaid
+stateDiagram-v2
+    [*] --> CLOSED: 초기 상태 (정상)
+    
+    CLOSED --> OPEN: 실패율 임계치 초과 (차단)
+    note right of OPEN: 즉시 에러 반환 (Fail Fast)
+    
+    OPEN --> HALF_OPEN: 대기 시간 경과 (간 보기)
+    
+    HALF_OPEN --> CLOSED: 시험 호출 성공
+    HALF_OPEN --> OPEN: 시험 호출 실패
 ```
 
-## 1) Circuit Breaker 상태
+1. **CLOSED (닫힘)**: 정상. 전기가 잘 통함. (트래픽 통과)
+2. **OPEN (열림)**: 차단됨. 전기가 안 통함. (호출 즉시 차단 예외 발생)
+3. **HALF_OPEN (반 열림)**: "이제 좀 괜찮나?" 하고 몇 개만 살짝 보내봄. 성공하면 닫고, 실패하면 다시 엽니다.
 
-### 1-1) 3가지 상태
+---
 
-```
-CLOSED (정상):
-- 모든 요청이 정상적으로 전달됨
-- 실패율 모니터링
-- 실패율이 임계값 초과 → OPEN
+## 🛡️ 3. Resilience4j 실전 설정
 
-OPEN (차단):
-- 모든 요청이 즉시 실패 (빠른 실패)
-- Fallback 응답 반환
-- 일정 시간 후 → HALF_OPEN
-
-HALF_OPEN (반개방):
-- 일부 요청만 허용 (테스트)
-- 성공하면 → CLOSED
-- 실패하면 → OPEN
-```
-
-### 1-2) 상태 전이 다이어그램
-
-```
-     [실패율 < 임계값]
-    ┌─────────────────┐
-    │                 ↓
-┌─────────┐       ┌─────────┐
-│ CLOSED  │───────│  OPEN   │
-└─────────┘       └─────────┘
-    ↑                 │
-    │   [대기 시간 경과]
-    │                 ↓
-    │          ┌──────────────┐
-    └──────────│  HALF_OPEN   │
-  [성공]       └──────────────┘
-                      │
-                [실패] ↓
-              다시 OPEN으로
-```
-
-## 2) Resilience4j 기본
-
-### 2-1) 의존성
-
-```gradle
-dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-aop'
-    implementation 'io.github.resilience4j:resilience4j-spring-boot3:2.1.0'
-    implementation 'io.github.resilience4j:resilience4j-reactor:2.1.0'
-}
-```
-
-### 2-2) 설정
+"실패가 몇 번 나면 끊을래?"를 결정하는 것이 핵심입니다.
 
 ```yaml
-resilience4j.circuitbreaker:
-  configs:
-    default:
-      # 실패율 임계값 (50%)
-      failureRateThreshold: 50
-      
-      # 느린 호출 임계값 (느린 호출 비율이 80% 넘으면 Open)
-      slowCallRateThreshold: 80
-      slowCallDurationThreshold: 2s
-      
-      # 최소 호출 수 (이 수만큼 호출되어야 통계 계산)
-      minimumNumberOfCalls: 10
-      
-      # Sliding Window 크기
-      slidingWindowType: COUNT_BASED
-      slidingWindowSize: 100
-      
-      # Open 상태 유지 시간
-      waitDurationInOpenState: 10s
-      
-      # Half-Open 상태에서 허용할 호출 수
-      permittedNumberOfCallsInHalfOpenState: 5
-      
-      # 자동으로 CLOSED → OPEN 전환 허용
-      automaticTransitionFromOpenToHalfOpenEnabled: true
-      
-  instances:
-    paymentService:
-      baseConfig: default
-      failureRateThreshold: 60
-      
-    externalApi:
-      baseConfig: default
-      waitDurationInOpenState: 30s
+resilience4j:
+  circuitbreaker:
+    instances:
+      myService:
+        failureRateThreshold: 50        # 50% 실패하면 Open
+        slidingWindowSize: 100          # 최근 100개 요청 기준
+        minimumNumberOfCalls: 10        # 최소 10개는 표본이 쌓여야 함
+        waitDurationInOpenState: 10s    # 10초 동안 차단 유지 후 Half-Open
+        permittedNumberOfCallsInHalfOpenState: 3 # Half-Open 때 3개만 보내봄
 ```
 
-## 3) @CircuitBreaker 사용
+### Fallback (대안)
 
-### 3-1) 기본 사용
+차단되었을 때 클라이언트에게 "에러"만 던지면 안 되겠죠?
+**Fallback** 메소드를 통해 "기본값"이라도 줘야 합니다.
 
 ```java
-@Service
-public class PaymentService {
+@CircuitBreaker(name = "myService", fallbackMethod = "fallbackHello")
+public String callExternalServer() {
+    return restTemplate.getForObject("/api/hello", String.class);
+}
 
-    @Autowired
-    private RestTemplate restTemplate;
-
-    @CircuitBreaker(name = "paymentService", fallbackMethod = "paymentFallback")
-    public PaymentResponse processPayment(PaymentRequest request) {
-        // 외부 결제 API 호출
-        return restTemplate.postForObject(
-            "https://payment-api.com/process",
-            request,
-            PaymentResponse.class
-        );
-    }
-
-    // Fallback 메서드 (Circuit Open 시 호출)
-    private PaymentResponse paymentFallback(PaymentRequest request, Exception e) {
-        log.error("Payment service is unavailable", e);
-        
-        return PaymentResponse.builder()
-            .status("PENDING")
-            .message("결제 서비스를 일시적으로 사용할 수 없습니다. 잠시 후 다시 시도해주세요.")
-            .build();
-    }
+// 🚧 장애 시 실행될 메소드
+public String fallbackHello(Throwable t) {
+    log.error("외부 서버 죽음: {}", t.getMessage());
+    return "잠시 점검 중입니다. (기본 응답)";
 }
 ```
 
-### 3-2) 다양한 Fallback
+---
 
-```java
-@Service
-public class UserService {
+## ⚠️ 4. 주의사항: "Thread Pool Hell"
 
-    @CircuitBreaker(name = "userService", fallbackMethod = "getUserFromCacheFallback")
-    public User getUser(Long id) {
-        return restTemplate.getForObject(
-            "https://user-api.com/users/" + id,
-            User.class
-        );
-    }
+서킷 브레이커 없이 `Timeout`만 걸면 어떻게 될까요?
+응답이 30초 걸리는 장애 서버에 요청이 몰리면, 내 서버의 스레드 풀(Thread Pool)이 대기하느라 꽉 차버립니다. (Bulkhead 패턴이 필요한 이유)
 
-    // Fallback 1: 캐시에서 조회
-    private User getUserFromCacheFallback(Long id, Exception e) {
-        log.warn("User service unavailable, trying cache");
-        return cacheManager.getUser(id)
-            .orElseGet(() -> getUserDefaultFallback(id, e));
-    }
-
-    // Fallback 2: 기본값 반환
-    private User getUserDefaultFallback(Long id, Exception e) {
-        log.error("All fallbacks failed", e);
-        return User.builder()
-            .id(id)
-            .name("Unknown User")
-            .build();
-    }
-}
-```
-
-## 4) 프로그래밍 방식
-
-### 4-1) CircuitBreakerRegistry 사용
-
-```java
-@Service
-public class ExternalApiService {
-
-    private final CircuitBreakerRegistry circuitBreakerRegistry;
-    private final RestTemplate restTemplate;
-
-    public ExternalApiService(CircuitBreakerRegistry circuitBreakerRegistry,
-                              RestTemplate restTemplate) {
-        this.circuitBreakerRegistry = circuitBreakerRegistry;
-        this.restTemplate = restTemplate;
-    }
-
-    public ApiResponse callExternalApi(String endpoint) {
-        CircuitBreaker circuitBreaker = circuitBreakerRegistry.circuitBreaker("externalApi");
-
-        return circuitBreaker.executeSupplier(() -> {
-            return restTemplate.getForObject(endpoint, ApiResponse.class);
-        });
-    }
-}
-```
-
-### 4-2) 이벤트 리스너
-
-```java
-@Configuration
-public class CircuitBreakerEventListener {
-
-    @Bean
-    public CircuitBreakerEventListener circuitBreakerEventListener(
-            CircuitBreakerRegistry circuitBreakerRegistry) {
-
-        circuitBreakerRegistry.circuitBreaker("paymentService")
-            .getEventPublisher()
-            .onStateTransition(event -> {
-                log.warn("Circuit Breaker State Change: {} -> {}",
-                    event.getStateTransition().getFromState(),
-                    event.getStateTransition().getToState());
-                
-                // Slack 알림 등
-                if (event.getStateTransition().getToState() == CircuitBreaker.State.OPEN) {
-                    slackNotifier.send("Payment service circuit opened!");
-                }
-            })
-            .onError(event -> {
-                log.error("Circuit Breaker Error: {}", event.getThrowable().getMessage());
-            });
-
-        return new CircuitBreakerEventListener();
-    }
-}
-```
-
-## 5) 재시도 + Circuit Breaker 조합
-
-### 5-1) 재시도 설정
-
-```yaml
-resilience4j.retry:
-  configs:
-    default:
-      maxAttempts: 3
-      waitDuration: 1s
-      retryExceptions:
-        - java.net.ConnectException
-        - java.net.SocketTimeoutException
-        
-  instances:
-    paymentService:
-      baseConfig: default
-```
-
-### 5-2) 재시도 + Circuit Breaker
-
-```java
-@Service
-public class PaymentService {
-
-    @Retry(name = "paymentService", fallbackMethod = "paymentFallback")
-    @CircuitBreaker(name = "paymentService")
-    public PaymentResponse processPayment(PaymentRequest request) {
-        // 1. 재시도 (3번)
-        // 2. 재시도 모두 실패 시 Circuit Breaker에서 감지
-        // 3. 실패율이 임계값 초과 시 Circuit Open
-        return restTemplate.postForObject(...);
-    }
-
-    private PaymentResponse paymentFallback(PaymentRequest request, Exception e) {
-        return PaymentResponse.pending("서비스 일시 중단");
-    }
-}
-```
-
-## 6) 타임아웃 + Circuit Breaker
-
-### 6-1) 타임아웃 설정
-
-```yaml
-resilience4j.timelimiter:
-  configs:
-    default:
-      timeoutDuration: 3s
-      
-  instances:
-    paymentService:
-      baseConfig: default
-```
-
-### 6-2) 조합 사용
-
-```java
-@Service
-public class PaymentService {
-
-    @TimeLimiter(name = "paymentService")
-    @CircuitBreaker(name = "paymentService", fallbackMethod = "paymentFallback")
-    public CompletableFuture<PaymentResponse> processPaymentAsync(PaymentRequest request) {
-        return CompletableFuture.supplyAsync(() -> {
-            // 1. 타임아웃 (3초)
-            // 2. 타임아웃 초과 시 Circuit Breaker에서 감지
-            return restTemplate.postForObject(...);
-        });
-    }
-}
-```
-
-## 7) 모니터링
-
-### 7-1) Actuator Endpoint
-
-```yaml
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,metrics,circuitbreakers,circuitbreakerevents
-  health:
-    circuitbreakers:
-      enabled: true
-  metrics:
-    tags:
-      application: ${spring.application.name}
-```
-
-**확인:**
-```bash
-# Circuit Breaker 상태 확인
-curl http://localhost:8080/actuator/circuitbreakers
-
-# 응답:
-{
-  "circuitBreakers": {
-    "paymentService": {
-      "state": "CLOSED",
-      "failureRate": "12.5%",
-      "slowCallRate": "0%",
-      "bufferedCalls": 16,
-      "failedCalls": 2
-    }
-  }
-}
-
-# 이벤트 확인
-curl http://localhost:8080/actuator/circuitbreakerevents/paymentService
-```
-
-### 7-2) Prometheus 메트릭
-
-```yaml
-management:
-  metrics:
-    export:
-      prometheus:
-        enabled: true
-```
-
-**메트릭:**
-```
-resilience4j_circuitbreaker_state{name="paymentService",state="closed"} 1
-resilience4j_circuitbreaker_failure_rate{name="paymentService"} 0.125
-resilience4j_circuitbreaker_slow_call_rate{name="paymentService"} 0.0
-resilience4j_circuitbreaker_buffered_calls{name="paymentService",kind="failed"} 2
-```
-
-## 8) 실전 패턴
-
-### 8-1) 여러 Circuit Breaker 조합
-
-```java
-@Service
-public class OrderService {
-
-    // 결제 서비스
-    @CircuitBreaker(name = "paymentService", fallbackMethod = "paymentFallback")
-    public PaymentResponse processPayment(Order order) {
-        return paymentClient.process(order.getPayment());
-    }
-
-    // 재고 서비스
-    @CircuitBreaker(name = "inventoryService", fallbackMethod = "inventoryFallback")
-    public void reserveInventory(Order order) {
-        inventoryClient.reserve(order.getItems());
-    }
-
-    // 이메일 서비스 (중요도 낮음, Circuit Breaker 불필요)
-    @Async
-    public void sendConfirmationEmail(Order order) {
-        try {
-            emailClient.send(order.getEmail(), "주문 확인");
-        } catch (Exception e) {
-            log.error("Email sending failed", e);
-            // 실패해도 무시
-        }
-    }
-
-    private PaymentResponse paymentFallback(Order order, Exception e) {
-        // 결제 실패 → 주문 취소
-        throw new PaymentUnavailableException("결제 서비스 일시 중단");
-    }
-
-    private void inventoryFallback(Order order, Exception e) {
-        // 재고 확인 실패 → 재고 없음으로 간주
-        throw new InventoryUnavailableException("재고 서비스 일시 중단");
-    }
-}
-```
-
-### 8-2) 우아한 성능 저하 (Graceful Degradation)
-
-```java
-@Service
-public class RecommendationService {
-
-    @CircuitBreaker(name = "recommendationService", fallbackMethod = "getPopularItemsFallback")
-    public List<Product> getRecommendations(Long userId) {
-        // ML 기반 추천 (외부 서비스)
-        return mlService.getRecommendations(userId);
-    }
-
-    // Fallback 1: 인기 상품 반환
-    private List<Product> getPopularItemsFallback(Long userId, Exception e) {
-        log.warn("Recommendation service unavailable, returning popular items");
-        return productRepository.findPopularProducts(PageRequest.of(0, 10));
-    }
-}
-```
-
-## 9) 주의사항
-
-### ⚠️ 1. 적절한 임계값 설정
-
-```yaml
-# ❌ 너무 민감
-failureRateThreshold: 10  # 10%만 실패해도 Open
-
-# ✅ 적절한 설정
-failureRateThreshold: 50  # 50% 실패 시 Open
-minimumNumberOfCalls: 10  # 최소 10번은 호출되어야 판단
-```
-
-### ⚠️ 2. Fallback 메서드 시그니처
-
-```java
-// ❌ 나쁜 예: 시그니처 불일치
-@CircuitBreaker(name = "userService", fallbackMethod = "fallback")
-public User getUser(Long id) { ... }
-
-private User fallback() {  // Exception 파라미터 없음!
-    return User.unknown();
-}
-
-// ✅ 좋은 예
-private User fallback(Long id, Exception e) {  // 원본 파라미터 + Exception
-    log.error("Fallback triggered", e);
-    return User.unknown();
-}
-```
-
-### ⚠️ 3. Circuit Breaker 남용
-
-```java
-// ❌ 나쁜 예: 내부 메서드에 Circuit Breaker
-@CircuitBreaker(name = "local")
-private void internalMethod() {
-    // 내부 메서드는 불필요!
-}
-
-// ✅ 좋은 예: 외부 의존성에만 적용
-@CircuitBreaker(name = "externalApi")
-public ApiResponse callExternalApi() {
-    // 외부 API 호출
-}
-```
-
-## 연습 (추천)
-
-1. **Circuit Breaker 구현**
-   - Resilience4j 설정
-   - @CircuitBreaker 적용
-   - Fallback 메서드 작성
-
-2. **상태 전이 테스트**
-   - 장애 발생 시켜 OPEN 상태 확인
-   - 복구 후 CLOSED 상태 전환 확인
-
-3. **모니터링**
-   - Actuator로 상태 확인
-   - Prometheus 메트릭 수집
+서킷 브레이커는 **"아예 요청을 안 보내고(Fail Fast)"** 스레드를 즉시 반환하게 하여 내 서버를 살립니다.
 
 ## 요약
 
-- Circuit Breaker는 장애 전파를 차단
-- CLOSED → OPEN → HALF_OPEN 상태 전이
-- Resilience4j로 쉽게 구현 가능
-- Fallback으로 우아한 성능 저하
-- 재시도, 타임아웃과 함께 조합
-
-## 다음 단계
-
-- 분산 추적: `/learning/deep-dive/deep-dive-distributed-tracing/`
-- API Gateway: `/learning/deep-dive/deep-dive-api-gateway/`
-- 마이크로서비스 패턴: `/learning/deep-dive/deep-dive-microservices-patterns/`
+1. **목적**: 장애 전파 방지 (나라도 살자).
+2. **상태**: Normal(Closed) -> Error(Open) -> Test(Half-Open).
+3. **Fallback**: 안 될 때 줄 수 있는 '차선책'을 준비해라.
+4. **설정**: 너무 빨리 열리면 민감하고, 너무 늦게 열리면 장애가 전파된다.

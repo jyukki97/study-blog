@@ -8,6 +8,7 @@
     --content: #2d3436;
     --hljs-bg: #f8f9fa;
     --code-bg: #f8f9fa;
+    --code-block-bg: #f8f9fa;
     --border: #dfe6e9;
 }
 
@@ -21,18 +22,21 @@
     --content: #e9ecef;
     --hljs-bg: #2d2d2d;
     --code-bg: #2d2d2d;
+    --code-block-bg: #2d2d2d;
     --border: #495057;
 }
 
 /* 태그와 카테고리 페이지 스타일 */
-.tag-list, .category-list {
+.tag-list,
+.category-list {
     background-color: var(--main-bg);
     padding: 1rem;
     border-radius: 0.5rem;
     margin: 1rem 0;
 }
 
-.tag-list a, .category-list a {
+.tag-list a,
+.category-list a {
     display: inline-block;
     padding: 0.5rem 1rem;
     margin: 0.25rem;
@@ -43,7 +47,8 @@
     transition: all 0.3s ease;
 }
 
-.tag-list a:hover, .category-list a:hover {
+.tag-list a:hover,
+.category-list a:hover {
     background-color: var(--primary);
     color: var(--main-bg);
 }
@@ -128,7 +133,7 @@
     left: 0;
     background-color: var(--entry);
     min-width: 200px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     border-radius: 4px;
     z-index: 1000;
     padding: 0.5rem 0;
@@ -162,7 +167,7 @@
 /* 다크 모드 대응 */
 [data-theme="dark"] .menu-dropdown-content {
     background-color: var(--entry);
-    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
     border-color: var(--border);
 }
 
@@ -172,11 +177,11 @@
         flex-direction: column;
         align-items: stretch;
     }
-    
+
     .menu-dropdown {
         width: 100%;
     }
-    
+
     .menu-dropdown-content {
         position: static;
         box-shadow: none;
@@ -185,9 +190,9 @@
         padding-left: 1rem;
         width: 100%;
     }
-    
+
     #menu a {
         width: 100%;
         box-sizing: border-box;
     }
-} 
+}

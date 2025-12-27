@@ -1,114 +1,90 @@
 ---
-title: "로드밸런서/헬스체크 설계"
+title: "로드밸런서/헬스체크: 고가용성의 심장"
 date: 2025-12-16
 draft: false
 topic: "Networking"
 tags: ["Load Balancer", "Health Check", "ALB", "NLB"]
 categories: ["DevOps"]
-description: "ALB/NLB 헬스체크, 타임아웃/리트라이 설정, 고가용성을 위한 설계 포인트"
+description: "ALB/NLB 선택 기준, 헬스체크 실패 시 트래픽 흐름, 타임아웃/리트라이로 인한 장애 전파 차단"
 module: "ops-observability"
 study_order: 375
 ---
 
-## 이 글에서 얻는 것
+## 💓 1. 헬스체크는 '생존 확인'이 아니라 '신호등'이다
 
-- 로드밸런서(L4/L7)를 무엇 기준으로 고르는지(ALB/NLB, 프로토콜/기능/운영) 설명할 수 있습니다.
-- 헬스체크가 “살아있다”가 아니라 **“트래픽을 보내도 된다”를 결정하는 스위치**임을 이해합니다.
-- readiness/liveness 감각으로 헬스 엔드포인트를 설계하고, 배포 중 드레이닝/롤아웃과 연결할 수 있습니다.
-- 자주 터지는 설정 실수(401, 무거운 체크, flapping, 타임아웃 불일치)를 예방/디버깅할 수 있습니다.
+헬스체크를 단순히 "서버 켜졌나?" 확인하는 용도로만 쓰면 장애를 키웁니다.
+헬스체크는 **"지금 트래픽을 받아도 되는가?"**를 묻는 것입니다.
 
-## 0) 헬스체크는 ‘고가용성의 핵심 파라미터’다
-
-헬스체크가 잘못되면 “정상 인스턴스를 비정상으로 판단”하거나, 반대로 “깨진 인스턴스에 트래픽을 계속 보냅니다”.
-
-- 너무 엄격함 → false negative → 타깃이 전부 빠져 서비스 장애
-- 너무 느슨함 → 깨진 타깃이 남아 5xx/타임아웃 증가
-
-그래서 헬스체크는 단순 설정이 아니라, 안정성 설계의 일부입니다.
-
-## 1) ALB vs NLB: L7 vs L4 선택 감각
-
-- **ALB(L7)**: HTTP/HTTPS, Host/Path 라우팅, 헤더 기반 라우팅, WAF 연동, HTTP/2(gRPC) 같은 기능이 강점
-- **NLB(L4)**: TCP/UDP/TLS, 고성능/낮은 지연, 정적 IP, 소스 IP 보존 등 네트워크 계층 특징이 강점
-
-실무 기준으로는:
-
-- “HTTP API/웹”이면 ALB가 운영하기 쉽고 기능이 풍부합니다.
-- “TCP 기반 프로토콜/고성능/정적 IP 필요”면 NLB가 더 자연스럽습니다.
-
-## 2) 헬스 엔드포인트 설계: liveness vs readiness
-
-헬스체크는 보통 두 층으로 나누면 안전합니다.
-
-- **Liveness(생존)**: 프로세스가 “붙어 있고” 멈추지 않았는가(재시작 판단)
-- **Readiness(준비)**: 지금 이 인스턴스에 트래픽을 보내도 되는가(LB가 타깃 포함/제외 판단)
-
-헬스 엔드포인트 원칙(운영형):
-
-- 매우 가볍고 빠르다(수 ms~수십 ms 목표)
-- 인증이 필요 없다(대신 네트워크로 보호: LB SG/내부망에서만 접근)
-- 의존성(DB/외부 API)까지 다 묶지 않는다(“깊은” 체크는 별도로 운영)
-
-Spring Boot 예시(개념):
-
-```yaml
-management:
-  endpoint:
-    health:
-      probes:
-        enabled: true
-  endpoints:
-    web:
-      exposure:
-        include: health,info
+```mermaid
+sequenceDiagram
+    participant LB as Load Balancer
+    participant App as Application
+    
+    loop Health Check (매 10초)
+        LB->>App: GET /health (살았니?)
+        App-->>LB: 200 OK (응!)
+    end
+    
+    Note over App: DB Connection Pool 고갈 발생! 😱
+    
+    LB->>App: GET /health
+    App-->>LB: 500 Error (나 아파)
+    
+    Note over LB: Target Group에서 제외 🚫 (트래픽 차단)
+    LB->>App: (더 이상 사용자 트래픽 안 보냄)
 ```
 
-이후 `/actuator/health/readiness`, `/actuator/health/liveness`를 적절히 사용합니다.
+이 "제외(Draining)" 과정이 얼마나 빠르고 정확하냐가 고가용성을 결정합니다.
 
-## 3) 파라미터 튜닝: flapping을 줄이는 감각
+---
 
-헬스체크는 “한 번 실패”로 바로 제외되면 불안정해지기 쉽습니다.
-그래서 보통 아래 값을 함께 조정합니다.
+## ⚖️ 2. L4 (NLB) vs L7 (ALB) 선택 가이드
 
-- interval: 체크 주기(예: 10~30s)
-- timeout: 응답 대기(예: 2~5s)
-- unhealthy threshold: 몇 번 실패하면 제외할지(예: 2~5회)
-- healthy threshold: 몇 번 성공하면 복귀할지(예: 2~5회)
+"그냥 ALB 쓰면 되는 거 아냐?" -> **TCP/UDP 성능**이 중요하다면 NLB입니다.
 
-목표는:
+| 특징 | NLB (Network Load Balancer) | ALB (Application Load Balancer) |
+|---|---|---|
+| **계층** | L4 (전송 계층) | L7 (응용 계층) |
+| **속도** | 초고속 (패킷만 보고 토스) | 보통 (HTTP 헤더 파싱) |
+| **IP 주소** | **고정 IP 할당 가능** | IP 변동됨 (DNS로만 접근) |
+| **기능** | 단순 포트 포워딩, 소스 IP 보존 | 경로 라우팅(`/api`), 인증(OIDC), WAF |
+| **용도** | 게임 서버, 실시간 스트리밍, Private Link | 웹 서비스, 마이크로서비스 API |
 
-- 짧은 순간의 스파이크/GC/네트워크 흔들림으로 타깃이 빠지지 않게,
-- 하지만 진짜로 죽었을 때는 빨리 제외되게
+---
 
-균형을 잡는 것입니다.
+## 🩺 3. Liveness vs Readiness (이중 헬스체크)
 
-## 4) 배포/종료와 연결하기: 드레이닝(연결 빼기)
+Kubernetes나 최신 프레임워크는 헬스체크를 두 단계로 나눕니다.
 
-헬스체크는 배포와 강하게 연결됩니다.
+### 3-1. Liveness Probe (생존 확인)
+- **목적**: "프로세스가 살아있는가?"
+- **실패 시**: **컨테이너 재시작 (Restart)**
+- **체크 로직**: 데드락 걸렸는지, 메인 스레드 죽었는지 확인.
 
-- 새 버전이 올라온 직후: 준비가 되기 전까지 readiness를 실패시키면 트래픽을 받지 않습니다.
-- 종료 직전: readiness를 먼저 실패시키고(타깃 제외), 기존 연결을 일정 시간 드레인한 뒤 종료하면 5xx를 줄일 수 있습니다.
+### 3-2. Readiness Probe (준비 확인)
+- **목적**: "트래픽 받을 준비 됐어?"
+- **실패 시**: **로드밸런서에서 제외 (Traffic Cut)**
+- **체크 로직**: DB 연결 됐는지, 초기 데이터 로딩 끝났는지 확인.
 
-Spring Boot(개념):
+> ⚠️ **주의**: Liveness에 DB 체크를 넣지 마세요!
+> DB가 잠깐 느려졌다고 멀쩡한 웹 서버를 **재시작**시켜버리는 대참사가 일어납니다. (Cascading Failure)
 
-```yaml
-server:
-  shutdown: graceful
-spring:
-  lifecycle:
-    timeout-per-shutdown-phase: 30s
-```
+---
 
-## 5) 자주 터지는 실수(운영 디버깅 포인트)
+## ⏱️ 4. Flapping (깜빡임) 현상 막기
 
-- 헬스체크 경로에 인증이 걸려 401/403이 나서 전부 비정상 처리
-- 헬스체크가 DB/외부 API에 강하게 의존해 “의존성 장애 → 서비스 타깃 전부 제외”로 확대
-- 타임아웃/스레드풀 포화로 체크 응답이 늦어져 flapping 발생(특히 피크 시간대)
-- LB idle timeout과 애플리케이션 keep-alive/timeout 정책 불일치로 502/504 증가
-- NLB TCP 체크는 “포트가 열림”만 확인해 HTTP 레벨 오류를 놓치는 경우(필요하면 HTTP 체크/애플리케이션 레벨 검증을 병행)
+헬스체크가 너무 민감하면, 잠깐의 GC 멈춤에도 서버가 뺐다 꼈다를 반복합니다.
 
-## 연습(추천)
+- **Threshold**: 실패를 **3회 연속** 감지해야 제외한다. (Unhealthy Threshold)
+- **Interval**: 10초마다 체크한다.
+- **Timeout**: 5초 안에 응답 없으면 실패.
 
-- readiness/liveness를 분리한 엔드포인트를 만들고, “DB가 잠깐 느려진 상황”에서 어떤 체크가 실패해야 안정적인지 실험해보기
-- unhealthy threshold를 1→3으로 바꾸며 flapping이 어떻게 줄어드는지 관찰해보기
-- 배포 시 “종료 직전 readiness 실패 → 드레인 → 종료” 흐름을 구현해, 배포 중 5xx가 줄어드는지 비교해보기
+**Golden Rule**:
+"제외는 빠를수록 좋고(사용자 에러 방지), 복귀는 보수적일수록 좋다(확실히 나았을 때 투입)."
+
+## 요약
+
+1. **의미**: 헬스체크는 트래픽 스위치다.
+2. **L4 vs L7**: 성능/고정IP는 NLB, 기능/웹은 ALB.
+3. **Probe 분리**: 재시작용(Liveness)과 제외용(Readiness)을 구분해라.
+4. **설정**: 너무 예민하게 설정하면 멀쩡한 서버가 널뛰기(Flapping)한다.

@@ -1315,83 +1315,66 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Projects 드롭다운 메뉴 JavaScript 기능
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('헤더 JavaScript 로드됨');
-    
     const dropdownMenu = document.querySelector('.dropdown-menu');
     const dropdownContent = document.querySelector('.dropdown-content');
     
-    console.log('드롭다운 요소 검색 결과:', {
-        dropdownMenu: !!dropdownMenu,
-        dropdownContent: !!dropdownContent
+    // 메뉴 링크 요소 찾기 (a 태그)
+    const menuLink = dropdownMenu.querySelector('a');
+    
+    if (menuLink) {
+        // 클릭 이벤트로 드롭다운 토글 (모바일에서만)
+        menuLink.addEventListener('click', (e) => {
+            // 모바일에서만 preventDefault하고 드롭다운 토글
+            if (window.innerWidth <= 768) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const isActive = dropdownContent.classList.contains('active');
+                console.log('모바일 드롭다운 클릭됨. 현재 상태:', isActive ? '열림' : '닫힘');
+                
+                // 다른 열린 드롭다운 닫기
+                document.querySelectorAll('.dropdown-content.active').forEach(dropdown => {
+                    if (dropdown !== dropdownContent) {
+                        dropdown.classList.remove('active');
+                        dropdown.closest('.dropdown-menu').classList.remove('active');
+                    }
+                });
+                
+                // 현재 드롭다운 토글
+                dropdownContent.classList.toggle('active');
+                dropdownMenu.classList.toggle('active');
+                
+                console.log('모바일 드롭다운 상태 변경:', dropdownContent.classList.contains('active') ? '열림' : '닫힘');
+            }
+            // 데스크톱에서는 일반 링크로 작동 (preventDefault 하지 않음)
+        });
+    }
+    
+    // 외부 클릭 시 드롭다운 닫기
+    document.addEventListener('click', (e) => {
+        if (!dropdownMenu.contains(e.target)) {
+            dropdownContent.classList.remove('active');
+            dropdownMenu.classList.remove('active');
+        }
     });
     
-    if (dropdownMenu && dropdownContent) {
-        console.log('Projects 드롭다운 요소를 찾았습니다.');
-        
-        // 메뉴 링크 요소 찾기 (a 태그)
-        const menuLink = dropdownMenu.querySelector('a');
-        
-        if (menuLink) {
-            // 클릭 이벤트로 드롭다운 토글 (모바일에서만)
-            menuLink.addEventListener('click', (e) => {
-                // 모바일에서만 preventDefault하고 드롭다운 토글
-                if (window.innerWidth <= 768) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    
-                    const isActive = dropdownContent.classList.contains('active');
-                    console.log('모바일 드롭다운 클릭됨. 현재 상태:', isActive ? '열림' : '닫힘');
-                    
-                    // 다른 열린 드롭다운 닫기
-                    document.querySelectorAll('.dropdown-content.active').forEach(dropdown => {
-                        if (dropdown !== dropdownContent) {
-                            dropdown.classList.remove('active');
-                            dropdown.closest('.dropdown-menu').classList.remove('active');
-                        }
-                    });
-                    
-                    // 현재 드롭다운 토글
-                    dropdownContent.classList.toggle('active');
-                    dropdownMenu.classList.toggle('active');
-                    
-                    console.log('모바일 드롭다운 상태 변경:', dropdownContent.classList.contains('active') ? '열림' : '닫힘');
-                }
-                // 데스크톱에서는 일반 링크로 작동 (preventDefault 하지 않음)
-            });
+    // 드롭다운 내부 링크 클릭 시 드롭다운 닫기
+    dropdownContent.addEventListener('click', (e) => {
+        if (e.target.tagName === 'A' || e.target.closest('a')) {
+            setTimeout(() => {
+                dropdownContent.classList.remove('active');
+                dropdownMenu.classList.remove('active');
+            }, 100);
         }
-        
-        // 외부 클릭 시 드롭다운 닫기
-        document.addEventListener('click', (e) => {
-            if (!dropdownMenu.contains(e.target)) {
-                dropdownContent.classList.remove('active');
-                dropdownMenu.classList.remove('active');
-            }
-        });
-        
-        // 드롭다운 내부 링크 클릭 시 드롭다운 닫기
-        dropdownContent.addEventListener('click', (e) => {
-            if (e.target.tagName === 'A' || e.target.closest('a')) {
-                setTimeout(() => {
-                    dropdownContent.classList.remove('active');
-                    dropdownMenu.classList.remove('active');
-                }, 100);
-            }
-        });
-        
-        // ESC 키로 드롭다운 닫기
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                dropdownContent.classList.remove('active');
-                dropdownMenu.classList.remove('active');
-            }
-        });
-        
-        console.log('Projects 드롭다운 이벤트 리스너 등록 완료');
-    } else {
-        console.log('Projects 드롭다운 요소를 찾을 수 없습니다.');
-        console.log('사용 가능한 메뉴 항목들:', 
-            Array.from(document.querySelectorAll('#menu li')).map(li => li.textContent.trim()));
-    }
+    });
+    
+    // ESC 키로 드롭다운 닫기
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            dropdownContent.classList.remove('active');
+            dropdownMenu.classList.remove('active');
+        }
+    });
     
     // 모바일 메뉴 외부 클릭 시 닫기
     document.addEventListener('click', (e) => {

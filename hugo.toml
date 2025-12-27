@@ -44,6 +44,7 @@ relativeURLs = false
   ShowToc = true
   TocOpen = true
   showTagsOnHome = true
+  mermaid = true
   
   # 성능 최적화 관련 설정
   enableSearch = true
@@ -143,3 +144,5 @@ sidebar = ""
 content = ""
 banner = ""
 footer = ""
+
+

@@ -42,6 +42,16 @@ aliases:
    - 모듈/도메인/분리 전략부터 컷오버/마이그레이션, 실시간/이벤트 기반 설계까지 확장합니다.
 6. [6단계: 복습(Q&A)](/learning/career/backend-qna-phase/)  
    - 각 단계에서 부딪히는 질문을 짧고 정확하게 다시 꺼내볼 수 있게 정리합니다.
+7. [7단계: 보안 (Security Specialist)](/learning/career/backend-security-phase/)  
+   - OWASP, TLS, 암호화 등 안전한 서비스를 만들기 위한 필수 보안 지식을 다룹니다.
+8. [8단계: 컴퓨터 공학 심화 (Deep CS)](/learning/career/backend-advanced-cs-phase/)  
+   - 분산 정합성, DB 엔진 원리, OS I/O 등 시니어 레벨의 이론적 깊이를 다룹니다.
+9. [9단계: 현대적 백엔드 기술 (Modern Frontiers)](/learning/career/backend-modern-frontiers/)  
+   - Vector DB(AI), HTTP/3(QUIC), Serverless 내부 구조 등 최신 기술의 엔지니어링 원리를 파헤칩니다.
+10. [10단계: 아키텍처 마스터리 (Architecture Mastery)](/learning/career/backend-architecture-mastery/)  
+    - 분산 트랜잭션(SAGA), 샤딩(Consistent Hashing), DDD Aggregate 등 규모 있는 시스템의 난제를 해결합니다.
+
+*(선택사항) [부록: 실습실 (Labs)](/learning/labs/) - 이론을 코드로 연습해보고 싶다면 참고하세요.*
 
 ## 어떻게 공부하면 좋은가 (읽고 끝내지 않기)
 
