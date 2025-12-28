@@ -1,5 +1,5 @@
 /* ========================================
-   모바일 가독성 개선 CSS (Updated V11 - Fixed Hero Overflow)
+   모바일 가독성 개선 CSS (Updated V12 - Fix Main Padding)
    모바일에서 출퇴근 시 읽기 좋게 최적화
    ======================================== */
 
@@ -32,10 +32,11 @@
         box-sizing: border-box !important;
     }
 
-    /* 메인 패딩 조정 */
+    /* 메인 패딩 조정 (헤더 높이 고려하여 상단 여백 확보) */
     .main {
-        padding: 0 16px !important;
-        /* 좌우 여백 조금 더 확보 */
+        padding: 70px 16px 0 !important;
+        /* 상단 70px, 좌우 16px */
+        min-height: calc(100vh - 60px);
     }
 
     .post-content {
