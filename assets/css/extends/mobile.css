@@ -1,5 +1,5 @@
 /* ========================================
-   모바일 가독성 개선 CSS (Updated V12 - Fix Main Padding)
+   모바일 가독성 개선 CSS (Updated V13 - Fix Double Padding)
    모바일에서 출퇴근 시 읽기 좋게 최적화
    ======================================== */
 
@@ -32,12 +32,27 @@
         box-sizing: border-box !important;
     }
 
-    /* 메인 패딩 조정 (헤더 높이 고려하여 상단 여백 확보) */
-    .main {
-        padding: 70px 16px 0 !important;
-        /* 상단 70px, 좌우 16px */
+    /* 헤더 겹침 방지 (중첩 구조 고려) */
+    /* 1. 래퍼용 div.main에만 상단 여백 부여 */
+    div.main {
+        padding: 60px 16px 0 !important;
+        /* 헤더(56px) + 여유분 */
         min-height: calc(100vh - 60px);
     }
+
+    /* 2. 내부 컨텐츠용 main.main은 상단 여백 제거 (중첩 방지) */
+    main.main {
+        padding-top: 0 !important;
+        padding-left: 0 !important;
+        /* div.main에서 이미 줌 */
+        padding-right: 0 !important;
+    }
+
+    /* 만약 div.main 없이 main.main만 있는 케이스를 위한 대비가 필요하다면? 
+       일단 현재 이슈인 홈 화면(div>main) 구조에 맞춤. 
+       혹시 main.main만 단독으로 쓰이는 페이지가 있다면 거기선 패딩이 0이 될 수도 있음.
+       하지만 PaperMod 테마 특성상 .main 클래스가 중첩되는 경우가 많음. 
+    */
 
     .post-content {
         font-size: 16px;
