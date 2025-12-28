@@ -1,5 +1,5 @@
 /* ========================================
-   모바일 가독성 개선 CSS (Updated V14 - Robust Padding Fix)
+   모바일 가독성 개선 CSS (Updated V15 - Fix Broken Title)
    모바일에서 출퇴근 시 읽기 좋게 최적화
    ======================================== */
 
@@ -471,22 +471,33 @@
         /* 중요: Flex Item 축소 허용 */
     }
 
-    /* 제목: 적당한 크기, 마진 제거, 말줄임 */
+    /* 제목: 긴 제목 처리 (2줄 허용, 배지 제거로 공간 확보) */
     .learning-hero .hero-content h1 {
         font-size: 1.2rem !important;
         margin: 0 !important;
-        line-height: 1.2 !important;
+        line-height: 1.25 !important;
         min-width: 0 !important;
         /* 중요: Flex Item 축소 허용 */
         flex: 1;
         /* 남은 공간 차지 */
+        /* 줄바꿈 허용 (white-space: normal) */
+        white-space: normal !important;
+        /* 넘치면 숨김 (안전망) */
         overflow: hidden;
         text-overflow: ellipsis;
-        white-space: nowrap;
+        /* 최대 2줄까지만 표시 (Webkit Line Clamp) */
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
     }
 
     /* 설명글: 공간 절약을 위해 숨김 */
     .learning-hero .hero-content p {
+        display: none !important;
+    }
+
+    /* 배지: 제목 공간 확보를 위해 모바일에서 숨김 */
+    .hero-badges {
         display: none !important;
     }
 
