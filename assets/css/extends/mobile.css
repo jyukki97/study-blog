@@ -1,5 +1,5 @@
 /* ========================================
-   모바일 가독성 개선 CSS (Updated V9 - with Micro Hero Header)
+   모바일 가독성 개선 CSS (Updated V11 - Fixed Hero Overflow)
    모바일에서 출퇴근 시 읽기 좋게 최적화
    ======================================== */
 
@@ -416,53 +416,84 @@
 }
 
 /* ========================================
-   13. 커스텀 히어로 섹션 및 헤더 최적화 (Micro-Size for Mobile)
+   13. 커스텀 히어로 섹션 및 헤더 최적화 (Nano-Size Flex Row)
    ======================================== */
 @media (max-width: 768px) {
 
-    /* Learning Timeline 등 히어로 박스 초소형화 */
+    /* 부모 컨테이너: 패딩 축소 */
     .learning-hero {
-        padding: 16px 16px 12px !important;
-        /* 위쪽 16, 아래쪽 12 */
-        margin-bottom: 12px !important;
-        /* 본문과의 간격 최소화 */
+        padding: 12px 16px !important;
+        margin-bottom: 16px !important;
         min-height: auto !important;
-        text-align: center;
-        /* 중앙 정렬로 안정감 */
+        border-bottom: 1px solid var(--border);
     }
 
-    /* 제목 폰트: 1.6 -> 1.35rem (약 21px) */
-    .learning-hero .hero-content h1 {
-        font-size: 1.35rem !important;
-        margin-bottom: 0.25rem !important;
+    /* Flex Row 레이아웃: 가로 배치로 변경 */
+    .learning-hero .hero-content {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 12px !important;
+        text-align: left !important;
+        width: 100% !important;
     }
 
-    /* 설명글 폰트: 0.95 -> 0.85rem, 여백 최소화 */
-    .learning-hero .hero-content p {
-        font-size: 0.85rem !important;
-        line-height: 1.4;
-        margin-bottom: 0.5rem !important;
-        opacity: 0.9;
-    }
-
-    /* 버튼 크기: 더 작게 */
-    .learning-hero .hero-btn {
-        padding: 0.4rem 0.8rem !important;
-        font-size: 0.85rem !important;
-        margin-top: 4px;
-    }
-
-    /* 아이콘이 있다면 크기 제한 */
+    /* 아이콘: 작게 고정 (div.hero-icon 포함) */
     .learning-hero .hero-content svg,
-    .learning-hero .hero-content img {
-        max-width: 40px !important;
-        max-height: 40px !important;
-        margin-bottom: 0.5rem !important;
+    .learning-hero .hero-content img,
+    .learning-hero .hero-content .hero-icon {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 24px !important;
+        /* 이모지 대응 */
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 0 !important;
+        flex-shrink: 0;
+    }
+
+    /* 텍스트 래퍼 (Title) */
+    .hero-text-wrapper {
+        flex: 1;
+        min-width: 0 !important;
+        /* 중요: Flex Item 축소 허용 */
+    }
+
+    /* 제목: 적당한 크기, 마진 제거, 말줄임 */
+    .learning-hero .hero-content h1 {
+        font-size: 1.2rem !important;
+        margin: 0 !important;
+        line-height: 1.2 !important;
+        min-width: 0 !important;
+        /* 중요: Flex Item 축소 허용 */
+        flex: 1;
+        /* 남은 공간 차지 */
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    /* 설명글: 공간 절약을 위해 숨김 */
+    .learning-hero .hero-content p {
+        display: none !important;
+    }
+
+    /* 버튼: 작고 인라인으로 */
+    .learning-hero .hero-btn,
+    .learning-hero .hero-actions {
+        padding: 6px 10px !important;
+        font-size: 0.8rem !important;
+        margin: 0 !important;
+        height: auto !important;
+        white-space: nowrap;
+        flex-shrink: 0;
     }
 
     /* 일반 리스트 페이지 헤더 축소 (.page-header) */
     .page-header h1 {
-        font-size: 1.5rem !important;
+        font-size: 1.4rem !important;
     }
 
     .page-header {
@@ -479,7 +510,7 @@
 
     /* 타임라인 컨테이너 */
     .timeline-container {
-        padding: 0 8px !important;
+        padding: 0 !important;
     }
 
     /* 네비게이션 버튼 축소 */
