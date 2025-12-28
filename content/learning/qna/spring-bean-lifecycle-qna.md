@@ -1,6 +1,7 @@
 ---
 title: "Spring Bean Lifecycle 정리"
-date: 2025-01-25
+study_order: 716
+date: 2025-12-01
 topic: "Spring"
 topic_icon: "💬"
 topic_description: "Spring Bean 생성 순서, Proxy 객체, @Configuration 관련 핵심 개념과 실전 예제 정리"
@@ -18,28 +19,21 @@ Spring Bean은 **컨테이너 시작 → 생성 → 의존성 주입 → 초기�
 
 **상세 생명주기**:
 
-```
-1. 스프링 컨테이너 생성
-   ↓
-2. 스프링 빈 생성 (인스턴스화)
-   ↓
-3. 의존성 주입 (DI)
-   ↓
-4. @PostConstruct 실행
-   ↓
-5. InitializingBean.afterPropertiesSet() 실행
-   ↓
-6. @Bean(initMethod) 실행
-   ↓
-7. 빈 사용
-   ↓
-8. @PreDestroy 실행
-   ↓
-9. DisposableBean.destroy() 실행
-   ↓
-10. @Bean(destroyMethod) 실행
-   ↓
-11. 스프링 컨테이너 종료
+```mermaid
+flowchart TD
+    A[스프링 컨테이너 생성] --> B[스프링 빈 생성]
+    B --> C[의존성 주입 - DI]
+    C --> D["@PostConstruct"]
+    D --> E["InitializingBean.afterPropertiesSet()"]
+    E --> F["@Bean(initMethod)"]
+    F --> G[빈 사용]
+    G --> H["@PreDestroy"]
+    H --> I["DisposableBean.destroy()"]
+    I --> J["@Bean(destroyMethod)"]
+    J --> K[스프링 컨테이너 종료]
+    
+    style D fill:#e8f5e9,stroke:#2e7d32
+    style H fill:#ffebee,stroke:#c62828
 ```
 
 **코드 예시**:
@@ -642,3 +636,12 @@ spring:
 - 트랜잭션은 별도 클래스로 분리
 - @Configuration(proxyBeanMethods=false)로 성능 개선
 - 프로덕션에서는 Eager 초기화 권장
+
+---
+
+## 🔗 Related Deep Dive
+
+더 깊이 있는 학습을 원한다면 심화 과정을 참고하세요:
+
+- **[Spring 빈 스코프](/learning/deep-dive/deep-dive-spring-bean-scopes/)**: Singleton vs Prototype, Proxy 패턴 시각화.
+- **[Spring AOP 내부 동작](/learning/deep-dive/deep-dive-spring-aop-transaction-internals/)**: CGLIB vs JDK Dynamic Proxy 비교.

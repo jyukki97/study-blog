@@ -10,7 +10,7 @@ weight: 10
 study_order: 100
 layout: "learning-module"
 module_key: "modern-frontiers"
-url: "/learning/career/backend-modern-frontiers/"
+url: "/learning/modules/backend-modern-frontiers/"
 ---
 
 ## 이 단계에서 얻는 것

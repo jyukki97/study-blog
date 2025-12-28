@@ -7,7 +7,7 @@ tags: ["Java", "Collection", "ArrayList", "HashMap", "HashSet", "Performance"]
 categories: ["Backend Deep Dive"]
 description: "ArrayList vs LinkedList, HashMap vs TreeMap, 언제 어떤 컬렉션을 선택할지 성능과 특성 기준으로 정리"
 module: "foundation"
-study_order: 15
+study_order: 103
 ---
 
 ## 이 글에서 얻는 것

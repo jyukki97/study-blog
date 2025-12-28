@@ -6,8 +6,8 @@ topic: "Networking"
 tags: ["Load Balancer", "Health Check", "ALB", "NLB"]
 categories: ["DevOps"]
 description: "ALB/NLB 선택 기준, 헬스체크 실패 시 트래픽 흐름, 타임아웃/리트라이로 인한 장애 전파 차단"
-module: "ops-observability"
-study_order: 375
+module: "resilience"
+study_order: 503
 ---
 
 ## 💓 1. 헬스체크는 '생존 확인'이 아니라 '신호등'이다
@@ -16,22 +16,24 @@ study_order: 375
 헬스체크는 **"지금 트래픽을 받아도 되는가?"**를 묻는 것입니다.
 
 ```mermaid
-sequenceDiagram
-    participant LB as Load Balancer
-    participant App as Application
+stateDiagram-v2
+    direction LR
     
-    loop Health Check (매 10초)
-        LB->>App: GET /health (살았니?)
-        App-->>LB: 200 OK (응!)
-    end
+    state "Healthy (In Service)" as Healthy
+    state "Unhealthy (Out of Service)" as Unhealthy
     
-    Note over App: DB Connection Pool 고갈 발생! 😱
+    [*] --> Healthy : Initial Check Pass
     
-    LB->>App: GET /health
-    App-->>LB: 500 Error (나 아파)
+    Healthy --> Healthy : Check OK (200)
+    Healthy --> Unhealthy : Check Fail x Threshold
     
-    Note over LB: Target Group에서 제외 🚫 (트래픽 차단)
-    LB->>App: (더 이상 사용자 트래픽 안 보냄)
+    Unhealthy --> Unhealthy : Check Fail
+    Unhealthy --> Healthy : Check OK x Threshold
+    
+    note right of Unhealthy
+        Traffic blocked
+        Draining active
+    end note
 ```
 
 이 "제외(Draining)" 과정이 얼마나 빠르고 정확하냐가 고가용성을 결정합니다.
@@ -65,6 +67,22 @@ Kubernetes나 최신 프레임워크는 헬스체크를 두 단계로 나눕니�
 - **목적**: "트래픽 받을 준비 됐어?"
 - **실패 시**: **로드밸런서에서 제외 (Traffic Cut)**
 - **체크 로직**: DB 연결 됐는지, 초기 데이터 로딩 끝났는지 확인.
+
+```mermaid
+graph TD
+    subgraph "Liveness Check (Kubelet)"
+    L[Liveness Probe] -->|Fail| R[Restart Container]
+    R -->|New Process| P[Pod Running]
+    end
+    
+    subgraph "Readiness Check (Service)"
+    Req[Readiness Probe] -->|Fail| NB[Remove Endpoint]
+    NB -->|Block Traffic| EP[Service LoadBalancer]
+    end
+    
+    style R fill:#ffcdd2,stroke:#c62828
+    style NB fill:#fff9c4,stroke:#fbc02d
+```
 
 > ⚠️ **주의**: Liveness에 DB 체크를 넣지 마세요!
 > DB가 잠깐 느려졌다고 멀쩡한 웹 서버를 **재시작**시켜버리는 대참사가 일어납니다. (Cascading Failure)

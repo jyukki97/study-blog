@@ -6,8 +6,8 @@ topic: "Distributed Systems"
 tags: ["Distributed Transaction", "SAGA", "2PC", "Microservices"]
 categories: ["Backend Deep Dive"]
 description: "마이크로서비스 환경에서 데이터 정합성을 어떻게 보장할까요? 강한 일관성(2PC)의 한계와 결과적 일관성(SAGA) 패턴의 구현 방법을 다룹니다."
-module: "architecture-mastery"
-study_order: 1101
+module: "distributed-system"
+study_order: 403
 ---
 
 ## 🤯 1. 문제: 서비스가 쪼개지면 트랜잭션도 깨진다
@@ -41,22 +41,33 @@ graph LR
 
 ```mermaid
 sequenceDiagram
-    participant Coordinator
-    participant OrderDB
-    participant StockDB
+    autonumber
+    participant Coord as Coordinator
+    participant DB1 as OrderDB
+    participant DB2 as StockDB
     
-    Note over Coordinator: Phase 1: Prepare
-    Coordinator->>OrderDB: Prepare? (Lock)
-    Coordinator->>StockDB: Prepare? (Lock)
-    OrderDB-->>Coordinator: Yes
-    StockDB-->>Coordinator: Yes
+    Note over Coord, DB2: Phase 1: Prepare (Locking)
+    Coord->>DB1: Prepare (Lock Row)
+    Coord->>DB2: Prepare (Lock Row)
+    DB1-->>Coord: OK
+    DB2-->>Coord: OK
     
-    Note over Coordinator: Phase 2: Commit
-    Coordinator->>OrderDB: Commit!
-    Coordinator->>StockDB: Commit!
+    Note over Coord, DB2: Phase 2: Commit (Finalize)
+    Coord->>DB1: Commit (Release Lock)
+    Coord->>DB2: Commit (Release Lock)
+    DB1-->>Coord: Done
+    DB2-->>Coord: Done
 ```
 
-### 왜 안 쓸까?
+### 왜 안 쓸까? (2PC vs Saga)
+
+| 특징 | 2PC (XA) | Saga Pattern |
+| :--- | :--- | :--- |
+| **일관성** | **Strong Consistency** (즉시 일치) | **Eventual Consistency** (결과적 일치) |
+| **성능** | 낮음 (Global Locking, Blocking) | 높음 (Local Tx, Non-blocking) |
+| **구현 난이도** | 낮음 (DB가 알아서 해줌) | 높음 (보상 트랜잭션 직접 구현) |
+| **사용처** | 금융 코어, 강한 정합성 필요 시 | 대부분의 MSA 비즈니스 로직 |
+
 1.  **Blocking**: 한 놈이라도 대답이 늦으면 전체가 멈춥니다. (Deadlock 위험)
 2.  **SPOF**: 코디네이터가 죽으면 DB 락이 영원히 안 풀릴 수 있습니다.
 3.  **NoSQL 불가**: MongoDB, DynamoDB 등은 XA를 지원하지 않습니다.
@@ -95,20 +106,41 @@ sequenceDiagram
 **Saga Orchestrator**라는 중앙 지휘자가 명령을 내립니다.
 
 ```mermaid
-graph TD
-    Orchestrator[Saga Orchestrator] -->|1. Create Order| Order[Order Service]
-    Orchestrator -->|2. Decrease Stock| Stock[Inventory Service]
-    Orchestrator -->|3. Process Payment| Pay[Payment Service]
+flowchart TD
+    Orchestrator[Saga Orchestrator]
     
-    Pay -.->|Fail| Orchestrator
-    Orchestrator -.->|Compensate: Rollback Stock| Stock
-    Orchestrator -.->|Compensate: Cancel Order| Order
+    subgraph Services
+    Order[Order Service]
+    Stock[Stock Service]
+    Pay[Payment Service]
+    end
+    
+    %% Forward Flow
+    Orchestrator -->|1. Create Order| Order
+    Orchestrator -->|2. Decrease Stock| Stock
+    Orchestrator -->|3. Process Payment| Pay
+    
+    %% Failure Flow
+    Pay -.->|Fail!| Orchestrator
+    
+    %% Compensation Flow
+    Orchestrator -.->|Undo: Rollback Stock| Stock
+    Orchestrator -.->|Undo: Cancel Order| Order
+    
+    style Pay fill:#ffcdd2,stroke:#d32f2f,stroke-dasharray: 5 5
+    style Orchestrator fill:#e3f2fd,stroke:#2196f3
 ```
 
 - **장점**: 비즈니스 로직이 한눈에 보입니다. 관리가 쉽습니다.
 - **단점**: 오케스트레이터가 너무 비대해질 수 있습니다.
 
 ## 요약
+
+> [!TIP]
+> **Saga Pattern Checklist**:
+> - [ ] **Idempotency (멱등성)**: 보상 트랜잭션이 중복 실행되어도 결과는 같아야 함. (네트워크 타임아웃 대비)
+> - [ ] **Compensation (보상)**: `do()`에 대한 `undo()` 로직이 반드시 존재해야 함.
+> - [ ] **Monitoring**: 트랜잭션 상태(Started, Pending, Aborted)를 추적할 수 있어야 함. (Saga ID 필수)
 
 1. **ACID는 포기해라**: MSA에서는 **BASE** (Basically Available, Soft state, Eventual consistency)를 따릅니다.
 2. **2PC는 성능의 적**: 강한 정합성이 필수(은행 등)가 아니면 피하세요.

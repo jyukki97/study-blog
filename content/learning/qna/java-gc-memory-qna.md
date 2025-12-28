@@ -1,6 +1,7 @@
 ---
 title: "Java GC & 메모리 구조 정리"
-date: 2025-01-18
+study_order: 709
+date: 2025-12-01
 topic: "Java"
 topic_icon: "💬"
 topic_description: "Java GC, Heap/Stack, OutOfMemoryError 관련 핵심 개념과 실전 예제 정리"
@@ -90,16 +91,28 @@ GC는 **Heap 메모리에서 더 이상 참조되지 않는 객체를 자동으�
 
 **Generational GC 개념**:
 
-```
-┌─────────────────────────────────────────────────────┐
-│ Young Generation (Minor GC)                         │
-│  ┌──────────┬──────────┬──────────┐                │
-│  │  Eden    │ S0 (From)│ S1 (To)  │                │
-│  └──────────┴──────────┴──────────┘                │
-└─────────────────────────────────────────────────────┘
-┌─────────────────────────────────────────────────────┐
-│ Old Generation (Major GC / Full GC)                 │
-└─────────────────────────────────────────────────────┘
+```mermaid
+block-beta
+  columns 1
+  
+  block:Young["Young Generation (Minor GC)"]
+    columns 3
+    Eden["Eden"]
+    S0["S0 (From)"]
+    S1["S1 (To)"]
+  end
+  
+  block:Old["Old Generation (Major GC / Full GC)"]
+    columns 1
+    O["Old Objects"]
+  end
+
+  Eden --> S0
+  S0 --> S1
+  S1 --> O
+
+  style Young fill:#e8f5e9,stroke:#2e7d32
+  style Old fill:#fff3e0,stroke:#f57c00
 ```
 
 **동작 과정**:
@@ -497,3 +510,12 @@ public void cleanupOldEvents() {
 - **JVM Specification**: https://docs.oracle.com/javase/specs/jvms/se17/html/
 - **GC Tuning Guide**: https://docs.oracle.com/en/java/javase/17/gctuning/
 - **Eclipse MAT Tutorial**: https://help.eclipse.org/latest/topic/org.eclipse.mat.ui.help/welcome.html
+
+---
+
+## 🔗 Related Deep Dive
+
+더 깊이 있는 학습을 원한다면 심화 과정을 참고하세요:
+
+- **[Java GC 기본](/learning/deep-dive/deep-dive-java-gc/)**: 세대별 GC와 로그 분석.
+- **[Java 동시성](/learning/deep-dive/deep-dive-java-concurrency-basics/)**: 스레드, synchronized, volatile 시각화.

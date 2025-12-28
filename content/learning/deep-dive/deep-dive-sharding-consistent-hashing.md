@@ -6,8 +6,8 @@ topic: "Database"
 tags: ["Sharding", "Consistent Hashing", "Database Scaling", "Snowflake"]
 categories: ["Backend Deep Dive"]
 description: "DB 데이터를 여러 서버에 나누는 샤딩 전략과, 서버 증설 시 데이터 이동을 최소화하는 Consistent Hashing 알고리즘 설명."
-module: "architecture-mastery"
-study_order: 1102
+module: "distributed-system"
+study_order: 405
 ---
 
 ## 🍕 1. 샤딩(Sharding): 데이터를 조각내자
@@ -34,6 +34,15 @@ After  (Mod 4): 3 % 4 = 3번 서버
 
 > ⚠️ **재앙(Rebalancing)**: 서버 대수가 바뀌면 **거의 모든 데이터가 이동**해야 합니다. 서비스 중단 없이는 불가능합니다.
 
+### Modular vs Consistent Hashing
+
+| 특징 | Modular Hashing | Consistent Hashing |
+| :--- | :--- | :--- |
+| **규칙** | `Key % N` | `Hash(Key)`의 링 위 위치 |
+| **서버 추가 시** | **전체 데이터**의 약 `100%` 이동 | **일부 데이터** (`1/N`)만 이동 |
+| **유연성** | 매우 낮음 (서버 수 고정 권장) | 매우 높음 (Elastic Scaling) |
+| **복잡도** | 낮음 | 중간 (링 관리, 가상 노드) |
+
 ---
 
 ## 🍩 2. Consistent Hashing (일관된 해싱)
@@ -45,14 +54,23 @@ After  (Mod 4): 3 % 4 = 3번 서버
 
 ```mermaid
 graph TD
-    subgraph HashRing
-    N1((Node A)) --- N2((Node B))
-    N2 --- N3((Node C))
-    N3 --- N1
+    subgraph Ring ["Hash Ring (0 ~ 2^32)"]
+        N1((Node A: 100))
+        N2((Node B: 300))
+        N3((Node C: 600))
+        
+        N1 --- N2
+        N2 --- N3
+        N3 --- N1
     end
     
-    Data1[Data K1] --> N2
-    Data2[Data K2] --> N1
+    Data1[Key 1: Hash 150] -->|Clockwise ->| N2
+    Data2[Key 2: Hash 400] -->|Clockwise ->| N3
+    Data3[Key 3: Hash 800] -->|Clockwise ->| N1
+    
+    style N1 fill:#ffccbc,stroke:#d84315
+    style N2 fill:#ffe0b2,stroke:#ef6c00
+    style N3 fill:#fff9c4,stroke:#fbc02d
 ```
 
 1. 커다란 원(해시 링)을 상상하세요. (0 ~ 2^32)
@@ -69,6 +87,24 @@ graph TD
 
 > **결과**: 데이터 이동량이 `1/N`로 획기적으로 줄어듭니다.
 
+### 2.2 가상 노드 (Virtual Nodes)
+"운 나쁘게 Node A, B, C가 한쪽에 쏠려 있으면 어떡하죠?" (Data Skew)
+-> **가짜 노드**를 수백 개 만들어서 링 전체에 뿌립니다.
+
+```mermaid
+graph TD
+    subgraph VirtualRing ["Virtual Nodes Spread"]
+        A1((A-1)) --- B1((B-1))
+        B1 --- C1((C-1))
+        C1 --- A2((A-2))
+        A2 --- B2((B-2))
+        B2 --- C2((C-2))
+        C2 --- A1
+    end
+    
+    Note[Data is evenly distributed due to high variety of V-Nodes]
+```
+
 ---
 
 ## 🆔 3. 분산 ID 생성기 (Snowflake)
@@ -80,10 +116,17 @@ graph TD
 
 ```mermaid
 packet-beta
-0-15: "Sequence (12bit)"
-16-25: "Machine ID (10bit)"
-26-63: "Timestamp (41bit)"
+0-15: "Sequence (12bit)\n(동일 밀리초 내 순서)"
+16-25: "Machine ID (10bit)\n(서버 식별)"
+26-63: "Timestamp (41bit)\n(시간순 정렬)"
 ```
+
+| 필드 | 비트 수 | 설명 |
+| :--- | :--- | :--- |
+| **Sign Bit** | 1 bit | 양수 보장 (항상 0) |
+| **Timestamp** | 41 bit | 밀리초 단위 시간 (약 69년 사용 가능) |
+| **Machine ID** | 10 bit | 1024개의 노드 식별 가능 |
+| **Sequence** | 12 bit | 밀리초당 4096개 ID 생성 가능 |
 
 1. **Timestamp**: 시간순 정렬을 보장합니다. (Index 성능에 중요)
 2. **Machine ID**: 어느 서버에서 생성했는지 구분합니다.

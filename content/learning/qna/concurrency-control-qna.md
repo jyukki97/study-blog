@@ -1,6 +1,7 @@
 ---
 title: "동시성 제어 정리"
-date: 2025-01-13
+study_order: 704
+date: 2025-12-01
 topic: "Backend"
 tags: ["동시성", "Lock", "JPA", "낙관적락", "비관적락", "분산락"]
 categories: ["Backend"]
@@ -353,18 +354,27 @@ public class OrderService {
 
 **문제 상황**: 서버가 여러 대일 때 JPA 락만으로는 동시성 제어 불가능
 
-```
-┌─────────┐         ┌──────────┐
-│ Server1 │────────>│ Database │
-└─────────┘         └──────────┘
-                         ▲
-┌─────────┐              │
-│ Server2 │──────────────┘
-└─────────┘
-
-Server1: Product 재고 차감 (Lock 획득)
-Server2: 동시에 Product 재고 차감 (Lock 획득)
-→ JVM이 다르므로 락이 독립적으로 동작 → 동시성 문제!
+```mermaid
+flowchart LR
+    subgraph Servers
+        S1[Server 1]
+        S2[Server 2]
+    end
+    
+    subgraph Redis ["Redis (분산 락)"]
+        Lock["Lock: product:1"]
+    end
+    
+    DB[(Database)]
+    
+    S1 --> Lock
+    S2 --> Lock
+    Lock -.->|✅ 락 획득| S1
+    Lock -.->|⏳ 대기| S2
+    S1 --> DB
+    S2 -.->|락 해제 후| DB
+    
+    style Lock fill:#fff3e0,stroke:#f57c00
 ```
 
 **해결: 분산 락 (Distributed Lock)**
@@ -681,16 +691,35 @@ public class FallbackLockService {
 - 페일오버 중 락 정보 유실 가능
 
 **Redlock 알고리즘:**
+```mermaid
+flowchart LR
+    Client[Client]
+    
+    subgraph RedisCluster ["Redis Cluster"]
+        R1[Redis 1 ✅]
+        R2[Redis 2 ✅]
+        R3[Redis 3 ✅]
+        R4[Redis 4 ❌]
+        R5[Redis 5 ❌]
+    end
+    
+    Client --> R1
+    Client --> R2
+    Client --> R3
+    Client --> R4
+    Client --> R5
+    
+    style R1 fill:#e8f5e9,stroke:#2e7d32
+    style R2 fill:#e8f5e9,stroke:#2e7d32
+    style R3 fill:#e8f5e9,stroke:#2e7d32
+    style R4 fill:#ffebee,stroke:#c62828
+    style R5 fill:#ffebee,stroke:#c62828
 ```
-┌────────┐  ┌────────┐  ┌────────┐  ┌────────┐  ┌────────┐
-│Redis 1 │  │Redis 2 │  │Redis 3 │  │Redis 4 │  │Redis 5 │
-└────────┘  └────────┘  └────────┘  └────────┘  └────────┘
-    ✅          ✅          ✅          ❌          ❌
 
+**Redlock 알고리즘:**
 1. 5개의 독립적인 Redis 인스턴스에 락 요청
 2. 과반수(3개 이상) 획득 시 성공
 3. 실패 시 모든 락 해제
-```
 
 ```java
 // Redisson은 Redlock 지원
@@ -1782,3 +1811,13 @@ public class LockMonitor {
 - 분산 락: try-finally, leaseTime 설정
 - Redis-DB 동기화: 정기 배치, Eventual Consistency
 - Lock Monitoring: 오래된 락 감지 및 알림
+
+---
+
+## 🔗 Related Deep Dive
+
+더 깊이 있는 학습을 원한다면 심화 과정을 참고하세요:
+
+- **[MySQL 격리 수준과 락](/learning/deep-dive/deep-dive-mysql-isolation-locks/)**: Row Lock, Gap Lock, Deadlock 시각화.
+- **[분산 트랜잭션](/learning/deep-dive/deep-dive-distributed-transactions/)**: 2PC, SAGA 패턴 다이어그램.
+- **[Redis 캐싱](/learning/deep-dive/deep-dive-redis-caching/)**: 분산 락, Lua Script 활용.

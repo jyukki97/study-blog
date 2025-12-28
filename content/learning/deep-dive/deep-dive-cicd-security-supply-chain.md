@@ -7,7 +7,7 @@ tags: ["CI/CD", "Supply Chain", "SBOM", "Signing"]
 categories: ["DevOps"]
 description: "내 코드는 안전해도 빌드 도구가 해킹당하면? 소스부터 배포까지 신뢰 루프 만들기"
 module: "ops-observability"
-study_order: 395
+study_order: 602
 ---
 
 ## ⛓️ 1. 공급망 공격(Supply Chain Attack)이란?

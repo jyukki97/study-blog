@@ -1,6 +1,7 @@
 ---
 title: "Kafka Consumer Group 정리"
-date: 2025-01-20
+study_order: 711
+date: 2025-12-01
 topic: "Kafka"
 topic_icon: "💬"
 topic_description: "Kafka Consumer Group, Rebalance, Offset Commit 관련 핵심 개념과 실전 예제 정리"
@@ -25,21 +26,27 @@ module: "qna"
 
 **동작 방식**:
 
-```
-Topic: orders (Partition 4개)
-Consumer Group: order-processors (Consumer 2개)
-
-┌─────────────────────────────────────┐
-│ Topic: orders                       │
-├─────────────────────────────────────┤
-│ Partition 0: [msg1, msg2, msg3]    │ → Consumer A
-│ Partition 1: [msg4, msg5, msg6]    │ → Consumer A
-│ Partition 2: [msg7, msg8, msg9]    │ → Consumer B
-│ Partition 3: [msg10, msg11, msg12] │ → Consumer B
-└─────────────────────────────────────┘
-
-Consumer A: Partition 0, 1 처리
-Consumer B: Partition 2, 3 처리
+```mermaid
+flowchart LR
+    subgraph Topic ["Topic: orders"]
+        P0["Partition 0"]
+        P1["Partition 1"]
+        P2["Partition 2"]
+        P3["Partition 3"]
+    end
+    
+    subgraph Consumers ["Consumer Group: order-processors"]
+        A["Consumer A"]
+        B["Consumer B"]
+    end
+    
+    P0 --> A
+    P1 --> A
+    P2 --> B
+    P3 --> B
+    
+    style Topic fill:#e3f2fd,stroke:#1565c0
+    style Consumers fill:#e8f5e9,stroke:#2e7d32
 ```
 
 **코드 예시**:
@@ -804,3 +811,12 @@ public void processOrder(Order order) {
 - **Consumer Lag**: Consumer 증가, 배치 처리, Partition 증가
 - **잦은 Rebalance**: `max.poll.interval.ms` 조정, 별도 스레드 처리
 - **중복 처리**: 멱등성 보장 (Offset 기반 중복 체크)
+
+---
+
+## 🔗 Related Deep Dive
+
+더 깊이 있는 학습을 원한다면 심화 과정을 참고하세요:
+
+- **[Kafka 기초](/learning/deep-dive/deep-dive-kafka-foundations/)**: Topic, Partition, Consumer Group의 기본 개념.
+- **[Kafka 재시도/DLQ 설계](/learning/deep-dive/deep-dive-kafka-retry-dlq/)**: 실패 처리와 Dead Letter Queue 구현.

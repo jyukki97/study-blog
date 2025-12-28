@@ -1,6 +1,7 @@
 ---
 title: "DB 인덱스 최적화 정리"
-date: 2025-01-14
+study_order: 705
+date: 2025-12-01
 topic: "Database"
 topic_icon: "💬"
 topic_description: "DB 인덱스, B-Tree, 복합 인덱스, Index Scan 관련 핵심 개념과 실전 예제 정리"
@@ -843,3 +844,13 @@ DROP INDEX idx_user_id;
 - **실행 계획**: EXPLAIN ANALYZE로 인덱스 사용 확인
 - **통계 분석**: 컬럼별 선택도, 쿼리 패턴 분석
 - **인덱스 정리**: 미사용 인덱스 제거, 중복 인덱스 통합
+
+---
+
+## 🔗 Related Deep Dive
+
+더 깊이 있는 학습을 원한다면 심화 과정을 참고하세요:
+
+- **[인덱스 기본](/learning/deep-dive/deep-dive-database-indexing/)**: B-Tree 구조와 쿼리 성능 시각화.
+- **[스토리지 엔진 내부](/learning/deep-dive/deep-dive-database-engines-lsm/)**: B-Tree vs LSM-Tree 비교.
+- **[MySQL 격리 수준과 락](/learning/deep-dive/deep-dive-mysql-isolation-locks/)**: 인덱스 락과 데드락 문제.

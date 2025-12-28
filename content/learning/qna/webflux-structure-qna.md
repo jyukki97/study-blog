@@ -1,6 +1,7 @@
 ---
 title: "WebFlux 구조 정리"
-date: 2025-01-29
+study_order: 720
+date: 2025-12-01
 topic: "Spring"
 topic_icon: "💬"
 topic_description: "Mono/Flux 차이, subscribe 시점, Scheduler 종류에 대한 핵심 개념 정리"
@@ -18,18 +19,20 @@ module: "qna"
 
 **Flux**: **0개 이상 N개**의 데이터를 비동기로 처리하는 Publisher
 
-```
-Mono<T>
-  ↓
-onNext (0..1)
-  ↓
-onComplete / onError
-
-Flux<T>
-  ↓
-onNext (0..N)
-  ↓
-onComplete / onError
+```mermaid
+flowchart LR
+    subgraph Mono["Mono<T>"]
+        direction TB
+        M1["onNext (0..1)"] --> M2["onComplete / onError"]
+    end
+    
+    subgraph Flux["Flux<T>"]
+        direction TB
+        F1["onNext (0..N)"] --> F2["onComplete / onError"]
+    end
+    
+    style Mono fill:#e3f2fd,stroke:#1565c0
+    style Flux fill:#e8f5e9,stroke:#2e7d32
 ```
 
 **코드 예시**:
@@ -576,3 +579,12 @@ public Mono<User> findUser(Long id) {
 - flatMap으로 비동기 호출 체이닝
 - 순서가 중요하면 concatMap 사용
 - 에러 처리는 onErrorResume으로 Fallback 구현
+
+---
+
+## 🔗 Related Deep Dive
+
+더 깊이 있는 학습을 원한다면 심화 과정을 참고하세요:
+
+- **[Spring WebFlux](/learning/deep-dive/deep-dive-spring-webflux/)**: Reactor, Mono/Flux, Backpressure 시각화.
+- **[Spring MVC 요청 흐름](/learning/deep-dive/deep-dive-spring-mvc-request-lifecycle/)**: WebFlux와의 차이점 비교.

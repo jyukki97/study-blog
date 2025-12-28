@@ -12,9 +12,9 @@ weight: 0
 study_order: 0
 layout: "learning-module"
 module_key: "overview"
-url: "/learning/career/backend-curriculum-overview/"
+url: "/learning/modules/backend-curriculum-overview/"
 aliases:
-  - "/learning/career/backend-curriculum-overview/"
+  - "/learning/modules/backend-curriculum-overview/"
 ---
 
 ## 왜 이 커리큘럼인가?
@@ -30,25 +30,25 @@ aliases:
 
 아래 **단계(모듈)** 를 따라가면 “모르는 걸 모르는 상태”에서 “설계/운영까지 스스로 판단 가능한 상태”로 점진적으로 올라가게 됩니다.
 
-1. [1단계: 백엔드 기초 다지기](/learning/career/backend-foundation-phase/)  
+1. [1단계: 백엔드 기초 다지기](/learning/modules/backend-foundation-phase/)  
    - 언어/JVM/동시성/네트워크/OS/자료구조·알고리즘 기본기를 **현업 관점**으로 정리합니다.
-2. [2단계: 스프링 핵심 공략](/learning/career/backend-spring-core-phase/)  
+2. [2단계: 스프링 핵심 공략](/learning/modules/backend-spring-core-phase/)  
    - 스프링의 핵심 추상(DI/AOP/트랜잭션)과 테스트/JPA를 “왜/언제/어떻게”로 연결합니다.
-3. [3단계: 데이터베이스 & 시스템 설계](/learning/career/backend-data-system-phase/)  
+3. [3단계: 데이터베이스 & 시스템 설계](/learning/modules/backend-data-system-phase/)  
    - 인덱스/트랜잭션/격리수준/락/캐시/메시징을 **성능·정합성·확장성** 기준으로 다룹니다.
-4. [4단계: 운영 · 배포 · 모니터링](/learning/career/backend-ops-observability-phase/)  
+4. [4단계: 운영 · 배포 · 모니터링](/learning/modules/backend-ops-observability-phase/)  
    - 장애를 “운”으로 넘기지 않게, 배포/관측/알림/회복탄력성의 기본기를 갖춥니다.
-5. [5단계: 심화/시스템 설계](/learning/career/backend-architecture-phase/)  
+5. [5단계: 심화/시스템 설계](/learning/modules/backend-architecture-phase/)  
    - 모듈/도메인/분리 전략부터 컷오버/마이그레이션, 실시간/이벤트 기반 설계까지 확장합니다.
-6. [6단계: 복습(Q&A)](/learning/career/backend-qna-phase/)  
+6. [6단계: 복습(Q&A)](/learning/modules/backend-qna-phase/)  
    - 각 단계에서 부딪히는 질문을 짧고 정확하게 다시 꺼내볼 수 있게 정리합니다.
-7. [7단계: 보안 (Security Specialist)](/learning/career/backend-security-phase/)  
+7. [7단계: 보안 (Security Specialist)](/learning/modules/backend-security-phase/)  
    - OWASP, TLS, 암호화 등 안전한 서비스를 만들기 위한 필수 보안 지식을 다룹니다.
-8. [8단계: 컴퓨터 공학 심화 (Deep CS)](/learning/career/backend-advanced-cs-phase/)  
+8. [8단계: 컴퓨터 공학 심화 (Deep CS)](/learning/modules/backend-advanced-cs-phase/)  
    - 분산 정합성, DB 엔진 원리, OS I/O 등 시니어 레벨의 이론적 깊이를 다룹니다.
-9. [9단계: 현대적 백엔드 기술 (Modern Frontiers)](/learning/career/backend-modern-frontiers/)  
+9. [9단계: 현대적 백엔드 기술 (Modern Frontiers)](/learning/modules/backend-modern-frontiers/)  
    - Vector DB(AI), HTTP/3(QUIC), Serverless 내부 구조 등 최신 기술의 엔지니어링 원리를 파헤칩니다.
-10. [10단계: 아키텍처 마스터리 (Architecture Mastery)](/learning/career/backend-architecture-mastery/)  
+10. [10단계: 아키텍처 마스터리 (Architecture Mastery)](/learning/modules/backend-architecture-mastery/)  
     - 분산 트랜잭션(SAGA), 샤딩(Consistent Hashing), DDD Aggregate 등 규모 있는 시스템의 난제를 해결합니다.
 
 *(선택사항) [부록: 실습실 (Labs)](/learning/labs/) - 이론을 코드로 연습해보고 싶다면 참고하세요.*
@@ -77,5 +77,5 @@ aliases:
 
 ## 바로 시작하기
 
-- 처음부터 차근차근 → [1단계: 기초 다지기](/learning/career/backend-foundation-phase/)
+- 처음부터 차근차근 → [1단계: 기초 다지기](/learning/modules/backend-foundation-phase/)
 - “지금 막히는 주제”부터 → Learning 메인에서 토픽 카드로 찾아가면 됩니다.

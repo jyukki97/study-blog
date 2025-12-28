@@ -7,7 +7,7 @@ tags: ["Java", "GC", "JVM", "GC Logs", "G1GC"]
 categories: ["Backend Deep Dive"]
 description: "할당/생존/승격 관점으로 GC를 이해하고, STW/메모리 문제를 로그로 진단하는 기본기"
 module: "foundation"
-study_order: 90
+study_order: 102
 ---
 
 ## 🗑️ 1. GC는 '청소부'가 아니라 '생존자 선별기'다
@@ -26,18 +26,23 @@ GC(Garbage Collection)를 "쓰레기를 줍는 과정"이라고 생각하기 쉽
 이 가설 때문에 힙 메모리는 **Young**과 **Old**로 나뉩니다.
 
 ```mermaid
-graph TD
-    subgraph Young Generation
-    Eden[Eden 영역] -->|Minor GC| S0[Survivor 0]
-    S0 <-->|Swap| S1[Survivor 1]
-    end
+stateDiagram-v2
+    direction LR
+    state "Young Generation" as Young {
+        [*] --> Eden : New Object
+        Eden --> Survivor : Minor GC
+        Survivor --> Survivor : Aging (Swap)
+    }
     
-    subgraph Old Generation
-    S0 -->|Promotion (Age 차면)| Old[Old 영역]
-    S1 -->|Promotion| Old
-    end
+    state "Old Generation" as OldGen {
+        Survivor --> Old : Promotion
+        Old --> [*] : Major GC (Reclaim)
+    }
     
-    NewObj(새 객체) --> Eden
+    note right of Old
+        Major GC causes
+        Long STW
+    end note
 ```
 
 1. **Eden**: 갓 태어난 객체들의 요람. 금방 죽는 객체는 여기서 Minor GC로 사라집니다.
@@ -49,6 +54,25 @@ graph TD
 ## 🚦 3. GC 알고리즘 진화
 
 JVM의 역사는 STW(멈춤 시간)를 줄이기 위한 투쟁의 역사입니다.
+
+### 1. STW vs Concurrent 비교
+
+```mermaid
+gantt
+    title Stop-The-World vs Concurrent
+    dateFormat X
+    axisFormat %s
+    
+    section Parallel GC
+    App Running       : 0, 10
+    GC (STW)          : crit, 10, 5
+    App Running       : 15, 10
+    
+    section G1/CMS GC
+    App Running       : 0, 25
+    Concurrent Mark   : active, 5, 10
+    Remark (Short STW): crit, 15, 2
+```
 
 ### 1. Serial / Parallel GC
 - **단순 무식**: 청소할 때 모든 스레드 올스탑.
@@ -63,11 +87,27 @@ JVM의 역사는 STW(멈춤 시간)를 줄이기 위한 투쟁의 역사입니�
 - **예측 가능**: "200ms 안에 끝내줘"라고 설정 가능.
 
 ```mermaid
-graph TD
-    subgraph Heap Map
-    R1[Eden] --- R2[Old] --- R3[Empty] --- R4[Survivor]
-    R5[Old] --- R6[Eden] --- R7[Old] --- R8[Humongous]
+graph TB
+    subgraph Region Map
+    direction TB
+        subgraph Row1
+        direction LR
+        R1[Eden] --- R2[Old] --- R3[Survivor] --- R4[Empty]
+        end
+        subgraph Row2
+        direction LR
+        R5[Old] --- R6[Humongous] --- R7[Eden] --- R8[Old]
+        end
     end
+    
+    style R1 fill:#a5d6a7,stroke:#333
+    style R7 fill:#a5d6a7,stroke:#333
+    style R3 fill:#90caf9,stroke:#333
+    style R2 fill:#ef9a9a,stroke:#333
+    style R5 fill:#ef9a9a,stroke:#333
+    style R8 fill:#ef9a9a,stroke:#333
+    style R6 fill:#ce93d8,stroke:#333
+    style R4 fill:#e0e0e0,stroke:#333,stroke-dasharray: 5 5
 ```
 
 ### 4. ZGC / Shenandoah

@@ -1,6 +1,7 @@
 ---
 title: "API 성능 문제 해결 정리"
-date: 2025-01-10
+study_order: 701
+date: 2025-12-01
 topic: "Backend"
 topic_icon: "💬"
 topic_description: "Thread Dump, Slow Query, 캐싱, Connection Pool 관련 핵심 개념과 실전 예제 정리"
@@ -65,6 +66,19 @@ jcmd <PID> Thread.print > thread_dump.txt
 | TIMED_WAITING | 시간 제한 대기 | sleep(), wait(timeout) |
 | BLOCKED | 모니터 락 대기 | synchronized |
 | TERMINATED | 종료됨 | 정상 |
+
+```mermaid
+stateDiagram-v2
+    [*] --> NEW: Thread 생성
+    NEW --> RUNNABLE: start()
+    RUNNABLE --> WAITING: wait() / park()
+    RUNNABLE --> TIMED_WAITING: sleep(n) / wait(timeout)
+    RUNNABLE --> BLOCKED: synchronized 락 대기
+    WAITING --> RUNNABLE: notify() / unpark()
+    TIMED_WAITING --> RUNNABLE: 시간 만료 또는 notify()
+    BLOCKED --> RUNNABLE: 락 획득
+    RUNNABLE --> TERMINATED: run() 종료
+```
 
 ### 문제 패턴 분석
 
@@ -999,3 +1013,13 @@ public List<OrderResponse> getOrders(String email) {
 - **Pool Size**: (Core × 2) + Spindle Count
 - **Leak Detection**: leak-detection-threshold 설정
 - **try-with-resources**: 자동 반환
+
+---
+
+## 🔗 Related Deep Dive
+
+더 깊이 있는 학습을 원한다면 심화 과정을 참고하세요:
+
+- **[Java 동시성 기본](/learning/deep-dive/deep-dive-java-concurrency-basics/)**: synchronized, volatile, 그리고 java.util.concurrent의 핵심.
+- **[인덱스와 쿼리 성능](/learning/deep-dive/deep-dive-database-indexing/)**: B-Tree 구조와 EXPLAIN 분석.
+- **[Redis 캐싱 전략](/learning/deep-dive/deep-dive-redis-caching/)**: Cache-Aside, Write-Through 패턴과 Stampede 해결책.

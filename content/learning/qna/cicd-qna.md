@@ -1,6 +1,7 @@
 ---
 title: "CI/CD 개념 정리"
-date: 2025-01-12
+study_order: 703
+date: 2025-12-01
 topic: "DevOps"
 topic_icon: "💬"
 topic_description: "CI/CD, Jenkins, ArgoCD, Rollback 전략 관련 핵심 개념과 실전 예제 정리"
@@ -24,21 +25,19 @@ module: "qna"
 
 **프로세스**:
 
-```
-개발자 커밋
-  ↓
-Git Push
-  ↓
-CI 서버 감지 (Webhook)
-  ↓
-자동 빌드
-  ↓
-자동 테스트 (Unit, Integration)
-  ↓
-정적 분석 (SonarQube, ESLint)
-  ↓
-테스트 통과 → 메인 브랜치 병합 ✅
-테스트 실패 → 개발자에게 알림 ❌
+```mermaid
+flowchart TD
+    A[개발자 커밋] --> B[Git Push]
+    B --> C[CI 서버 감지]
+    C --> D[자동 빌드]
+    D --> E[자동 테스트]
+    E --> F[정적 분석]
+    F --> G{결과}
+    G -->|통과| H[✅ 메인 브랜치 병합]
+    G -->|실패| I[❌ 개발자 알림]
+    
+    style H fill:#e8f5e9,stroke:#2e7d32
+    style I fill:#ffebee,stroke:#c62828
 ```
 
 **CI 없이 개발하는 경우**:
@@ -1238,3 +1237,12 @@ spec:
 - **GitOps**: Git = Single Source of Truth
 - **Drift 감지**: 자동 복구 (selfHeal)
 - **간단한 롤백**: Git Revert로 이전 버전 배포
+
+---
+
+## 🔗 Related Deep Dive
+
+더 깊이 있는 학습을 원한다면 심화 과정을 참고하세요:
+
+- **[Docker 기본](/learning/deep-dive/deep-dive-docker-basics/)**: 컨테이너 빌드와 이미지 레이어 구조.
+- **[Kubernetes 서비스 디스커버리](/learning/deep-dive/deep-dive-kubernetes-service-discovery/)**: Service, Ingress, DNS 구성.

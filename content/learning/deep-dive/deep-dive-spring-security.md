@@ -7,7 +7,7 @@ tags: ["Spring Security", "Filter Chain", "JWT", "OAuth2"]
 categories: ["Backend Deep Dive"]
 description: "어렵게만 느껴지는 Security의 내부 작동 원리(DelegatingFilterProxy, FilterChain)와 커스텀 필터"
 module: "spring-core"
-study_order: 168
+study_order: 204
 ---
 
 ## 🛡️ 1. 문지기들의 줄서기 (Filter Chain)

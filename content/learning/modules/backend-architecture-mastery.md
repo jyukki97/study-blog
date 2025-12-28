@@ -10,7 +10,7 @@ weight: 11
 study_order: 110
 layout: "learning-module"
 module_key: "architecture-mastery"
-url: "/learning/career/backend-architecture-mastery/"
+url: "/learning/modules/backend-architecture-mastery/"
 ---
 
 ## 이 단계에서 얻는 것

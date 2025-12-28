@@ -6,14 +6,40 @@ topic: "Spring"
 tags: ["Circuit Breaker", "Resilience4j", "Fault Tolerance", "Microservices"]
 categories: ["Backend Deep Dive"]
 description: "외부 API/DB 장애가 내 서비스까지 번지지 않게 막는 Resilience4j 패턴과 설정값 가이드"
-module: "spring-core"
-study_order: 185
+module: "resilience"
+study_order: 500
 ---
 
 ## 🔌 1. 왜 "두꺼비집"이라고 부를까?
 
 집에 누전이 되면 전체 정전을 막기 위해 두꺼비집(배선 차단기)이 내려갑니다.
 MSA에서도 마찬가지입니다. **B 서비스가 죽었을 때, 이를 호출하는 A 서비스까지 같이 느려지다 죽는 것(Cascade Failure)** 을 막기 위해 회로를 끊어버립니다.
+
+### 1-1. 장애 전파 시나리오
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant CB as CircuitBreaker
+    participant Service
+
+    Client->>CB: Request 1
+    CB->>Service: Call
+    Note right of Service: Timeout! (5s)
+    Service--xCB: Failure
+    CB--xClient: TimeoutException
+
+    Client->>CB: Request 2 ... N
+    CB->>Service: Call
+    Service--xCB: Failure (x N times)
+
+    Note over CB: Failure Rate > Threshold
+    Note over CB: State: CLOSED -> OPEN
+
+    Client->>CB: Request N+1
+    CB--xClient: CallNotPermittedException (Fail Fast)
+    Note right of Client: No waiting, instant fail
+```
 
 ---
 
@@ -53,7 +79,25 @@ resilience4j:
         slidingWindowSize: 100          # 최근 100개 요청 기준
         minimumNumberOfCalls: 10        # 최소 10개는 표본이 쌓여야 함
         waitDurationInOpenState: 10s    # 10초 동안 차단 유지 후 Half-Open
+        waitDurationInOpenState: 10s    # 10초 동안 차단 유지 후 Half-Open
         permittedNumberOfCallsInHalfOpenState: 3 # Half-Open 때 3개만 보내봄
+```
+
+### 3-2. Sliding Window (집계 방식)
+
+최근 N개의 요청을 저장하고, 그 중 실패 비율을 계산합니다.
+
+```mermaid
+graph LR
+    subgraph "Sliding Window (Size 10)"
+    direction LR
+    R1[OK] --- R2[OK] --- R3[Fail] --- R4[OK] --- R5[Fail] --- R6[Fail] --- R7[OK] -.- R10[New Request]
+    end
+    
+    style R3 fill:#ffcdd2,stroke:#c62828
+    style R5 fill:#ffcdd2,stroke:#c62828
+    style R6 fill:#ffcdd2,stroke:#c62828
+    style R10 fill:#fff9c4,stroke:#fbc02d
 ```
 
 ### Fallback (대안)

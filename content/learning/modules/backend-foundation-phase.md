@@ -10,9 +10,9 @@ weight: 1
 study_order: 10
 layout: "learning-module"
 module_key: "foundation"
-url: "/learning/career/backend-foundation-phase/"
+url: "/learning/modules/backend-foundation-phase/"
 aliases:
-  - "/learning/career/backend-foundation-phase/"
+  - "/learning/modules/backend-foundation-phase/"
 ---
 
 ## 이 단계에서 얻는 것

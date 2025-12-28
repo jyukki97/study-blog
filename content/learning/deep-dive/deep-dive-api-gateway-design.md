@@ -6,8 +6,8 @@ topic: "Architecture"
 tags: ["API Gateway", "Microservices", "Kong", "Spring Cloud Gateway", "Routing"]
 categories: ["Backend Deep Dive"]
 description: "왜 Gateway를 써야 하는가? 인증/라우팅/공통 관심사의 분리"
-module: "architecture"
-study_order: 415
+module: "resilience"
+study_order: 502
 ---
 
 ## 🚪 1. 클라이언트가 모든 서비스를 다 알아야 할까?
@@ -39,6 +39,31 @@ graph LR
 3. **Protocol Translation**: 클라이언트는 HTTP로, 내부 서비스는 gRPC나 AMQP로 통신하게 변환해줍니다.
 4. **Resilience**: Rate Limiting, Circuit Breaker를 앞단에서 적용합니다.
 
+### 2-1. Gateway Filter Chain 시각화
+
+Gateway는 단순한 프록시가 아니라, 요청/응답에 대한 **필터 파이프라인**입니다.
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant GW as API Gateway
+    participant Auth as Auth Filter
+    participant Rate as RateLimit Filter
+    participant Service
+
+    Client->>GW: Request
+    GW->>Auth: 1. Validate Token
+    Auth-->>GW: Token OK
+    GW->>Rate: 2. Check Limit
+    Rate-->>GW: Allowed
+    
+    GW->>Service: 3. Route Request
+    Service-->>GW: Response
+    
+    GW->>GW: 4. Logging & Transform
+    GW-->>Client: Final Response
+```
+
 ---
 
 ## 🛠️ 3. 기술 스택: Nginx vs Java
@@ -67,6 +92,35 @@ Gateway가 너무 비대해지면(God Object) 관리가 힘듭니다.
 - **IoT Gateway**: IoT 프로토콜(MQTT 등) 지원.
 
 이를 **BFF (Backend For Frontend)** 패턴이라 합니다.
+
+```mermaid
+graph TD
+    subgraph "Clients"
+        Web[Web Browser]
+        Mobile[Mobile App]
+        IoT[IoT Device]
+    end
+
+    subgraph "BFF Gateways"
+        WebGW[Web Gateway]
+        MobileGW[Mobile Gateway]
+        IoTGW[IoT Gateway]
+    end
+
+    subgraph "Microservices"
+        SvcA[Service A]
+        SvcB[Service B]
+        SvcC[Service C]
+    end
+
+    Web --> WebGW
+    Mobile --> MobileGW
+    IoT --> IoTGW
+
+    WebGW --> SvcA & SvcB
+    MobileGW --> SvcA & SvcC
+    IoTGW --> SvcA
+```
 
 ## 요약
 

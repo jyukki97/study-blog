@@ -1,6 +1,7 @@
 ---
 title: "캐싱 전략 정리"
-date: 2025-01-11
+study_order: 702
+date: 2025-12-01
 topic: "Backend"
 tags: ["캐싱", "Redis", "Caffeine", "Cache", "성능최적화"]
 categories: ["Backend"]
@@ -18,22 +19,31 @@ module: "qna"
 
 #### 캐시 계층 구조
 
-```
-┌──────────────┐  1ms      ┌──────────────┐
-│ Application  │◄──────────│ Local Cache  │ (Caffeine)
-└──────┬───────┘           └──────────────┘
-       │
-       │ 10ms
-       ▼
-┌──────────────┐           ┌──────────────┐
-│   Network    │◄──────────│ Redis Cache  │
-└──────┬───────┘           └──────────────┘
-       │
-       │ 100ms
-       ▼
-┌──────────────┐
-│   Database   │ (MySQL)
-└──────────────┘
+```mermaid
+flowchart TB
+    subgraph App ["Application Layer"]
+        A[Application]
+    end
+    
+    subgraph L1 ["L1 Cache (1ms)"]
+        LC[Caffeine - Local]
+    end
+    
+    subgraph L2 ["L2 Cache (10ms)"]
+        RC[Redis - Global]
+    end
+    
+    subgraph DB ["Database (100ms)"]
+        M[MySQL]
+    end
+    
+    A --> LC
+    LC -- Cache Miss --> RC
+    RC -- Cache Miss --> M
+    
+    style L1 fill:#e8f5e9,stroke:#2e7d32
+    style L2 fill:#fff3e0,stroke:#f57c00
+    style DB fill:#ffebee,stroke:#c62828
 ```
 
 #### 1. Cache-Aside (Lazy Loading)
@@ -1599,3 +1609,12 @@ management:
 - Eviction Count 모니터링
 - Prometheus + Grafana 대시보드
 - 알림: Memory >80%, Hit Rate <70%
+
+---
+
+## 🔗 Related Deep Dive
+
+더 깊이 있는 학습을 원한다면 심화 과정을 참고하세요:
+
+- **[Redis 캐싱 패턴](/learning/deep-dive/deep-dive-redis-caching/)**: Cache-Aside, Write-Through, Stampede 해결책 시각화.
+- **[Redis 고급 기능](/learning/deep-dive/deep-dive-redis-advanced/)**: BitMap, HyperLogLog, Bloom Filter.

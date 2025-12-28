@@ -7,7 +7,7 @@ tags: ["Java", "Concurrency", "Executor", "Lock", "ThreadPool"]
 categories: ["Backend Deep Dive"]
 description: "Race condition부터 JMM, 스레드풀/락 선택, 디버깅까지: 백엔드에서 필요한 자바 동시성 기본기"
 module: "foundation"
-study_order: 75
+study_order: 100
 ---
 
 ## 이 글에서 얻는 것

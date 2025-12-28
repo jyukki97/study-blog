@@ -10,7 +10,7 @@ weight: 8
 study_order: 80
 layout: "learning-module"
 module_key: "security"
-url: "/learning/career/backend-security-phase/"
+url: "/learning/modules/backend-security-phase/"
 ---
 
 ## 이 단계에서 얻는 것

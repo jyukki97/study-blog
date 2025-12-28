@@ -6,8 +6,8 @@ topic: "Kafka"
 tags: ["Kafka", "Partition", "Consumer Group", "Offset"]
 categories: ["Backend Deep Dive"]
 description: "Kafka 핵심 개념과 메시지 흐름, Ordering/스루풋 설계를 위한 기초"
-module: "data-system"
-study_order: 250
+module: "distributed-system"
+study_order: 401
 ---
 
 ## 🪵 1. Kafka는 '큐(Queue)'가 아니라 '로그(Log)'다

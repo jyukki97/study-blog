@@ -7,7 +7,7 @@ tags: ["Spring Boot", "AutoConfiguration", "Condition", "Classpath"]
 categories: ["Backend Deep Dive"]
 description: "자동 설정 동작 원리, 조건부 빈 등록, 커스터마이징 포인트 정리"
 module: "spring-core"
-study_order: 140
+study_order: 200
 ---
 
 ## 이 글에서 얻는 것
@@ -23,45 +23,88 @@ Spring Boot는 클래스패스(의존성)와 설정 프로퍼티를 보고,
 
 중요한 포인트는 “자동 설정은 마법”이 아니라 **그냥 조건부로 등록되는 설정 클래스 집합**이라는 점입니다.
 
-## 1) 동작 흐름(큰 그림)
+## 1) 동작 흐름(큰 그림) - The Magic Revealed
 
-### 1-1) `@SpringBootApplication`에서 시작
+`@SpringBootApplication`은 단순한 어노테이션이 아닙니다. 거대한 자동화 시스템의 트리거입니다.
 
-`@SpringBootApplication`은 대략 아래를 묶은 편의 어노테이션입니다.
+```mermaid
+sequenceDiagram
+    autonumber
+    participant App as @SpringBootApplication
+    participant Selector as AutoConfigurationImportSelector
+    participant Factories as spring.factories / imports
+    participant Context as Spring Context
 
-- `@SpringBootConfiguration`(= `@Configuration`)
-- `@ComponentScan`
-- `@EnableAutoConfiguration`
+    App->>Selector: 1. Trigger @EnableAutoConfiguration
+    activate Selector
+    Selector->>Factories: 2. Load Candidate Configurations
+    Factories-->>Selector: List[SecurityAutoConfig, JdbcAutoConfig, ...]
+    
+    loop Filter Candidates
+        Selector->>Selector: 3. Check @ConditionalOnClass (Is Library Present?)
+        Selector->>Selector: 4. Check @ConditionalOnProperty
+    end
+    
+    Selector-->>Context: 5. Return Valid Configurations
+    deactivate Selector
+    
+    Context->>Context: 6. Register Beans (Only if @ConditionalOnMissingBean satisfies)
+```
 
-### 1-2) AutoConfigurationImportSelector가 자동 설정 클래스를 모음
-
-부트는 “자동 설정 목록 파일”을 읽어서 자동 설정 클래스를 가져온 뒤,
-각 설정 클래스의 조건(`@Conditional*`)을 평가해 적용 여부를 결정합니다.
-
-참고(버전 차이):
-
-- Boot 2.x: 주로 `META-INF/spring.factories`를 통해 `EnableAutoConfiguration` 목록을 로딩
-- Boot 3.x: 자동 설정 목록이 `META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports`로 이동(성능/구조 개선)
+### 1-1) AutoConfigurationImportSelector의 역할
+이 클래스가 바로 "마법사"입니다.
+1.  **Candidates Loading**: `spring.factories` (Boot 2.x) 또는 `.imports` (Boot 3.x) 파일에서 후보군을 싹 긁어옵니다.
+2.  **Filtering**: 현재 클래스패스에 없는 라이브러리 설정은 칼같이 제외합니다. (예: `H2` 라이브러리가 없으면 `H2ConsoleAutoConfiguration` 탈락)
 
 ## 2) 조건부 등록의 핵심: `@Conditional*`
 
-자동 설정이 “항상 켜지는” 게 아닌 이유는 대부분 여기에 있습니다.
+자동 설정은 무턱대고 켜지지 않습니다. 엄격한 심사를 거칩니다.
 
-자주 보는 조건:
+```mermaid
+flowchart TD
+    Start["AutoConfiguration Candidate"] --> ClassCheck{"@ConditionalOnClass?"}
+    
+    ClassCheck -- "No (Lib Missing)" --> Ignore[Ignored]
+    ClassCheck -- Yes --> PropertyCheck{"@ConditionalOnProperty?"}
+    
+    PropertyCheck -- "enabled=false" --> Ignore
+    PropertyCheck -- "enabled=true / Missing" --> BeanCheck{"@ConditionalOnMissingBean?"}
+    
+    BeanCheck -- "User Defined Bean Exists" --> Backoff["Backoff (User's Win)"]
+    BeanCheck -- "No Bean" --> Register["Register AutoConfig Bean"]
+    
+    style Register fill:#c8e6c9,stroke:#388e3c
+    style Backoff fill:#ffccbc,stroke:#d84315
+    style Ignore fill:#f5f5f5,stroke:#9e9e9e
+```
 
-- `@ConditionalOnClass`: 특정 클래스가 클래스패스에 있으면 켬(= 의존성 추가가 기능 활성화로 이어짐)
-- `@ConditionalOnMissingBean`: 같은 타입/이름의 빈이 없을 때만 기본 빈을 제공(= 사용자가 오버라이드 가능)
-- `@ConditionalOnProperty`: 프로퍼티가 특정 값일 때만 활성화
-- `@ConditionalOnBean`: 특정 빈이 이미 있을 때만 활성화(조합)
-- `@ConditionalOnWebApplication`: 웹 환경에서만 활성화
+- **@ConditionalOnClass**: "라이브러리(Jar) 넣었니?" (가장 먼저 체크)
+- **@ConditionalOnProperty**: "`application.yml`에서 껐니?"
+- **@ConditionalOnMissingBean**: "사용자가 직접 같은 빈을 만들었니?" (가장 나중에 체크 - **오버라이딩의 핵심**)
 
 ## 3) “내가 만든 설정이 왜 안 먹지?” 디버깅 루틴
 
-자동 설정은 조건 때문에 켜지거나 꺼집니다. 추측하지 말고 조건 리포트를 확인하면 빠릅니다.
+추측(Guess)하지 말고 증거(Report)를 보세요.
 
-### 3-1) `--debug`로 ConditionEvaluationReport 보기
+```mermaid
+flowchart TD
+    Issue["Problem: My Bean is Not Working / Missing"] --> Check1{"Did you check --debug report?"}
+    
+    Check1 -- No --> Action1["Run with --debug"]
+    Check1 -- Yes --> Check2{"Is AutoConfig Matched?"}
+    
+    Check2 -- "No (Negative Matches)" --> Reason1["Check @ConditionalOnClass\n(Dependency Missing?)"]
+    Check2 -- "Yes (Positive Matches)" --> Check3{"Is overridden by User Bean?"}
+    
+    Check3 -- Yes --> Fix1["Check @ConditionalOnMissingBean in AutoConfig"]
+    Check3 -- No --> Fix2["Check @Primary or Bean Name Conflicts"]
+    
+    style Action1 fill:#fff9c4,stroke:#fbc02d
+```
 
-실행 옵션에 `--debug`를 주면 어떤 자동 설정이 “왜 켜졌고/왜 꺼졌는지”가 출력됩니다.
+### 3-1) ConditionEvaluationReport 읽는 법 (`--debug`)
+
+실행 옵션에 `--debug`를 주면 어떤 자동 설정이 “왜 켜졌고/왜 꺼졌는지”가 출력됩니다. **"Positive Matches"**와 **"Negative Matches"**만 찾으세요.
 
 ### 3-2) Actuator의 conditions/beans 활용
 

@@ -6,8 +6,8 @@ topic: "Database"
 tags: ["Elasticsearch", "Search", "Full-text Search", "Inverted Index"]
 categories: ["Backend Deep Dive"]
 description: "Elasticsearch로 전문 검색을 구현하고 검색 성능을 최적화하는 실전 가이드"
-module: "data-system"
-study_order: 230
+module: "ops-observability"
+study_order: 607
 ---
 
 ## 이 글에서 얻는 것
@@ -91,19 +91,62 @@ Mapping            Schema
 
 ### 1-2) 역인덱스 (Inverted Index)
 
+Elasticsearch의 핵심은 **"단어(Term)"를 보고 "문서 ID(DocID)"를 찾는** 역인덱스 구조입니다.
+
+```mermaid
+block-beta
+  columns 3
+  block:terms
+    T1["맥북"]
+    T2["프로"]
+    T3["M3"]
+  end
+  space
+  block:docs
+    D1["Doc 1, 5"]
+    D2["Doc 1, 3, 5"]
+    D3["Doc 1"]
+  end
+
+  T1 --> D1
+  T2 --> D2
+  T3 --> D3
+
+  style terms fill:#e3f2fd,stroke:#1565c0
+  style docs fill:#fff3e0,stroke:#e65100
 ```
-일반 인덱스:
-문서 ID → 내용
+- **Term**: 분석된 단어 (Token)
+- **Posting List**: 해당 단어를 포함하는 문서 ID 리스트
 
-역인덱스:
-단어 → 문서 ID 목록
+### 1-3) Cluster & Sharding Architecture
 
-예시:
-"맥북" → [1, 5, 10, 15]
-"프로" → [1, 3, 5]
+대용량 데이터를 처리하기 위해 ES는 데이터를 **Shard** 단위로 쪼개서 분산 저장합니다.
 
-"맥북 프로" 검색 → 교집합 → [1, 5]
+```mermaid
+flowchart TB
+    subgraph Cluster["ES Cluster (docker-cluster)"]
+        direction TB
+        Node1[Node 1 (Master/Data)]
+        Node2[Node 2 (Data)]
+        
+        subgraph Shards
+            P0[Primary Shard 0]
+            R0[Replica Shard 0]
+        end
+        
+        Node1 --> P0
+        Node2 --> R0
+    end
+
+    style Cluster fill:#e3f2fd,stroke:#1565c0
+    style Node1 fill:#fff9c4,stroke:#fbc02d
+    style Node2 fill:#fff9c4,stroke:#fbc02d
+    style P0 fill:#d1c4e9,stroke:#512da8
+    style R0 fill:#e1bee7,stroke:#7b1fa2
 ```
+- **Primary Shard**: 원본 데이터 저장 (쓰기 발생)
+- **Replica Shard**: 복제본 (읽기 부하 분산, 고가용성)
+
 
 ## 2) Elasticsearch 시작
 
@@ -153,7 +196,27 @@ curl http://localhost:9200
 # }
 ```
 
-### 2-2) 인덱스 생성
+### 2-2) Analyzer Pipeline (분석 과정)
+
+"안녕하세요!"라는 문장이 저장될 때, **Analyzer**를 통해 검색 가능한 **Term**으로 변환됩니다.
+
+```mermaid
+flowchart LR
+    Input["text: '<b>Hello</b> World!'"] --> CharFilter[Char Filter<br/>(HTML Strip)]
+    CharFilter -->|'Hello World!'| Tokenizer[Tokenizer<br/>(Standard)]
+    Tokenizer -->|'[Hello, World]'| TokenFilter[Token Filter<br/>(Lowercase)]
+    TokenFilter -->|'[hello, world]'| Output["Inverted Index"]
+
+    style Input fill:#eceff1,stroke:#455a64
+    style Output fill:#fff3e0,stroke:#e65100
+    style Tokenizer fill:#ffe0b2,stroke:#f57c00
+```
+- **Character Filter**: 문장 전처리 (HTML 태그 제거 등)
+- **Tokenizer**: 단어 분리 (공백 기준 등)
+- **Token Filter**: 후처리 (소문자 변환, 불용어 제거)
+
+### 2-3) 인덱스 생성
+
 
 ```bash
 # 인덱스 생성

@@ -6,8 +6,8 @@ topic: "JPA"
 tags: ["JPA", "Hibernate", "N+1", "Fetch Join", "EntityGraph"]
 categories: ["Backend Deep Dive"]
 description: "로그에 쿼리 100개가 찍히는 공포. 원인 분석부터 Fetch Join, Batch Size, EntityGraph 해결법 비교"
-module: "spring-core"
-study_order: 156
+module: "data-system"
+study_order: 300
 ---
 
 ### 💣 1. "쿼리가 왜 100번 나가죠?"

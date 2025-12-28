@@ -1,6 +1,7 @@
 ---
 title: "DispatcherServlet 동작 흐름 정리"
-date: 2025-01-15
+study_order: 706
+date: 2025-12-01
 topic: "Spring"
 topic_icon: "💬"
 topic_description: "DispatcherServlet, HandlerMapping, Interceptor, Controller 동작 순서에 대한 핵심 개념 정리"
@@ -18,32 +19,30 @@ module: "qna"
 
 **전체 흐름**:
 
-```
-1. Client → DispatcherServlet (HTTP 요청)
-   ↓
-2. DispatcherServlet → HandlerMapping (요청에 맞는 핸들러 검색)
-   ↓
-3. HandlerMapping → DispatcherServlet (HandlerExecutionChain 반환)
-   ↓
-4. DispatcherServlet → HandlerAdapter (핸들러 실행 준비)
-   ↓
-5. HandlerAdapter → Interceptor.preHandle() (전처리)
-   ↓
-6. HandlerAdapter → Controller (비즈니스 로직 실행)
-   ↓
-7. Controller → HandlerAdapter (ModelAndView 반환)
-   ↓
-8. HandlerAdapter → Interceptor.postHandle() (후처리)
-   ↓
-9. DispatcherServlet → ViewResolver (뷰 이름으로 뷰 객체 검색)
-   ↓
-10. ViewResolver → DispatcherServlet (View 반환)
-   ↓
-11. DispatcherServlet → View (모델 데이터 전달하여 렌더링)
-   ↓
-12. View → Interceptor.afterCompletion() (뷰 렌더링 후)
-   ↓
-13. DispatcherServlet → Client (HTTP 응답)
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant DS as DispatcherServlet
+    participant HM as HandlerMapping
+    participant HA as HandlerAdapter
+    participant I as Interceptor
+    participant CT as Controller
+    participant VR as ViewResolver
+    participant V as View
+
+    C->>DS: 1. HTTP 요청
+    DS->>HM: 2. Handler 검색
+    HM-->>DS: 3. HandlerExecutionChain
+    DS->>HA: 4. Adapter 선택
+    HA->>I: 5. preHandle()
+    I->>CT: 6. 비즈니스 로직
+    CT-->>HA: 7. ModelAndView
+    HA->>I: 8. postHandle()
+    DS->>VR: 9. View 검색
+    VR-->>DS: 10. View
+    DS->>V: 11. 렌더링
+    V->>I: 12. afterCompletion()
+    DS-->>C: 13. HTTP 응답
 ```
 
 **상세 코드로 보는 흐름**:
@@ -695,3 +694,12 @@ public class WebConfig implements WebMvcConfigurer {
 - @ControllerAdvice로 전역 예외 처리
 - 커스텀 ArgumentResolver로 공통 파라미터 주입
 - MessageConverter로 커스텀 포맷 지원
+
+---
+
+## 🔗 Related Deep Dive
+
+더 깊이 있는 학습을 원한다면 심화 과정을 참고하세요:
+
+- **[Spring MVC 요청 처리 흐름](/learning/deep-dive/deep-dive-spring-mvc-request-lifecycle/)**: Filter → DispatcherServlet → Interceptor → Controller 시퀀스 다이어그램.
+- **[Spring Boot 자동 설정](/learning/deep-dive/deep-dive-spring-boot-auto-config/)**:@ConditionalOn 어노테이션과 Bean 등록 흐름.

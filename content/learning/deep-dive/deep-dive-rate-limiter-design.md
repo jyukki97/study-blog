@@ -6,8 +6,8 @@ topic: "System Design"
 tags: ["Rate Limiting", "Token Bucket", "Sliding Window", "Redis"]
 categories: ["Backend Deep Dive"]
 description: "DDoS 방어부터 유료 API 사용량 제한까지. Token Bucket 알고리즘과 Redis 분산 처리"
-module: "architecture"
-study_order: 458
+module: "resilience"
+study_order: 501
 ---
 
 ## 🚧 1. 왜 막아야 하나요?
@@ -52,6 +52,24 @@ graph TD
 이를 막기 위해 **Sliding Window**는 시간을 겹쳐서 계산합니다.
 (Redis의 `ZSET`을 이용해 타임스탬프 로그를 저장하고 `count`하는 방식이 정확하지만, 메모리를 많이 씁니다.)
 
+```mermaid
+gantt
+    title Fixed vs Sliding Window (Limit: 1/min)
+    dateFormat X
+    axisFormat %s
+    
+    section Traffic
+    Req A (T=59s) :done, 59, 60
+    Req B (T=61s) :active, 61, 62
+    
+    section Fixed Window
+    Window 1 (0-60s) :crit, 0, 60
+    Window 2 (60-120s) :crit, 60, 120
+    
+    section Sliding Window
+    Window at T=61 (1-61s) :active, 1, 61
+```
+
 ---
 
 ## ⚡ 4. 분산 환경 구현의 핵심: Redis + Lua
@@ -61,6 +79,30 @@ graph TD
 
 하지만 `GET` -> `계산` -> `SET` 사이에 Race Condition이 발생합니다.
 그래서 **Lua Script**로 원자성(Atomicity)을 보장해야 합니다.
+
+```mermaid
+sequenceDiagram
+    participant App
+    participant Redis
+    participant Lua
+    
+    App->>Redis: EVAL script
+    Note over Redis, Lua: Atomicity Guaranteed
+    
+    Redis->>Lua: Run Logic
+    Lua->>Redis: GET key (Current Count)
+    Redis-->>Lua: Returns 10
+    
+    alt Count < Limit
+        Lua->>Redis: INCR key
+        Lua->>Redis: EXPIRE key
+        Lua-->>Redis: Return 1 (Allowed)
+    else Count >= Limit
+        Lua-->>Redis: Return 0 (Blocked)
+    end
+    
+    Redis-->>App: Response
+```
 
 ```lua
 -- redis_rate_limit.lua

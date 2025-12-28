@@ -7,7 +7,7 @@ tags: ["Database", "Index", "B-Tree", "Query Optimization", "Performance"]
 categories: ["Backend Deep Dive"]
 description: "인덱스가 왜 빨라지는지(B-Tree/선택도/커버링), 복합 인덱스 설계와 쿼리 튜닝의 기본 감각"
 module: "data-system"
-study_order: 203
+study_order: 301
 ---
 
 ## 🏎️ 1. 인덱스는 '책의 목차'가 아니다

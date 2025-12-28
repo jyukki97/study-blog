@@ -6,8 +6,8 @@ topic: "Spring"
 tags: ["Spring", "Transaction", "@Transactional", "Propagation", "Isolation"]
 categories: ["Backend Deep Dive"]
 description: "전파/격리/롤백 규칙과 프록시 동작, self-invocation/checked exception 같은 실무 함정을 한 번에 정리"
-module: "spring-core"
-study_order: 144
+module: "data-system"
+study_order: 302
 ---
 
 ## 🎭 1. 마법의 애노테이션 @Transactional

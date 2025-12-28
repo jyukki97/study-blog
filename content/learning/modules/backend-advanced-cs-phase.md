@@ -10,7 +10,7 @@ weight: 9
 study_order: 90
 layout: "learning-module"
 module_key: "advanced-cs"
-url: "/learning/career/backend-advanced-cs-phase/"
+url: "/learning/modules/backend-advanced-cs-phase/"
 ---
 
 ## 이 단계에서 얻는 것

@@ -7,7 +7,7 @@ tags: ["Kubernetes", "K8s", "Pod", "Deployment", "Service"]
 categories: ["Backend Deep Dive"]
 description: "컨테이너 오케스트레이션이 필요한 이유. Pod/Deployment/Service의 관계와 자가 치유(Self-Healing)"
 module: "ops-observability"
-study_order: 320
+study_order: 601
 ---
 
 ## ☸️ 1. Docker만 쓰면 되지 않나요?

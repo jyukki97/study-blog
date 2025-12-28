@@ -10,9 +10,9 @@ weight: 2
 study_order: 100
 layout: "learning-module"
 module_key: "spring-core"
-url: "/learning/career/backend-spring-core-phase/"
+url: "/learning/modules/backend-spring-core-phase/"
 aliases:
-  - "/learning/career/backend-spring-core-phase/"
+  - "/learning/modules/backend-spring-core-phase/"
 ---
 
 ## 이 단계에서 얻는 것

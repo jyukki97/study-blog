@@ -6,8 +6,8 @@ topic: "Kafka"
 tags: ["Kafka", "Retry", "DLQ", "Error Handling"]
 categories: ["Backend Deep Dive"]
 description: "재시도 토픽, DLQ, 멱등 처리로 Kafka 소비 실패를 다루는 패턴"
-module: "data-system"
-study_order: 255
+module: "distributed-system"
+study_order: 402
 ---
 
 ## 이 글에서 얻는 것
@@ -67,6 +67,22 @@ Kafka 소비 실패는 크게 두 부류입니다.
 
 - 재시도 토픽이 늘어나고 운영 복잡도가 증가합니다(모니터링/정리/재처리 도구 필요).
 
+```mermaid
+graph TD
+    Consumer[Main Topic Consumer] -->|Consume Error| RetryTopic[Topic: retry-1m]
+    
+    RetryTopic --> RetryConsumer[Retry Consumer]
+    RetryConsumer --->|Wait 1m| Process{Retry Process}
+    
+    Process --Success--> Commit[Commit Offset]
+    Process --Fail--> NextRetry{Retry Count < Max?}
+    
+    NextRetry --Yes--> RetryTopic2[Topic: retry-5m]
+    NextRetry --No--> DLQ[Topic: DLQ]
+    
+    style DLQ fill:#ffcdd2,stroke:#c62828
+```
+
 ### 2-3) DLQ(Dead Letter Topic): “포기”가 아니라 “운영 루프”
 
 DLQ는 실패 메시지를 별도 토픽에 보내 운영자가:
@@ -82,6 +98,29 @@ DLQ에 들어갈 때 포함하면 좋은 메타데이터:
 - 실패 시각, retry count
 - 예외 타입/메시지(스택은 로그/추적 시스템으로 넘기는 편이 안전할 수 있음)
 
+### 2-4) DLQ 운영 루프 시각화
+
+DLQ는 "끝"이 아니라 "새로운 시작"입니다.
+
+```mermaid
+stateDiagram-v2
+    [*] --> DLQ_Topic
+    DLQ_Topic --> Monitoring : Alert Triggered
+    Monitoring --> Analysis : Operator Check
+    
+    state Analysis {
+        [*] --> Bug_Check
+        Bug_Check --> Fix_Code : Bug Found
+        Bug_Check --> Fix_Data : Data Issue
+    }
+    
+    Fix_Code --> Replay_Tool
+    Fix_Data --> Replay_Tool
+    
+    Replay_Tool --> Main_Topic : Publish Adjusted Message
+    Main_Topic --> [*]
+```
+
 ## 3) 멱등 처리: 재시도/리밸런스가 있는 한 “중복”은 정상
 
 Kafka 컨슈머는 보통 at-least-once(중복 가능)로 운영됩니다.
@@ -94,6 +133,20 @@ Kafka 컨슈머는 보통 at-least-once(중복 가능)로 운영됩니다.
 - 외부 API 호출이라면 idempotency key를 사용(지원되는 경우)
 
 핵심은 “재시도 정책”이 아니라, **중복 처리에 안전한 비즈니스 로직**입니다.
+
+```mermaid
+flowchart TD
+    Msg[Receive Message] --> CheckDB{Check Event ID}
+    
+    CheckDB --"Exists (Already Processed)"--> Ack[Ack & Skip]
+    CheckDB --"New Event"--> logic[Execute Business Logic]
+    
+    logic --> SaveID[Save Event ID]
+    SaveID --> Commit[Commit Offset]
+    
+    style Ack fill:#fff9c4,stroke:#fbc02d
+    style logic fill:#dcedc8,stroke:#33691e
+```
 
 ## 4) 관측(모니터링) 포인트
 

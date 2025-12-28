@@ -1,6 +1,7 @@
 ---
 title: "예외 처리 전략 정리"
-date: 2025-01-17
+study_order: 708
+date: 2025-12-01
 topic: "Spring"
 tags: ["예외처리", "Spring", "ControllerAdvice", "에러처리", "GlobalException"]
 categories: ["Spring"]
@@ -1532,3 +1533,12 @@ public ResponseEntity<ErrorResponse> handleException(Exception ex) {
 - 재시도 시 멱등성 키 사용 (중복 방지)
 - 엔티티 순환 참조 방지 (@JsonIgnore, DTO 변환)
 - 외부 API: Circuit Breaker, Retry, Fallback
+
+---
+
+## 🔗 Related Deep Dive
+
+더 깊이 있는 학습을 원한다면 심화 과정을 참고하세요:
+
+- **[Spring MVC 요청 흐름](/learning/deep-dive/deep-dive-spring-mvc-request-lifecycle/)**: ExceptionHandler 동작 위치.
+- **[Circuit Breaker 패턴](/learning/deep-dive/deep-dive-resilience4j-circuit-breaker/)**: 외부 API 장애 대응.

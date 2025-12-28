@@ -7,7 +7,7 @@ tags: ["MySQL", "Isolation", "Lock", "InnoDB"]
 categories: ["Backend Deep Dive"]
 description: "READ COMMITTED/REPEATABLE READ 차이, Gap/Next-Key Lock과 데드락 예방법"
 module: "data-system"
-study_order: 220
+study_order: 306
 ---
 
 ## 이 글에서 얻는 것
@@ -36,6 +36,28 @@ InnoDB는 MVCC로 “스냅샷 기반 읽기(consistent read)”를 제공합니
 - `SELECT ... LOCK IN SHARE MODE`
 
 같은 문장을 사용합니다(요구사항/락 강도에 따라).
+
+### 1-1) MVCC 동작 시각화 (REPEATABLE READ)
+
+트랜잭션이 시작될 때 스냅샷을 만들어두고, 그 시점 이후의 변경사항은 Undo Log를 통해 과거 버전을 읽습니다.
+
+```mermaid
+sequenceDiagram
+    participant Tx A (Reader)
+    participant DB (Row X)
+    participant Tx B (Writer)
+    
+    Tx A (Reader)->>DB: Start Transaction
+    Tx A (Reader)->>DB: Read Row X (Value: 100)
+    Note right of Tx A (Reader): Snapshot Created (V1)
+    
+    Tx B (Writer)->>DB: Update Row X = 200
+    Tx B (Writer)->>DB: Commit (New Version V2)
+    
+    Tx A (Reader)->>DB: Read Row X again
+    DB-->>Tx A (Reader): Return Value: 100 (from Undo Log)
+    Note right of Tx A (Reader): Consistent Read (V1)
+```
 
 ## 2) 격리 수준 핵심(실무 감각)
 
@@ -68,6 +90,21 @@ InnoDB에서 자주 등장하는 락:
 - 인덱스를 제대로 타지 못하면(풀스캔/범위 확대) 락 범위가 커져 락 대기가 늘어납니다.
 - “범위 조건”과 “정렬/인덱스” 설계가 곧 락 범위를 결정합니다.
 
+```mermaid
+graph LR
+    subgraph Index Line
+    R10((Record 10)) --- Gap1(Gap) --- R20((Record 20))
+    end
+    
+    Lock1[Record Lock] --> R10
+    Lock2[Gap Lock] --> Gap1
+    Lock3[Next-Key Lock] --> Gap1 & R20
+    
+    style Lock1 fill:#90caf9,stroke:#1565c0
+    style Lock2 fill:#ffcc80,stroke:#ef6c00
+    style Lock3 fill:#ef9a9a,stroke:#c62828
+```
+
 ## 4) 데드락: 피할 수 없고, 다루는 기술이 필요하다
 
 데드락은 “버그”라기보다 동시성 높은 시스템에서 자연스럽게 나타날 수 있습니다.
@@ -79,6 +116,29 @@ InnoDB에서 자주 등장하는 락:
 - **트랜잭션을 짧게**: 트랜잭션 안에서 외부 호출/긴 로직 금지
 - **락 범위 축소**: 적절한 인덱스로 범위 락을 줄이기
 - **재시도**: 데드락은 DB가 한쪽을 롤백시키므로, 애플리케이션은 짧은 backoff 후 재시도(멱등성 필수)
+
+### 4-1) 데드락 시나리오 시각화
+
+가장 흔한 교차 잠금(Cross Locking) 상황입니다.
+
+```mermaid
+sequenceDiagram
+    participant Tx 1
+    participant DB
+    participant Tx 2
+    
+    Tx 1->>DB: Lock Record A (Success)
+    Tx 2->>DB: Lock Record B (Success)
+    
+    Tx 1->>DB: Request Lock B
+    Note right of Tx 1: Blocked (Waiting for Tx 2)
+    
+    Tx 2->>DB: Request Lock A
+    Note left of Tx 2: Blocked (Waiting for Tx 1)
+    
+    DB->>Tx 2: Deadlock Detected! Rollback Tx 2
+    DB-->>Tx 1: Grant Lock B (Tx 1 Correctly Proceeds)
+```
 
 ## 5) 장애 분석: 락 대기/데드락을 어떻게 본다
 

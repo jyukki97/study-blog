@@ -1,6 +1,7 @@
 ---
 title: "SQL 성능 튜닝 정리"
-date: 2025-01-27
+study_order: 718
+date: 2025-12-01
 topic: "Database"
 topic_icon: "💬"
 topic_description: "SQL 성능 튜닝, Execution Plan, Join 전략 관련 핵심 개념과 실전 예제 정리"
@@ -943,3 +944,13 @@ Limit  (cost=0..500 rows=100)
 - **인덱스 추가**: 자주 사용되는 WHERE, JOIN 컬럼
 - **실행 계획 분석**: EXPLAIN ANALYZE로 병목 지점 찾기
 - **쿼리 재작성**: Subquery → JOIN, 불필요한 컬럼 제거
+
+---
+
+## 🔗 Related Deep Dive
+
+더 깊이 있는 학습을 원한다면 심화 과정을 참고하세요:
+
+- **[인덱스 기본](/learning/deep-dive/deep-dive-database-indexing/)**: B-Tree 구조와 쿼리 성능.
+- **[MySQL 격리 수준과 락](/learning/deep-dive/deep-dive-mysql-isolation-locks/)**: Row Lock, Gap Lock 시각화.
+- **[스토리지 엔진 내부](/learning/deep-dive/deep-dive-database-engines-lsm/)**: B-Tree vs LSM-Tree.

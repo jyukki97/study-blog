@@ -7,7 +7,7 @@ tags: ["Redis", "Caching", "Cache Aside", "Cache Invalidation", "Hot Key"]
 categories: ["Backend Deep Dive"]
 description: "Cache-Aside/Write-through/Write-behind 선택, 무효화/스탬피드/핫키 같은 실전 문제와 운영 지표까지 정리"
 module: "data-system"
-study_order: 225
+study_order: 303
 ---
 
 ## 🚀 1. 캐싱 패턴의 세계

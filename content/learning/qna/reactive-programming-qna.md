@@ -1,6 +1,7 @@
 ---
 title: "Reactive Programming 개념 정리"
-date: 2025-01-24
+study_order: 715
+date: 2025-12-01
 topic: "Reactive"
 topic_icon: "💬"
 topic_description: "Reactive Programming, Publisher/Subscriber, Backpressure 관련 핵심 개념과 실전 예제 정리"
@@ -142,25 +143,18 @@ public interface Processor<T, R> extends Subscriber<T>, Publisher<R> {
 
 **실행 흐름**:
 
-```
-Publisher                    Subscriber
-    |                            |
-    |  1. subscribe(subscriber)  |
-    |--------------------------->|
-    |                            |
-    |  2. onSubscribe(subscription)
-    |<---------------------------|
-    |                            |
-    |  3. subscription.request(n)|
-    |<---------------------------|
-    |                            |
-    |  4. onNext(data)          |
-    |--------------------------->|
-    |  5. onNext(data)          |
-    |--------------------------->|
-    |                            |
-    |  6. onComplete()          |
-    |--------------------------->|
+```mermaid
+sequenceDiagram
+    participant P as Publisher
+    participant S as Subscriber
+    participant Sub as Subscription
+
+    P->>S: 1. subscribe(subscriber)
+    S->>P: 2. onSubscribe(subscription)
+    S->>Sub: 3. request(n)
+    P->>S: 4. onNext(data)
+    P->>S: 5. onNext(data)
+    P->>S: 6. onComplete()
 ```
 
 **실제 코드 예시**:
@@ -773,3 +767,12 @@ public class LegacyService {
 - **Context 전파**: ThreadLocal 대신 Reactor Context 사용
 - **메모리 누수**: Disposable로 구독 관리
 - **테스트**: StepVerifier로 Reactive 코드 테스트
+
+---
+
+## 🔗 Related Deep Dive
+
+더 깊이 있는 학습을 원한다면 심화 과정을 참고하세요:
+
+- **[Spring WebFlux](/learning/deep-dive/deep-dive-spring-webflux/)**: Reactor, Mono/Flux, Backpressure 시각화.
+- **[Linux I/O 모델](/learning/deep-dive/deep-dive-linux-io-models/)**: Blocking/Non-Blocking I/O와 Event Loop.

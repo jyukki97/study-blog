@@ -7,7 +7,7 @@ tags: ["Redis", "BitMap", "HyperLogLog", "Geo", "Bloom Filter"]
 categories: ["Backend Deep Dive"]
 description: "Redis의 고급 데이터 구조로 메모리 효율적인 솔루션 구현하기"
 module: "data-system"
-study_order: 228
+study_order: 304
 ---
 
 ## 이 글에서 얻는 것
@@ -35,7 +35,27 @@ BITCOUNT user:visited:20251216
 # 오늘 방문한 사용자 수
 ```
 
-### 1-2) 실전 사용: 일일 활성 사용자 (DAU)
+### 1-2) BitMap 시각화
+
+BitMap은 0과 1로 이루어진 긴 배열입니다. 각 비트가 유저의 상태(방문 여부 등)를 나타냅니다.
+
+```mermaid
+graph LR
+    subgraph BitMap Structure
+    u1[User 1] -->|Offset 1| b1[1]
+    u2[User 2] -->|Offset 2| b2[0]
+    u3[User 3] -->|Offset 3| b3[1]
+    u4[...]
+    uN[User 999] -->|Offset 999| b999[1]
+    end
+    
+    style b1 fill:#4caf50,stroke:#333,color:#fff
+    style b2 fill:#e0e0e0,stroke:#333
+    style b3 fill:#4caf50,stroke:#333,color:#fff
+    style b999 fill:#4caf50,stroke:#333,color:#fff
+```
+
+### 1-3) 실전 사용: 일일 활성 사용자 (DAU)
 
 ```java
 @Service
@@ -93,7 +113,27 @@ PFCOUNT unique:users:20251216
 PFMERGE unique:users:week unique:users:20251216 unique:users:20251217
 ```
 
-### 2-2) 실전 사용: UV (Unique Visitors)
+### 2-2) HyperLogLog 원리 (확률적 카운팅)
+
+HyperLogLog는 데이터를 실제로 저장하지 않고, "해시값의 패턴"을 기억합니다.
+
+```mermaid
+graph TD
+    Input[Data: 'user123'] --> Hash[Hash Function]
+    Hash --> Bits[Hash Result: 00101...]
+    
+    Bits --> BucketSelect{Leading Bits<br/>Select Bucket}
+    Bits --> ZeroCount{Counting<br/>Leading Zeros}
+    
+    BucketSelect --> B1[Bucket 1]
+    BucketSelect --> B2[Bucket 2]
+    
+    ZeroCount -->|Max Zeros observed| Register[Update Register in Bucket]
+    
+    Register --> Estimate[Calculate Cardinality]
+```
+
+### 2-3) 실전 사용: UV (Unique Visitors)
 
 ```java
 @Service
@@ -156,7 +196,35 @@ GEODIST stores "seoul-gangnam" "seoul-city-hall" km
 GEORADIUS stores 127.0 37.5 10 km WITHDIST WITHCOORD
 ```
 
-### 3-2) 실전 사용: 주변 매장 찾기
+```bash
+# 반경 내 검색
+GEORADIUS stores 127.0 37.5 10 km WITHDIST WITHCOORD
+```
+
+### 3-2) Geo 검색 시각화
+
+중심점(내 위치)에서 설정한 반경 내에 있는 점(매장)들을 찾습니다.
+
+```mermaid
+graph TD
+    subgraph Map
+    Center((Me))
+    S1(Store A<br/>2km)
+    S2(Store B<br/>8km)
+    S3(Store C<br/>12km)
+    end
+    
+    Center -.->|Radius 10km| S1
+    Center -.->|Radius 10km| S2
+    Center -.-x|Out of range| S3
+    
+    style Center fill:#2196f3,stroke:#fff,color:#fff
+    style S1 fill:#4caf50,stroke:#333
+    style S2 fill:#4caf50,stroke:#333
+    style S3 fill:#e0e0e0,stroke:#333,stroke-dasharray: 5 5
+```
+
+### 3-3) 실전 사용: 주변 매장 찾기
 
 ```java
 @Service
@@ -200,7 +268,34 @@ public class StoreLocationService {
 
 ## 4) Bloom Filter: 존재 여부 빠른 확인
 
-### 4-1) Redisson Bloom Filter
+## 4) Bloom Filter: 존재 여부 빠른 확인
+
+Bloom Filter는 **"없다"는 100% 확실**하지만, **"있다"는 확률적(False Positive)**인 구조입니다.
+
+### 4-1) 동작 원리
+
+```mermaid
+graph LR
+    Input("Data: 'bad_user'") --> H1[Hash 1]
+    Input --> H2[Hash 2]
+    Input --> H3[Hash 3]
+    
+    H1 -->|Index 2| B2[Bit 2 = 1]
+    H2 -->|Index 5| B5[Bit 5 = 1]
+    H3 -->|Index 8| B8[Bit 8 = 1]
+    
+    subgraph BitArray
+    B1[0] --- B2 --- B3[0] --- B4[0] --- B5 --- B6[0] --- B7[0] --- B8
+    end
+    
+    style B2 fill:#f44336,color:#fff
+    style B5 fill:#f44336,color:#fff
+    style B8 fill:#f44336,color:#fff
+    
+    note["모든 인덱스가 1이어야 '존재 가능성 있음'<br/>하나라도 0이면 '무조건 없음'"]
+```
+
+### 4-2) Redisson Bloom Filter
 
 ```java
 @Service

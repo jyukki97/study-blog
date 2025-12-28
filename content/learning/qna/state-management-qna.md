@@ -1,6 +1,7 @@
 ---
 title: "상태관리 비교 정리"
-date: 2025-01-28
+study_order: 719
+date: 2025-12-01
 topic: "Frontend"
 topic_icon: "💬"
 topic_description: "Redux, Zustand, Context API 비교 및 상태관리 패턴 관련 핵심 개념과 실전 예제 정리"
@@ -1132,3 +1133,11 @@ function UserProfile() {
 - **로컬 우선**: 가능한 한 로컬 상태 사용
 - **전역 최소**: 여러 곳에서 공유 시에만 전역 상태
 - **Server State**: React Query, SWR로 분리
+
+---
+
+## 🔗 Related Deep Dive
+
+더 깊이 있는 학습을 원한다면 심화 과정을 참고하세요:
+
+- **[Spring WebFlux](/learning/deep-dive/deep-dive-spring-webflux/)**: 백엔드 상태 관리와 비동기 처리.

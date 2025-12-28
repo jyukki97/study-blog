@@ -1,6 +1,7 @@
 ---
 title: "OAuth2 인증 구조 정리"
-date: 2025-01-22
+study_order: 713
+date: 2025-12-01
 topic: "Security"
 tags: ["OAuth2", "인증", "보안", "Spring Security", "JWT", "Token"]
 categories: ["Security"]
@@ -29,26 +30,19 @@ OAuth2는 **인증(Authentication)이 아닌 인가(Authorization) 프로토콜*
 
 ##### 1. Authorization Code (가장 안전, 권장)
 
-```
-┌──────────┐                               ┌──────────────┐
-│  사용자   │                               │ Auth Server  │
-└────┬─────┘                               └──────┬───────┘
-     │                                            │
-     │  1. 로그인 페이지로 리다이렉트              │
-     │───────────────────────────────────────────>│
-     │                                            │
-     │  2. 사용자 로그인 & 권한 승인               │
-     │<──────────────────────────────────────────>│
-     │                                            │
-     │  3. Authorization Code 발급 (redirect)     │
-     │<───────────────────────────────────────────│
-     │                                            │
-┌────▼─────┐                               ┌──────▼───────┐
-│  Client  │  4. Code로 Access Token 요청   │ Auth Server  │
-│ (Backend)│──────────────────────────────>│              │
-│          │  5. Access Token 발급          │              │
-│          │<──────────────────────────────│              │
-└──────────┘                               └──────────────┘
+```mermaid
+sequenceDiagram
+    participant User as 사용자
+    participant Client as Client (Backend)
+    participant AuthServer as Auth Server
+
+    User->>AuthServer: 1. 로그인 페이지로 리다이렉트
+    AuthServer->>User: 2. 로그인 폼 표시
+    User->>AuthServer: 로그인 & 권한 승인
+    AuthServer-->>User: 3. Authorization Code 발급 (Redirect)
+    User->>Client: 4. Code 전달 (Callback URL)
+    Client->>AuthServer: 5. Code + Client Secret으로 Token 요청
+    AuthServer-->>Client: 6. Access Token 발급
 ```
 
 **실제 Spring Security 구현:**
@@ -117,14 +111,14 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
 ##### 2. Implicit (보안 취약, Deprecated)
 
-```
-┌──────────┐                               ┌──────────────┐
-│  Browser │  1. 로그인 요청                 │ Auth Server  │
-└────┬─────┘───────────────────────────────>└──────┬───────┘
-     │                                            │
-     │  2. Access Token 즉시 발급 (URL Fragment)   │
-     │<───────────────────────────────────────────│
-     │  (https://example.com#access_token=xxx)   │
+```mermaid
+sequenceDiagram
+    participant Browser as Browser (SPA)
+    participant AuthServer as Auth Server
+
+    Browser->>AuthServer: 1. 로그인 요청
+    AuthServer-->>Browser: 2. Access Token 즉시 발급 (URL Fragment)
+    Note right of Browser: https://example.com#access_token=xxx
 ```
 
 **문제점:**
@@ -1546,3 +1540,13 @@ public class SecretsManagerConfig {
 - PKCE: SPA/모바일 앱 필수
 - Secret Key: 환경 변수 또는 Secrets Manager
 - 의심 활동 모니터링 및 알림
+
+---
+
+## 🔗 Related Deep Dive
+
+더 깊이 있는 학습을 원한다면 심화 과정을 참고하세요:
+
+- **[OAuth 2.0와 OIDC 심화](/learning/deep-dive/deep-dive-oauth2-oidc/)**: Authorization Code Flow 전체 시퀀스 다이어그램과 JWT 구조 분석.
+- **[Spring Security 아키텍처](/learning/deep-dive/deep-dive-spring-security-architecture/)**: Filter Chain의 내부 동작과 커스텀 필터 추가 방법.
+- **[HTTPS & SSL Handshake](/learning/deep-dive/deep-dive-https-ssl-handshake/)**: TLS 1.3 핸드셰이크와 CA 인증 체계.

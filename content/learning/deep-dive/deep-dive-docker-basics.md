@@ -7,28 +7,34 @@ tags: ["Docker", "Container", "Dockerfile", "Docker Compose", "Image"]
 categories: ["Backend Deep Dive"]
 description: "VM과 컨테이너의 아키텍처 차이, 이미지 레이어 구조(Copy-on-Write)의 원리"
 module: "ops-observability"
-study_order: 301
+study_order: 604
 ---
 
 ## 🏗️ 1. VM vs Container: 아키텍처의 차이
 
 왜 Docker는 "가볍다"고 할까요? 비밀은 **Guest OS의 유무**에 있습니다.
 
-```mermaid
 graph TD
-    subgraph Virtual Machine
-    Hypervisor[Hypervisor]
-    GOS[Guest OS (GB단위)]
-    App1[Application]
-    Hypervisor --> GOS --> App1
+    subgraph VM [Virtual Machine Architecture]
+        Hyper[Hypervisor]
+        GOS[Guest OS <br/>(Heavy, GBs)]
+        App1[Application]
     end
-    
-    subgraph Docker Container
-    Docker[Docker Engine]
-    App2[Application]
+
+    subgraph Container [Container Architecture]
+        Docker[Docker Engine]
+        App2[Application]
+        P[Allocated Process]
+    end
+
+    Hyper --> GOS --> App1
     Docker --> App2
-    end
-```
+
+    %% Styles
+    style VM fill:#ffebee,stroke:#c62828
+    style Container fill:#e8f5e9,stroke:#2e7d32
+    style GOS fill:#ffcdd2,stroke:#b71c1c,stroke-width:2px
+    style Docker fill:#c8e6c9,stroke:#1b5e20,stroke-width:2px
 
 - **VM**: 하드웨어를 가상화합니다. 각 VM마다 Windows/Linux를 통째로 설치하므로 무겁고(GB 단위), 부팅이 느립니다.
 - **Container**: OS(리눅스 커널)를 공유합니다. 격리된 **프로세스**일 뿐이므로 가볍고(MB 단위), 1초 만에 켜집니다.
@@ -39,12 +45,17 @@ graph TD
 
 Docker 이미지는 통짜 파일이 아닙니다. **여러 겹의 케이크**입니다.
 
-```mermaid
 graph BT
     L1[Base Layer: Ubuntu] --> L2[Add Java]
-    L2 --> L3[Add Application Code]
-    L3 --> C[Container (Write-able)]
-```
+    L2[Add Java] --> L3[Add Application Code]
+    L3[Add Application Code] --> C[Container Layer <br/>(Read-Write)]
+
+    %% Styles
+    classDef readOnly fill:#eeeeee,stroke:#9e9e9e,stroke-dasharray: 5 5;
+    classDef writeAble fill:#fff3e0,stroke:#ff9800,stroke-width:2px;
+
+    class L1,L2,L3 readOnly;
+    class C writeAble;
 
 이미지의 모든 레이어는 **Read-Only**입니다.
 컨테이너를 실행하면 그 위에 **얇은 R/W 레이어** 한 장만 올라갑니다.
@@ -57,6 +68,24 @@ graph BT
 ## 📜 3. Dockerfile의 핵심 (멀티 스테이지 빌드)
 
 "이미지 크기를 줄이는 법"이 실무의 핵심입니다.
+
+```mermaid
+flowchart LR
+    subgraph Stage 1 [Builder Stage]
+        Src[Source Code] --> Build[Gradle Build]
+        Build --> Jar[Spring Boot JAR]
+    end
+
+    subgraph Stage 2 [Runtime Stage]
+        Base[OpenJDK Slim Image] --> Copy[Copy JAR from Stage 1]
+        Copy --> Run[Run Application]
+    end
+
+    Jar -.-> Copy
+
+    style Stage 1 fill:#f3e5f5,stroke:#7b1fa2
+    style Stage 2 fill:#e3f2fd,stroke:#1565c0
+```
 
 ```dockerfile
 # 🏗️ Build Stage

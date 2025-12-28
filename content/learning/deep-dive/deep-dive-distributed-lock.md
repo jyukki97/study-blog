@@ -6,8 +6,8 @@ topic: "Database"
 tags: ["Distributed Lock", "Redis", "Redisson", "Concurrency"]
 categories: ["Backend Deep Dive"]
 description: "서버가 여러 대일 때 synchronized는 무용지물입니다. Redis와 Redisson을 활용한 안전한 락 구현"
-module: "data-system"
-study_order: 275
+module: "distributed-system"
+study_order: 400
 ---
 
 ## 🔐 1. 왜 `synchronized`로 안 되나요?

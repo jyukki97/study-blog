@@ -7,7 +7,7 @@ tags: ["Spring", "Bean Scope", "Singleton", "Prototype", "Proxy"]
 categories: ["Backend Deep Dive"]
 description: "Spring 빈의 생명주기 스코프(Singleton/Prototype/Request/Session)와 프록시 모드를 실무 관점으로 정리"
 module: "spring-core"
-study_order: 103
+study_order: 201
 ---
 
 ## 이 글에서 얻는 것
@@ -24,6 +24,21 @@ Spring 빈의 스코프는 빈이 언제 생성되고 언제 소멸되는지를 
 ## 1) Singleton 스코프 (기본값)
 
 **"애플리케이션 전체에서 하나의 인스턴스만 존재"**
+
+```mermaid
+graph LR
+    subgraph SpringContainer ["Spring Container"]
+        S["Singleton Bean"]
+    end
+    
+    ClientA["Client A"] -->|"getBean()"| S
+    ClientB["Client B"] -->|"getBean()"| S
+    ClientC["Client C"] -->|"getBean()"| S
+    
+    style S fill:#fff9c4,stroke:#fbc02d
+    note["All clients share the SAME instance"]
+    S -.-> note
+```
 
 ```java
 @Component  // 기본 스코프는 Singleton
@@ -60,6 +75,23 @@ service2.doSomething();  // Call count: 2 (같은 객체라 상태 공유)
 ## 2) Prototype 스코프
 
 **"요청할 때마다 새로운 인스턴스 생성"**
+
+```mermaid
+graph LR
+    subgraph SpringContainer ["Spring Container"]
+        P1["Prototype@101"]
+        P2["Prototype@102"]
+        P3["Prototype@103"]
+    end
+    
+    ClientA["Client A"] -->|"getBean()"| P1
+    ClientB["Client B"] -->|"getBean()"| P2
+    ClientC["Client C"] -->|"getBean()"| P3
+    
+    style P1 fill:#e1f5fe,stroke:#0277bd
+    style P2 fill:#e1f5fe,stroke:#0277bd
+    style P3 fill:#e1f5fe,stroke:#0277bd
+```
 
 ```java
 @Component
@@ -125,9 +157,34 @@ service.doSomething();  // Count: 1
 service.doSomething();  // Count: 2 (Prototype이 재사용됨!)
 ```
 
-**문제:**
-- Singleton 빈은 생성 시 한 번만 의존성 주입
-- Prototype 빈이 재사용되어 의미 없음
+### 문제 상황 시각화 (Injection Time Trap)
+
+```mermaid
+graph TD
+    subgraph Context ["Application Context"]
+        S[Singleton Service]
+        P[Prototype Bean]
+    end
+    
+    Inject[Container Startup] -->|1. Create Singleton| S
+    Inject -->|2. Inject Prototype| S
+    S -->|3. Hold Reference| P
+    
+    User1[User Request 1] --> S
+    User2[User Request 2] --> S
+    
+    note[Both requests use the SAME Prototype instance\nbecause Singleton holds it!]
+    S -.-> note
+    
+    style S fill:#fff9c4,stroke:#fbc02d
+    style P fill:#e1f5fe,stroke:#0277bd
+    style Inject fill:#f5f5f5,stroke:#9e9e9e
+```
+
+**문제 원인:**
+- Singleton 빈은 **생성 시점(Injection Time)**에만 의존성을 주입받습니다.
+- 이때 주입된 Prototype 빈은 영원히 Singleton 내부에 박제됩니다.
+- 결과적으로 Prototype의 "매번 새로운 객체"라는 특성이 무시됩니다.
 
 ### 해결 방법 1: ObjectProvider
 
@@ -188,9 +245,27 @@ service.doSomething();  // Count: 1 (프록시가 새 객체 생성)
 service.doSomething();  // Count: 1 (프록시가 새 객체 생성)
 ```
 
-**동작 원리:**
-- `prototypeBean`은 실제 객체가 아니라 **프록시**
-- 메서드 호출 시 프록시가 실제 빈을 새로 가져옴
+**동작 원리 (CGLIB Proxy Delegation):**
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Proxy as Scoped Proxy (CGLIB)
+    participant Context as ApplicationContext
+    participant Real as Real Prototype Bean
+
+    Client->>Proxy: doSomething()
+    activate Proxy
+    Proxy->>Context: getBean(PrototypeBean)
+    Context-->>Real: Create New Instance
+    Proxy->>Real: doSomething() (Delegate)
+    Real-->>Proxy: Return
+    deactivate Proxy
+```
+
+- **Client**는 `SingletonService`를 호출한다고 생각하지만, 실제로는 **프록시**를 호출합니다.
+- 프록시는 메서드가 호출될 때마다(`doSomething()`) 진짜 컨테이너에게 새로운 빈을 요청합니다.
+- 이를 통해 Singleton 내부에서도 Prototype의 생명주기를 지킬 수 있습니다.
 
 ## 4) Web 스코프 (Request/Session)
 
@@ -478,13 +553,15 @@ public class CartController {
 }
 ```
 
-## 요약: 스스로 점검할 것
+## 요약: 빈 스코프 비교
 
-- Singleton vs Prototype의 차이를 설명할 수 있다
-- Singleton 빈에 Prototype 빈 주입 시 문제와 해결법을 안다
-- proxyMode가 필요한 이유를 설명할 수 있다
-- Request/Session 스코프의 사용 시점을 판단할 수 있다
-- Singleton 빈에서 상태를 가지면 안 되는 이유를 안다
+| Feature | Singleton | Prototype | Request | Session |
+| :--- | :--- | :--- | :--- | :--- |
+| **생성 시점** | 앱 시작 (Eager) | 요청 시 (Lazy) | HTTP 요청 시작 | HTTP 세션 시작 |
+| **소멸 시점** | 앱 종료 | 관리 안 함 (GC됨) | HTTP 요청 끝 | HTTP 세션 끝 |
+| **인스턴스 수** | 1개 (공유) | N개 (독립) | 요청당 1개 | 세션당 1개 |
+| **상태 관리** | **Stateless 필수** | Stateful 가능 | 요청 내 공유 | 세션 내 공유 |
+| **주의사항** | Thread Safety | 메모리 누수 | Proxy Mode 필수 | Proxy Mode 필수 |
 
 ## 다음 단계
 

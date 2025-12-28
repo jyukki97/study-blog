@@ -6,8 +6,8 @@ topic: "Modern Tech"
 tags: ["Serverless", "AWS Lambda", "Firecracker", "Virtualization", "MicroVM"]
 categories: ["Backend Deep Dive"]
 description: "서버리스는 정말 서버가 없을까? AWS Lambda가 수천 개의 함수를 격리하는 기술인 Firecracker와, 1초의 지연(Cold Start)을 없애기 위한 엔지니어들의 노력을 파헤칩니다."
-module: "modern-frontiers"
-study_order: 1003
+module: "ops-observability"
+study_order: 600
 ---
 
 ## ⚡ 1. 서버리스의 딜레마

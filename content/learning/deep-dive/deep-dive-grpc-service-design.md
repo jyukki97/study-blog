@@ -6,8 +6,8 @@ topic: "Architecture"
 tags: ["gRPC", "Protobuf", "Streaming", "IDL"]
 categories: ["Backend Deep Dive"]
 description: "프로토 정의, 일방향/양방향 스트리밍, gRPC-Gateway 연계 등 gRPC 설계 핵심"
-module: "architecture"
-study_order: 480
+module: "ops-observability"
+study_order: 606
 ---
 
 ## 이 글에서 얻는 것
@@ -18,7 +18,47 @@ study_order: 480
 
 ## 0) gRPC는 “계약(Contract) 기반”이다
 
-gRPC의 강점은 “바이너리”가 아니라 **계약이 명확해지고, 코드가 자동 생성되며, 스트리밍이 자연스럽다**는 점입니다.
+gRPC의 강점은 **Protobuf(Protocol Buffers)**를 사용한 고효율 바이너리 통신입니다.
+
+### 0.1 Protobuf vs JSON
+
+**JSON**: 사람이 읽을 수 있지만, 필드 이름이 반복되어 용량이 큽니다.
+```json
+{ "id": 1, "username": "alice" }  // 30 bytes
+```
+
+**Protobuf**: 바이너리로 직렬화되며, 필드 번호(Tag)로 데이터를 식별해 매우 작습니다.
+```mermaid
+block-beta
+  columns 4
+  block:proto
+    Tag1["Tag: 1 (id)"]
+    Val1["Value: 1"]
+    Tag2["Tag: 2 (username)"]
+    Val2["Value: 'alice'"]
+  end
+  style proto fill:#e1f5fe,stroke:#0277bd
+```
+*(실제로는 [Tag|Type] + [Length] + [Value] 구조의 TLV 패킹으로 약 9~10 bytes)*
+
+### 0.2 gRPC Interface Definition (IDL)
+gRPC는 **계약(Proto)**을 먼저 정의하고, 코드를 자동 생성합니다.
+
+```mermaid
+flowchart LR
+    Proto[order.proto] -->|protoc| Compiler[Protobuf Compiler]
+    
+    Compiler -->|Generate| Java[OrderServiceGrpc.java<br/>OrderOuterClass.java]
+    Compiler -->|Generate| Go[order.pb.go<br/>order_grpc.pb.go]
+    Compiler -->|Generate| Python[order_pb2.py<br/>order_pb2_grpc.py]
+
+    style Proto fill:#ffebee,stroke:#c62828
+    style Compiler fill:#e3f2fd,stroke:#1565c0
+    style Java fill:#fff3e0,stroke:#e65100
+```
+- **Service Stub**: 클라이언트/서버가 통신하기 위한 기본 코드.
+- **Message Class**: 데이터를 담는 DTO (Builder 패턴 등 제공).
+
 
 좋은 gRPC 설계의 핵심 질문:
 
@@ -26,14 +66,38 @@ gRPC의 강점은 “바이너리”가 아니라 **계약이 명확해지고, �
 - 호출이 멱등(idempotent)한가? 재시도해도 안전한가?
 - 스트리밍이 필요한가, 단순 Unary가 충분한가?
 
-## 1) 호출 유형 선택: Unary vs Streaming
+## 1) Unary vs Streaming (feat. HTTP/2)
 
-- **Unary**: 대부분의 CRUD/업무 API는 이걸로 충분합니다.
-- **Server streaming**: 서버가 이벤트/피드를 순차적으로 보내야 할 때(로그/알림/변화 스트림)
-- **Client streaming**: 대량 업로드/배치 전송
-- **Bidirectional**: 실시간 협업/상태 동기화
+gRPC는 **HTTP/2** 위에서 동작하며, 하나의 커넥션으로 여러 요청을 동시에 처리(Multiplexing)합니다.
 
-스트리밍은 강력하지만, 운영 복잡도(백프레셔, 재연결, 상태)가 늘어납니다. 필요한 곳에만 쓰는 편이 좋습니다.
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Server
+
+    Note over Client,Server: HTTP/1.1 (Blocking / Head-of-Line Blocking)
+    Client->>Server: Request 1
+    Server-->>Client: Response 1
+    Client->>Server: Request 2
+    Server-->>Client: Response 2
+
+    Note over Client,Server: HTTP/2 (Multiplexing)
+    par Parallel Requests
+        Client->>Server: Request 1 (Stream 1)
+        Client->>Server: Request 2 (Stream 3)
+    and
+        Server-->>Client: Response 2 (Stream 3)
+        Server-->>Client: Response 1 (Stream 1)
+    end
+```
+
+### 1.1 Communication Patterns
+- **Unary**: 단순 Req/Res (대부분의 API).
+- **Server Streaming**: `returns (stream response)` (알림, 피드, 로그).
+- **Client Streaming**: `(stream request)` (대용량 업로드).
+- **Bidirectional**: `(stream request) returns (stream response)` (실시간 채팅, 게임).
+
+필요한 경우에만 스트리밍을 사용하세요. (운영 복잡도 증가)
 
 ## 2) proto 설계: 호환성 규칙이 ‘운영 안전성’이다
 

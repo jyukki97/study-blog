@@ -1,6 +1,7 @@
 ---
 title: "React 성능 최적화 정리"
-date: 2025-01-23
+study_order: 714
+date: 2025-12-01
 topic: "Frontend"
 topic_icon: "💬"
 topic_description: "React 성능 최적화, Virtual DOM, memo, useCallback 관련 핵심 개념과 실전 예제 정리"
@@ -1069,3 +1070,11 @@ function ProductImage({ src, alt }) {
 - **Virtualization**: react-window로 대량 리스트 최적화
 - **Lazy Loading**: Intersection Observer로 지연 로딩
 - **Pagination**: 페이지 단위로 데이터 로드
+
+---
+
+## 🔗 Related Deep Dive
+
+더 깊이 있는 학습을 원한다면 심화 과정을 참고하세요:
+
+- **[Spring WebFlux](/learning/deep-dive/deep-dive-spring-webflux/)**: Non-blocking I/O와 Event Loop 비교.

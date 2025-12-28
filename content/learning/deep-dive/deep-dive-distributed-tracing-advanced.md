@@ -7,7 +7,7 @@ tags: ["Distributed Tracing", "Zipkin", "Jaeger", "OpenTelemetry", "Microservice
 categories: ["Backend Deep Dive"]
 description: "분산 추적으로 마이크로서비스 간 요청 흐름을 추적하고 병목을 찾는 방법"
 module: "ops-observability"
-study_order: 344
+study_order: 605
 ---
 
 ## 이 글에서 얻는 것
@@ -19,47 +19,86 @@ study_order: 344
 
 ## 1) 분산 추적이란?
 
-```
-사용자 요청 → Gateway → Service A → Service B → DB
-                                  ↓
-                             Service C → Cache
+### 1.1 Trace Context Propagation
 
-하나의 요청이 여러 서비스를 거치는 경로 추적!
+하나의 요청이 여러 서비스를 거칠 때, **Trace ID**가 어떻게 유지될까요? 비밀은 **HTTP Header**에 있습니다.
 
-Trace ID: abc-123 (전체 요청)
-├─ Span 1: Gateway (100ms)
-├─ Span 2: Service A (200ms)
-│  ├─ Span 3: Service B (150ms)
-│  └─ Span 4: Service C (100ms)
-└─ Span 5: DB Query (50ms)
+```mermaid
+sequenceDiagram
+    participant User
+    participant Gateway
+    participant ServiceA
+    participant ServiceB
+    
+    User->>Gateway: Request (New Trace)
+    Note right of Gateway: TraceId: abc-123<br/>SpanId: 100
+    
+    Gateway->>ServiceA: HTTP Header (X-B3-TraceId: abc-123)
+    Note right of ServiceA: TraceId: abc-123<br/>SpanId: 200<br/>ParentSpanId: 100
+    
+    ServiceA->>ServiceB: TCP/Message (X-B3-TraceId: abc-123)
+    Note right of ServiceB: TraceId: abc-123<br/>SpanId: 300<br/>ParentSpanId: 200
 ```
+
+- **TraceId**: 전체 요청을 식별하는 고유 ID (변하지 않음).
+- **SpanId**: 각 구간(서비스/함수)을 식별하는 ID (매번 바뀜).
+- **ParentSpanId**: 호출한 상위 Span의 ID (계층 구조 형성).
+
 
 ## 2) Zipkin 설정
 
-```yaml
-# docker-compose.yml
-version: '3.8'
+## 2. Zipkin Architecture Strategy
 
-services:
-  zipkin:
-    image: openzipkin/zipkin
-    ports:
-      - "9411:9411"
+```mermaid
+flowchart LR
+    App[Spring Boot App] -->|UDP/HTTP| Collector[Zipkin Collector]
+    Collector -->|Write| Storage[(Elasticsearch/MySQL)]
+    UI[Zipkin UI] -->|Read| Storage
+    
+    style App fill:#e3f2fd,stroke:#1565c0
+    style Collector fill:#f3e5f5,stroke:#7b1fa2
+    style Storage fill:#fff3e0,stroke:#e65100
 ```
 
-**Spring Boot:**
+### 2.1 Span Timeline Visualization
+
+병목 구간을 찾으려면 **Gantt Chart** 형태의 시각화가 필수적입니다.
+
+```mermaid
+gantt
+    title Trace ID: abc-123 Timeline
+    dateFormat X
+    axisFormat %s
+
+    section Gateway
+    Gateway (100ms) :done, g1, 0, 100
+    
+    section Service A
+    Service A (200ms) :active, a1, 50, 250
+    
+    section Service B
+    Service B (150ms) :b1, 100, 250
+    
+    section DB
+    Query Users (50ms) :crit, db1, 150, 200
+```
+
+위 차트를 보면, `Gateway` -> `Service A` -> `Service B` -> `DB` 순서로 호출되지만, **Service A가 Service B의 응답을 기다리는 시간**(150ms)이 전체 지연의 주원인임을 알 수 있습니다.
+
+## 3. Configuration (Spring Boot 3.0+)
+
+Spring Boot 3.x부터는 `Spring Cloud Sleuth` 대신 **Micrometer Tracing**을 사용합니다.
+
 ```gradle
-dependencies {
-    implementation 'io.micrometer:micrometer-tracing-bridge-brave'
-    implementation 'io.zipkin.reporter2:zipkin-reporter-brave'
-}
+implementation 'io.micrometer:micrometer-tracing-bridge-brave' // or otel
+implementation 'io.zipkin.reporter2:zipkin-reporter-brave'
 ```
 
 ```yaml
 management:
   tracing:
     sampling:
-      probability: 1.0  # 100% 샘플링 (개발), 운영: 0.1
+      probability: 1.0  # Dev: 100%, Prod: 1~5%
   zipkin:
     tracing:
       endpoint: http://localhost:9411/api/v2/spans

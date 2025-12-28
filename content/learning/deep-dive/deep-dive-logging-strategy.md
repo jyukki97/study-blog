@@ -7,7 +7,7 @@ tags: ["Logging", "Structured Logging", "MDC", "ELK"]
 categories: ["Backend Deep Dive"]
 description: "단순 텍스트 로그가 아니라 '검색 가능한' JSON 로그를 남겨야 하는 이유와 MDC 활용법"
 module: "ops-observability"
-study_order: 340
+study_order: 603
 ---
 
 ## 📝 1. 로그는 인간이 아니라 "기계"가 읽는 것이다

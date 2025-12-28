@@ -1,6 +1,7 @@
 ---
 title: "Spring Transaction 관리 정리"
-date: 2025-01-26
+study_order: 717
+date: 2025-12-01
 topic: "Spring"
 topic_icon: "💬"
 topic_description: "@Transactional, Propagation, Isolation Level 관련 핵심 개념과 실전 예제 정리"
@@ -1037,3 +1038,13 @@ public class OrderTransactionService {
 - **Saga Pattern**: 로컬 트랜잭션 + 보상 트랜잭션
 - **Outbox Pattern**: 이벤트 발행 보장
 - **2PC**: 실무에서 거의 사용 안 함
+
+---
+
+## 🔗 Related Deep Dive
+
+더 깊이 있는 학습을 원한다면 심화 과정을 참고하세요:
+
+- **[Spring Transaction 심화](/learning/deep-dive/deep-dive-spring-transaction/)**: @Transactional 동작 원리와 Self-invocation 함정.
+- **[Spring AOP 내부](/learning/deep-dive/deep-dive-spring-aop-transaction-internals/)**: Proxy 기반 AOP와 AspectJ 비교.
+- **[분산 트랜잭션](/learning/deep-dive/deep-dive-distributed-transactions/)**: 2PC와 SAGA 패턴 시각적 비교.

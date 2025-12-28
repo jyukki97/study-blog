@@ -6,8 +6,8 @@ topic: "Database Internals"
 tags: ["Database", "B-Tree", "LSM-Tree", "Storage Engine", "Performance"]
 categories: ["Backend Deep Dive"]
 description: "DB 성능의 핵심인 스토리지 엔진. MySQL의 B-Tree와 Cassandra/RocksDB의 LSM-Tree 구조를 비교하고 장단점을 파헤칩니다."
-module: "advanced-cs"
-study_order: 902
+module: "data-system"
+study_order: 305
 ---
 
 ## 💾 1. DB는 어떻게 디스크에 쓸까?
@@ -27,11 +27,18 @@ study_order: 902
 
 ```mermaid
 graph TD
-    Root[Root Page] --> Child1[Page A (1-10)]
-    Root --> Child2[Page B (11-20)]
+    subgraph B_Tree ["B-Tree Structure (Random I/O)"]
+        Root[Root Page] --> Branch1[Branch: 1-50]
+        Root --> Branch2[Branch: 51-100]
+        
+        Branch1 --> Leaf1[Leaf: 10, 20...50]
+        Branch1 --> Leaf2[Leaf: Split Occurs!]
+        
+        style Leaf2 fill:#ffccbc,stroke:#d84315
+    end
     
-    Child1 --> Leaf1[Leaf: Data 5]
-    Child1 --> Leaf2[Leaf: Data 8]
+    Note[New Insert forces Page Split -> Random I/O]
+    Leaf2 -.-> Note
 ```
 
 - **Read**: `O(log N)`으로 기막히게 빠릅니다. 이진 탐색과 비슷합니다.
@@ -51,20 +58,39 @@ LSM은 **"무조건 순차적으로 쓴다(Append Only)"**는 철학을 가집�
 ### 동작 원리
 
 ```mermaid
+flowchart TD
+    Request["Write Request"] --> WAL[("1. Write Ahead Log")]
+    WAL --> Mem["2. MemTable (In-Memory Sort)"]
+    
+    Mem -- "Flush (When Full)" --> L0["SSTable L0"]
+    L0 -- "Compaction" --> L1["SSTable L1"]
+    
+    style WAL fill:#e1f5fe,stroke:#0277bd
+    style Mem fill:#fff9c4,stroke:#fbc02d
+    style L0 fill:#e0f2f1,stroke:#00695c
+    style L1 fill:#e0f2f1,stroke:#00695c
+```
+
+### 3.1 LSM Write Path 상세 (Sequential Write)
+1. **WAL (Write Ahead Log)**: 데이터 유실 방지를 위해 로그 파일에 이어쓰기(Append) 합니다. (Sequential I/O -> 매우 빠름)
+2. **MemTable**: 메모리 상에서 데이터를 정렬합니다. (Red-Black Tree, Skip List 등)
+3. **Internal Flush**: MemTable이 꽉 차면 불변(Immutable) 상태로 전환되고, 백그라운드 스레드가 디스크(SSTable)로 덤프합니다.
+
+### 3.2 Compaction (Merge Sort)
+쌓여있는 SSTable 파일들을 병합(Merge)하여 데이터를 정리합니다.
+
+```mermaid
 graph TD
-    subgraph RAM
-    Mem[MemTable (Sorted Memory)]
+    subgraph Level_0 ["Level 0 (Unsorted Overlap)"]
+        File1["File A: Key 1..100"]
+        File2["File B: Key 50..150"]
     end
     
-    subgraph Disk
-    SST1[SSTable L0]
-    SST2[SSTable L1]
-    SST3[SSTable L1]
+    subgraph Level_1 ["Level 1 (Sorted, No Overlap)"]
+        Merged["Merged File: Key 1..150 (Unique)"]
     end
     
-    Input[Write Request] --> Mem
-    Mem -.->|Flush (Sequential Write)| SST1
-    SST1 -.->|Compaction (Merge)| SST2
+    File1 & File2 -->|Merge Sort + Delete Garbage| Merged
 ```
 
 1. **MemTable**: 일단 메모리에 씁니다. (엄청 빠름)
@@ -78,9 +104,9 @@ graph TD
 
 ## 요약
 
-| DB 종류 | 엔진 | 강점 | 약점 | 용도 |
+| DB 종류 | 엔진 | 쓰기 패턴 | 강점 | 약점 |
 | :--- | :--- | :--- | :--- | :--- |
-| **MySQL** | B-Tree | Read Fast | Write Slow | 일반적인 웹 서비스 (CRUD) |
-| **Cassandra** | LSM-Tree | Write Fast | Read Slower | 채팅 로그, 센서 데이터, 주문 내역 |
+| **MySQL (InnoDB)** | **B-Tree** | Random I/O (Update-in-Place) | **Read** (Index Search 빠름) | **Write** (Page Split 오버헤드) |
+| **Cassandra / RocksDB** | **LSM-Tree** | Sequential I/O (Log-Structured) | **Write** (Append Only) | **Read** (여러 파일 스캔 필요) |
 
 **결론**: 쓰기가 미친듯이 많은 시스템(채팅, 로그)을 만든다면 MySQL을 고집하지 말고 LSM 기반 DB를 검토하세요.

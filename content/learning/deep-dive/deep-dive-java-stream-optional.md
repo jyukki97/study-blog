@@ -7,7 +7,7 @@ tags: ["Java", "Stream", "Optional", "Lambda", "Functional Programming"]
 categories: ["Backend Deep Dive"]
 description: "Stream API로 컬렉션 처리를 선언적으로 작성하고, Optional로 null 안전성을 확보하는 실전 기법"
 module: "foundation"
-study_order: 18
+study_order: 101
 ---
 
 ## 이 글에서 얻는 것

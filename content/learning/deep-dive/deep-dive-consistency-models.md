@@ -6,8 +6,8 @@ topic: "Distributed Systems"
 tags: ["Consistency", "Distributed Systems", "Linearizability", "CAP"]
 categories: ["Backend Deep Dive"]
 description: "분산 시스템에서 '최신 데이터'를 본다는 것의 의미와 비용. Linearizability, Sequential, Eventual Consistency의 차이를 명확히 구분합니다."
-module: "advanced-cs"
-study_order: 901
+module: "distributed-system"
+study_order: 404
 ---
 
 ## 이 글에서 얻는 것
@@ -20,8 +20,8 @@ topic: "Distributed Systems"
 tags: ["Consistency", "Distributed Systems", "Linearizability", "CAP"]
 categories: ["Backend Deep Dive"]
 description: "분산 시스템에서 '최신 데이터'를 본다는 것의 의미와 비용. Linearizability, Sequential, Eventual Consistency의 차이를 명확히 구분합니다."
-module: "advanced-cs"
-study_order: 901
+module: "distributed-system"
+study_order: 404
 ---
 
 ## 🧐 1. Consistency Model이란?
@@ -41,21 +41,24 @@ Consistency Model은 **"데이터가 복제되는 동안, 클라이언트에게 
 
 ```mermaid
 sequenceDiagram
+    autonumber
     participant Client A
-    participant DB Leader
-    participant DB Follower
+    participant Leader as DB Leader
+    participant Follower as DB Follower
     participant Client B
     
-    Client A->>DB Leader: Write(x=1)
-    activate DB Leader
-    DB Leader->>DB Follower: Replicate(x=1)
-    DB Follower-->>DB Leader: Ack
-    DB Leader-->>Client A: OK
-    deactivate DB Leader
+    Note over Client A, Client B: Global Order (순차적 실행 보장)
     
-    Note over Client B: 이 시점부터 누가 읽든 무조건 x=1
-    Client B->>DB Follower: Read(x)
-    DB Follower-->>Client B: 1
+    Client A->>Leader: Write(x=1)
+    activate Leader
+    Leader->>Follower: Replicate(x=1) (Sync)
+    Follower-->>Leader: Ack
+    Leader-->>Client A: OK
+    deactivate Leader
+    
+    Note over Client B: 이 시점부터 누가 읽든 x=1 (보장)
+    Client B->>Follower: Read(x)
+    Follower-->>Client B: 1
 ```
 
 - **특징**: 언제나 최신 데이터를 보장합니다.
@@ -72,20 +75,25 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
+    autonumber
     participant Client A
-    participant DB Leader
-    participant DB Follower
+    participant Leader as DB Leader
+    participant Follower as DB Follower
     participant Client B
     
-    Client A->>DB Leader: Write(x=1)
-    DB Leader-->>Client A: OK (비동기 복제)
+    Client A->>Leader: Write(x=1)
+    Leader-->>Client A: OK (Async Ack)
     
-    Note over DB Leader, DB Follower: 아직 복제 안 됨 (Replication Lag)
+    Note over Leader, Follower: 🚧 Replication Lag (지연 발생) 🚧
     
-    Client B->>DB Follower: Read(x)
-    DB Follower-->>Client B: 0 (과거 데이터!)
+    Client B->>Follower: Read(x)
+    Follower-->>Client B: 0 (Stale Data! 😱)
     
-    DB Leader->>DB Follower: Replicate(x=1) (뒤늦게 도착)
+    par Async Replication
+        Leader->>Follower: Replicate(x=1)
+    and Eventual Consistency
+        Note right of Follower: 이제 x=1 됨
+    end
 ```
 
 - **특징**: 쓰기 응답이 매우 빠릅니다. (복제를 기다리지 않음)
@@ -98,6 +106,25 @@ sequenceDiagram
 
 CAP 이론("3개 중 2개")은 너무 단순합니다. **PACELC**가 더 정확합니다.
 
+```mermaid
+graph TD
+    Start{"Network Partition?"}
+    
+    Start -->|"Yes (P)"| Partition[Partitioned]
+    Partition -->|Availability| PA["PA: DynamoDB, Cassandra"]
+    Partition -->|Consistency| PC["PC: HBase, BigTable"]
+    
+    Start -->|"No (E)"| Normal["Else (Normal State)"]
+    Normal -->|Latency| EL["EL: DynamoDB Default"]
+    Normal -->|Consistency| EC["EC: MongoDB, BigTable"]
+    
+    style Start fill:#fff9c4,stroke:#fbc02d
+    style PA fill:#c8e6c9,stroke:#388e3c
+    style PC fill:#ffccbc,stroke:#d84315
+    style EL fill:#c8e6c9,stroke:#388e3c
+    style EC fill:#ffccbc,stroke:#d84315
+```
+
 > **P**artition(네트워크 단절) 상황이면 **A**와 **C** 중 선택하고,
 > **E**lse(평소)에는 **L**atency(지연)와 **C**onsistency(정합성) 중 선택한다.
 
@@ -107,6 +134,15 @@ CAP 이론("3개 중 2개")은 너무 단순합니다. **PACELC**가 더 정확�
 | **장애 (P)** | **PC (Consistency)** | 데이터가 틀리느니 차라리 에러를 뱉겠다. (은행 이체) | 
 | **평소 (E)** | **EL (Latency)** | 빠른 응답을 위해 복제 완료를 기다리지 않는다. (Eventual) |
 | **평소 (E)** | **EC (Consistency)** | 느리더라도 정확성을 위해 모든 노드 응답을 기다린다. (Strong) |
+
+## 📊 5. Consistency Hierarchy
+
+강한 정합성일수록 느리고, 약한 정합성일수록 빠릅니다.
+
+1.  **Linearizability** (Strongest): 실시간, 전역 순서 보장. (비용: 💰💰💰💰💰)
+2.  **Sequential Consistency**: 모든 프로세스가 "동일한 순서"로 보지만, 실시간성은 보장 X.
+3.  **Causal Consistency**: "인과 관계"가 있는 이벤트만 순서 보장. (댓글 -> 대댓글)
+4.  **Eventual Consistency** (Weakest): 언젠간 같아짐. (비용: 💰)
 
 ## 요약
 

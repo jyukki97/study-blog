@@ -10,9 +10,9 @@ weight: 3
 study_order: 200
 layout: "learning-module"
 module_key: "data-system"
-url: "/learning/career/backend-data-system-phase/"
+url: "/learning/modules/backend-data-system-phase/"
 aliases:
-  - "/learning/career/backend-data-system-phase/"
+  - "/learning/modules/backend-data-system-phase/"
 ---
 
 ## 이 단계에서 얻는 것

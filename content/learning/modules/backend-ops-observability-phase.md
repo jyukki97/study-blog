@@ -1,18 +1,18 @@
 ---
-title: "4단계: 운영 · 배포 · 모니터링"
+title: "6단계: 클라우드 네이티브 & DevOps"
 date: 2025-12-16
 draft: false
 topic: "Backend Roadmap"
-tags: ["DevOps", "CI/CD", "모니터링", "AWS", "Docker"]
+tags: ["DevOps", "CI/CD", "모니터링", "AWS", "Docker", "K8s"]
 categories: ["Learning"]
-description: "Docker, CI/CD, 모니터링, 클라우드 배포까지 운영 스택을 갖추는 모듈"
-weight: 4
-study_order: 300
+description: "Docker, K8s, CI/CD, 모니터링, 트레이싱까지 운영 스택을 갖추는 모듈"
+weight: 6
+study_order: 600
 layout: "learning-module"
 module_key: "ops-observability"
-url: "/learning/career/backend-ops-observability-phase/"
+url: "/learning/modules/backend-ops-observability-phase/"
 aliases:
-  - "/learning/career/backend-ops-observability-phase/"
+  - "/learning/modules/backend-ops-observability-phase/"
 ---
 
 ## 이 단계에서 얻는 것

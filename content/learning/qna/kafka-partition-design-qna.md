@@ -1,6 +1,7 @@
 ---
 title: "Kafka Partition 설계 정리"
-date: 2025-01-21
+study_order: 712
+date: 2025-12-01
 topic: "Kafka"
 topic_icon: "💬"
 topic_description: "Kafka Partition 설계, Key 기반 분배, Ordering 보장 관련 핵심 개념과 실전 예제 정리"
@@ -323,13 +324,13 @@ while (true) {
 // 하지만 VIP 사용자가 전체 트래픽의 80%를 차지!
 // → VIP 사용자가 몰린 Partition에 부하 집중 ⚠️
 
-Topic: user-events (Partition 4개)
-┌─────────────────────────────────┐
-│ Partition 0: VIP users (80%)    │ ← Hot! 🔥
-│ Partition 1: Normal (7%)        │
-│ Partition 2: Normal (7%)        │
-│ Partition 3: Normal (6%)        │
-└─────────────────────────────────┘
+```mermaid
+pie title Partition Traffic Distribution (Hot Partition 🔥)
+    "Partition 0 (VIP - Hot!)" : 80
+    "Partition 1 (Normal)" : 7
+    "Partition 2 (Normal)" : 7
+    "Partition 3 (Normal)" : 6
+```
 ```
 
 **문제 증상**:
@@ -860,3 +861,12 @@ while (true) {
 - **Hot Partition**: Celebrity 사용자 분산 처리
 - **순서 깨짐**: Consistent Partitioner로 일관성 유지
 - **중복 처리**: Offset 기반 멱등성 보장
+
+---
+
+## 🔗 Related Deep Dive
+
+더 깊이 있는 학습을 원한다면 심화 과정을 참고하세요:
+
+- **[Kafka 기본](/learning/deep-dive/deep-dive-kafka-foundations/)**: 토픽, 파티션, Consumer Group 시각화.
+- **[Kafka 재시도/DLQ](/learning/deep-dive/deep-dive-kafka-retry-dlq/)**: 실패 처리 전략과 DLQ 패턴.
