@@ -1,1 +1,67 @@
 {{ if or .Params.mermaid .Site.Params.mermaid }}{{ partial "mermaid.html" . }}{{ end }}
+
+{{/* Mobile CSS Loading Fix: Use resources.Get for assets */}}
+{{ $mobile := resources.Get "css/extends/mobile.css" }}
+{{ if $mobile }}
+<link rel="stylesheet" href="{{ $mobile.Permalink }}">
+{{ end }}
+
+<script>
+    // Mobile TOC Injection (User Experience Improvement)
+    (function () {
+        const MOBILE_BREAKPOINT = 768;
+
+        function handleMobileTOC() {
+            const tocElement = document.querySelector('.toc');
+            const tocInner = document.querySelector('.toc .inner');
+            const postContent = document.querySelector('.post-content');
+            const existingMobileTOC = document.querySelector('.mobile-toc');
+
+            // Case 1: Desktop/Tablet (Above breakpoint) -> Remove Mobile TOC if exists
+            if (window.innerWidth > MOBILE_BREAKPOINT) {
+                if (existingMobileTOC) {
+                    existingMobileTOC.remove();
+                }
+                return;
+            }
+
+            // Case 2: Mobile (Below breakpoint) -> Create Mobile TOC if not exists
+            if (!existingMobileTOC && (tocInner || tocElement) && postContent) {
+                const details = document.createElement('details');
+                details.className = 'mobile-toc';
+
+                const summary = document.createElement('summary');
+                summary.innerText = '목차'; // Simplified text as requested
+
+                details.appendChild(summary);
+
+                // Clone TOC content
+                const source = tocInner || tocElement;
+                const tocClone = source.cloneNode(true);
+
+                // Ensure wrapper class for styling
+                if (!tocInner) {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'inner';
+                    wrapper.appendChild(tocClone);
+                    details.appendChild(wrapper);
+                } else {
+                    details.appendChild(tocClone);
+                }
+
+                // Insert before post content (after header metadata)
+                postContent.parentNode.insertBefore(details, postContent);
+            }
+        }
+
+        // Run on load
+        document.addEventListener('DOMContentLoaded', handleMobileTOC);
+
+        // Run on resize (debounce slightly if needed, but simple is fine for now)
+        let resizeTimer;
+        window.addEventListener('resize', function () {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(handleMobileTOC, 100);
+        });
+    })();
+</script>

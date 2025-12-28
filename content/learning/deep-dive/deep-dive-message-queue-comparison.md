@@ -301,16 +301,16 @@ public class OrderStreamProducer {
 
 ```mermaid
 flowchart TD
-    Start[메시지 시스템 선택] --> Q1{대용량 로그/이벤트?}
+    Start["메시지 시스템 선택"] --> Q1{"대용량 로그/이벤트?"}
     
-    Q1 -->|Yes| Kafka[Apache Kafka]
-    Q1 -->|No| Q2{유연한 라우팅 필요?}
+    Q1 -->|Yes| Kafka["Apache Kafka"]
+    Q1 -->|No| Q2{"유연한 라우팅 필요?"}
     
-    Q2 -->|Yes| RabbitMQ[RabbitMQ]
-    Q2 -->|No| Q3{메시지 유실 허용?}
+    Q2 -->|Yes| RabbitMQ["RabbitMQ (Exchange)"]
+    Q2 -->|No| Q3{"메시지 유실 허용?"}
     
-    Q3 -->|Yes| Redis[Redis Pub/Sub]
-    Q3 -->|No| Q4{간단한 큐만 필요?}
+    Q3 -->|Yes| Redis["Redis Pub/Sub"]
+    Q3 -->|No| Q4{"간단한 큐만 필요?"}
     
     Q4 -->|Yes| RabbitMQ2[RabbitMQ / Redis Streams]
     Q4 -->|No| Kafka2[Apache Kafka]

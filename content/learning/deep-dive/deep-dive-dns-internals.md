@@ -25,9 +25,9 @@ study_order: 802
 
 ```mermaid
 graph TD
-    Client[User] -->|1. naver.com?| LDNS[Local DNS (ISP)]
+    Client[User] -->|"1. naver.com?"| LDNS["Local DNS (ISP)"]
     
-    LDNS -->|2. .com이 어디있니?| Root[Root Server (Top)]
+    LDNS -->|"2. .com이 어디있니?"| Root["Root Server (Top)"]
     Root -.->|3. .com은 저기로 가| ComServer[.com TLD Server]
     
     LDNS -->|4. naver.com 어딨니?| ComServer

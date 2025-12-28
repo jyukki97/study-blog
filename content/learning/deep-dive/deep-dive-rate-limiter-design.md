@@ -29,7 +29,7 @@ study_order: 501
 graph TD
     Bucket[버킷 (Token 통)]
     Refill[충전 기계] -->|초당 N개| Bucket
-    User[사용자 요청] -->|1. 토큰 있니?| Bucket
+    User["사용자 요청"] -->|"1. 토큰 있니?"| Bucket
     
     Bucket -->|Yes (토큰 -1)| Success[요청 처리]
     Bucket -->|No (0개)| Fail[429 Too Many Requests]

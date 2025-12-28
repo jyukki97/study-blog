@@ -36,11 +36,11 @@ Firecracker는 **MicroVM**입니다. 불필요한 기능(USB 드라이버, 스�
 
 ```mermaid
 graph TD
-    A[Physical Server (Metal)] --> B[KVM (Kernel-based VM)]
-    B --> C[Firecracker MicroVM 1]
-    B --> D[Firecracker MicroVM 2]
-    C --> E[User Code A (Java)]
-    D --> F[User Code B (Python)]
+    A["Physical Server (Metal)"] --> B["KVM (Kernel-based VM)"]
+    B --> C["Firecracker MicroVM 1"]
+    B --> D["Firecracker MicroVM 2"]
+    C --> E["User Code A (Java)"]
+    D --> F["User Code B (Python)"]
     
     style A fill:#f9f,stroke:#333
     style C fill:#bbf,stroke:#333
@@ -62,8 +62,8 @@ graph TD
 ```mermaid
 sequenceDiagram
     participant Requester
-    participant AWS_Lambda as Lambda Service
-    participant Firecracker as MicroVM (Worker)
+    participant AWS_Lambda as "Lambda Service"
+    participant Firecracker as "MicroVM (Worker)"
     
     Requester->>AWS_Lambda: 1. Invoke Function
     

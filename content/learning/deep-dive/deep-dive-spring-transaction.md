@@ -22,9 +22,9 @@ study_order: 302
 ```mermaid
 sequenceDiagram
     participant Client
-    participant Proxy as OrderService (Proxy)
+    participant Proxy as "OrderService (Proxy)"
     participant TxManager as TransactionManager
-    participant Target as OrderService (Real)
+    participant Target as "OrderService (Real)"
     
     Client->>Proxy: createOrder() 호출
     

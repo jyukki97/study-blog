@@ -8,16 +8,18 @@ categories: ["Backend Deep Dive"]
 description: "VM과 컨테이너의 아키텍처 차이, 이미지 레이어 구조(Copy-on-Write)의 원리"
 module: "ops-observability"
 study_order: 604
+mermaid: true
 ---
 
 ## 🏗️ 1. VM vs Container: 아키텍처의 차이
 
 왜 Docker는 "가볍다"고 할까요? 비밀은 **Guest OS의 유무**에 있습니다.
 
+```mermaid
 graph TD
     subgraph VM [Virtual Machine Architecture]
         Hyper[Hypervisor]
-        GOS[Guest OS <br/>(Heavy, GBs)]
+        GOS["Guest OS <br/>(Heavy, GBs)"]
         App1[Application]
     end
 
@@ -35,6 +37,7 @@ graph TD
     style Container fill:#e8f5e9,stroke:#2e7d32
     style GOS fill:#ffcdd2,stroke:#b71c1c,stroke-width:2px
     style Docker fill:#c8e6c9,stroke:#1b5e20,stroke-width:2px
+```
 
 - **VM**: 하드웨어를 가상화합니다. 각 VM마다 Windows/Linux를 통째로 설치하므로 무겁고(GB 단위), 부팅이 느립니다.
 - **Container**: OS(리눅스 커널)를 공유합니다. 격리된 **프로세스**일 뿐이므로 가볍고(MB 단위), 1초 만에 켜집니다.
@@ -45,10 +48,11 @@ graph TD
 
 Docker 이미지는 통짜 파일이 아닙니다. **여러 겹의 케이크**입니다.
 
+```mermaid
 graph BT
     L1[Base Layer: Ubuntu] --> L2[Add Java]
     L2[Add Java] --> L3[Add Application Code]
-    L3[Add Application Code] --> C[Container Layer <br/>(Read-Write)]
+    L3[Add Application Code] --> C["Container Layer <br/>(Read-Write)"]
 
     %% Styles
     classDef readOnly fill:#eeeeee,stroke:#9e9e9e,stroke-dasharray: 5 5;
@@ -56,6 +60,7 @@ graph BT
 
     class L1,L2,L3 readOnly;
     class C writeAble;
+```
 
 이미지의 모든 레이어는 **Read-Only**입니다.
 컨테이너를 실행하면 그 위에 **얇은 R/W 레이어** 한 장만 올라갑니다.

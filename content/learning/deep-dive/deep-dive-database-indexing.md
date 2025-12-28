@@ -145,7 +145,7 @@ sequenceDiagram
     
     Note over Query: SELECT name FROM users <br/> WHERE id = 10
     
-    Query->>Index: id=10 있니?
+    Query->>Index: "id=10 있니?"
     Note right of Index: 어, 나 name도 갖고 있는데?
     Index-->>Query: 여기 있어! (name='Alice')
     
