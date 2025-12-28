@@ -600,9 +600,9 @@
     /* 아이템 제목 - 가독성 극대화 */
     .timeline-item h3,
     .timeline-item .timeline-title {
-        font-size: 1.25rem !important;
+        font-size: 1rem !important;
         /* 폰트 큼직하게 */
-        font-weight: 800 !important;
+        font-weight: 700 !important;
         margin-bottom: 6px !important;
         color: var(--primary) !important;
         line-height: 1.35 !important;
