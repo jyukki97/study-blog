@@ -48,23 +48,24 @@
             <a href="{{ "" | absLangURL }}" accesskey="h" title="홈으로 (Alt + H)" class="logo-link">
                 {{- $img := resources.Get site.Params.label.icon }}
                 {{- if $img }}
-                    {{- $processableFormats := (slice "jpg" "jpeg" "png" "tif" "bmp" "gif") -}}
-                    {{- if hugo.IsExtended -}}
-                        {{- $processableFormats = $processableFormats | append "webp" -}}
-                    {{- end -}}
-                    {{- $prod := (hugo.IsProduction | or (eq site.Params.env "production")) }}
-                    {{- if and (in $processableFormats $img.MediaType.SubType) (eq $prod true)}}
-                        {{- if site.Params.label.iconHeight }}
-                            {{- $img = $img.Resize (printf "x%d" site.Params.label.iconHeight) }}
-                        {{ else }}
-                            {{- $img = $img.Resize "x50" }}
-                        {{- end }}
-                    {{- end }}
-                    <img src="{{ $img.Permalink }}" alt="jyukki's Blog Logo" aria-label="jyukki's Blog Logo"
-                        height="{{- site.Params.label.iconHeight | default "50" -}}" class="main-logo">
+                {{- $processableFormats := (slice "jpg" "jpeg" "png" "tif" "bmp" "gif") -}}
+                {{- if hugo.IsExtended -}}
+                {{- $processableFormats = $processableFormats | append "webp" -}}
+                {{- end -}}
+                {{- $prod := (hugo.IsProduction | or (eq site.Params.env "production")) }}
+                {{- if and (in $processableFormats $img.MediaType.SubType) (eq $prod true)}}
+                {{- if site.Params.label.iconHeight }}
+                {{- $img = $img.Resize (printf "x%d" site.Params.label.iconHeight) }}
+                {{ else }}
+                {{- $img = $img.Resize "x50" }}
+                {{- end }}
+                {{- end }}
+                <img src="{{ $img.Permalink }}" alt="jyukki's Blog Logo" aria-label="jyukki's Blog Logo"
+                    height="{{- site.Params.label.iconHeight | default " 50" -}}" class="main-logo">
                 {{- else }}
-                <img src="{{- site.Params.label.icon | absURL -}}" alt="jyukki's Blog Logo" aria-label="jyukki's Blog Logo"
-                    height="{{- site.Params.label.iconHeight | default "50" -}}" class="main-logo">
+                <img src="{{- site.Params.label.icon | absURL -}}" alt="jyukki's Blog Logo"
+                    aria-label="jyukki's Blog Logo" height="{{- site.Params.label.iconHeight | default " 50" -}}"
+                    class="main-logo">
                 {{- end -}}
             </a>
             {{- else }}
@@ -73,14 +74,14 @@
             </a>
             {{- end }}
         </div>
-        
+
         <!-- 모바일 햄버거 메뉴 버튼 -->
         <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
             <span></span>
             <span></span>
             <span></span>
         </button>
-        
+
         <ul id="menu">
             {{- range site.Menus.main }}
             {{- $menu_item_url := (cond (strings.HasSuffix .URL "/") .URL (printf "%s/" .URL) ) | absLangURL }}
@@ -90,13 +91,14 @@
             {{- $is_etc := eq .Name "etc" }}
             {{- $is_active := false }}
             {{- if $is_projects }}
-                {{- $is_active = or (eq $menu_item_url $page_url) (hasPrefix $page_url "/projects/") }}
+            {{- $is_active = or (eq $menu_item_url $page_url) (hasPrefix $page_url "/projects/") }}
             {{- else }}
-                {{- $is_active = eq $menu_item_url $page_url }}
+            {{- $is_active = eq $menu_item_url $page_url }}
             {{- end }}
             <li {{- if or $is_projects $is_etc }} class="dropdown-menu" {{- end }}>
-                <a href="{{ .URL | absLangURL }}" title="{{ .Title | default .Name }} {{- cond $is_search (" (Alt + /)" | safeHTMLAttr) ("" | safeHTMLAttr ) }}"
-                {{- cond $is_search (" accesskey=/" | safeHTMLAttr) ("" | safeHTMLAttr ) }}>
+                <a href="{{ .URL | absLangURL }}" title="{{ .Title | default .Name }} {{- cond $is_search (" (Alt + /)"
+                    | safeHTMLAttr) ("" | safeHTMLAttr ) }}" {{- cond $is_search (" accesskey=/" | safeHTMLAttr) ("" |
+                    safeHTMLAttr ) }}>
                     <span>
                         {{- .Pre }}
                         {{- .Name -}}
@@ -135,7 +137,8 @@
                     <div class="dropdown-footer">
                         <a href="/projects/" class="view-all-projects">
                             <span>모든 프로젝트 보기</span>
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <line x1="5" y1="12" x2="19" y2="12"></line>
                                 <polyline points="12,5 19,12 12,19"></polyline>
                             </svg>
@@ -173,7 +176,8 @@
             <div class="search-input-wrapper">
                 <input type="text" id="search-input" placeholder="검색어를 입력하세요..." autocomplete="off">
                 <button class="search-button" onclick="toggleSearch()">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="11" cy="11" r="8"></circle>
                         <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                     </svg>
@@ -187,818 +191,819 @@
 {{ end }}
 
 <a id="top-link" href="#" title="맨 위로">
-    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M12 19V5M5 12l7-7 7 7"/>
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 19V5M5 12l7-7 7 7" />
     </svg>
 </a>
 
 <style>
-.header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    background: var(--entry);
-    z-index: 100;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    transition: transform 0.3s ease;
-}
-
-.nav {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.5rem 1rem;
-}
-
-/* 햄버거 메뉴 버튼은 기본적으로 숨김 */
-.mobile-menu-toggle {
-    display: none;
-}
-
-/* 기본 메뉴 스타일 (데스크톱) */
-#menu {
-    display: flex;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    gap: 1rem;
-}
-
-#menu li {
-    position: relative;
-}
-
-#menu li a {
-    text-decoration: none;
-    color: var(--primary);
-    padding: 0.5rem 1rem;
-    display: block;
-    transition: all 0.2s ease;
-}
-
-#menu li a:hover {
-    color: var(--primary-color, #b19cd9);
-}
-
-.search-container {
-    position: relative;
-    display: flex;
-    align-items: center;
-    margin-left: 1rem;
-    width: auto;
-}
-
-.search-input-wrapper {
-    display: flex;
-    align-items: center;
-    border-radius: 20px;
-    transition: all 0.3s ease;
-    overflow: hidden;
-    position: relative;
-    width: 40px;
-    height: 40px;
-    background: var(--entry);
-}
-
-.search-input-wrapper.active {
-    width: 300px;
-    border: 1px solid #b19cd9;
-    padding: 0.5rem;
-    margin-right: 0.5rem;
-}
-
-#search-input {
-    width: 100%;
-    padding: 0.5rem;
-    font-size: 1rem;
-    border: none;
-    background: transparent;
-    color: var(--primary);
-    transition: all 0.3s ease;
-    opacity: 0;
-    outline: none;
-    pointer-events: none;
-    position: absolute;
-    left: -9999px;
-}
-
-/* 모바일에서 검색 입력창 완전히 숨김 */
-@media (max-width: 768px) {
-    #search-input {
-        display: none;
+    .header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        background: var(--entry);
+        z-index: 100;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
     }
-}
 
-.search-input-wrapper.active #search-input {
-    opacity: 1;
-    pointer-events: auto;
-    position: static;
-}
-
-#search-input:focus {
-    outline: none;
-    border-color: #b19cd9;
-}
-
-.search-button {
-    position: relative;
-    z-index: 1;
-    border: none;
-    color: var(--primary);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    transition: all 0.2s ease;
-    background: var(--entry);
-    padding: 0;
-    margin: 0;
-    flex-shrink: 0;
-}
-
-.search-button:hover {
-    color: #b19cd9;
-    background: rgba(177, 156, 217, 0.1);
-}
-
-.search-button svg {
-    width: 20px;
-    height: 20px;
-}
-
-.search-results {
-    position: absolute;
-    top: 100%;
-    right: 0;
-    width: 300px;
-    max-height: 400px;
-    overflow-y: auto;
-    background: var(--entry);
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    margin-top: 0.5rem;
-    display: none;
-    z-index: 1000;
-}
-
-.search-results.active {
-    display: block !important;
-}
-
-.search-result-item {
-    padding: 1rem;
-    border-bottom: 1px solid var(--border);
-    transition: all 0.2s ease;
-    cursor: pointer;
-    border-radius: 6px;
-    margin: 0.25rem;
-}
-
-.search-result-item:last-child {
-    border-bottom: none;
-}
-
-.search-result-item:hover {
-    background: rgba(177, 156, 217, 0.08);
-    transform: translateX(4px);
-    box-shadow: 0 2px 8px rgba(177, 156, 217, 0.15);
-}
-
-.search-result-item a {
-    text-decoration: none;
-    color: var(--primary);
-    display: block;
-}
-
-.search-result-item h3 {
-    margin: 0 0 0.5rem;
-    color: #b19cd9;
-    font-size: 1rem;
-    transition: color 0.2s ease;
-}
-
-.search-result-item:hover h3 {
-    color: #9a7bc8;
-}
-
-.search-result-item p {
-    margin: 0.5rem 0;
-    color: var(--secondary);
-    font-size: 0.9rem;
-    line-height: 1.4;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-height: 2.8em;
-    word-break: break-all;
-}
-
-/* 검색어 하이라이팅 */
-.search-highlight {
-    background: linear-gradient(120deg, #b19cd9, #9a7bc8);
-    color: white;
-    padding: 0.1rem 0.2rem;
-    border-radius: 3px;
-    font-weight: 600;
-    box-shadow: 0 1px 3px rgba(177, 156, 217, 0.3);
-}
-
-/* 다크 모드 지원 */
-[data-theme="dark"] .search-highlight {
-    background: linear-gradient(120deg, #8a6cb3, #7b5a9e);
-    color: white;
-    box-shadow: 0 1px 3px rgba(138, 108, 179, 0.4);
-}
-
-[data-theme="dark"] .search-result-item:hover {
-    background: rgba(138, 108, 179, 0.12);
-}
-
-[data-theme="dark"] .search-result-item:hover h3 {
-    color: #a87dc7;
-}
-
-.no-results {
-    text-align: center;
-    color: var(--secondary);
-    padding: 1rem;
-}
-
-#top-link {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background: #b19cd9;
-    color: white;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-decoration: none;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    z-index: 99;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-}
-
-#top-link:hover {
-    background: #9b7fc7;
-    color: white;
-}
-
-#top-link.visible {
-    opacity: 1;
-}
-
-#top-link svg {
-    width: 20px;
-    height: 20px;
-}
-
-/* 드롭다운 메뉴 스타일 */
-.dropdown-menu {
-    position: relative;
-    cursor: pointer;
-}
-
-.dropdown-content {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    min-width: 300px;
-    background: var(--bg-primary, var(--entry, #ffffff)) !important;
-    border-radius: 8px;
-    box-shadow: 0 8px 32px var(--shadow-medium, rgba(0,0,0,0.15));
-    padding: 0.5rem 0;
-    margin-top: 0;
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(-10px);
-    transition: all 0.3s ease;
-    z-index: 9999 !important;
-    border: 1px solid var(--border-color, var(--border, #e2e8f0));
-    pointer-events: none;
-}
-
-/* 드롭다운과 메뉴 사이의 연결 영역 추가 */
-.dropdown-menu::before {
-    content: '';
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    height: 10px;
-    background: transparent;
-    z-index: 9998;
-}
-
-/* hover와 active 클래스 모두 지원 */
-.dropdown-menu:hover .dropdown-content,
-.dropdown-content.active {
-    opacity: 1 !important;
-    visibility: visible !important;
-    transform: translateY(0) !important;
-    pointer-events: auto !important;
-    display: block !important;
-}
-
-.dropdown-arrow {
-    margin-left: 0.3rem;
-    transition: transform 0.3s ease;
-}
-
-.dropdown-menu:hover .dropdown-arrow,
-.dropdown-menu.active .dropdown-arrow {
-    transform: rotate(180deg);
-}
-
-/* 모바일 반응형 처리 */
-@media (max-width: 768px) {
-    .dropdown-content {
-        position: static;
-        left: auto;
-        min-width: auto;
-        right: auto;
-        background: var(--bg-secondary, #f8f9fa) !important;
-        border-radius: 0;
-        box-shadow: none;
-        padding: 0;
-        margin: 0;
-        opacity: 1;
-        visibility: visible;
-        transform: none;
-        transition: none;
-        z-index: auto;
-        border: none;
-        pointer-events: auto;
-        display: none;
-    }
-    
-    .dropdown-content.active {
-        display: block !important;
-        transform: none;
-    }
-    
-    .dropdown-menu.active .dropdown-content {
-        display: block !important;
-    }
-    
-    /* 모바일에서 드롭다운 헤더와 푸터 숨기기 */
-    .dropdown-header,
-    .dropdown-footer {
-        display: none;
-    }
-    
-    /* 모바일에서 드롭다운 아이템 스타일 조정 */
-    .dropdown-item {
-        padding: 0.75rem 2rem;
-        border-left: none;
-        background: var(--bg-secondary, #f8f9fa);
-        border-bottom: 1px solid var(--border);
-    }
-    
-    .dropdown-item:hover {
-        background: rgba(177, 156, 217, 0.1);
-        border-left: none;
-    }
-    
-    /* 모바일에서 메뉴를 햄버거로 변경 */
     .nav {
-        position: relative;
-        flex-wrap: nowrap;
+        display: flex;
+        align-items: center;
         justify-content: space-between;
-        align-items: center;
+        padding: 0.5rem 1rem;
     }
-    
-    .logo {
-        flex-shrink: 0;
-        font-size: 1.1rem;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-    
-    .logo a {
-        font-size: 1.1rem;
-        font-weight: 600;
-    }
-    
-    /* About 아이콘 스타일 */
-    .about-icon {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, #b19cd9, #9a7bc8);
-        color: white;
-        text-decoration: none;
-        transition: all 0.3s ease;
-        box-shadow: 0 2px 8px rgba(177, 156, 217, 0.3);
-    }
-    
-    .about-icon:hover {
-        transform: translateY(-2px) scale(1.05);
-        box-shadow: 0 4px 16px rgba(177, 156, 217, 0.4);
-        background: linear-gradient(135deg, #9a7bc8, #8a6cb3);
-    }
-    
-    .about-icon svg {
-        width: 18px;
-        height: 18px;
-    }
-    
-    /* 햄버거 메뉴 버튼 */
+
+    /* 햄버거 메뉴 버튼은 기본적으로 숨김 */
     .mobile-menu-toggle {
+        display: none;
+    }
+
+    /* 기본 메뉴 스타일 (데스크톱) */
+    #menu {
         display: flex;
-        flex-direction: column;
-        justify-content: center;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        gap: 1rem;
+    }
+
+    #menu li {
+        position: relative;
+    }
+
+    #menu li a {
+        text-decoration: none;
+        color: var(--primary);
+        padding: 0.5rem 1rem;
+        display: block;
+        transition: all 0.2s ease;
+    }
+
+    #menu li a:hover {
+        color: var(--primary-color, #b19cd9);
+    }
+
+    .search-container {
+        position: relative;
+        display: flex;
         align-items: center;
+        margin-left: 1rem;
+        width: auto;
+    }
+
+    .search-input-wrapper {
+        display: flex;
+        align-items: center;
+        border-radius: 20px;
+        transition: all 0.3s ease;
+        overflow: hidden;
+        position: relative;
         width: 40px;
         height: 40px;
-        background: none;
-        border: none;
-        cursor: pointer;
-        padding: 0;
+        background: var(--entry);
+    }
+
+    .search-input-wrapper.active {
+        width: 300px;
+        border: 1px solid #b19cd9;
+        padding: 0.5rem;
         margin-right: 0.5rem;
     }
-    
-    .mobile-menu-toggle span {
-        width: 20px;
-        height: 2px;
-        background: var(--primary);
-        margin: 2px 0;
-        transition: all 0.3s ease;
-        border-radius: 1px;
-    }
-    
-    .mobile-menu-toggle.active span:nth-child(1) {
-        transform: rotate(45deg) translate(5px, 4px);
-    }
-    
-    .mobile-menu-toggle.active span:nth-child(2) {
-        opacity: 0;
-    }
-    
-    .mobile-menu-toggle.active span:nth-child(3) {
-        transform: rotate(-45deg) translate(5px, -4px);
-    }
-    
-    /* 모바일 메뉴 숨기기 */
-    #menu {
-        position: fixed;
-        top: 60px;
-        left: 0;
+
+    #search-input {
         width: 100%;
-        background: var(--entry);
-        flex-direction: column;
-        padding: 1rem 0;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        transform: translateX(-100%);
-        transition: transform 0.3s ease;
-        z-index: 1000;
-        border-top: 1px solid var(--border);
-        visibility: hidden;
-    }
-    
-    #menu.active {
-        transform: translateX(0);
-        visibility: visible;
-    }
-    
-    #menu li {
-        margin: 0;
-        width: 100%;
-    }
-    
-    #menu li a {
-        display: block;
-        padding: 1rem 1.5rem;
-        border-bottom: 1px solid var(--border);
+        padding: 0.5rem;
         font-size: 1rem;
-        width: 100%;
-        box-sizing: border-box;
+        border: none;
+        background: transparent;
+        color: var(--primary);
+        transition: all 0.3s ease;
+        opacity: 0;
+        outline: none;
+        pointer-events: none;
+        position: absolute;
+        left: -9999px;
     }
-    
-    #menu li a:hover {
-        background: rgba(177, 156, 217, 0.1);
+
+    /* 모바일에서 검색 입력창 완전히 숨김 */
+    @media (max-width: 768px) {
+        #search-input {
+            display: none;
+        }
     }
-    
-    /* 검색 컨테이너 간소화 */
-    .search-container {
-        flex-shrink: 0;
-        margin-left: auto;
-        order: 2;
+
+    .search-input-wrapper.active #search-input {
+        opacity: 1;
+        pointer-events: auto;
+        position: static;
+    }
+
+    #search-input:focus {
+        outline: none;
+        border-color: #b19cd9;
+    }
+
+    .search-button {
         position: relative;
-    }
-    
-    .mobile-menu-toggle {
-        order: 3;
-        margin-right: 0;
-        margin-left: 0.5rem;
-    }
-    
-    .search-input-wrapper {
-        position: relative;
+        z-index: 1;
+        border: none;
+        color: var(--primary);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         width: 40px;
         height: 40px;
+        border-radius: 50%;
+        transition: all 0.2s ease;
+        background: var(--entry);
+        padding: 0;
+        margin: 0;
+        flex-shrink: 0;
     }
-    
-    .search-input-wrapper.active {
-        width: 40px !important;
-        height: 40px !important;
-        position: relative !important;
-        background: transparent !important;
-        border: none !important;
-        padding: 0 !important;
-        margin: 0 !important;
+
+    .search-button:hover {
+        color: #b19cd9;
+        background: rgba(177, 156, 217, 0.1);
     }
-    
-    .search-input-wrapper.active #search-input {
-        position: fixed !important;
-        top: 70px !important;
-        left: 10px !important;
-        right: 10px !important;
-        width: calc(100vw - 20px) !important;
-        height: 50px !important;
-        background: var(--entry) !important;
-        border: 1px solid var(--primary-color, #b19cd9) !important;
-        border-radius: 25px !important;
-        padding: 0 20px !important;
-        font-size: 16px !important;
-        z-index: 2000 !important;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.2) !important;
-        opacity: 1 !important;
-        pointer-events: auto !important;
+
+    .search-button svg {
+        width: 20px;
+        height: 20px;
     }
-    
+
     .search-results {
-        position: fixed !important;
-        top: 130px !important;
-        left: 10px !important;
-        right: 10px !important;
-        width: calc(100vw - 20px) !important;
-        max-height: calc(100vh - 150px) !important;
-        z-index: 1999 !important;
-        border-radius: 15px !important;
+        position: absolute;
+        top: 100%;
+        right: 0;
+        width: 300px;
+        max-height: 400px;
+        overflow-y: auto;
+        background: var(--entry);
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin-top: 0.5rem;
+        display: none;
+        z-index: 1000;
     }
-}
 
-/* 더 작은 모바일 화면 대응 */
-@media (max-width: 480px) {
-    .search-input-wrapper.active #search-input {
-        top: 65px !important;
-        left: 5px !important;
-        right: 5px !important;
-        width: calc(100vw - 10px) !important;
-        padding: 0 15px !important;
+    .search-results.active {
+        display: block !important;
     }
-    
-    .search-results {
-        top: 125px !important;
-        left: 5px !important;
-        right: 5px !important;
-        width: calc(100vw - 10px) !important;
-    }
-    
-    /* 모바일 검색창과 결과창도 작은 화면에 맞게 조정 */
-    #mobile-search-input {
-        top: 65px !important;
-        left: 5px !important;
-        right: 5px !important;
-        width: calc(100vw - 10px) !important;
-        padding: 0 15px !important;
-    }
-    
-    #mobile-search-results {
-        top: 125px !important;
-        left: 5px !important;
-        right: 5px !important;
-        width: calc(100vw - 10px) !important;
-    }
-}
 
-/* 오른쪽 정렬이 필요한 경우 */
-.dropdown-menu.dropdown-right .dropdown-content {
-    left: auto;
-    right: 0;
-}
-
-/* 터치 디바이스 지원 - hover 비활성화하고 클릭만 지원 */
-@media (hover: none) and (pointer: coarse) {
-    .dropdown-menu:hover .dropdown-content {
-        opacity: 0 !important;
-        visibility: hidden !important;
-        transform: translateY(-10px) !important;
-        pointer-events: none !important;
+    .search-result-item {
+        padding: 1rem;
+        border-bottom: 1px solid var(--border);
+        transition: all 0.2s ease;
+        cursor: pointer;
+        border-radius: 6px;
+        margin: 0.25rem;
     }
-    
-    /* 터치 디바이스에서는 클릭으로만 열기 */
+
+    .search-result-item:last-child {
+        border-bottom: none;
+    }
+
+    .search-result-item:hover {
+        background: rgba(177, 156, 217, 0.08);
+        transform: translateX(4px);
+        box-shadow: 0 2px 8px rgba(177, 156, 217, 0.15);
+    }
+
+    .search-result-item a {
+        text-decoration: none;
+        color: var(--primary);
+        display: block;
+    }
+
+    .search-result-item h3 {
+        margin: 0 0 0.5rem;
+        color: #b19cd9;
+        font-size: 1rem;
+        transition: color 0.2s ease;
+    }
+
+    .search-result-item:hover h3 {
+        color: #9a7bc8;
+    }
+
+    .search-result-item p {
+        margin: 0.5rem 0;
+        color: var(--secondary);
+        font-size: 0.9rem;
+        line-height: 1.4;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-height: 2.8em;
+        word-break: break-all;
+    }
+
+    /* 검색어 하이라이팅 */
+    .search-highlight {
+        background: linear-gradient(120deg, #b19cd9, #9a7bc8);
+        color: white;
+        padding: 0.1rem 0.2rem;
+        border-radius: 3px;
+        font-weight: 600;
+        box-shadow: 0 1px 3px rgba(177, 156, 217, 0.3);
+    }
+
+    /* 다크 모드 지원 */
+    [data-theme="dark"] .search-highlight {
+        background: linear-gradient(120deg, #8a6cb3, #7b5a9e);
+        color: white;
+        box-shadow: 0 1px 3px rgba(138, 108, 179, 0.4);
+    }
+
+    [data-theme="dark"] .search-result-item:hover {
+        background: rgba(138, 108, 179, 0.12);
+    }
+
+    [data-theme="dark"] .search-result-item:hover h3 {
+        color: #a87dc7;
+    }
+
+    .no-results {
+        text-align: center;
+        color: var(--secondary);
+        padding: 1rem;
+    }
+
+    #top-link {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: #b19cd9;
+        color: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        z-index: 99;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    #top-link:hover {
+        background: #9b7fc7;
+        color: white;
+    }
+
+    #top-link.visible {
+        opacity: 1;
+    }
+
+    #top-link svg {
+        width: 20px;
+        height: 20px;
+    }
+
+    /* 드롭다운 메뉴 스타일 */
+    .dropdown-menu {
+        position: relative;
+        cursor: pointer;
+    }
+
+    .dropdown-content {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        min-width: 300px;
+        background: var(--bg-primary, var(--entry, #ffffff)) !important;
+        border-radius: 8px;
+        box-shadow: 0 8px 32px var(--shadow-medium, rgba(0, 0, 0, 0.15));
+        padding: 0.5rem 0;
+        margin-top: 0;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-10px);
+        transition: all 0.3s ease;
+        z-index: 9999 !important;
+        border: 1px solid var(--border-color, var(--border, #e2e8f0));
+        pointer-events: none;
+    }
+
+    /* 드롭다운과 메뉴 사이의 연결 영역 추가 */
+    .dropdown-menu::before {
+        content: '';
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        height: 10px;
+        background: transparent;
+        z-index: 9998;
+    }
+
+    /* hover와 active 클래스 모두 지원 */
+    .dropdown-menu:hover .dropdown-content,
     .dropdown-content.active {
-        opacity: 1 !important;
-        visibility: visible !important;
-        transform: translateY(0) !important;
-        pointer-events: auto !important;
-    }
-}
-
-/* 데스크톱에서는 hover 지원 */
-@media (hover: hover) and (pointer: fine) {
-    .dropdown-menu:hover .dropdown-content {
         opacity: 1 !important;
         visibility: visible !important;
         transform: translateY(0) !important;
         pointer-events: auto !important;
         display: block !important;
     }
-}
 
-.dropdown-header {
-    padding: 0.75rem 1rem;
-    border-bottom: 1px solid var(--border-color, var(--border));
-    margin-bottom: 0.5rem;
-}
+    .dropdown-arrow {
+        margin-left: 0.3rem;
+        transition: transform 0.3s ease;
+    }
 
-.dropdown-header h4 {
-    margin: 0;
-    font-size: 0.9rem;
-    color: var(--text-primary, var(--primary));
-    font-weight: 600;
-}
+    .dropdown-menu:hover .dropdown-arrow,
+    .dropdown-menu.active .dropdown-arrow {
+        transform: rotate(180deg);
+    }
 
-.dropdown-item {
-    display: block;
-    padding: 0.75rem 1rem;
-    color: var(--text-primary, var(--primary));
-    text-decoration: none;
-    transition: all 0.2s ease;
-    border-left: 3px solid transparent;
-}
+    /* 모바일 반응형 처리 */
+    @media (max-width: 768px) {
+        .dropdown-content {
+            position: static;
+            left: auto;
+            min-width: auto;
+            right: auto;
+            background: var(--bg-secondary, #f8f9fa) !important;
+            border-radius: 0;
+            box-shadow: none;
+            padding: 0;
+            margin: 0;
+            opacity: 1;
+            visibility: visible;
+            transform: none;
+            transition: none;
+            z-index: auto;
+            border: none;
+            pointer-events: auto;
+            display: none;
+        }
 
-.dropdown-item:hover {
-    background: rgba(177, 156, 217, 0.1);
-    border-left-color: var(--primary-color, #b19cd9);
-    color: var(--primary-color, #b19cd9);
-}
+        .dropdown-content.active {
+            display: block !important;
+            transform: none;
+        }
 
-.project-info {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-}
+        .dropdown-menu.active .dropdown-content {
+            display: block !important;
+        }
 
-.dropdown-content .project-title {
-    font-size: 0.9rem;
-    font-weight: 500;
-    margin-bottom: 0.2rem;
-    line-height: 1.3;
-}
+        /* 모바일에서 드롭다운 헤더와 푸터 숨기기 */
+        .dropdown-header,
+        .dropdown-footer {
+            display: none;
+        }
 
-.dropdown-content .project-status {
-    font-size: 0.75rem;
-    color: var(--text-secondary, var(--secondary));
-    background: rgba(177, 156, 217, 0.15);
-    padding: 0.15rem 0.4rem;
-    border-radius: 10px;
-    display: inline-block;
-    align-content: center;
-}
+        /* 모바일에서 드롭다운 아이템 스타일 조정 */
+        .dropdown-item {
+            padding: 0.75rem 2rem;
+            border-left: none;
+            background: var(--bg-secondary, #f8f9fa);
+            border-bottom: 1px solid var(--border);
+        }
 
-.dropdown-footer {
-    border-top: 1px solid var(--border-color, var(--border));
-    margin-top: 0.5rem;
-}
+        .dropdown-item:hover {
+            background: rgba(177, 156, 217, 0.1);
+            border-left: none;
+        }
 
-.view-all-projects {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    color: var(--primary-color, #b19cd9);
-    text-decoration: none;
-    font-size: 0.85rem;
-    font-weight: 500;
-    padding: 0.4rem 0;
-    transition: all 0.2s ease;
-}
+        /* 모바일에서 메뉴를 햄버거로 변경 */
+        .nav {
+            position: relative;
+            flex-wrap: nowrap;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-.view-all-projects:hover {
-    color: var(--primary-hover, #9b7fc7);
-}
+        .logo {
+            flex-shrink: 0;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
 
-.view-all-projects svg {
-    width: 14px;
-    height: 14px;
-    transition: transform 0.2s ease;
-}
+        .logo a {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
 
-.view-all-projects:hover svg {
-    transform: translateX(2px);
-}
+        /* About 아이콘 스타일 */
+        .about-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #b19cd9, #9a7bc8);
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(177, 156, 217, 0.3);
+        }
 
-/* About 아이콘 다크 모드 지원 */
-[data-theme="dark"] .about-icon {
-    background: linear-gradient(135deg, #8a6cb3, #7b5a9e);
-    box-shadow: 0 2px 8px rgba(138, 108, 179, 0.4);
-}
+        .about-icon:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 4px 16px rgba(177, 156, 217, 0.4);
+            background: linear-gradient(135deg, #9a7bc8, #8a6cb3);
+        }
 
-[data-theme="dark"] .about-icon:hover {
-    background: linear-gradient(135deg, #7b5a9e, #6b4b8a);
-    box-shadow: 0 4px 16px rgba(138, 108, 179, 0.5);
-}
+        .about-icon svg {
+            width: 18px;
+            height: 18px;
+        }
 
-/* 메인 로고 스타일 */
-.logo .logo-link {
-    display: flex;
-    align-items: center;
-    text-decoration: none;
-}
+        /* 햄버거 메뉴 버튼 */
+        .mobile-menu-toggle {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 40px;
+            height: 40px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            margin-right: 0.5rem;
+        }
 
-.main-logo {
-    max-height: 50px;
-    width: auto;
-    transition: transform 0.2s ease;
-}
+        .mobile-menu-toggle span {
+            width: 20px;
+            height: 2px;
+            background: var(--primary);
+            margin: 2px 0;
+            transition: all 0.3s ease;
+            border-radius: 1px;
+        }
 
-.main-logo:hover {
-    transform: scale(1.05);
-}
+        .mobile-menu-toggle.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 4px);
+        }
 
-/* 로고 영역이 충분한 공간을 차지하도록 */
-.logo {
-    flex: 0 0 auto;
-    margin-right: 20px;
-}
+        .mobile-menu-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
 
-/* 반응형 디자인 */
-@media (max-width: 768px) {
+        .mobile-menu-toggle.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -4px);
+        }
+
+        /* 모바일 메뉴 숨기기 */
+        #menu {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            width: 100%;
+            background: var(--entry);
+            flex-direction: column;
+            padding: 1rem 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            border-top: 1px solid var(--border);
+            visibility: hidden;
+        }
+
+        #menu.active {
+            transform: translateX(0);
+            visibility: visible;
+        }
+
+        #menu li {
+            margin: 0;
+            width: 100%;
+        }
+
+        #menu li a {
+            display: block;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            font-size: 1rem;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        #menu li a:hover {
+            background: rgba(177, 156, 217, 0.1);
+        }
+
+        /* 검색 컨테이너 간소화 */
+        .search-container {
+            flex-shrink: 0;
+            margin-left: auto;
+            order: 2;
+            position: relative;
+        }
+
+        .mobile-menu-toggle {
+            order: 3;
+            margin-right: 0;
+            margin-left: 0.5rem;
+        }
+
+        .search-input-wrapper {
+            position: relative;
+            width: 40px;
+            height: 40px;
+        }
+
+        .search-input-wrapper.active {
+            width: 40px !important;
+            height: 40px !important;
+            position: relative !important;
+            background: transparent !important;
+            border: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+
+        .search-input-wrapper.active #search-input {
+            position: fixed !important;
+            top: 70px !important;
+            left: 10px !important;
+            right: 10px !important;
+            width: calc(100vw - 20px) !important;
+            height: 50px !important;
+            background: var(--entry) !important;
+            border: 1px solid var(--primary-color, #b19cd9) !important;
+            border-radius: 25px !important;
+            padding: 0 20px !important;
+            font-size: 16px !important;
+            z-index: 2000 !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2) !important;
+            opacity: 1 !important;
+            pointer-events: auto !important;
+        }
+
+        .search-results {
+            position: fixed !important;
+            top: 130px !important;
+            left: 10px !important;
+            right: 10px !important;
+            width: calc(100vw - 20px) !important;
+            max-height: calc(100vh - 150px) !important;
+            z-index: 1999 !important;
+            border-radius: 15px !important;
+        }
+    }
+
+    /* 더 작은 모바일 화면 대응 */
+    @media (max-width: 480px) {
+        .search-input-wrapper.active #search-input {
+            top: 65px !important;
+            left: 5px !important;
+            right: 5px !important;
+            width: calc(100vw - 10px) !important;
+            padding: 0 15px !important;
+        }
+
+        .search-results {
+            top: 125px !important;
+            left: 5px !important;
+            right: 5px !important;
+            width: calc(100vw - 10px) !important;
+        }
+
+        /* 모바일 검색창과 결과창도 작은 화면에 맞게 조정 */
+        #mobile-search-input {
+            top: 65px !important;
+            left: 5px !important;
+            right: 5px !important;
+            width: calc(100vw - 10px) !important;
+            padding: 0 15px !important;
+        }
+
+        #mobile-search-results {
+            top: 125px !important;
+            left: 5px !important;
+            right: 5px !important;
+            width: calc(100vw - 10px) !important;
+        }
+    }
+
+    /* 오른쪽 정렬이 필요한 경우 */
+    .dropdown-menu.dropdown-right .dropdown-content {
+        left: auto;
+        right: 0;
+    }
+
+    /* 터치 디바이스 지원 - hover 비활성화하고 클릭만 지원 */
+    @media (hover: none) and (pointer: coarse) {
+        .dropdown-menu:hover .dropdown-content {
+            opacity: 0 !important;
+            visibility: hidden !important;
+            transform: translateY(-10px) !important;
+            pointer-events: none !important;
+        }
+
+        /* 터치 디바이스에서는 클릭으로만 열기 */
+        .dropdown-content.active {
+            opacity: 1 !important;
+            visibility: visible !important;
+            transform: translateY(0) !important;
+            pointer-events: auto !important;
+        }
+    }
+
+    /* 데스크톱에서는 hover 지원 */
+    @media (hover: hover) and (pointer: fine) {
+        .dropdown-menu:hover .dropdown-content {
+            opacity: 1 !important;
+            visibility: visible !important;
+            transform: translateY(0) !important;
+            pointer-events: auto !important;
+            display: block !important;
+        }
+    }
+
+    .dropdown-header {
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid var(--border-color, var(--border));
+        margin-bottom: 0.5rem;
+    }
+
+    .dropdown-header h4 {
+        margin: 0;
+        font-size: 0.9rem;
+        color: var(--text-primary, var(--primary));
+        font-weight: 600;
+    }
+
+    .dropdown-item {
+        display: block;
+        padding: 0.75rem 1rem;
+        color: var(--text-primary, var(--primary));
+        text-decoration: none;
+        transition: all 0.2s ease;
+        border-left: 3px solid transparent;
+    }
+
+    .dropdown-item:hover {
+        background: rgba(177, 156, 217, 0.1);
+        border-left-color: var(--primary-color, #b19cd9);
+        color: var(--primary-color, #b19cd9);
+    }
+
+    .project-info {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .dropdown-content .project-title {
+        font-size: 0.9rem;
+        font-weight: 500;
+        margin-bottom: 0.2rem;
+        line-height: 1.3;
+    }
+
+    .dropdown-content .project-status {
+        font-size: 0.75rem;
+        color: var(--text-secondary, var(--secondary));
+        background: rgba(177, 156, 217, 0.15);
+        padding: 0.15rem 0.4rem;
+        border-radius: 10px;
+        display: inline-block;
+        align-content: center;
+    }
+
+    .dropdown-footer {
+        border-top: 1px solid var(--border-color, var(--border));
+        margin-top: 0.5rem;
+    }
+
+    .view-all-projects {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        color: var(--primary-color, #b19cd9);
+        text-decoration: none;
+        font-size: 0.85rem;
+        font-weight: 500;
+        padding: 0.4rem 0;
+        transition: all 0.2s ease;
+    }
+
+    .view-all-projects:hover {
+        color: var(--primary-hover, #9b7fc7);
+    }
+
+    .view-all-projects svg {
+        width: 14px;
+        height: 14px;
+        transition: transform 0.2s ease;
+    }
+
+    .view-all-projects:hover svg {
+        transform: translateX(2px);
+    }
+
+    /* About 아이콘 다크 모드 지원 */
+    [data-theme="dark"] .about-icon {
+        background: linear-gradient(135deg, #8a6cb3, #7b5a9e);
+        box-shadow: 0 2px 8px rgba(138, 108, 179, 0.4);
+    }
+
+    [data-theme="dark"] .about-icon:hover {
+        background: linear-gradient(135deg, #7b5a9e, #6b4b8a);
+        box-shadow: 0 4px 16px rgba(138, 108, 179, 0.5);
+    }
+
+    /* 메인 로고 스타일 */
+    .logo .logo-link {
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+    }
+
     .main-logo {
-        max-height: 40px;
+        max-height: 50px;
+        width: auto;
+        transition: transform 0.2s ease;
     }
-    
+
+    .main-logo:hover {
+        transform: scale(1.05);
+    }
+
+    /* 로고 영역이 충분한 공간을 차지하도록 */
     .logo {
-        margin-right: 15px;
+        flex: 0 0 auto;
+        margin-right: 20px;
     }
-}
+
+    /* 반응형 디자인 */
+    @media (max-width: 768px) {
+        .main-logo {
+            max-height: 40px;
+        }
+
+        .logo {
+            margin-right: 15px;
+        }
+    }
 </style>
 
 <script>
-function toggleSearch() {
-    const wrapper = document.querySelector('.search-input-wrapper');
-    const input = document.getElementById('search-input');
-    const results = document.getElementById('search-results');
-    if (!wrapper || !input || !results) return;
+    function toggleSearch() {
+        const wrapper = document.querySelector('.search-input-wrapper');
+        const input = document.getElementById('search-input');
+        const results = document.getElementById('search-results');
+        if (!wrapper || !input || !results) return;
 
-    const isMobile = window.innerWidth <= 768;
-    
-    wrapper.classList.toggle('active');
-    if (wrapper.classList.contains('active')) {
-        if (isMobile) {
-            // 모바일에서는 새로운 입력창 생성
-            createMobileSearchInput();
+        const isMobile = window.innerWidth <= 768;
+
+        wrapper.classList.toggle('active');
+        if (wrapper.classList.contains('active')) {
+            if (isMobile) {
+                // 모바일에서는 새로운 입력창 생성
+                createMobileSearchInput();
+            } else {
+                // 데스크톱에서는 기존 방식
+                input.focus();
+            }
+            results.classList.add('active');
+            addSearchOverlay();
         } else {
-            // 데스크톱에서는 기존 방식
-            input.focus();
+            if (isMobile) {
+                removeMobileSearchInput();
+            } else {
+                input.value = '';
+            }
+            results.classList.remove('active');
+            results.innerHTML = '';
+            removeSearchOverlay();
         }
-        results.classList.add('active');
-        addSearchOverlay();
-    } else {
-        if (isMobile) {
-            removeMobileSearchInput();
-        } else {
-            input.value = '';
-        }
-        results.classList.remove('active');
-        results.innerHTML = '';
-        removeSearchOverlay();
     }
-}
 
-function createMobileSearchInput() {
-    // 기존 모바일 검색창이 있으면 제거
-    removeMobileSearchInput();
-    
-    const isSmallMobile = window.innerWidth <= 480;
-    const leftRight = isSmallMobile ? '5px' : '10px';
-    const topInput = isSmallMobile ? '65px' : '70px';
-    const topResults = isSmallMobile ? '125px' : '130px';
-    const padding = isSmallMobile ? '0 15px' : '0 20px';
-    
-    const mobileInput = document.createElement('input');
-    mobileInput.id = 'mobile-search-input';
-    mobileInput.type = 'text';
-    mobileInput.placeholder = '검색어를 입력하세요...';
-    mobileInput.autocomplete = 'off';
-    mobileInput.style.cssText = `
+    function createMobileSearchInput() {
+        // 기존 모바일 검색창이 있으면 제거
+        removeMobileSearchInput();
+
+        const isSmallMobile = window.innerWidth <= 480;
+        const leftRight = isSmallMobile ? '5px' : '10px';
+        const topInput = isSmallMobile ? '65px' : '70px';
+        const topResults = isSmallMobile ? '125px' : '130px';
+        const padding = isSmallMobile ? '0 15px' : '0 20px';
+
+        const mobileInput = document.createElement('input');
+        mobileInput.id = 'mobile-search-input';
+        mobileInput.type = 'text';
+        mobileInput.placeholder = '검색어를 입력하세요...';
+        mobileInput.autocomplete = 'off';
+        mobileInput.style.cssText = `
         position: fixed !important;
         top: ${topInput} !important;
         left: ${leftRight} !important;
@@ -1015,12 +1020,12 @@ function createMobileSearchInput() {
         color: var(--primary) !important;
         outline: none !important;
     `;
-    
-    // 모바일 검색 결과창도 별도로 생성
-    const mobileResults = document.createElement('div');
-    mobileResults.id = 'mobile-search-results';
-    mobileResults.className = 'search-results';
-    mobileResults.style.cssText = `
+
+        // 모바일 검색 결과창도 별도로 생성
+        const mobileResults = document.createElement('div');
+        mobileResults.id = 'mobile-search-results';
+        mobileResults.className = 'search-results';
+        mobileResults.style.cssText = `
         position: fixed !important;
         top: ${topResults} !important;
         left: ${leftRight} !important;
@@ -1034,120 +1039,120 @@ function createMobileSearchInput() {
         overflow-y: auto !important;
         display: none !important;
     `;
-    
-    document.body.appendChild(mobileInput);
-    document.body.appendChild(mobileResults);
-    mobileInput.focus();
-    
-    // 모바일 입력창 이벤트 리스너
-    mobileInput.addEventListener('keyup', function(e) {
-        if (e.key === 'Escape') {
-            toggleSearch();
-        } else {
-            const query = this.value.trim();
-            if (query.length > 0) {
-                searchMobile(query);
+
+        document.body.appendChild(mobileInput);
+        document.body.appendChild(mobileResults);
+        mobileInput.focus();
+
+        // 모바일 입력창 이벤트 리스너
+        mobileInput.addEventListener('keyup', function (e) {
+            if (e.key === 'Escape') {
+                toggleSearch();
             } else {
-                mobileResults.innerHTML = '';
-                mobileResults.style.display = 'none';
-            }
-        }
-    });
-}
-
-function removeMobileSearchInput() {
-    const mobileInput = document.getElementById('mobile-search-input');
-    if (mobileInput) {
-        mobileInput.remove();
-    }
-    const mobileResults = document.getElementById('mobile-search-results');
-    if (mobileResults) {
-        mobileResults.remove();
-    }
-}
-
-// 모바일 전용 검색 함수
-function searchMobile(query) {
-    fetch('/searchindex.json')
-        .then(response => response.json())
-        .then(data => {
-            const results = data.filter(item => {
-                const searchContent = item.content.toLowerCase();
-                const searchTitle = item.title.toLowerCase();
-                const searchQuery = query.toLowerCase();
-                return searchContent.includes(searchQuery) || searchTitle.includes(searchQuery);
-            });
-
-            const resultsContainer = document.getElementById('mobile-search-results');
-            if (!resultsContainer) return;
-            
-            if (results.length === 0) {
-                resultsContainer.innerHTML = '<div class="no-results">검색 결과가 없습니다.</div>';
-            } else {
-                const resultsHtml = results.map(item => {
-                    let url = item.permalink;
-                    if (!url) {
-                        if (item.url) {
-                            url = item.url.startsWith('/') ? item.url : '/' + item.url;
-                        } else if (item.title) {
-                            url = '/posts/' + item.title.toLowerCase().replace(/[^a-z0-9가-힣]+/g, '-').replace(/^-+|-+$/g, '');
-                        } else {
-                            url = '/';
-                        }
-                    }
-                    const content = item.content
-                        .replace(/<[^>]*>/g, '')
-                        .replace(/\s+/g, ' ')
-                        .trim();
-
-                    return '<div class="search-result-item">' +
-                           '<a href="' + url + '">' +
-                           '<h3>' + item.title + '</h3>' +
-                           '<p>' + content + '</p>' +
-                           '</a>' +
-                           '</div>';
-                }).join('');
-                
-                resultsContainer.innerHTML = resultsHtml;
-            }
-            resultsContainer.style.display = 'block';
-        })
-        .catch(error => {
-            console.error('검색 중 오류가 발생했습니다:', error);
-            const resultsContainer = document.getElementById('mobile-search-results');
-            if (resultsContainer) {
-                resultsContainer.innerHTML = '<div class="no-results">검색 중 오류가 발생했습니다.</div>';
-                resultsContainer.style.display = 'block';
+                const query = this.value.trim();
+                if (query.length > 0) {
+                    searchMobile(query);
+                } else {
+                    mobileResults.innerHTML = '';
+                    mobileResults.style.display = 'none';
+                }
             }
         });
-}
+    }
 
-// 모바일 햄버거 메뉴 토글 함수
-function toggleMobileMenu() {
-    const menu = document.getElementById('menu');
-    const toggle = document.querySelector('.mobile-menu-toggle');
-    
-    if (menu && toggle) {
-        menu.classList.toggle('active');
-        toggle.classList.toggle('active');
-        
-        // 모바일 메뉴가 열렸을 때 검색창이 열려있으면 닫기
-        if (menu.classList.contains('active')) {
-            const searchWrapper = document.querySelector('.search-input-wrapper');
-            if (searchWrapper && searchWrapper.classList.contains('active')) {
-                toggleSearch();
+    function removeMobileSearchInput() {
+        const mobileInput = document.getElementById('mobile-search-input');
+        if (mobileInput) {
+            mobileInput.remove();
+        }
+        const mobileResults = document.getElementById('mobile-search-results');
+        if (mobileResults) {
+            mobileResults.remove();
+        }
+    }
+
+    // 모바일 전용 검색 함수
+    function searchMobile(query) {
+        fetch('/searchindex.json')
+            .then(response => response.json())
+            .then(data => {
+                const results = data.filter(item => {
+                    const searchContent = item.content.toLowerCase();
+                    const searchTitle = item.title.toLowerCase();
+                    const searchQuery = query.toLowerCase();
+                    return searchContent.includes(searchQuery) || searchTitle.includes(searchQuery);
+                });
+
+                const resultsContainer = document.getElementById('mobile-search-results');
+                if (!resultsContainer) return;
+
+                if (results.length === 0) {
+                    resultsContainer.innerHTML = '<div class="no-results">검색 결과가 없습니다.</div>';
+                } else {
+                    const resultsHtml = results.map(item => {
+                        let url = item.permalink;
+                        if (!url) {
+                            if (item.url) {
+                                url = item.url.startsWith('/') ? item.url : '/' + item.url;
+                            } else if (item.title) {
+                                url = '/posts/' + item.title.toLowerCase().replace(/[^a-z0-9가-힣]+/g, '-').replace(/^-+|-+$/g, '');
+                            } else {
+                                url = '/';
+                            }
+                        }
+                        const content = item.content
+                            .replace(/<[^>]*>/g, '')
+                            .replace(/\s+/g, ' ')
+                            .trim();
+
+                        return '<div class="search-result-item">' +
+                            '<a href="' + url + '">' +
+                            '<h3>' + item.title + '</h3>' +
+                            '<p>' + content + '</p>' +
+                            '</a>' +
+                            '</div>';
+                    }).join('');
+
+                    resultsContainer.innerHTML = resultsHtml;
+                }
+                resultsContainer.style.display = 'block';
+            })
+            .catch(error => {
+                console.error('검색 중 오류가 발생했습니다:', error);
+                const resultsContainer = document.getElementById('mobile-search-results');
+                if (resultsContainer) {
+                    resultsContainer.innerHTML = '<div class="no-results">검색 중 오류가 발생했습니다.</div>';
+                    resultsContainer.style.display = 'block';
+                }
+            });
+    }
+
+    // 모바일 햄버거 메뉴 토글 함수
+    function toggleMobileMenu() {
+        const menu = document.getElementById('menu');
+        const toggle = document.querySelector('.mobile-menu-toggle');
+
+        if (menu && toggle) {
+            menu.classList.toggle('active');
+            toggle.classList.toggle('active');
+
+            // 모바일 메뉴가 열렸을 때 검색창이 열려있으면 닫기
+            if (menu.classList.contains('active')) {
+                const searchWrapper = document.querySelector('.search-input-wrapper');
+                if (searchWrapper && searchWrapper.classList.contains('active')) {
+                    toggleSearch();
+                }
             }
         }
     }
-}
 
-// 모바일 검색 오버레이 기능
-function addSearchOverlay() {
-    // 모바일에서만 오버레이 추가
-    if (window.innerWidth <= 768) {
-        const overlay = document.createElement('div');
-        overlay.id = 'search-overlay';
-        overlay.style.cssText = `
+    // 모바일 검색 오버레이 기능
+    function addSearchOverlay() {
+        // 모바일에서만 오버레이 추가
+        if (window.innerWidth <= 768) {
+            const overlay = document.createElement('div');
+            overlay.id = 'search-overlay';
+            overlay.style.cssText = `
             position: fixed;
             top: 0;
             left: 0;
@@ -1157,250 +1162,257 @@ function addSearchOverlay() {
             z-index: 1500;
             backdrop-filter: blur(1px);
         `;
-        overlay.addEventListener('click', toggleSearch);
-        document.body.appendChild(overlay);
-    }
-}
-
-function removeSearchOverlay() {
-    const overlay = document.getElementById('search-overlay');
-    if (overlay) {
-        overlay.remove();
-    }
-}
-
-document.getElementById('search-input').addEventListener('keyup', function(e) {
-    if (e.key === 'Escape') {
-        toggleSearch();
-    } else {
-        const query = this.value.trim();
-        if (query.length > 0) {
-            search(query);
-        } else {
-            const results = document.getElementById('search-results');
-            results.innerHTML = '';
-            results.classList.remove('active');
+            overlay.addEventListener('click', toggleSearch);
+            document.body.appendChild(overlay);
         }
     }
-});
 
-function search(query) {
-    fetch('/searchindex.json')
-        .then(response => response.json())
-        .then(data => {
-            // 중복 제거를 위해 permalink 기준으로 유니크한 결과만 필터링
-            const uniqueData = data.filter((item, index, self) => 
-                index === self.findIndex(t => t.permalink === item.permalink)
-            );
-            
-            const results = uniqueData.filter(item => {
-                const searchContent = item.content.toLowerCase();
-                const searchTitle = item.title.toLowerCase();
-                const searchQuery = query.toLowerCase();
-                return searchContent.includes(searchQuery) || searchTitle.includes(searchQuery);
-            });
+    function removeSearchOverlay() {
+        const overlay = document.getElementById('search-overlay');
+        if (overlay) {
+            overlay.remove();
+        }
+    }
 
-            // 검색 결과도 중복 제거
-            const uniqueResults = results.filter((item, index, self) => 
-                index === self.findIndex(t => t.permalink === item.permalink)
-            );
-
-            const resultsContainer = document.getElementById('search-results');
-            if (uniqueResults.length === 0) {
-                resultsContainer.innerHTML = '<div class="no-results">검색 결과가 없습니다.</div>';
+    document.getElementById('search-input').addEventListener('keyup', function (e) {
+        if (e.key === 'Escape') {
+            toggleSearch();
+        } else {
+            const query = this.value.trim();
+            if (query.length > 0) {
+                search(query);
             } else {
-                const resultsHtml = uniqueResults.slice(0, 10).map(item => { // 최대 10개 결과로 제한
-                    // permalink가 없으면 url에서 slug 추출
-                    let url = item.permalink;
-                    if (!url) {
-                        if (item.url) {
-                            url = item.url.startsWith('/') ? item.url : '/' + item.url;
-                        } else if (item.title) {
-                            // slugify
-                            url = '/posts/' + item.title.toLowerCase().replace(/[^a-z0-9가-힣]+/g, '-').replace(/^-+|-+$/g, '');
-                        } else {
-                            url = '/';
+                const results = document.getElementById('search-results');
+                results.innerHTML = '';
+                results.classList.remove('active');
+            }
+        }
+    });
+
+    function search(query) {
+        fetch('/searchindex.json')
+            .then(response => response.json())
+            .then(data => {
+                // 중복 제거를 위해 permalink 기준으로 유니크한 결과만 필터링
+                const uniqueData = data.filter((item, index, self) =>
+                    index === self.findIndex(t => t.permalink === item.permalink)
+                );
+
+                const results = uniqueData.filter(item => {
+                    const searchContent = item.content.toLowerCase();
+                    const searchTitle = item.title.toLowerCase();
+                    const searchQuery = query.toLowerCase();
+                    return searchContent.includes(searchQuery) || searchTitle.includes(searchQuery);
+                });
+
+                // 검색 결과도 중복 제거
+                const uniqueResults = results.filter((item, index, self) =>
+                    index === self.findIndex(t => t.permalink === item.permalink)
+                );
+
+                const resultsContainer = document.getElementById('search-results');
+                if (uniqueResults.length === 0) {
+                    resultsContainer.innerHTML = '<div class="no-results">검색 결과가 없습니다.</div>';
+                } else {
+                    const resultsHtml = uniqueResults.slice(0, 10).map(item => { // 최대 10개 결과로 제한
+                        // permalink가 없으면 url에서 slug 추출
+                        let url = item.permalink;
+                        if (!url) {
+                            if (item.url) {
+                                url = item.url.startsWith('/') ? item.url : '/' + item.url;
+                            } else if (item.title) {
+                                // slugify
+                                url = '/posts/' + item.title.toLowerCase().replace(/[^a-z0-9가-힣]+/g, '-').replace(/^-+|-+$/g, '');
+                            } else {
+                                url = '/';
+                            }
                         }
-                    }
-                    
-                    // 본문에서 HTML 태그 제거
-                    const content = item.content
-                        .replace(/<[^>]*>/g, '')
-                        .replace(/\s+/g, ' ')
-                        .trim()
-                        .substring(0, 150) + '...'; // 내용을 150자로 제한
 
-                    // 검색어 하이라이팅 함수
-                    function highlightText(text, query) {
-                        if (!query || !text) return text;
-                        const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-                        return text.replace(regex, '<span class="search-highlight">$1</span>');
-                    }
+                        // 본문에서 HTML 태그 제거
+                        const content = item.content
+                            .replace(/<[^>]*>/g, '')
+                            .replace(/\s+/g, ' ')
+                            .trim()
+                            .substring(0, 150) + '...'; // 내용을 150자로 제한
 
-                    const highlightedTitle = highlightText(item.title, query);
-                    const highlightedContent = highlightText(content, query);
+                        // 검색어 하이라이팅 함수
+                        function highlightText(text, query) {
+                            if (!query || !text) return text;
+                            const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+                            return text.replace(regex, '<span class="search-highlight">$1</span>');
+                        }
 
-                    return '<div class="search-result-item">' +
-                           '<a href="' + url + '">' +
-                           '<h3>' + highlightedTitle + '</h3>' +
-                           '<p>' + highlightedContent + '</p>' +
-                           '</a>' +
-                           '</div>';
-                }).join('');
-                
-                resultsContainer.innerHTML = resultsHtml;
-            }
-            resultsContainer.classList.add('active');
-        })
-        .catch(error => {
-            console.error('검색 중 오류가 발생했습니다:', error);
-            const resultsContainer = document.getElementById('search-results');
-            resultsContainer.innerHTML = '<div class="no-results">검색 중 오류가 발생했습니다.</div>';
-            resultsContainer.classList.add('active');
-        });
-}
+                        const highlightedTitle = highlightText(item.title, query);
+                        const highlightedContent = highlightText(content, query);
 
-// 스크롤 이벤트 처리
-let lastScrollTop = 0;
-const header = document.querySelector('.header');
-const headerHeight = header.offsetHeight;
+                        return '<div class="search-result-item">' +
+                            '<a href="' + url + '">' +
+                            '<h3>' + highlightedTitle + '</h3>' +
+                            '<p>' + highlightedContent + '</p>' +
+                            '</a>' +
+                            '</div>';
+                    }).join('');
 
-window.addEventListener('scroll', () => {
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    
-    if (scrollTop <= 0) {
-        header.style.transform = 'translateY(0)';
-        header.style.boxShadow = 'none';
-    } else if (scrollTop > lastScrollTop) {
-        // 아래로 스크롤
-        header.style.transform = 'translateY(-100%)';
-    } else {
-        // 위로 스크롤
-        header.style.transform = 'translateY(0)';
-        header.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
-    }
-    
-    lastScrollTop = scrollTop;
-});
-
-// 본문 컨텐츠에 상단 여백 추가
-document.addEventListener('DOMContentLoaded', () => {
-    const main = document.querySelector('main');
-    if (main) {
-        main.style.paddingTop = `${headerHeight}px`;
-    }
-});
-
-// Top Link 버튼 표시/숨김 처리
-document.addEventListener('DOMContentLoaded', () => {
-    const topLink = document.getElementById('top-link');
-    if (topLink) {
-        window.addEventListener('scroll', () => {
-            if (window.pageYOffset > 100) {
-                topLink.classList.add('visible');
-            } else {
-                topLink.classList.remove('visible');
-            }
-        });
-
-        topLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
+                    resultsContainer.innerHTML = resultsHtml;
+                }
+                resultsContainer.classList.add('active');
+            })
+            .catch(error => {
+                console.error('검색 중 오류가 발생했습니다:', error);
+                const resultsContainer = document.getElementById('search-results');
+                resultsContainer.innerHTML = '<div class="no-results">검색 중 오류가 발생했습니다.</div>';
+                resultsContainer.classList.add('active');
             });
-        });
     }
-});
 
-// Projects 드롭다운 메뉴 JavaScript 기능
-document.addEventListener('DOMContentLoaded', () => {
-    const dropdownMenu = document.querySelector('.dropdown-menu');
-    const dropdownContent = document.querySelector('.dropdown-content');
-    
-    // 메뉴 링크 요소 찾기 (a 태그)
-    const menuLink = dropdownMenu.querySelector('a');
-    
-    if (menuLink) {
-        // 클릭 이벤트로 드롭다운 토글 (모바일에서만)
-        menuLink.addEventListener('click', (e) => {
-            // 모바일에서만 preventDefault하고 드롭다운 토글
-            if (window.innerWidth <= 768) {
+    // 스크롤 이벤트 처리
+    let lastScrollTop = 0;
+    const header = document.querySelector('.header');
+    const headerHeight = header.offsetHeight;
+
+    window.addEventListener('scroll', () => {
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+        if (scrollTop <= 0) {
+            header.style.transform = 'translateY(0)';
+            header.style.boxShadow = 'none';
+        } else if (scrollTop > lastScrollTop) {
+            // 아래로 스크롤
+            header.style.transform = 'translateY(-100%)';
+        } else {
+            // 위로 스크롤
+            header.style.transform = 'translateY(0)';
+            header.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
+        }
+
+        lastScrollTop = scrollTop;
+    });
+
+    // 본문 컨텐츠에 상단 여백 추가
+    document.addEventListener('DOMContentLoaded', () => {
+        const main = document.querySelector('main');
+        if (main) {
+            main.style.paddingTop = `${headerHeight}px`;
+        }
+    });
+
+    // Top Link 버튼 표시/숨김 처리
+    document.addEventListener('DOMContentLoaded', () => {
+        const topLink = document.getElementById('top-link');
+        if (topLink) {
+            window.addEventListener('scroll', () => {
+                if (window.pageYOffset > 100) {
+                    topLink.classList.add('visible');
+                } else {
+                    topLink.classList.remove('visible');
+                }
+            });
+
+            topLink.addEventListener('click', (e) => {
                 e.preventDefault();
-                e.stopPropagation();
-                
-                const isActive = dropdownContent.classList.contains('active');
-                console.log('모바일 드롭다운 클릭됨. 현재 상태:', isActive ? '열림' : '닫힘');
-                
-                // 다른 열린 드롭다운 닫기
-                document.querySelectorAll('.dropdown-content.active').forEach(dropdown => {
-                    if (dropdown !== dropdownContent) {
-                        dropdown.classList.remove('active');
-                        dropdown.closest('.dropdown-menu').classList.remove('active');
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+        }
+    });
+
+    // Projects 드롭다운 메뉴 JavaScript 기능
+    // 드롭다운 메뉴 JavaScript 기능 (다중 메뉴 지원)
+    document.addEventListener('DOMContentLoaded', () => {
+        const dropdownMenus = document.querySelectorAll('.dropdown-menu');
+
+        dropdownMenus.forEach(dropdownMenu => {
+            const dropdownContent = dropdownMenu.querySelector('.dropdown-content');
+            // 메뉴 링크 요소 찾기 (a 태그)
+            const menuLink = dropdownMenu.querySelector('a');
+
+            if (menuLink && dropdownContent) {
+                // 클릭 이벤트로 드롭다운 토글 (모바일에서만)
+                menuLink.addEventListener('click', (e) => {
+                    // 모바일에서만 preventDefault하고 드롭다운 토글
+                    // 또는 데스크탑에서도 터치 디바이스인 경우 지원 필요할 수 있음
+                    if (window.innerWidth <= 768) {
+                        e.preventDefault();
+                        e.stopPropagation();
+
+                        const isActive = dropdownContent.classList.contains('active');
+
+                        // 다른 열린 드롭다운 닫기
+                        dropdownMenus.forEach(otherMenu => {
+                            if (otherMenu !== dropdownMenu) {
+                                otherMenu.classList.remove('active');
+                                const otherContent = otherMenu.querySelector('.dropdown-content');
+                                if (otherContent) otherContent.classList.remove('active');
+                            }
+                        });
+
+                        // 현재 드롭다운 토글
+                        dropdownContent.classList.toggle('active');
+                        dropdownMenu.classList.toggle('active');
                     }
                 });
-                
-                // 현재 드롭다운 토글
-                dropdownContent.classList.toggle('active');
-                dropdownMenu.classList.toggle('active');
-                
-                console.log('모바일 드롭다운 상태 변경:', dropdownContent.classList.contains('active') ? '열림' : '닫힘');
+
+                // 드롭다운 내부 링크 클릭 시 드롭다운 닫기
+                dropdownContent.addEventListener('click', (e) => {
+                    if (e.target.tagName === 'A' || e.target.closest('a')) {
+                        setTimeout(() => {
+                            dropdownContent.classList.remove('active');
+                            dropdownMenu.classList.remove('active');
+                        }, 100);
+                    }
+                });
             }
-            // 데스크톱에서는 일반 링크로 작동 (preventDefault 하지 않음)
         });
-    }
-    
-    // 외부 클릭 시 드롭다운 닫기
-    document.addEventListener('click', (e) => {
-        if (!dropdownMenu.contains(e.target)) {
-            dropdownContent.classList.remove('active');
-            dropdownMenu.classList.remove('active');
-        }
-    });
-    
-    // 드롭다운 내부 링크 클릭 시 드롭다운 닫기
-    dropdownContent.addEventListener('click', (e) => {
-        if (e.target.tagName === 'A' || e.target.closest('a')) {
-            setTimeout(() => {
-                dropdownContent.classList.remove('active');
-                dropdownMenu.classList.remove('active');
-            }, 100);
-        }
-    });
-    
-    // ESC 키로 드롭다운 닫기
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-            dropdownContent.classList.remove('active');
-            dropdownMenu.classList.remove('active');
-        }
-    });
-    
-    // 모바일 메뉴 외부 클릭 시 닫기
-    document.addEventListener('click', (e) => {
-        const menu = document.getElementById('menu');
-        const toggle = document.querySelector('.mobile-menu-toggle');
-        
-        if (menu && toggle && 
-            !menu.contains(e.target) && 
-            !toggle.contains(e.target) && 
-            menu.classList.contains('active')) {
-            menu.classList.remove('active');
-            toggle.classList.remove('active');
-        }
-    });
-    
-    // ESC 키로 모바일 메뉴 닫기
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
+
+        // 외부 클릭 시 모든 드롭다운 닫기
+        document.addEventListener('click', (e) => {
+            dropdownMenus.forEach(dropdownMenu => {
+                if (!dropdownMenu.contains(e.target)) {
+                    dropdownMenu.classList.remove('active');
+                    const dropdownContent = dropdownMenu.querySelector('.dropdown-content');
+                    if (dropdownContent) dropdownContent.classList.remove('active');
+                }
+            });
+        });
+
+        // ESC 키로 모든 드롭다운 닫기
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                dropdownMenus.forEach(dropdownMenu => {
+                    dropdownMenu.classList.remove('active');
+                    const dropdownContent = dropdownMenu.querySelector('.dropdown-content');
+                    if (dropdownContent) dropdownContent.classList.remove('active');
+                });
+            }
+        });
+
+        // 모바일 메뉴 외부 클릭 시 닫기
+        document.addEventListener('click', (e) => {
             const menu = document.getElementById('menu');
             const toggle = document.querySelector('.mobile-menu-toggle');
-            
-            if (menu && toggle && menu.classList.contains('active')) {
+
+            if (menu && toggle &&
+                !menu.contains(e.target) &&
+                !toggle.contains(e.target) &&
+                menu.classList.contains('active')) {
                 menu.classList.remove('active');
                 toggle.classList.remove('active');
             }
-        }
+        });
+
+        // ESC 키로 모바일 메뉴 닫기
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const menu = document.getElementById('menu');
+                const toggle = document.querySelector('.mobile-menu-toggle');
+
+                if (menu && toggle && menu.classList.contains('active')) {
+                    menu.classList.remove('active');
+                    toggle.classList.remove('active');
+                }
+            }
+        });
     });
-});
 </script>
