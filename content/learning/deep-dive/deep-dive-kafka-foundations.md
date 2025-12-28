@@ -17,6 +17,15 @@ RabbitMQ 같은 메시지 큐는 "소비하면 사라집니다(pop)".
 
 이 차이 때문에 Kafka는 **재생(Replay)** 이 가능하고, **다수의 구독자**가 각자의 속도로 읽을 수 있습니다.
 
+### Kafka vs RabbitMQ Comparison
+
+| 특징 | Kafka | RabbitMQ |
+| :--- | :--- | :--- |
+| **철학** | **Distributed Log** (이벤트 저장소) | **Smart Broker, Dumb Consumer** (메시지 큐) |
+| **메시지 수명** | 설정한 기간 동안 **보존** (Persistence) | 소비되면 **삭제** (Volatile) |
+| **처리량** | 수십~수백만 TPS (Batch 처리) | 수만 TPS (개별 메시지 ACK) |
+| **용도** | 대용량 이벤트 스트리밍, 로그 수집 | 복잡한 라우팅, 즉시 작업 처리 |
+
 ---
 
 ## 🧩 2. 토픽, 파티션, 그리고 병렬 처리
@@ -25,13 +34,20 @@ Kafka 성능의 핵심은 **파티셔닝(Partitioning)** 입니다.
 
 ```mermaid
 graph TD
-    Topic[토픽: 주문(Order)] --> P0[Partition 0]
-    Topic --> P1[Partition 1]
-    Topic --> P2[Partition 2]
+    subgraph Topic_Orders ["Topic: Orders (Log)"]
+        P0[("Partition 0")]
+        P1[("Partition 1")]
+        P2[("Partition 2")]
+    end
     
-    APP[Producer] -->|Key: User A| P0
-    APP -->|Key: User B| P1
-    APP -->|Key: User C| P2
+    Producer["Producer (App)"] -->|Key: User A| P0
+    Producer -->|Key: User B| P1
+    Producer -->|Key: User C| P2
+    
+    style Topic_Orders fill:#fff3e0,stroke:#ff9800
+    style P0 fill:#ffe0b2,stroke:#ef6c00
+    style P1 fill:#ffe0b2,stroke:#ef6c00
+    style P2 fill:#ffe0b2,stroke:#ef6c00
 ```
 
 - **Topic**: 폴더 이름 (예: `orders`)
@@ -49,20 +65,24 @@ graph TD
 
 ```mermaid
 graph LR
-    subgraph Kafka Cluster
-    P0[Partition 0]
-    P1[Partition 1]
-    P2[Partition 2]
+    subgraph Kafka_Cluster ["Kafka Cluster"]
+        P0[("P0")]
+        P1[("P1")]
+        P2[("P2")]
     end
     
-    subgraph Consumer Group A
-    C1[Consumer 1]
-    C2[Consumer 2]
+    subgraph Consumer_Group ["Consumer Group A (Service)"]
+        C1["Consumer 1"]
+        C2["Consumer 2"]
     end
     
-    P0 --> C1
-    P1 --> C2
-    P2 --> C1
+    P0 ==> C1
+    P2 ==> C1
+    P1 ==> C2
+    
+    style Consumer_Group fill:#e1f5fe,stroke:#039be5
+    style C1 fill:#b3e5fc,stroke:#0277bd
+    style C2 fill:#b3e5fc,stroke:#0277bd
 ```
 
 - **1:1 매핑**: 하나의 파티션은 그룹 내 **단 하나의 컨슈머**만 연결됩니다.
@@ -92,6 +112,13 @@ graph LR
 주문 시스템이라면 `OrderId`를 키로 써서, "주문 생성 -> 결제 -> 배송" 순서를 보장해야겠죠?
 
 ## 요약
+
+> [!TIP]
+> **Kafka Configuration Checklist**:
+> - [ ] **Durability**: `acks=all`, `min.insync.replicas=2` (데이터 유실 방지).
+> - [ ] **Retention**: `log.retention.hours` 확인 (디스크 Full 방지).
+> - [ ] **Consumer**: `enable.auto.commit=false` 권장 (명시적 커밋으로 중복/누락 제어).
+> - [ ] **Monitoring**: **Consumer Lag** 모니터링 필수.
 
 1. **Log**: Kafka는 지워지지 않는 로그 파일이다.
 2. **Partition**: 병렬 처리의 단위다.

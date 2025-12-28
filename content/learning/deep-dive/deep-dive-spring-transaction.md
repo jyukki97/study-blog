@@ -69,6 +69,29 @@ graph TD
 - **REQUIRED**: "우린 한 배를 탔어." 자식에서 에러 나면 부모도 롤백됩니다.
 - **REQUIRES_NEW**: "너는 너, 나는 나." 자식이 죽어도 부모는 살릴 수 있습니다. (예: 감사 로그 저장)
 
+### Physical vs Logical Transaction
+
+스프링은 **논리 트랜잭션**이라는 개념을 사용하여 트랜잭션 전파를 처리합니다.
+
+```mermaid
+graph TD
+    subgraph Physical_Transaction ["Physical Transaction (DB Connection)"]
+        Tx_Outer["Logical Tx: Service A (Outer)"]
+        Tx_Inner["Logical Tx: Service B (Inner)"]
+        
+        Tx_Outer ---|"REQUIRED"| Tx_Inner
+    end
+    
+    Tx_Inner -.->|"Rollback Mark"| Physical_Transaction
+    Physical_Transaction -->|"Commit Failed"| DB[("Database")]
+    
+    style Physical_Transaction fill:#e3f2fd,stroke:#2196f3
+    style Tx_Outer fill:#fff9c4
+    style Tx_Inner fill:#ffccbc
+```
+
+- **ALL OR NOTHING**: 논리 트랜잭션 중 **하나라도 롤백**되면, 물리 트랜잭션 전체가 롤백됩니다. (자식이 롤백 마크를 찍으면 부모가 커밋하려 해도 `UnexpectedRollbackException` 발생)
+
 ---
 
 ## 🛡️ 3. 격리 수준 (Isolation Level)
@@ -79,6 +102,18 @@ graph TD
 - **REPEATABLE READ**: 트랜잭션 내내 같은 데이터를 읽는다. (MySQL 기본)
 - **SERIALIZABLE**: 한 줄로 세운다. (성능 최악 but 안전 최고)
 
+### Isolation Level Comparison
+
+| Level | Dirty Read | Non-Repeatable Read | Phantom Read | 성능 |
+| :--- | :---: | :---: | :---: | :---: |
+| **READ UNCOMMITTED** | O | O | O | 최상 (위험) |
+| **READ COMMITTED** | X | O | O | 좋음 (표준) |
+| **REPEATABLE READ** | X | X | O (InnoDB는 방지) | 보통 |
+| **SERIALIZABLE** | X | X | X | 낮음 (Safe) |
+
+> **Dirty Read**: 남이 커밋 안 한 똥(Dirty Data)을 읽음.
+> **Phantom Read**: 아까는 없었는데 다시 조회를 하니 귀신(Phantom)처럼 데이터가 생김.
+
 ## 🚨 4. 실전 함정 TOP 3
 
 1. **Checked Exception은 롤백 안 됨**: 기본적으로 `RuntimeException`만 롤백합니다.
@@ -87,6 +122,13 @@ graph TD
 3. **트랜잭션 범위**: 너무 길게 잡지 마세요. DB 커넥션을 오래 물고 있으면 전체 장애로 이어집니다.
 
 ## 요약
+
+> [!TIP]
+> **@Transactional Checklist**:
+> - [ ] **Public Method**: `private`, `protected`에는 걸어도 작동 안 함.
+> - [ ] **Self-Invocation**: 내부 호출(`this.method()`)은 프록시를 안 거침 -> 트랜잭션 적용 X.
+> - [ ] **Exception**: `Checked Exception`(Ex. `IOException`)은 롤백 안 됨. `rollbackFor` 설정 필수.
+> - [ ] **Transaction Scope**: 트랜잭션은 최대한 짧게. (외부 API 호출은 트랜잭션 밖으로 빼라)
 
 1. **Proxy**: `@Transactional`은 AOP 프록시로 동작한다. (Self-invocation 조심)
 2. **Propagation**: `REQUIRED`는 한 팀, `REQUIRES_NEW`는 별개 팀.

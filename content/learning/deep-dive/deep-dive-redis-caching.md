@@ -21,22 +21,19 @@ study_order: 225
 
 ```mermaid
 sequenceDiagram
-    participant Client
+    autonumber
     participant App
     participant Redis
     participant DB
-    
-    Client->>App: 데이터 줘
-    App->>Redis: 1. 데이터 있니? (GET)
+
+    App->>Redis: GET key
     alt Cache Hit
-        Redis-->>App: ㅇㅇ 여기 (Data)
-        App-->>Client: 응답
+        Redis-->>App: Data (Fast)
     else Cache Miss
-        Redis-->>App: ㄴㄴ 없음
-        App->>DB: 2. 그럼 DB에서 조회 (SELECT)
-        DB-->>App: 데이터
-        App->>Redis: 3. 캐시에 저장 (SET + TTL)
-        App-->>Client: 응답
+        Redis-->>App: null
+        App->>DB: SELECT * FROM table
+        DB-->>App: Row Data
+        App->>Redis: SET key value (TTL)
     end
 ```
 
@@ -49,20 +46,31 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    participant Client
+    autonumber
     participant App
     participant Redis
     participant DB
+    participant Scheduler
+
+    App->>Redis: INCR view_count
+    Redis-->>App: OK (Memory)
     
-    Client->>App: 조회수 +1
-    App->>Redis: 1. Redis만 증가 (INCR)
-    App-->>Client: OK (매우 빠름)
-    
-    loop 1분마다 (Scheduler)
-        App->>Redis: 2. 모인 데이터 가져오기
-        App->>DB: 3. DB에 일괄 반영 (Bulk Update)
+    loop Every 1 min
+        Scheduler->>Redis: GET and DEL logs
+        Redis-->>Scheduler: Bulk Data
+        Scheduler->>DB: UPDATE table SET count += N
     end
 ```
+
+### 1-3. Redis Data Types Cheat Sheet (실무용)
+
+| Type | 설명 | 주요 Use Case | 명령어 |
+| :--- | :--- | :--- | :--- |
+| **String** | 기본 KV | 캐싱, 카운터, 비트맵 | `SET`, `GET`, `INCR` |
+| **List** | 순서 있는 큐 | 메시지 큐, 타임라인 | `LPUSH`, `RPOP`, `LRANGE` |
+| **Set** | 중복 없는 집합 | 좋아요 유저 목록, 태그 | `SADD`, `SISMEMBER` |
+| **Sorted Set** | 점수 기반 정렬 | 실시간 랭킹, 리더보드 | `ZADD`, `ZRANGE` |
+| **Hash** | 필드 단위 저장 | 사용자 프로필, 세션 | `HSET`, `HGETALL` |
 
 - **장점**: 쓰기 성능 극대화. DB 부하 최소화.
 - **단점**: Redis 죽으면 데이터 날아감(내구성을 포기하고 속도를 얻음).
@@ -77,9 +85,24 @@ sequenceDiagram
 인기 있는 아이돌 콘서트 예매 생각하시면 됩니다.
 캐시가 만료되는 순간(`TTL Expire`), 수천 개의 요청이 동시에 DB를 때립니다. **DB 사망 원인 1위.**
 
+```mermaid
+flowchart TD
+    Start[Cache Miss] --> Lock{Acquire Lock?}
+    
+    Lock -- Yes --> DB[DB Query]
+    DB --> Save[Save to Redis]
+    Save --> Unlock[Release Lock]
+    
+    Lock -- No --> Wait[Sleep 100ms]
+    Wait --> Retry[Retry Cache Get]
+    
+    style DB fill:#ffcdd2,stroke:#d32f2f
+    style Save fill:#c8e6c9,stroke:#388e3c
+```
+
 - **해결책**:
   1. **Probabilistic Early Expiration**: "만료 10초 전부터는 10% 확률로 미리 갱신하자."
-  2. **Mutex Lock**: "한 놈만 DB에 갔다 와. 나머지는 기다려."
+  2. **Mutex Lock**: "한 놈만 DB에 갔다 와. 나머지는 기다려." (위 그림)
 
 ### 2-2. Hot Key
 특정 키(`BTS:Profile`) 하나에만 요청이 99% 몰린다면?
@@ -109,6 +132,13 @@ DB에 없으니 캐시에도 안 쌓이고, 계속 DB만 때리게 됩니다.
 완벽한 정합성이 필요하면 캐시를 쓰지 마세요. 캐시는 **Eventually Consistent**를 전제로 써야 정신 건강에 이롭습니다.
 
 ## 요약
+
+> [!TIP]
+> **Redis Production Checklist**:
+> - [ ] **Memory**: `maxmemory-policy` 설정 확인 (`allkeys-lru` 권장).
+> - [ ] **TTL**: 모든 키에 TTL 설정 (좀비 데이터 방지).
+> - [ ] **O(N)**: `KEYS`, `FLUSHALL` 금지 -> `SCAN`, `UNLINK` 사용.
+> - [ ] **Monitor**: Slowlog 모니터링 필수.
 
 1. **Read**: 기본은 **Cache-Aside**.
 2. **Write**: 중요하면 **Write-Through**, 성능 중요하면 **Write-Back**.
