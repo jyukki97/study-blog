@@ -1,5 +1,5 @@
 /* ========================================
-   모바일 가독성 개선 CSS (Updated V15 - Fix Broken Title)
+   모바일 가독성 개선 CSS (Updated V17 - Fix Missing Line)
    모바일에서 출퇴근 시 읽기 좋게 최적화
    ======================================== */
 
@@ -525,13 +525,20 @@
 }
 
 /* ========================================
-   14. 타임라인 페이지 아이템 모바일 최적화 (Compact Mode)
+   14. 타임라인 페이지 아이템 모바일 최적화 (Connected Flow V17)
    ======================================== */
 @media (max-width: 768px) {
 
-    /* 타임라인 컨테이너 */
+    /* 타임라인 컨테이너 - 확실한 Border 활용 */
     .timeline-container {
         padding: 0 !important;
+        position: relative !important;
+        margin-left: 16px !important;
+        /* 왼쪽 여백 */
+        padding-left: 20px !important;
+        /* border와 컨텐츠 사이 여백 */
+        border-left: 2px solid var(--border) !important;
+        /* 이것이 바로 Vertical Line */
     }
 
     /* 네비게이션 버튼 축소 */
@@ -544,56 +551,118 @@
         margin-bottom: 24px !important;
         gap: 8px !important;
         flex-wrap: wrap !important;
+        position: relative;
+        padding-left: 0 !important;
+        margin-left: -22px !important;
+        /* 패딩+보더 보정해서 바깥으로 뺌 */
+        width: calc(100% + 22px) !important;
     }
 
-    /* 개별 아이템 카드 크기 줄이기 */
+    /* 개별 아이템 - 리스트 스타일 */
     .timeline-item {
-        padding: 12px 14px !important;
-        /* 내부 패딩 더 축소 */
-        margin-bottom: 16px !important;
-        /* 카드 간격 축소 */
+        padding: 8px 0 24px 0 !important;
+        /* 왼쪽 패딩 제거 (컨테이너가 처리) */
+        margin-bottom: 0 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        border: none !important;
+        position: relative !important;
+    }
+
+    /* 2. 아이템별 점 (Dot) 추가 */
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -26px;
+        /* 컨테이너 Border 위에 정확히 위치시키기 (-20px padding - 6px radius) */
+        top: 14px;
+        /* 제목 높이에 맞춤 */
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background-color: var(--entry);
+        border: 2px solid var(--primary);
+        /* 테마 컬러 */
+        z-index: 1;
+        box-shadow: 0 0 0 3px var(--entry);
+        /* 선을 가리기 위한 배경색 테두리 */
     }
 
     /* 아이템 제목 */
     .timeline-item h3,
     .timeline-item .timeline-title {
-        font-size: 1.15rem !important;
-        /* 제목도 조금 더 작게 */
-        margin-bottom: 4px !important;
+        font-size: 1.1rem !important;
+        font-weight: 600 !important;
+        margin-bottom: 2px !important;
+        color: var(--primary) !important;
     }
 
-    /* 15. 초소형 뷰: 설명글 숨기기 (User Request: "한눈에") */
+    /* 설명 및 메타 정보 숨김/축소 */
     .timeline-item p,
     .timeline-item .timeline-description,
     .timeline-desc,
     .module-desc {
         display: none !important;
-        /* 설명글 숨김 */
+    }
+
+    /* 불필요한 넘버링 (#28) 숨기기 */
+    .timeline-order,
+    .timeline-counter {
+        display: none !important;
     }
 
     /* 날짜/메타 정보 */
     .timeline-item .timeline-date,
     .timeline-meta {
         font-size: 0.8rem !important;
-        margin-bottom: 4px !important;
+        margin-bottom: 2px !important;
         color: var(--secondary);
     }
 
     /* 태그 */
+    .timeline-item .tags,
+    .timeline-tags {
+        margin-top: 4px !important;
+        padding: 0 !important;
+    }
+
     .timeline-item .tags span,
     .timeline-tags span,
     .timeline-tags a {
         font-size: 0.75rem !important;
-        padding: 2px 6px !important;
-        margin-bottom: 2px !important;
+        padding: 1px 6px !important;
+        margin-right: 4px !important;
+        margin-bottom: 0 !important;
+        border-radius: 4px !important;
+        background: var(--code-bg) !important;
+        color: var(--secondary) !important;
     }
 
-    /* 순서 배지 (.timeline-order) 크기 축소 */
-    .timeline-order {
-        font-size: 0.75rem !important;
-        padding: 2px 6px !important;
-        height: auto !important;
-        line-height: normal !important;
-        margin-bottom: 4px !important;
+    /* 단계(Phase) 헤더 스타일 강화 (Milestone) */
+    .timeline-phase-title,
+    .timeline-section-title {
+        margin-top: 32px !important;
+        margin-bottom: 16px !important;
+        padding-left: 0 !important;
+        position: relative !important;
+        color: var(--primary) !important;
+        font-size: 1.25rem !important;
+        font-weight: 700 !important;
+    }
+
+    /* 단계별 큰 점 (Big Dot) */
+    .timeline-phase-title::before,
+    .timeline-section-title::before {
+        content: '';
+        position: absolute;
+        left: -28px;
+        /* Border 위에 위치 */
+        top: 6px;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background-color: var(--primary);
+        z-index: 2;
+        box-shadow: 0 0 0 4px var(--entry);
     }
 }
