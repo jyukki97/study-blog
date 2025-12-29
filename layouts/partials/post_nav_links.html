@@ -1,0 +1,62 @@
+{{- $module := .Params.module }}
+{{- if $module }}
+{{- /* Custom Module Logic */ -}}
+{{- $pages := where site.RegularPages "Params.module" $module }}
+{{- $pages := sort $pages "Params.study_order" "asc" }}
+
+{{- $current := . }}
+{{- $prevPage := "" }}
+{{- $nextPage := "" }}
+
+{{- range $index, $page := $pages }}
+{{- if eq $page $current }}
+{{- if gt $index 0 }}
+{{- $prevPage = index $pages (sub $index 1) }}
+{{- end }}
+{{- if lt $index (sub (len $pages) 1) }}
+{{- $nextPage = index $pages (add $index 1) }}
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{- if or $prevPage $nextPage }}
+<nav class="paginav">
+    {{- with $prevPage }}
+    <a class="prev" href="{{ .Permalink }}">
+        <span class="title">« {{ i18n "prev_page" | default "Prev" }}</span>
+        <br>
+        <span>{{- .Name -}}</span>
+    </a>
+    {{- end }}
+    {{- with $nextPage }}
+    <a class="next" href="{{ .Permalink }}">
+        <span class="title">{{ i18n "next_page" | default "Next" }} »</span>
+        <br>
+        <span>{{- .Name -}}</span>
+    </a>
+    {{- end }}
+</nav>
+{{- end }}
+
+{{- else }}
+{{- /* Default Theme Logic for regular posts */ -}}
+{{- $pages := where site.RegularPages "Type" "in" site.Params.mainSections }}
+{{- if and (gt (len $pages) 1) (in $pages . ) }}
+<nav class="paginav">
+    {{- with $pages.Next . }}
+    <a class="prev" href="{{ .Permalink }}">
+        <span class="title">« {{ i18n "prev_page" }}</span>
+        <br>
+        <span>{{- .Name -}}</span>
+    </a>
+    {{- end }}
+    {{- with $pages.Prev . }}
+    <a class="next" href="{{ .Permalink }}">
+        <span class="title">{{ i18n "next_page" }} »</span>
+        <br>
+        <span>{{- .Name -}}</span>
+    </a>
+    {{- end }}
+</nav>
+{{- end }}
+{{- end }}

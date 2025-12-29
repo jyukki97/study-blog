@@ -7,7 +7,61 @@ tags: ["Java", "Exception", "Optional", "Stream"]
 categories: ["Backend Deep Dive"]
 description: "체크예외 vs 런타임예외, Optional/Stream에서 흔한 함정과 안전한 사용 패턴 정리"
 module: "foundation"
-study_order: 65
+quizzes:
+  - question: "자바의 체크 예외(Checked Exception)와 런타임 예외(Unchecked Exception)를 구분하는 가장 중요한 실무적 기준은?"
+    options:
+      - "호출하는 쪽에서 예외 상황을 복구(Recovery)할 수 있는 기회를 줄 것인가, 아니면 실패로 처리할 것인가"
+      - "예외 메시지가 긴가 짧은가"
+      - "데이터베이스 예외인가 아닌가"
+      - "Spring Framework를 사용하는가 안 하는가"
+    answer: 0
+    explanation: "호출자가 예외 상황을 인지하고 대안(재시도, 다른 경로 등)을 선택할 수 있다면 체크 예외를, 그렇지 않고 즉시 에러로 처리해야 한다면 런타임 예외를 사용합니다."
+
+  - question: "`Optional.orElse(createDefaultObject())`와 `Optional.orElseGet(() -> createDefaultObject())`의 성능상 차이는?"
+    options:
+      - "차이가 없다."
+      - "`orElse`는 Optional이 비어있지 않아도 `createDefaultObject()`를 항상 실행하지만, `orElseGet`은 비어있을 때만 실행(Lazy Evaluation)한다."
+      - "`orElse`가 더 빠르다."
+      - "`orElseGet`은 컴파일 에러가 발생한다."
+    answer: 1
+    explanation: "`orElse`의 인자는 항상 평가되므로, 비용이 비싼 객체를 생성할 때는 반드시 서플라이어(Supplier)를 받는 `orElseGet`을 사용해야 불필요한 연산을 막을 수 있습니다."
+
+  - question: "Optional을 올바르게 사용하는 방법이 아닌 것은?"
+    options:
+      - "메서드의 반환 타입(Return Type)으로 사용하여 '결과가 없을 수 있음'을 명시한다."
+      - "필드(Field)나 파라미터(Parameter)로 사용하여 null 처리를 강제한다."
+      - "`ifPresent()`나 `orElseThrow()` 등을 사용하여 안전하게 값을 꺼낸다."
+      - "컬렉션은 Optional로 감싸지 않고, 빈 컬렉션(Empty List)을 반환한다."
+    answer: 1
+    explanation: "Optional을 필드나 파라미터로 쓰면 직렬화 문제와 불필요한 래핑(Wrapping) 오버헤드가 발생하며, 코드 가독성도 떨어집니다. 주로 리턴 타입에만 쓰는 것이 권장됩니다."
+
+  - question: "Stream 파이프라인(`stream().map().forEach()`) 내부에서 외부 리스트에 데이터를 `add()`하는 행위가 위험한 이유는?"
+    options:
+      - "외부 리스트의 메모리가 부족해지기 때문에"
+      - "함수형 프로그래밍의 '부수 효과(Side-effect) 없음' 원칙을 위반하며, 병렬 스트림 실행 시 동시성 문제가 발생하기 때문에"
+      - "스트림이 닫히지 않기 때문에"
+      - "속도가 너무 빨라서"
+    answer: 1
+    explanation: "Stream은 데이터를 변환하는 파이프라인이어야 합니다. 결과를 수집하려면 `collect()`를 사용해야 안전하고 병렬 처리도 가능해집니다."
+
+  - question: "서비스 계층(Service Layer)에서 발생한 예외를 컨트롤러(Controller)로 던질 때 가장 좋은 패턴은?"
+    options:
+      - "모든 예외를 `catch (Exception e)`로 잡아서 무시한다."
+      - "기술 예외(예: SQLException)를 그대로 컨트롤러까지 던진다."
+      - "적절한 커스텀 예외(또는 런타임 예외)로 변환(Translate)하여 던지고, 글로벌 핸들러(@RestControllerAdvice)에서 일괄 처리한다."
+      - "서비스 계층에서 `System.out.println`으로 로그만 찍는다."
+    answer: 2
+    explanation: "계층 간 경계에서는 구현 기술(DB 등)의 예외를 숨기고, 도메인 의미를 담은 예외로 변환하여 던지는 것이 유지보수와 에러 처리에 유리합니다."
+
+  - question: "다음 중 `try-with-resources` 구문을 사용해야 하는 가장 적절한 상황은?"
+    options:
+      - "모든 예외 처리에 사용해야 한다."
+      - "AutoCloseable 인터페이스를 구현한 리소스(파일, 소켓, DB 연결 등)를 사용할 때 자원 누수를 막기 위해"
+      - "성능을 최적화하기 위해"
+      - "코드를 짧게 만들기 위해"
+    answer: 1
+    explanation: "Java 7부터 도입된 `try-with-resources`는 블록이 끝날 때 리소스의 `close()` 메서드를 자동으로 호출해주어 자원 반납을 보장합니다."
+study_order: 35
 ---
 
 ## 이 글에서 얻는 것

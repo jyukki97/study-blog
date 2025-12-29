@@ -8,20 +8,58 @@ categories: ["Backend Deep Dive"]
 description: "분산 시스템에서 '최신 데이터'를 본다는 것의 의미와 비용. Linearizability, Sequential, Eventual Consistency의 차이를 명확히 구분합니다."
 module: "distributed-system"
 study_order: 404
+quizzes:
+  - question: "Linearizability(강한 정합성)와 Eventual Consistency(결과적 정합성)의 핵심 차이는?"
+    options:
+      - "둘은 동일하다."
+      - "Linearizability는 '쓴 즉시 모든 클라이언트가 같은 값을 읽음', Eventual은 '언젠가는 같아짐(지연 허용)'"
+      - "Eventual이 더 강하다."
+      - "Linearizability는 비용이 낮다."
+    answer: 1
+    explanation: "Strong Consistency는 모든 노드가 합의할 때까지 기다려 느리지만 정확합니다. Eventual은 복제 지연을 허용해 빠르지만 일시적 불일치가 발생할 수 있습니다."
+
+  - question: "SNS 피드나 유튜브 조회수에 Eventual Consistency를 사용하는 이유는?"
+    options:
+      - "정확성이 가장 중요해서"
+      - "빠른 응답이 더 중요하고, 일시적으로 조회수가 다르게 보여도 치명적이지 않기 때문"
+      - "구현이 어려워서"
+      - "보안 때문"
+    answer: 1
+    explanation: "SNS에서 '좋아요'가 1초 늦게 반영되는 건 괜찮지만, 응답이 5초 걸리면 사용자가 떠납니다. 비즈니스 특성에 맞게 정합성 수준을 선택해야 합니다."
+
+  - question: "PACELC 이론에서 'E'(Else)가 의미하는 것은?"
+    options:
+      - "Error 처리"
+      - "네트워크 분단이 없는 평소 상황에서는 Latency와 Consistency 사이에서 선택해야 함"
+      - "암호화 여부"
+      - "확장성"
+    answer: 1
+    explanation: "CAP은 장애 시 선택만 다루지만, PACELC는 평소(Else)에도 '빠른 응답(Latency) vs 강한 정합성(Consistency)' 트레이드오프가 있음을 설명합니다."
+
+  - question: "은행 계좌 잔고 조회에 Eventual Consistency를 사용하면 안 되는 이유는?"
+    options:
+      - "속도가 느려서"
+      - "계좌에서 출금 후 아직 복제되지 않은 노드에서 읽으면 잔고가 있는 것처럼 보여 이중 출금이 가능해지기 때문"
+      - "구현이 어려워서"
+      - "비용 문제"
+    answer: 1
+    explanation: "금융 시스템처럼 돈이 오가는 곳에서는 '방금 쓴 값이 즉시 보여야' 합니다. 이중 결제나 Over-selling을 방지하려면 Strong Consistency가 필요합니다."
+
+  - question: "Stale Read(오래된 데이터 읽기)가 발생하는 상황은?"
+    options:
+      - "Strong Consistency 환경"
+      - "Leader에 쓰기 후 Replica 복제가 완료되기 전에 Replica에서 읽을 때"
+      - "캐시를 사용하지 않을 때"
+      - "네트워크가 빠를 때"
+    answer: 1
+    explanation: "비동기 복제 시 Leader에 쓴 데이터가 Follower에 도착하기 전에 Follower에서 읽으면 이전 값이 반환됩니다. 이것이 Eventual Consistency의 트레이드오프입니다."
 ---
 
 ## 이 글에서 얻는 것
 
----
-title: "데이터 정합성 모델: Strong부터 Eventual까지"
-date: 2025-12-28
-draft: false
-topic: "Distributed Systems"
-tags: ["Consistency", "Distributed Systems", "Linearizability", "CAP"]
-categories: ["Backend Deep Dive"]
-description: "분산 시스템에서 '최신 데이터'를 본다는 것의 의미와 비용. Linearizability, Sequential, Eventual Consistency의 차이를 명확히 구분합니다."
-module: "distributed-system"
-study_order: 404
+- **Linearizability**(강한 정합성)와 **Eventual Consistency**(결과적 정합성)의 차이를 이해합니다.
+- 분산 시스템에서 정합성 모델을 선택하는 기준(**PACELC**)을 배웁니다.
+
 ---
 
 ## 🧐 1. Consistency Model이란?

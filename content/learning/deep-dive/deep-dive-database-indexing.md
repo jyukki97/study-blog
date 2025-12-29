@@ -7,6 +7,51 @@ tags: ["Database", "Index", "B-Tree", "Query Optimization", "Performance"]
 categories: ["Backend Deep Dive"]
 description: "인덱스가 왜 빨라지는지(B-Tree/선택도/커버링), 복합 인덱스 설계와 쿼리 튜닝의 기본 감각"
 module: "data-system"
+quizzes:
+  - question: "Clustered Index와 Non-Clustered Index의 가장 핵심적인 차이는?"
+    options:
+      - "Clustered Index는 더 빠르고, Non-Clustered Index는 느리다."
+      - "Clustered Index의 리프 노드에는 실제 데이터(Row)가 있고, Non-Clustered Index의 리프 노드에는 PK 값(포인터)만 있다."
+      - "Non-Clustered Index가 더 많은 저장 공간을 차지한다."
+      - "둘은 동일한 구조이다."
+    answer: 1
+    explanation: "Clustered Index는 테이블 데이터 자체를 정렬된 형태로 저장합니다. Non-Clustered Index는 별도 공간에 정렬된 키와 PK 포인터를 저장하며, 실제 데이터를 얻으려면 Clustered Index를 다시 조회해야 합니다(Random Access)."
+
+  - question: "복합 인덱스(Composite Index) `(gender, age)`에서 `WHERE age = 20` 만 쿼리하면 인덱스를 효율적으로 사용하지 못하는 이유는?"
+    options:
+      - "age 컬럼에 인덱스가 없기 때문"
+      - "복합 인덱스는 선두 컬럼(gender)부터 순서대로 매칭되어야 하는데(Leftmost Prefix Rule), 첫 번째 컬럼을 건너뛰었기 때문"
+      - "age가 숫자 타입이기 때문"
+      - "인덱스 크기가 너무 크기 때문"
+    answer: 1
+    explanation: "복합 인덱스는 `(gender, age)` 순서로 정렬됩니다. gender 없이 age만 조회하면 정렬된 순서를 활용할 수 없어 인덱스 스캔 효율이 떨어지거나 풀 스캔이 발생합니다."
+
+  - question: "'커버링 인덱스(Covering Index)'가 성능에 유리한 이유는?"
+    options:
+      - "인덱스 크기가 작아지기 때문"
+      - "쿼리에 필요한 모든 컬럼이 인덱스에 포함되어 있어, 테이블(Clustered Index) 접근 없이 인덱스만으로 결과를 반환할 수 있기 때문"
+      - "B-Tree 높이가 낮아지기 때문"
+      - "쓰기 성능이 향상되기 때문"
+    answer: 1
+    explanation: "커버링 인덱스는 SELECT하려는 컬럼이 이미 인덱스에 다 있으므로, 별도의 테이블 데이터 파일(Heap/Clustered Index)을 읽지 않아 디스크 I/O를 줄입니다. `SELECT *`를 피하면 커버링 효과를 얻기 쉽습니다."
+
+  - question: "인덱스를 생성하면 쓰기(INSERT/UPDATE/DELETE) 성능이 저하될 수 있는 이유는?"
+    options:
+      - "쿼리 파싱 시간이 늘어나기 때문"
+      - "데이터 변경 시 인덱스의 정렬된 상태를 유지하기 위해 인덱스도 함께 갱신해야 하기 때문"
+      - "트랜잭션 로그가 늘어나기 때문"
+      - "잠금(Lock)이 발생하지 않기 때문"
+    answer: 1
+    explanation: "인덱스는 정렬된 상태를 유지해야 합니다. 데이터가 추가/수정/삭제될 때마다 인덱스도 갱신되어야 하므로 쓰기 오버헤드가 발생합니다. 인덱스가 많을수록 쓰기 비용이 커집니다."
+
+  - question: "카디널리티(Cardinality)가 낮은 컬럼(예: 성별: 남/여)에 단독 인덱스를 거는 것이 비효율적인 이유는?"
+    options:
+      - "인덱스 파일 크기가 너무 커지기 때문"
+      - "중복 값이 많아 인덱스로 걸러지는 데이터 비율(선택도)이 낮아, 대부분의 데이터를 여전히 스캔해야 하기 때문"
+      - "B-Tree 구조를 사용할 수 없기 때문"
+      - "NULL 값이 포함될 수 없기 때문"
+    answer: 1
+    explanation: "인덱스 효율은 '선택도(Selectivity)'에 달려 있습니다. 성별처럼 값의 종류가 적으면 인덱스로 필터링해도 절반의 데이터를 읽어야 해서 풀 스캔과 성능 차이가 적습니다. 주민번호처럼 유니크한 컬럼이 인덱스 효과가 큽니다."
 study_order: 301
 ---
 

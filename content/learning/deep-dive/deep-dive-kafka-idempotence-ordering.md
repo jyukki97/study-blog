@@ -8,6 +8,51 @@ categories: ["Backend Deep Dive"]
 description: "멱등 프로듀서, 정렬 보장 패턴, Exactly-once 처리를 위한 설정과 설계"
 module: "data-system"
 study_order: 265
+quizzes:
+  - question: "Kafka Producer 멱등성(idempotent producer)이 해결하는 문제는?"
+    options:
+      - "Consumer 중복 처리"
+      - "네트워크 오류/재시도 시 같은 레코드가 브로커에 중복 기록되는 것을 방지"
+      - "정렬 보장"
+      - "모든 중복 문제 해결"
+    answer: 1
+    explanation: "Producer가 ACK를 못 받아 재시도하면 같은 메시지가 두 번 저장될 수 있습니다. 멱등 설정으로 이를 방지하지만, Consumer 측 중복은 별도 처리가 필요합니다."
+
+  - question: "Kafka에서 메시지 순서(Ordering)가 보장되는 범위는?"
+    options:
+      - "토픽 전체"
+      - "같은 파티션 내의 레코드만 순서 보장"
+      - "모든 Consumer 그룹"
+      - "클러스터 전체"
+    answer: 1
+    explanation: "같은 orderId를 키로 사용하면 같은 파티션에 들어가 순서가 유지됩니다. 다른 파티션 간의 순서는 보장되지 않습니다."
+
+  - question: "Consumer 멱등성을 구현하는 대표적인 패턴은?"
+    options:
+      - "Producer 설정만 하면 된다."
+      - "처리 이력 테이블에 eventId를 unique로 저장하고, 이미 있으면 스킵"
+      - "메시지를 삭제한다."
+      - "더 빠른 네트워크를 사용한다."
+    answer: 1
+    explanation: "같은 이벤트가 두 번 와도 DB에 중복 저장되지 않도록 eventId나 비즈니스 키로 중복 체크를 해야 합니다."
+
+  - question: "Kafka의 Exactly-once 처리가 현실적으로 어려운 이유는?"
+    options:
+      - "Kafka가 지원하지 않아서"
+      - "Transactional Producer, Consumer offset 커밋 트랜잭션 포함, isolation.level 설정 등 조건이 많고 운영 복잡도가 높기 때문"
+      - "비용이 비싸서"
+      - "속도가 느려서"
+    answer: 1
+    explanation: "End-to-end Exactly-once는 가능하지만 설정과 운영이 복잡합니다. 많은 서비스가 '멱등 처리 + At-least-once'를 선택합니다."
+
+  - question: "Kafka 메시지에 eventId 필드를 포함해야 하는 이유는?"
+    options:
+      - "로깅을 위해"
+      - "Consumer에서 중복 처리 여부를 판단하기 위한 고유 식별자로 사용하기 위해"
+      - "압축을 위해"
+      - "필요 없다"
+    answer: 1
+    explanation: "eventId가 없으면 같은 메시지가 두 번 왔는지 판단할 수 없습니다. 처리 이력 테이블에 eventId를 저장하여 중복을 방지합니다."
 ---
 
 ## 이 글에서 얻는 것

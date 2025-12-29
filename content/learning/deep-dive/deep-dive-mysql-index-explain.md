@@ -7,6 +7,51 @@ tags: ["MySQL", "Index", "EXPLAIN", "Performance"]
 categories: ["Backend Deep Dive"]
 description: "B-Tree/컴포지트 인덱스 설계, EXPLAIN으로 실행 계획을 해석하고 튜닝하는 방법"
 module: "data-system"
+quizzes:
+  - question: "복합 인덱스(Composite Index) `(user_id, created_at)`를 사용할 때, 인덱스를 효율적으로 타는 쿼리 조건은?"
+    options:
+      - "WHERE created_at > '2025-01-01'"
+      - "WHERE user_id = 10 AND created_at > '2025-01-01'"
+      - "WHERE created_at > '2025-01-01' AND user_id = 10 ORDER BY user_id"
+      - "ORDER BY created_at"
+    answer: 1
+    explanation: "복합 인덱스는 '선두 컬럼(Leftmost Prefix)'부터 순서대로 매칭되어야 효과적입니다. `user_id`가 동등 조건으로 먼저 오고, `created_at`이 범위 조건으로 오면 인덱스를 잘 탑니다."
+
+  - question: "EXPLAIN 결과에서 `type` 컬럼이 'ALL'인 경우 의미하는 것은?"
+    options:
+      - "인덱스를 사용하여 특정 키 값으로 조회했다."
+      - "테이블 풀 스캔(Full Table Scan)이 발생하여 튜닝이 필요할 가능성이 높다."
+      - "범위 스캔(Range Scan)을 수행했다."
+      - "커버링 인덱스를 사용했다."
+    answer: 1
+    explanation: "`type: ALL`은 테이블의 모든 행을 스캔하므로, 대량 데이터에서 심각한 성능 저하를 유발합니다. `const`, `ref`, `range`와 같이 인덱스를 활용하는 타입이 나오도록 튜닝해야 합니다."
+
+  - question: "'커버링 인덱스(Covering Index)'의 의미는?"
+    options:
+      - "인덱스에 쿼리에 필요한 모든 컬럼이 포함되어 있어, 테이블 데이터를 추가로 읽지 않아도 되는 경우"
+      - "인덱스가 테이블의 모든 컬럼을 덮는 경우"
+      - "인덱스가 다른 테이블의 외래 키를 참조하는 경우"
+      - "인덱스를 사용하지 않고 풀 스캔하는 경우"
+    answer: 0
+    explanation: "커버링 인덱스는 SELECT하는 컬럼이 모두 인덱스에 포함되어 있어, 테이블(클러스터 인덱스)을 다시 읽을 필요 없이 인덱스만으로 결과를 반환할 수 있어 성능상 큰 이점이 있습니다."
+
+  - question: "EXPLAIN의 `Extra` 컬럼에 'Using filesort'가 나타나는 것은 무엇을 의미하는가?"
+    options:
+      - "인덱스 순서를 그대로 이용하여 정렬했다."
+      - "정렬이 필요하지만 인덱스로 처리되지 않아 별도의 정렬 작업(메모리/디스크)이 수행되었다."
+      - "파일 시스템에서 데이터를 읽었다."
+      - "쿼리가 성공적으로 실행되었다."
+    answer: 1
+    explanation: "`Using filesort`는 ORDER BY가 인덱스로 해결되지 않아 MySQL이 별도로 정렬해야 함을 의미합니다. 데이터가 많으면 비용이 크므로, 인덱스 순서를 맞추거나 LIMIT을 줄이는 등의 튜닝이 필요합니다."
+
+  - question: "인덱스를 무분별하게 많이 추가하면 발생하는 대표적인 부작용은?"
+    options:
+      - "SELECT 쿼리 성능이 모두 향상된다."
+      - "INSERT/UPDATE/DELETE 시 인덱스 유지 비용 증가 및 저장 공간 증가"
+      - "NULL 값을 조회할 수 없게 된다."
+      - "테이블 스키마가 변경된다."
+    answer: 1
+    explanation: "인덱스가 많아지면 데이터 변경(INSERT, UPDATE, DELETE) 시 모든 인덱스를 업데이트해야 하므로 쓰기 성능이 저하됩니다. 또한 저장 공간과 버퍼 풀 사용량도 증가합니다."
 study_order: 205
 ---
 

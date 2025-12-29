@@ -9,6 +9,51 @@ tags: ["Logging", "Observability", "Structured Logging", "MDC", "ELK"]
 categories: ["Ops"]
 draft: false
 module: "ops-observability"
+quizzes:
+  - question: "텍스트 기반 로그 대신 구조화된 로그(JSON 등)를 사용하는 가장 큰 장점은?"
+    options:
+      - "로그 파일의 용량이 작아진다."
+      - "로그를 사람이 읽기 더 쉬워진다."
+      - "ELK/Splunk 등의 도구에서 특정 필드로 검색, 필터링, 집계가 용이해진다."
+      - "로그 출력 성능이 향상된다."
+    answer: 2
+    explanation: "JSON 형태의 구조화 로그는 `orderId:12345`와 같이 필드 기반 검색이 가능하여 장애 추적 및 분석이 빨라집니다."
+
+  - question: "Spring 환경에서 MDC(Mapped Diagnostic Context)의 역할은?"
+    options:
+      - "로그 파일을 자동으로 롤링(Rotate)해준다."
+      - "요청 스레드 내에서 traceId, userId 같은 컨텍스트 정보를 로그에 자동으로 포함시켜준다."
+      - "비동기 작업의 실행 순서를 보장해준다."
+      - "로그 레벨을 동적으로 변경해준다."
+    answer: 1
+    explanation: "MDC는 ThreadLocal을 기반으로 동작하여, 한 번 `MDC.put()`으로 값을 설정하면 해당 스레드 내의 모든 로그에 해당 필드가 자동으로 포함됩니다."
+
+  - question: "@Async로 비동기 작업을 수행할 때 MDC 정보가 손실되는 이유와 해결책은?"
+    options:
+      - "MDC 정보가 없어도 로그가 정상 동작하므로 문제없다."
+      - "@Async는 새로운 스레드를 사용하기 때문에 ThreadLocal인 MDC가 전파되지 않으므로, TaskDecorator를 사용하여 MDC를 명시적으로 복사해야 한다."
+      - "@Async 메서드에 @Transactional을 붙이면 MDC가 전파된다."
+      - "MDC.get() 호출 시 자동으로 부모 스레드를 탐색한다."
+    answer: 1
+    explanation: "@Async는 별도의 스레드 풀을 사용하므로 기존 MDC 정보가 새 스레드로 전달되지 않습니다. `TaskDecorator`를 통해 실행 전에 MDC 컨텍스트를 복사해야 합니다."
+
+  - question: "로그 레벨 중 '비즈니스 예외'(예: 재고 부족)를 기록하기에 가장 적절한 레벨은?"
+    options:
+      - "ERROR"
+      - "WARN"
+      - "INFO"
+      - "DEBUG"
+    answer: 1
+    explanation: "`InsufficientStockException`과 같은 비즈니스 예외는 시스템 장애는 아니지만 잠재적 문제이므로 `WARN`으로 기록하고, 시스템 장애(DB 다운 등)는 `ERROR`로 기록하는 것이 일반적입니다."
+
+  - question: "로그에 민감 정보(비밀번호, 카드번호 등)를 직접 출력하면 안 되는 가장 큰 이유와 일반적인 해결책은?"
+    options:
+      - "로그 파일 용량이 커지기 때문에 / 로그 레벨을 DEBUG로 낮춘다."
+      - "보안 감사(Audit)에서 위반으로 지적되고 정보 유출 위험이 있기 때문에 / 마스킹(Masking) 처리한다."
+      - "로그 출력 성능이 느려지기 때문에 / 비동기 로깅을 사용한다."
+      - "로그가 사람이 읽기 어려워지기 때문에 / 별도의 파일에 로깅한다."
+    answer: 1
+    explanation: "민감 정보는 로그 파일 유출 시 심각한 보안 문제를 야기합니다. `maskEmail(email)`과 같이 마스킹 함수를 사용하여 `user@***.com` 형태로 출력해야 합니다."
 ---
 
 ## 이 글에서 얻는 것

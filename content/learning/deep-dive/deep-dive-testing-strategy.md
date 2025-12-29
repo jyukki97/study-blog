@@ -9,6 +9,51 @@ tags: ["Testing", "JUnit", "Mockito", "Integration Test", "E2E"]
 categories: ["Spring"]
 draft: false
 module: "spring-core"
+quizzes:
+  - question: "테스트 피라미드전략에서 가장 많은 비중(약 70%)을 차지해야 하며, 실행 속도가 가장 빠른 테스트 유형은?"
+    options:
+      - "E2E Test (End-to-End)"
+      - "Integration Test (통합 테스트)"
+      - "Unit Test (단위 테스트)"
+      - "UI Test"
+    answer: 2
+    explanation: "단위 테스트는 코드의 가장 작은 단위를 격리하여 검증하므로 실행 속도가 빠르고 비용이 저렴하여 피라미드의 하단을 넓게 지지해야 합니다."
+
+  - question: "Mockito 프레임워크에서 실제 객체(Real Object) 대신 가짜 객체를 주입하여 행위(Behavior)를 검증하는 객체는?"
+    options:
+      - "Spy"
+      - "Stub"
+      - "Mock"
+      - "Dummy"
+    answer: 2
+    explanation: "Mock은 행위(메서드 호출 여부 등)를 검증하기 위해 사용되는 테스트 대역(Test Double)입니다. (cf. Stub은 상태 기반 검증)"
+
+  - question: "Spring Boot 통합 테스트(`@SpringBootTest`)에서 테스트마다 트랜잭션을 실행하고 종료 시 자동으로 롤백하여 DB 상태를 유지시켜주는 애노테이션은?"
+    options:
+      - "@Transactional"
+      - "@Rollback(false)"
+      - "@Commit"
+      - "@DirtiesContext"
+    answer: 0
+    explanation: "테스트 클래스나 메서드에 `@Transactional`을 붙이면 테스트 시작 시 트랜잭션을 시작하고, 종료 시 자동으로 롤백하여 데이터 오염을 방지합니다."
+
+  - question: "외부 API를 직접 호출하지 않고, 실제 빈(Bean)과 거의 유사하게 동작하지만 특정 메서드만 부분적으로 모킹(Mocking)하고 싶을 때 사용하는 애노테이션은?"
+    options:
+      - "@MockBean"
+      - "@SpyBean"
+      - "@InjectMocks"
+      - "@Captor"
+    answer: 1
+    explanation: "`@SpyBean`은 실제 객체를 스파이(Spy)로 감싸서 사용하며, 필요한 경우 특정 메서드의 동작만 `when().thenReturn()`으로 변경할 수 있습니다."
+
+  - question: "테스트 코드의 가독성을 높이기 위해 널리 사용되는 'Given-When-Then' 패턴에서 'When' 단계가 수행하는 것은?"
+    options:
+      - "테스트를 위한 데이터와 Mock 객체를 준비한다."
+      - "실제 테스트 대상 코드를 실행한다."
+      - "실행 결과를 검증(Assertion)한다."
+      - "테스트가 끝난 후 리소스를 정리한다."
+    answer: 1
+    explanation: "When 단계는 준비된 환경(Given)에서 실제로 테스트하고자 하는 기능(메서드)을 호출(취하는 행동)하는 단계입니다."
 ---
 
 ## 이 글에서 얻는 것

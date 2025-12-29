@@ -7,6 +7,51 @@ tags: ["Testcontainers", "Spring Boot", "Integration Test", "JPA", "Redis"]
 categories: ["Backend Deep Dive"]
 description: "MySQL/Redis/Kafka를 Testcontainers로 올려 실제 환경과 유사한 통합 테스트를 구성하는 방법"
 module: "spring-core"
+quizzes:
+  - question: "Testcontainers를 사용하는 가장 주된 목적은?"
+    options:
+      - "운영 환경(Production)의 컨테이너를 관리하기 위해"
+      - "로컬이나 CI 환경에서 실제 DB/분산 시스템을 Docker 컨테이너로 띄워 신뢰성 높은 통합 테스트를 수행하기 위해"
+      - "단위 테스트(Unit Test)의 실행 속도를 높이기 위해"
+      - "Docker 이미지를 빌드하고 배포하기 위해"
+    answer: 1
+    explanation: "Testcontainers는 테스트 실행 시점에 Docker 컨테이너(MySQL, Redis 등)를 동적으로 실행하여 실제 운영 환경과 유사한 통합 테스트 환경을 제공합니다."
+
+  - question: "Spring Boot 3.1부터 도입된 기능으로, Testcontainers 컨테이너와 Spring 설정을 더욱 간편하게 연결해주는 인터페이스는?"
+    options:
+      - "ContainerRegistry"
+      - "ServiceConnection"
+      - "DynamicPropertySource"
+      - "DockerComposeContainer"
+    answer: 1
+    explanation: "`@ServiceConnection`을 사용하면 `DynamicPropertySource`를 사용하여 일일이 DB URL/계정 정보를 매핑하지 않아도, Spring Boot가 자동으로 컨테이너 정보를 감지하여 연결 설정을 주입해줍니다."
+
+  - question: "Testcontainers 사용 시 테스트마다 컨테이너를 새로 띄우지 않고 재사용하여 테스트 속도를 높이는 패턴은?"
+    options:
+      - "Singleton Containers Pattern"
+      - "Prototype Containers Pattern"
+      - "Disposable Containers Pattern"
+      - "Transient Containers Pattern"
+    answer: 0
+    explanation: "컨테이너를 static 필드로 선언하거나 싱글톤 패턴으로 관리하여, 모든 테스트 메서드나 클래스가 하나의 실행된 컨테이너를 공유하게 함으로써 시작 시간을 절약하는 방식입니다."
+
+  - question: "`@DynamicPropertySource` 애노테이션의 역할로 올바른 것은?"
+    options:
+      - "동적으로 Docker 이미지를 다운로드한다."
+      - "Testcontainers가 실행한 컨테이너의 유동적인 정보(Host, Port 등)를 Spring 환경 설정(Environment)에 주입한다."
+      - "테스트 실행 순서를 동적으로 변경한다."
+      - "Spring Bean을 동적으로 생성한다."
+    answer: 1
+    explanation: "컨테이너가 실행될 때마다 할당되는 랜덤 포트 등의 정보를 Spring의 프로퍼티(`spring.datasource.url` 등)에 동적으로 덮어씌워주는 역할을 합니다."
+
+  - question: "Testcontainers를 CI(Continuous Integration) 환경에서 사용할 때 반드시 필요한 선행 조건은?"
+    options:
+      - "Kubernetes 클러스터"
+      - "Docker 환경 (Docker Daemon/Socket 접근 권한)"
+      - "AWS 계정"
+      - "Jenkins 설치"
+    answer: 1
+    explanation: "Testcontainers는 내부적으로 Docker API를 사용하여 컨테이너를 생성/관리하므로, CI 서버에서 Docker 데몬이 실행 중이거나 Docker Socket에 접근할 수 있어야 합니다."
 study_order: 197
 ---
 

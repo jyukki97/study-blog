@@ -7,6 +7,51 @@ tags: ["Validation", "Spring Boot", "Response", "Error"]
 categories: ["Backend Deep Dive"]
 description: "Bean Validation 적용, 공통 응답/에러 코드 규약, 필드 에러 처리 패턴 정리"
 module: "spring-core"
+quizzes:
+  - question: "Spring DTO 검증에서 `@Valid` 애노테이션이 붙은 객체의 유효성 검사가 실패할 때 발생하는 예외는?"
+    options:
+      - "IllegalArgumentException"
+      - "MethodArgumentNotValidException"
+      - "ConstraintViolationException"
+      - "DataIntegrityViolationException"
+    answer: 1
+    explanation: "`@Valid`가 붙은 RequestBody 검증 실패 시 `MethodArgumentNotValidException`이 발생하며, 이는 보통 400 Bad Request로 처리됩니다."
+
+  - question: "입력값 검증(Validation)과 비즈니스 로직 검증의 차이로 가장 적절한 것은?"
+    options:
+      - "입력값 검증은 Service 계층에서, 비즈니스 검증은 Controller에서 수행한다."
+      - "입력값 검증은 `@NotNull`, `@Email` 등 형식 체크 위주이고, 비즈니스 검증은 '재고 부족' 같은 상태 의존적 로직이다."
+      - "두 검증 모두 데이터베이스 조회를 필수로 한다."
+      - "Spring에서는 두 검증을 구분하지 않고 모두 `@Valid`로 처리한다."
+    answer: 1
+    explanation: "입력값 검증은 형식을 체크하여 빠르게 4xx로 거르는 것이 목적이고, 비즈니스 검증은 DB 상태 등을 확인해야 하므로 Service 계층에서 수행합니다."
+
+  - question: "모든 컨트롤러에서 발생하는 예외를 한 곳에서 처리하여 일관된 에러 응답을 내려주기 위해 사용하는 Spring 애노테이션은?"
+    options:
+      - "@Controller"
+      - "@Service"
+      - "@RestControllerAdvice"
+      - "@Component"
+    answer: 2
+    explanation: "`@RestControllerAdvice`(또는 `@ControllerAdvice`)를 사용하면 전역적으로 예외를 잡아서 공통된 포맷의 에러 응답(JSON 등)을 반환할 수 있습니다."
+
+  - question: "Spring Boot에서 Validation 의존성을 추가할 때 사용하는 스타터 패키지 이름은?"
+    options:
+      - "spring-boot-starter-web"
+      - "spring-boot-starter-validation"
+      - "spring-boot-starter-test"
+      - "spring-boot-starter-logging"
+    answer: 1
+    explanation: "Spring Boot 2.3부터 Validation이 `spring-boot-starter-web`에서 분리되어 `spring-boot-starter-validation`을 별도로 추가해야 합니다."
+
+  - question: "API 에러 응답 설계를 할 때, 클라이언트가 예외의 종류를 기계적으로 식별하기 위해 가장 중요한 필드는?"
+    options:
+      - "message (사용자용 메시지)"
+      - "code (에러 코드)"
+      - "stackTrace (스택 트레이스)"
+      - "timestamp (발생 시간)"
+    answer: 1
+    explanation: "메시지는 사용자가 보기 위한 것이고, 클라이언트(프론트엔드) 코드가 분기 처리를 하려면 고유하고 불변하는 `code`(예: `USER_NOT_FOUND`)가 필요합니다."
 study_order: 125
 ---
 

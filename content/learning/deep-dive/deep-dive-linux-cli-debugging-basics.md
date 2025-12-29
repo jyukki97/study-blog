@@ -7,7 +7,79 @@ tags: ["Linux", "CLI", "Debugging", "Logs", "Networking"]
 categories: ["Backend Deep Dive"]
 description: "프로세스/리소스/로그/네트워크를 ps/top/journalctl/ss/curl/dig로 확인하며 장애 범위를 좁히는 방법"
 module: "foundation"
-study_order: 20
+study_order: 10
+quizzes:
+  - question: "서버가 'connection refused' 에러를 내뱉고 있습니다. 가장 먼저 확인해야 할 사항은?"
+    options:
+      - "디스크 용량이 부족한지 확인한다 (df -h)"
+      - "해당 포트가 리슨(LISTEN) 중인지 확인한다 (ss -lntp)"
+      - "CPU 사용량이 100%인지 확인한다 (top)"
+      - "DNS 설정이 올바른지 확인한다 (dig)"
+    answer: 1
+    explanation: "connection refused는 주로 포트가 열려있지 않거나 방화벽에 막혔을 때 발생합니다."
+
+  - question: "특정 프로세스(예: java)가 현재 사용 중인 CPU와 메모리 점유율을 확인하려 합니다. 적절한 명령어 조합은?"
+    options:
+      - "df -h"
+      - "ps aux | grep java"
+      - "journalctl -u java"
+      - "curl localhost:8080"
+    answer: 1
+    explanation: "ps aux 명령어는 프로세스 목록과 함께 CPU(%CPU), 메모리(%MEM) 사용률을 보여줍니다."
+
+  - question: "로그를 실시간으로 계속해서 모니터링하고 싶을 때 사용하는 파일 로그 명령어 옵션은?"
+    options:
+      - "tail -n 100 logfile"
+      - "cat logfile"
+      - "tail -f logfile"
+      - "vi logfile"
+    answer: 2
+    explanation: "-f (follow) 옵션을 사용하면 파일에 계속 추가되는 내용을 실시간으로 볼 수 있습니다."
+
+  - question: "systemd로 관리되는 서비스(my-app)의 최근 로그를 확인하는 올바른 명령어는?"
+    options:
+      - "tail -f /var/log/my-app"
+      - "systemctl status my-app"
+      - "journalctl -u my-app"
+      - "ps -ef | grep my-app"
+    answer: 2
+    explanation: "systemd 서비스의 로그는 journalctl 명령어로 확인합니다."
+
+  - question: "서버에는 문제가 없는데 클라이언트(브라우저)에서만 접속이 안 될 때, DNS 문제를 의심해볼 수 있습니다. 도메인 IP를 확인할 때 쓰는 도구는?"
+    options:
+      - "ping"
+      - "dig"
+      - "telnet"
+      - "netstat"
+    answer: 1
+    explanation: "dig(Domain Information Groper)는 DNS 네임서버에 쿼리하여 도메인 정보를 조회하는 도구입니다."
+
+  - question: "특정 포트(8080)를 어떤 프로세스가 점유하고 있는지 확인하는 명령어는?"
+    options:
+      - "lsof -i :8080"
+      - "ps -ef"
+      - "top"
+      - "free -h"
+    answer: 0
+    explanation: "lsof (list open files) 명령어로 특정 포트를 리슨하는 프로세스를 찾을 수 있습니다."
+
+  - question: "디스크 공간이 가득 차서(Full) 로그를 쓸 수 없는 장애가 발생했습니다. 현재 디스크 사용량을 확인하는 명령어는?"
+    options:
+      - "free -h"
+      - "du -sh"
+      - "df -h"
+      - "mount"
+    answer: 2
+    explanation: "df (disk free) 명령어는 파일 시스템의 남은 용량을 보여줍니다."
+
+  - question: "CURL 명령어로 DNS를 거치지 않고 특정 IP(1.2.3.4)로 강제 요청을 보내려 합니다. 올바른 옵션은?"
+    options:
+      - "curl -H 'Host: example.com' http://1.2.3.4"
+      - "curl --resolve example.com:80:1.2.3.4 http://example.com"
+      - "curl -d 1.2.3.4 http://example.com"
+      - "curl -X IP=1.2.3.4 http://example.com"
+    answer: 1
+    explanation: "--resolve 옵션을 사용하면 /etc/hosts 파일을 수정하지 않고도 특정 도메인을 지정한 IP로 매핑해서 요청할 수 있습니다."
 ---
 
 ## 이 글에서 얻는 것

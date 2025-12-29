@@ -7,6 +7,51 @@ tags: ["Spring Data JPA", "JPA", "Repository", "Query Methods", "Specification"]
 categories: ["Backend Deep Dive"]
 description: "JpaRepository 인터페이스, 쿼리 메서드, @Query, Specification으로 데이터 접근 계층을 간결하게 구현"
 module: "spring-core"
+quizzes:
+  - question: "Spring Data JPA에서 인터페이스에 메서드 이름만 잘 지으면 자동으로 쿼리를 생성해주는 기능은?"
+    options:
+      - "Named Query"
+      - "Query Methods (Derived Query)"
+      - "Criteria API"
+      - "QueryDSL"
+    answer: 1
+    explanation: "`findByName`, `findByEmailAndAge` 처럼 메서드 이름의 관례(Convention)를 따르면 Spring Data JPA가 자동으로 JPQL을 생성하여 실행해줍니다."
+
+  - question: "JPQL을 사용하여 사용자 정의 쿼리를 작성할 때 메서드 위에 붙여야 하는 애노테이션은?"
+    options:
+      - "@SQL"
+      - "@Query"
+      - "@NativeQuery"
+      - "@Select"
+    answer: 1
+    explanation: "`@Query(\"SELECT u FROM User u WHERE...\")` 형식으로 JPQL을 직접 작성하여 Repository 메서드에 바인딩할 수 있습니다."
+
+  - question: "데이터 수정(Update)이나 삭제(Delete) 쿼리를 `@Query`로 작성할 때, 반드시 함께 붙여야 하는 애노테이션은?"
+    options:
+      - "@Transactional"
+      - "@Modifying"
+      - "@Service"
+      - "@Component"
+    answer: 1
+    explanation: "`INSERT`, `UPDATE`, `DELETE` 쿼리를 `@Query`로 직접 실행할 때는 `@Modifying`을 붙여야 하며, 이를 생략하면 `InvalidDataAccessApiUsageException`이 발생합니다."
+
+  - question: "Spring Data JPA에서 N+1 문제를 해결하기 위해, 연관된 엔티티를 한 번의 쿼리로 함께 조회하는 JPQL 문법은?"
+    options:
+      - "INNER JOIN"
+      - "LEFT OUTER JOIN"
+      - "JOIN FETCH (Fetch Join)"
+      - "CROSS JOIN"
+    answer: 2
+    explanation: "`JOIN FETCH`를 사용하면 연관된 엔티티나 컬렉션을 한 번의 SQL 쿼리로 함께 조회하여 로딩하므로 N+1 문제를 방지할 수 있습니다."
+
+  - question: "Repository 메서드에서 페이징 처리를 위해 파라미터로 넘겨야 하는 인터페이스는?"
+    options:
+      - "Page"
+      - "Slice"
+      - "Pageable"
+      - "Sort"
+    answer: 2
+    explanation: "`Pageable` 인터페이스(구현체 `PageRequest` 등)를 파라미터로 넘기면 페이징(OFFSET, LIMIT)과 정렬 정보가 쿼리에 적용됩니다."
 study_order: 154
 ---
 

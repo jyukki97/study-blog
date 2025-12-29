@@ -7,6 +7,51 @@ tags: ["JPA", "Association", "OneToMany", "ManyToOne", "ManyToMany", "ForeignKey
 categories: ["Backend Deep Dive"]
 description: "JPA 연관관계 매핑(1:N, N:1, N:M)과 양방향 관계, 연관관계 주인, Cascade/OrphanRemoval을 실무 관점으로 정리"
 module: "spring-core"
+quizzes:
+  - question: "JPA 양방향 연관관계에서 '연관관계의 주인(Owner)'을 결정하는 기준은?"
+    options:
+      - "더 많은 데이터를 가진 엔티티"
+      - "외래 키(Foreign Key)가 있는 테이블의 엔티티"
+      - "먼저 생성된 엔티티"
+      - "이름이 더 짧은 엔티티"
+    answer: 1
+    explanation: "외래 키를 관리하는 쪽이 연관관계의 주인입니다. 예: Order 테이블에 user_id가 있으면 Order.user가 주인이고, User.orders에는 `mappedBy`를 설정합니다."
+
+  - question: "양방향 관계에서 `mappedBy`를 설정한 쪽(주인이 아닌 쪽)에서만 값을 설정하면 어떻게 되는가?"
+    options:
+      - "DB에 정상적으로 저장된다."
+      - "양쪽 모두 저장된다."
+      - "DB에 외래 키가 저장되지 않는다(무시됨)."
+      - "예외가 발생한다."
+    answer: 2
+    explanation: "연관관계의 주인만 외래 키를 관리합니다. `mappedBy` 쪽에서 `user.getOrders().add(order)`만 하면 order.user_id는 NULL로 남습니다. 주인 쪽(`order.setUser(user)`)에서 설정해야 실제 FK가 저장됩니다."
+
+  - question: "`@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)`에서 `orphanRemoval`의 역할은?"
+    options:
+      - "부모 엔티티 삭제 시 자식도 삭제"
+      - "자식 엔티티가 부모의 컬렉션에서 제거되면 DB에서도 삭제"
+      - "Lazy Loading을 활성화"
+      - "트랜잭션을 자동 커밋"
+    answer: 1
+    explanation: "`orphanRemoval=true`는 부모의 컬렉션에서 자식이 제거되면(예: `orders.remove(order)`) 해당 자식 엔티티를 DB에서도 DELETE합니다. CascadeType.REMOVE와 다르게, 부모 삭제가 아닌 컬렉션 제거에도 반응합니다."
+
+  - question: "`@ManyToMany`를 실무에서 잘 사용하지 않는 이유와 대안은?"
+    options:
+      - "성능이 너무 느려서 / Join 쿼리 사용"
+      - "중간 테이블에 추가 컬럼(등록일 등)을 넣을 수 없어서 / 중간 엔티티(조인 테이블 엔티티)로 분리"
+      - "JPA에서 지원하지 않아서 / 네이티브 쿼리 사용"
+      - "트랜잭션이 안 먹어서 / 별도 서비스 분리"
+    answer: 1
+    explanation: "`@ManyToMany`가 자동 생성하는 중간 테이블에는 FK 두 개만 있습니다. 등록일, 상태 같은 추가 정보가 필요하면 `StudentCourse`와 같은 중간 엔티티를 직접 만들어 `@ManyToOne` 두 개로 연결하는 것이 실무 표준입니다."
+
+  - question: "JPA FetchType의 기본 권장 설정은?"
+    options:
+      - "@ManyToOne은 EAGER, @OneToMany는 LAZY"
+      - "모든 연관관계를 EAGER로 설정"
+      - "모든 연관관계를 LAZY로 설정하고, 필요 시 Fetch Join 또는 EntityGraph로 조회"
+      - "FetchType을 설정하지 않는다"
+    answer: 2
+    explanation: "EAGER는 필요 없는 데이터까지 조회하여 N+1 문제를 유발합니다. 모든 연관관계를 LAZY로 설정하고, 함께 조회가 필요한 경우에만 JPQL Fetch Join이나 @EntityGraph를 사용하는 것이 권장됩니다."
 study_order: 152
 ---
 

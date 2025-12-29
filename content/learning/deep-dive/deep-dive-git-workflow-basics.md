@@ -7,7 +7,97 @@ tags: ["Git", "Commit", "Rebase", "Merge", "Revert"]
 categories: ["Backend Deep Dive"]
 description: "좋은 커밋 단위, rebase/merge 선택, revert/reset 차이까지: 팀 개발에서 사고를 줄이는 Git 루틴"
 module: "foundation"
-study_order: 25
+study_order: 11
+quizzes:
+  - question: "Git에서 커밋 이력을 남기지 않고 방금 한 커밋을 취소하는 명령어는?"
+    options:
+      - "git commit --amend"
+      - "git reset --soft HEAD~1"
+      - "git revert HEAD"
+      - "git reset --hard HEAD~1"
+    answer: 1
+    explanation: "--soft 옵션은 커밋만 취소하고 변경사항은 Staging Area에 남깁니다. revert는 새로운 취소 커밋을 생성합니다."
+
+  - question: "이미 원격 저장소에 푸시한 커밋을 수정할 때 주의할 점은?"
+    options:
+      - "아무 문제 없으니 자유롭게 수정한다."
+      - "다른 팀원과 공유된 브랜치라면 강제 푸시(force push)를 지양해야 한다."
+      - "로컬에서만 수정하면 원격 저장소는 자동으로 업데이트된다."
+      - "커밋 메시지만 수정하면 된다."
+    answer: 1
+    explanation: "이미 공유된 커밋을 조작하면 다른 팀원의 로컬 저장소와 충돌이 발생할 수 있습니다."
+
+  - question: "여러 개의 커밋을 하나로 합치거나 메시지를 정리할 때 사용하는 명령어는?"
+    options:
+      - "git merge"
+      - "git cherry-pick"
+      - "git rebase -i"
+      - "git stash"
+    answer: 2
+    explanation: "rebase --interactive (-i) 옵션을 사용하여 커밋 스쿼시(squash)나 수정(reword)을 수행할 수 있습니다."
+
+  - question: "Git Rebase와 Merge의 가장 큰 차이점은 무엇인가요?"
+    options:
+      - "Merge는 내용을 합치지만 Rebase는 삭제한다."
+      - "Rebase는 커밋 히스토리를 선형(일직선)으로 재작성하지만, Merge는 분기된 히스토리를 유지한다."
+      - "Rebase는 원격 저장소에서만 사용할 수 있다."
+      - "Merge는 충돌이 발생하지 않는다."
+    answer: 1
+    explanation: "Rebase는 베이스를 변경하여 히스토리를 깔끔하게 한 줄로 만들 때 유용하고, Merge는 이력을 있는 그대로 보존할 때 사용합니다."
+
+  - question: "Staging Area(Index)에 있는 변경 사항을 다시 Working Directory로 내리는(Unstage) 명령어는?"
+    options:
+      - "git reset HEAD <file>"
+      - "git checkout <file>"
+      - "git rm <file>"
+      - "git clean -f"
+    answer: 0
+    explanation: "git reset HEAD 명령어는 Staging Area의 변경 사항을 취소하여 unstaged 상태로 되돌립니다."
+
+  - question: "팀원들과 공유하는 Main 브랜치에서 절대 하지 말아야 할 행동은?"
+    options:
+      - "Pull Request 생성"
+      - "코드 리뷰 요청"
+      - "git push --force (강제 푸시)"
+      - "git fetch"
+    answer: 2
+    explanation: "공유 브랜치에 강제 푸시를 하면 다른 팀원들의 커밋 히스토리가 꼬여 심각한 문제를 초래할 수 있습니다."
+
+  - question: "현재 브랜치에서 작업 중인 내용을 임시로 저장하고, 깨끗한 상태로 다른 브랜치로 이동하고 싶을 때 쓰는 명령어는?"
+    options:
+      - "git stash"
+      - "git commit"
+      - "git trash"
+      - "git hide"
+    answer: 0
+    explanation: "git stash는 아직 커밋하지 않은 작업 내용을 스택에 임시 저장할 때 사용합니다."
+
+  - question: "HEAD~3의 의미로 올바른 것은?"
+    options:
+      - "3일 전 커밋"
+      - "현재 커밋으로부터 3단계 이전의 조상 커밋"
+      - "3번째 브랜치"
+      - "아이디가 3으로 시작하는 커밋"
+    answer: 1
+    explanation: "HEAD는 현재 커밋, ~n은 n번째 부모를 의미합니다."
+
+  - question: "특정 커밋(hash)의 변경 사항만 현재 브랜치로 쏙 가져오고 싶을 때 사용하는 명령어는?"
+    options:
+      - "git pull"
+      - "git merge"
+      - "git cherry-pick <hash>"
+      - "git clone"
+    answer: 2
+    explanation: "cherry-pick은 체리를 골라내듯이 특정 커밋 하나만 현재 브랜치에 적용하는 명령어입니다."
+
+  - question: ".gitignore 파일의 역할은 무엇인가요?"
+    options:
+      - "Git 설정을 저장한다."
+      - "버전 관리에서 제외할 파일 패턴을 지정한다."
+      - "Git 명령어를 단축키로 만든다."
+      - "원격 저장소 주소를 저장한다."
+    answer: 1
+    explanation: "빌드 결과물, 비밀번호 파일 등 버전 관리에 포함되면 안 되는 파일들을 무시하도록 설정합니다."
 ---
 
 ## 이 글에서 얻는 것

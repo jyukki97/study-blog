@@ -7,7 +7,79 @@ tags: ["Java", "Stream", "Optional", "Lambda", "Functional Programming"]
 categories: ["Backend Deep Dive"]
 description: "Stream API로 컬렉션 처리를 선언적으로 작성하고, Optional로 null 안전성을 확보하는 실전 기법"
 module: "foundation"
-study_order: 101
+quizzes:
+  - question: "Stream API의 중간 연산(Intermediate Operation, 예: filter, map)의 가장 큰 특징인 '지연 평가(Lazy Evaluation)'란 무엇인가요?"
+    options:
+      - "연산을 나중에 예약해두고, 최종 연산(Terminal Operation)이 호출될 때 비로소 실행된다."
+      - "네트워크 지연을 감안하여 천천히 실행된다."
+      - "데이터가 많으면 자동으로 병렬 처리된다."
+      - "중간 연산의 결과가 바로 리스트로 반환된다."
+    answer: 0
+    explanation: "Stream은 최종 연산(collect, forEach 등)이 호출되기 전까지는 실제로 아무런 데이터 처리도 수행하지 않습니다. 이를 통해 불필요한 연산을 최적화(Short-circuit)할 수 있습니다."
+
+  - question: "다음 중 `map()`과 `flatMap()`의 차이점을 올바르게 설명한 것은?"
+    options:
+      - "map은 1:1 변환이고, flatMap은 1:N 구조(중첩된 리스트 등)를 1:N으로 펼쳐서 스트림으로 만든다."
+      - "map은 문자열에만 쓰고, flatMap은 숫자에만 쓴다."
+      - "flatMap은 병렬 처리 전용이다."
+      - "차이가 없다."
+    answer: 0
+    explanation: "flatMap은 반환값이 Stream(또는 Optional)이어야 하며, 중첩된 구조(예: `[[a, b], [c, d]]`)를 평탄화(Flatten)하여 하나의 스트림(`[a, b, c, d]`)으로 합칠 때 유용합니다."
+
+  - question: "Optional을 사용할 때 가장 권장되지 않는(위험한) 메서드는?"
+    options:
+      - "orElse()"
+      - "ifPresent()"
+      - "get()"
+      - "map()"
+    answer: 2
+    explanation: "`get()`은 값이 없으면 `NoSuchElementException`을 발생시키므로, null 체크 없이 쓰는 것과 다를 바가 없습니다. `orElse`나 `orElseThrow` 사용을 권장합니다."
+
+  - question: "병렬 스트림(Parallel Stream)을 사용할 때 주의해야 할 점이 아닌 것은?"
+    options:
+      - "데이터 양이 적을 때는 오히려 스레드 관리 비용 때문에 더 느릴 수 있다."
+      - "순서가 중요한 작업에서는 순서가 뒤섞일 수 있다."
+      - "모든 작업에서 무조건 성능이 2배 이상 빨라진다."
+      - "스트림 내부에서 외부 상태를 변경하면 동시성 문제가 발생할 수 있다."
+    answer: 2
+    explanation: "병렬 스트림은 만능이 아닙니다. 데이터 분할 비용, 병합 비용, 코어 수 등에 따라 성능 향상폭이 제한적이거나 오히려 느려질 수도 있습니다."
+
+  - question: "다음 코드의 문제점은? `stream.forEach(item -> externalList.add(item));`"
+    options:
+      - "문법 오류가 있다."
+      - "스트림 내부에서 외부 상태(externalList)를 변경하는 부수 효과(Side-effect)가 발생하며, 병렬 실행 시 동시성 문제가 생긴다."
+      - "forEach는 최종 연산이 아니다."
+      - "너무 느리다."
+    answer: 1
+    explanation: "Stream은 '함수형' 스타일을 지향합니다. 외부 상태를 변경하는 대신 `collect()`를 사용하여 결과를 새로운 리스트로 반환받는 것이 안전합니다."
+
+  - question: "Optional을 클래스의 필드(Field)나 메서드의 파라미터(Parameter)로 사용하는 것이 권장되지 않는 이유는?"
+    options:
+      - "Optional은 직렬화(Serializable)를 구현하지 않았고, 도메인 모델 복잡도를 높이기 때문이다."
+      - "메모리를 너무 많이 사용해서"
+      - "컴파일러가 허용하지 않아서"
+      - "Java 9부터 금지되어서"
+    answer: 0
+    explanation: "Optional은 주로 '리턴 타입'이 null일 수 있음을 명시하기 위해 설계되었습니다. 필드로 쓰면 직렬화 문제가, 파라미터로 쓰면 호출 쪽 코드가 지저분해집니다."
+
+  - question: "`Stream.iterate(0, n -> n + 1)` 같은 무한 스트림(Infinite Stream)을 사용할 때 반드시 필요한 연산은?"
+    options:
+      - "distinct()"
+      - "limit()"
+      - "sorted()"
+      - "parallel()"
+    answer: 1
+    explanation: "무한히 생성되므로 `limit()` 등으로 개수를 제한하지 않으면 최종 연산 시 프로그램이 종료되지 않음(무한 루프)에 빠질 수 있습니다."
+
+  - question: "컬렉션의 `stream().reduce()` 연산은 주로 어떤 목적으로 사용되나요?"
+    options:
+      - "데이터를 필터링할 때"
+      - "데이터를 변환할 때"
+      - "데이터를 하나의 값(총합, 최댓값, 연결된 문자열 등)으로 누적/집계할 때"
+      - "데이터를 정렬할 때"
+    answer: 2
+    explanation: "Reduce는 스트림의 모든 요소를 소모해가며 하나의 결과값을 도출해내는 집계(Aggregation) 연산입니다."
+study_order: 34
 ---
 
 ## 이 글에서 얻는 것

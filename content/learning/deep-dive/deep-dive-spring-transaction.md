@@ -7,6 +7,51 @@ tags: ["Spring", "Transaction", "@Transactional", "Propagation", "Isolation"]
 categories: ["Backend Deep Dive"]
 description: "전파/격리/롤백 규칙과 프록시 동작, self-invocation/checked exception 같은 실무 함정을 한 번에 정리"
 module: "data-system"
+quizzes:
+  - question: "Spring의 `@Transactional`에서 기본값으로 롤백(Rollback)되는 예외는 무엇인가?"
+    options:
+      - "Exception을 포함한 모든 예외"
+      - "RuntimeException과 Error"
+      - "IOException 같은 Checked Exception"
+      - "SQLException만"
+    answer: 1
+    explanation: "Spring 트랜잭션은 기본적으로 Unchecked Exception (RuntimeException 및 Error) 발생 시에만 롤백하며, Checked Exception은 롤백하지 않습니다. (필요 시 `rollbackFor` 옵션 사용)"
+
+  - question: "같은 서비스 클래스 내부에서 `@Transactional`이 붙은 메서드를 내부 호출(Self-Invocation)할 때 발생하는 문제는?"
+    options:
+      - "트랜잭션이 중첩되어 성능이 저하된다."
+      - "프록시(Proxy)를 거치지 않고 직접 호출하므로 트랜잭션이 적용되지 않는다."
+      - "무한 루프에 빠진다."
+      - "데드락(Deadlock)이 발생한다."
+    answer: 1
+    explanation: "Spring AOP는 프록시 기반으로 동작하므로, 프록시를 통하지 않고 내부 인스턴스 메서드끼리 호출(`this.method()`) 하면 트랜잭션 어드바이스가 적용되지 않습니다."
+
+  - question: "이미 트랜잭션이 진행 중일 때, 새로운 트랜잭션을 실행하지 않고 기존 트랜잭션에 합류(참여)하는 전파 속성(Propagation)은?"
+    options:
+      - "REQUIRES_NEW"
+      - "REQUIRED"
+      - "NESTED"
+      - "SUPPORTS"
+    answer: 1
+    explanation: "`REQUIRED`는 기본 전파 속성으로, 이미 진행 중인 트랜잭션이 있으면 거기에 참여하고 없으면 새로 만듭니다."
+
+  - question: "커밋되지 않은 데이터(Dirty Data)를 다른 트랜잭션에서 읽을 수 있는 가장 낮은 격리 수준(Isolation Level)은?"
+    options:
+      - "READ COMMITTED"
+      - "REPEATABLE READ"
+      - "SERIALIZABLE"
+      - "READ UNCOMMITTED"
+    answer: 3
+    explanation: "`READ UNCOMMITTED`는 다른 트랜잭션이 아직 커밋하지 않은 변경 사항도 읽을 수 있어 Dirty Read가 발생할 수 있습니다."
+
+  - question: "`@Transactional`을 붙여도 트랜잭션 처리가 되지 않는 메서드 접근 제어자는?"
+    options:
+      - "public"
+      - "private"
+      - "default (package-private) - (Spring 버전에 따라 다름)"
+      - "protected - (Spring 버전에 따라 다름)"
+    answer: 1
+    explanation: "CGLIB/JDK Dynamic Proxy 기반의 Spring AOP는 외부에서 접근 가능한 `public` 메서드에만 적용되며, `private` 메서드에는 적용되지 않습니다."
 study_order: 302
 ---
 

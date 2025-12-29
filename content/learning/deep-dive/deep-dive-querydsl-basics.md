@@ -7,6 +7,51 @@ tags: ["QueryDSL", "JPA", "Repository", "페이징"]
 categories: ["Backend Deep Dive"]
 description: "기본 문법, 동적 where, 페이징/정렬 패턴을 예제로 정리"
 module: "spring-core"
+quizzes:
+  - question: "QueryDSL을 사용하는 가장 큰 이유는?"
+    options:
+      - "성능이 JPQL보다 훨씬 빠르다."
+      - "문자열 JPQL 대신 타입 세이프(Type-Safe)한 코드로 쿼리를 작성하여 컴파일 타임에 오류를 잡을 수 있다."
+      - "네이티브 SQL을 직접 실행할 수 있다."
+      - "DB 종류에 상관없이 동일한 쿼리가 생성된다."
+    answer: 1
+    explanation: "JPQL 문자열은 런타임에 터지지만, QueryDSL은 Q 클래스를 사용한 자바 코드로 쿼리를 작성하여 필드명 오류나 타입 불일치를 컴파일 시점에 잡을 수 있습니다."
+
+  - question: "QueryDSL에서 동적 where 조건을 쉽게 처리하는 방법은?"
+    options:
+      - "if-else로 JPQL 문자열을 조립한다."
+      - "조건이 null이면 해당 조건이 무시되는 특성을 이용하여, `BooleanExpression`을 반환하는 메서드로 조건을 분리한다."
+      - "항상 모든 조건을 포함해야 한다."
+      - "별도의 쿼리 빌더 라이브러리를 사용한다."
+    answer: 1
+    explanation: "`where(a, b, c)`에서 null이면 해당 조건은 무시됩니다. `nameContains(keyword)`처럼 조건별 메서드를 만들어 null을 반환하면 동적 조건을 깔끔하게 조립할 수 있습니다."
+
+  - question: "QueryDSL로 페이징할 때 orderBy가 필수인 이유는?"
+    options:
+      - "문법 오류가 발생하기 때문"
+      - "정렬 없이 페이징하면 DB가 임의 순서로 반환하여 페이지 간 데이터 중복/누락이 발생할 수 있기 때문"
+      - "성능이 향상되기 때문"
+      - "count 쿼리에 사용되기 때문"
+    answer: 1
+    explanation: "DB는 정렬 없이 조회하면 순서를 보장하지 않습니다. 같은 페이지를 다시 조회해도 데이터가 섞일 수 있습니다. 페이징 시 반드시 고유한 정렬 기준을 설정해야 합니다."
+
+  - question: "페이지 조회 시 count 쿼리를 분리하는 이유는?"
+    options:
+      - "JPA 스펙에서 강제하기 때문"
+      - "콘텐츠 쿼리와 count 쿼리를 분리하면, count 쿼리에서 불필요한 JOIN/정렬을 제거하여 성능을 최적화할 수 있기 때문"
+      - "트랜잭션을 분리하기 위해"
+      - "두 쿼리를 병렬로 실행하기 위해"
+    answer: 1
+    explanation: "count 쿼리는 전체 개수만 세면 되므로, 콘텐츠 조회에 필요한 fetchJoin, 정렬, 복잡한 프로젝션이 필요 없습니다. 분리하여 단순하게 작성하면 성능이 크게 개선됩니다."
+
+  - question: "offset 페이징이 대용량 데이터에서 느려지는 이유와 대안은?"
+    options:
+      - "DB가 페이징을 지원하지 않아서 / 캐시 사용"
+      - "offset만큼 데이터를 읽고 버리기 때문에 뒤 페이지일수록 비용이 증가 / Keyset(Seek) 페이징 사용"
+      - "인덱스가 없어서 / 인덱스 추가"
+      - "네트워크 지연 때문에 / 비동기 처리"
+    answer: 1
+    explanation: "`OFFSET 10000 LIMIT 10`은 10000건을 읽고 버린 후 10건을 반환합니다. Keyset 페이징은 `WHERE created_at < ?`처럼 마지막 값 기준으로 조회하여 항상 일정한 성능을 유지합니다."
 study_order: 190
 ---
 

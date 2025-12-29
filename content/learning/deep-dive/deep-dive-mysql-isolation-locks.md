@@ -7,6 +7,51 @@ tags: ["MySQL", "Isolation", "Lock", "InnoDB"]
 categories: ["Backend Deep Dive"]
 description: "READ COMMITTED/REPEATABLE READ 차이, Gap/Next-Key Lock과 데드락 예방법"
 module: "data-system"
+quizzes:
+  - question: "MySQL InnoDB의 기본 트랜잭션 격리 수준(Isolation Level)은?"
+    options:
+      - "READ UNCOMMITTED"
+      - "READ COMMITTED"
+      - "REPEATABLE READ"
+      - "SERIALIZABLE"
+    answer: 2
+    explanation: "InnoDB의 기본 격리 수준은 REPEATABLE READ입니다. 이는 트랜잭션 시작 시점의 스냅샷을 유지하여 같은 트랜잭션 내에서 일관된 읽기를 보장합니다."
+
+  - question: "InnoDB MVCC(Multi-Version Concurrency Control)의 핵심 원리는?"
+    options:
+      - "모든 읽기에 배타적 락을 건다."
+      - "Undo Log를 사용하여 과거 버전 데이터를 관리하고, 락 없이도 일관된 읽기를 제공한다."
+      - "모든 트랜잭션을 순차적으로 실행한다."
+      - "WAL(Write-Ahead Logging)을 사용하지 않는다."
+    answer: 1
+    explanation: "MVCC는 데이터 변경 시 Undo Log에 이전 버전을 저장하고, 일반 SELECT는 락 없이 필요한 스냅샷 버전을 읽습니다. 이를 통해 읽기와 쓰기 간의 블로킹을 최소화합니다."
+
+  - question: "InnoDB의 '넥스트키 락(Next-Key Lock)'은 무엇을 잠그는가?"
+    options:
+      - "테이블 전체"
+      - "특정 인덱스 레코드와 그 앞/뒤의 '갭(Gap)'을 함께 잠금"
+      - "트랜잭션 ID"
+      - "Undo Log 영역"
+    answer: 1
+    explanation: "넥스트키 락은 레코드 락 + 갭 락의 조합으로, 범위 조건 조회 시 새로운 레코드 삽입(팬텀)을 방지합니다. 인덱스를 잘 타지 못하면 락 범위가 넓어져 성능 저하를 유발합니다."
+
+  - question: "데드락(Deadlock)이 발생했을 때 일반적인 애플리케이션 처리 방법은?"
+    options:
+      - "데이터베이스를 재시작한다."
+      - "트랜잭션을 더 길게 유지하여 락을 오래 잡는다."
+      - "DB가 한쪽 트랜잭션을 롤백하면, 애플리케이션은 짧은 대기(backoff) 후 재시도한다."
+      - "모든 쿼리에서 인덱스를 제거한다."
+    answer: 2
+    explanation: "데드락은 DB가 자동으로 감지하여 한쪽 트랜잭션을 롤백합니다. 애플리케이션은 이를 예외로 받아 짧은 지연 후 재시도하면 됩니다. 재시도가 안전하려면 로직이 멱등해야 합니다."
+
+  - question: "데드락을 예방/완화하기 위한 설계 원칙이 아닌 것은?"
+    options:
+      - "여러 레코드를 갱신할 때 항상 동일한 순서로 접근한다."
+      - "트랜잭션 내에서 외부 API 호출을 많이 수행한다."
+      - "적절한 인덱스로 락 범위를 좁힌다."
+      - "트랜잭션을 짧게 유지한다."
+    answer: 1
+    explanation: "트랜잭션 내에서 외부 호출(네트워크 I/O)을 하면 트랜잭션 시간이 길어지고 락 점유 시간이 늘어나 데드락 및 락 대기 가능성이 크게 증가합니다. 이는 피해야 할 안티 패턴입니다."
 study_order: 306
 ---
 

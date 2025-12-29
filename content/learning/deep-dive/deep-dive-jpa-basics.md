@@ -7,6 +7,51 @@ tags: ["JPA", "Hibernate", "ORM", "Entity", "Persistence Context", "EntityManage
 categories: ["Backend Deep Dive"]
 description: "JPA의 핵심 개념인 엔티티와 영속성 컨텍스트를 이해하고, 기본 CRUD 작업과 상태 전이를 실무 관점으로 정리"
 module: "spring-core"
+quizzes:
+  - question: "JPA에서 영속성 컨텍스트(Persistence Context)의 기능이 **아닌** 것은?"
+    options:
+      - "1차 캐시 (First Level Cache)"
+      - "쓰기 지연 (Transactional Write-Behind)"
+      - "변경 감지 (Dirty Checking)"
+      - "데이터베이스 인덱스 자동 생성 (Automatic Indexing)"
+    answer: 3
+    explanation: "인덱스 생성은 DDL의 영역이며, 영속성 컨텍스트는 런타임에 엔티티의 상태를 관리(캐싱, 변경 감지 등)하는 역할을 합니다."
+
+  - question: "JPA 엔티티(Entity)를 수정할 때, 별도의 update 메서드(`em.update()`)를 호출하지 않아도 DB에 반영되는 메커니즘은?"
+    options:
+      - "Lazy Loading (지연 로딩)"
+      - "Dirty Checking (변경 감지)"
+      - "Cascade (영속성 전이)"
+      - "Flush (플러시)"
+    answer: 1
+    explanation: "트랜잭션 커밋 시점에 엔티티의 스냅샷과 현재 상태를 비교하여 변경된 부분이 있으면 자동으로 UPDATE 쿼리를 생성하는 것을 변경 감지(Dirty Checking)라고 합니다."
+
+  - question: "다음 중 영속(Managed) 상태의 엔티티가 준영속(Detached) 상태로 변하는 경우가 **아닌** 것은?"
+    options:
+      - "`em.detach(entity)` 호출"
+      - "`em.clear()` 호출"
+      - "`em.close()` 호출"
+      - "`em.flush()` 호출"
+    answer: 3
+    explanation: "`flush()`는 영속성 컨텍스트의 변경 내용을 DB에 동기화(SQL 실행)하는 작업이며, 영속 상태를 준영속으로 만들지 않습니다."
+
+  - question: "Spring Data JPA에서 엔티티의 변경 사항을 DB에 반영하기 위해 필수적으로 필요한 애노테이션은?"
+    options:
+      - "@Entity"
+      - "@Transactional"
+      - "@Repository"
+      - "@Autowired"
+    answer: 1
+    explanation: "데이터 변경(INSERT, UPDATE, DELETE)은 트랜잭션 안에서 이루어져야 하며, `@Transactional`이 없으면 변경 감지나 쓰기 지연이 동작하지 않아 DB에 반영되지 않을 수 있습니다."
+
+  - question: "JPA를 사용할 때 가장 권장되는 기본 키(PK) 생성 전략 중, DB의 AUTO_INCREMENT 기능을 사용하는 것은?"
+    options:
+      - "GenerationType.AUTO"
+      - "GenerationType.SEQUENCE"
+      - "GenerationType.TABLE"
+      - "GenerationType.IDENTITY"
+    answer: 3
+    explanation: "`IDENTITY` 전략은 기본 키 생성을 데이터베이스에 위임하는 전략(MySQL 등의 AUTO_INCREMENT)입니다."
 study_order: 150
 ---
 

@@ -7,6 +7,51 @@ tags: ["Redis", "Caching", "Cache Aside", "Cache Invalidation", "Hot Key"]
 categories: ["Backend Deep Dive"]
 description: "Cache-Aside/Write-through/Write-behind 선택, 무효화/스탬피드/핫키 같은 실전 문제와 운영 지표까지 정리"
 module: "data-system"
+quizzes:
+  - question: "데이터 조회 시 먼저 캐시를 확인하고, 없으면 DB에서 조회하여 캐시에 저장하는 가장 일반적인 패턴은?"
+    options:
+      - "Write-Back (Write-Behind)"
+      - "Write-Through"
+      - "Cache-Aside (Lazy Loading)"
+      - "Read-Through"
+    answer: 2
+    explanation: "`Cache-Aside` 패턴은 애플리케이션이 캐시 미스(Miss)를 처리하고 데이터를 로딩하는 책임을 가집니다. 필요한 데이터만 캐싱되므로 효율적입니다."
+
+  - question: "캐시 만료(TTL Expire) 순간에 수많은 요청이 동시에 DB로 몰려서 DB 부하가 급증하는 현상은?"
+    options:
+      - "Cache Penetration"
+      - "Thundering Herd (Cache Stampede)"
+      - "Hot Key Problem"
+      - "Memory Fragmentation"
+    answer: 1
+    explanation: "`Thundering Herd` 문제는 인기 있는 키가 만료될 때 동시 다발적인 재건(Rebuild) 요청이 발생하여 백엔드 시스템을 마비시키는 현상입니다."
+
+  - question: "DB에 존재하지 않는 데이터에 대한 요청이 계속 들어와서, 캐시가 효과 없이 계속 DB를 조회하게 되는 현상은?"
+    options:
+      - "Cache Penetration (관통)"
+      - "Cache Breakdown"
+      - "Snowball Effect"
+      - "Deadlock"
+    answer: 0
+    explanation: "악의적이거나 잘못된 요청으로 '없는 키'를 계속 조회하면 캐시 미스가 반복 발생합니다. 이를 막기 위해 Null Object 캐싱이나 Bloom Filter를 사용합니다."
+
+  - question: "쓰기 작업이 빈번한 경우, 캐시에만 먼저 쓰고 비동기적으로 DB에 일괄 반영하여 쓰기 성능을 높이는 패턴은?"
+    options:
+      - "Write-Through"
+      - "Write-Back (Write-Behind)"
+      - "Cache-Aside"
+      - "Read-Ahead"
+    answer: 1
+    explanation: "`Write-Back`은 캐시에만 빠르게 쓰고 응답하며, 별도 스케줄러가 주기적으로 DB에 데이터를 동기화합니다. 성능은 좋지만 캐시 유실 시 데이터 손실 위험이 있습니다."
+
+  - question: "Redis 운영 시 `O(N)` 시간 복잡도를 가져서 전체 키를 스캔할 때 주의해서 사용하거나 피해야 하는 명령어는?"
+    options:
+      - "GET"
+      - "KEYS"
+      - "SCAN"
+      - "HDEL"
+    answer: 1
+    explanation: "`KEYS` 명령어는 싱글 스레드인 Redis를 블로킹하여 전체 키를 스캔하므로 운영 환경에서는 절대 금지하고, 대신 `SCAN` 명령어를 사용해야 합니다."
 study_order: 303
 ---
 

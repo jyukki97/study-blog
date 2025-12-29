@@ -9,6 +9,51 @@ tags: ["API", "Versioning", "REST", "Backward Compatibility"]
 categories: ["Spring"]
 draft: false
 module: "spring-core"
+quizzes:
+  - question: "API 버전 관리가 필요한 가장 큰 이유는?"
+    options:
+      - "개발 편의를 위해"
+      - "모든 클라이언트(모바일 앱, 외부 파트너 등)를 동시에 업데이트할 수 없으므로, 기존 클라이언트를 깨지지 않게 하면서 새 기능을 제공하기 위해"
+      - "보안을 위해"
+      - "성능 향상을 위해"
+    answer: 1
+    explanation: "모바일 앱은 사용자가 업데이트해야 하고, 외부 API는 협의가 필요합니다. 버전 관리로 기존 클라이언트는 v1, 새 클라이언트는 v2를 사용하게 할 수 있습니다."
+
+  - question: "URL Path 버전 관리 방식(예: /v1/users, /v2/users)의 장점은?"
+    options:
+      - "REST 원칙에 충실하다"
+      - "직관적이고, 브라우저 테스트가 쉬우며, 캐싱이 용이하다"
+      - "URL이 깔끔하다"
+      - "헤더 설정이 필요 없다"
+    answer: 1
+    explanation: "URL에 버전이 명시되어 있어 어떤 버전을 호출하는지 명확하고, 각 버전별로 별도 캐싱이 가능합니다. 공개 API에서 가장 인기 있는 방식입니다."
+
+  - question: "다음 중 'Breaking Change'에 해당하는 것은?"
+    options:
+      - "새 필드 추가"
+      - "기존 필드 제거 또는 타입 변경"
+      - "새 엔드포인트 추가"
+      - "Optional 파라미터 추가"
+    answer: 1
+    explanation: "기존 클라이언트가 의존하던 필드를 제거하거나 타입을 바꾸면 크래시가 발생합니다. 새 필드/엔드포인트 추가는 기존 클라이언트가 무시하면 되므로 Non-Breaking입니다."
+
+  - question: "Deprecation 헤더로 'Sunset' 날짜를 제공하는 이유는?"
+    options:
+      - "법적 요구사항"
+      - "클라이언트 개발자에게 해당 API 버전이 언제 종료되는지 알려 마이그레이션 준비 시간을 주기 위해"
+      - "캐싱 만료를 위해"
+      - "보안 때문"
+    answer: 1
+    explanation: "충분한 유예 기간(보통 6개월 이상)을 두고 종료 일정을 알려야 클라이언트가 새 버전으로 마이그레이션할 수 있습니다."
+
+  - question: "여러 API 버전을 유지보수할 때 코드 중복을 줄이는 패턴은?"
+    options:
+      - "각 버전마다 모든 코드를 복사한다."
+      - "Adapter 패턴으로 내부 도메인 모델을 각 버전의 응답 형식으로 변환한다."
+      - "버전 관리를 하지 않는다."
+      - "클라이언트에서 처리한다."
+    answer: 1
+    explanation: "내부적으로는 단일 User 엔티티를 사용하고, UserV1Response, UserV2Response로 변환하는 Adapter를 두면 코드 중복을 줄일 수 있습니다."
 ---
 
 ## 이 글에서 얻는 것
@@ -252,7 +297,7 @@ public class UserControllerV1 {
 ```
 
 **응답 헤더**:
-```http
+```text
 HTTP/1.1 200 OK
 Deprecation: true
 Sunset: Sat, 31 Dec 2024 23:59:59 GMT

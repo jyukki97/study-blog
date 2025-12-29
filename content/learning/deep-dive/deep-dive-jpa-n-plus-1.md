@@ -7,6 +7,51 @@ tags: ["JPA", "Hibernate", "N+1", "Fetch Join", "EntityGraph"]
 categories: ["Backend Deep Dive"]
 description: "로그에 쿼리 100개가 찍히는 공포. 원인 분석부터 Fetch Join, Batch Size, EntityGraph 해결법 비교"
 module: "data-system"
+quizzes:
+  - question: "JPA N+1 문제의 근본 원인은?"
+    options:
+      - "Eager Loading으로 설정되어 있기 때문"
+      - "Lazy Loading 설정 시, 연관 엔티티에 접근할 때마다 추가 쿼리가 발생하기 때문"
+      - "데이터베이스 인덱스가 없기 때문"
+      - "JPA 버전이 오래되었기 때문"
+    answer: 1
+    explanation: "JPA의 Lazy Loading은 연관 엔티티를 사용할 때(`getMembers()` 호출) 쿼리를 실행합니다. 부모 N개를 조회한 후 각각의 자식을 조회하면 N번의 추가 쿼리가 발생합니다."
+
+  - question: "Fetch Join으로 N+1 문제를 해결할 때, 컬렉션 조회 + 페이징을 함께 사용하면 발생하는 문제는?"
+    options:
+      - "쿼리가 실행되지 않는다."
+      - "DB에서 페이징하지 않고 전체 데이터를 메모리로 가져온 후 애플리케이션에서 페이징하여 메모리 이슈가 발생할 수 있다."
+      - "데이터가 중복 제거된다."
+      - "트랜잭션이 롤백된다."
+    answer: 1
+    explanation: "컬렉션 Fetch Join 시 JPA는 메모리에서 페이징(in-memory paging)을 수행합니다. 데이터가 많으면 OOM(Out Of Memory) 위험이 있습니다. 이런 경우 `BatchSize`를 사용하는 것이 좋습니다."
+
+  - question: "`@BatchSize` 또는 `default_batch_fetch_size` 설정의 효과는?"
+    options:
+      - "쿼리를 캐시한다."
+      - "Lazy Loading 시 1건씩 조회하지 않고 여러 건을 IN 쿼리로 묶어서 조회하여 쿼리 수를 줄인다."
+      - "Eager Loading으로 변경한다."
+      - "JPQL을 자동 생성한다."
+    answer: 1
+    explanation: "`BatchSize=100` 설정 시, `WHERE team_id IN (1, 2, ... 100)`처럼 묶어서 조회합니다. N+1이 1+1이 되어 쿼리 수가 획기적으로 줄어들고, 페이징도 안전하게 사용할 수 있습니다."
+
+  - question: "JPA에서 N+1 문제를 예방하기 위한 기본 페치 전략으로 가장 권장되는 것은?"
+    options:
+      - "모든 연관관계를 EAGER로 설정한다."
+      - "모든 연관관계를 LAZY로 설정하고, 필요한 경우에만 Fetch Join 또는 BatchSize로 조회한다."
+      - "JPQL 대신 네이티브 쿼리만 사용한다."
+      - "모든 연관관계를 제거한다."
+    answer: 1
+    explanation: "EAGER는 불필요한 데이터까지 조회하여 성능 저하를 유발합니다. 기본은 LAZY로 설정하고, 목록 조회 시 Fetch Join, 페이징 시 BatchSize로 최적화하는 것이 표준 패턴입니다."
+
+  - question: "`@EntityGraph`의 장점은?"
+    options:
+      - "JPQL 작성 없이 애노테이션만으로 Fetch Join과 유사한 효과를 얻을 수 있다."
+      - "Eager Loading을 Lazy Loading으로 바꿔준다."
+      - "쿼리 캐시를 활성화한다."
+      - "트랜잭션을 자동 커밋한다."
+    answer: 0
+    explanation: "`@EntityGraph(attributePaths = {\"members\"})`처럼 선언하면, 별도의 JPQL 없이 연관 엔티티를 함께 조회(LEFT OUTER JOIN)할 수 있어 간편합니다."
 study_order: 300
 ---
 

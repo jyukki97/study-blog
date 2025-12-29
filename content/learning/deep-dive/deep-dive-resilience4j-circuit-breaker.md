@@ -7,6 +7,51 @@ tags: ["Circuit Breaker", "Resilience4j", "Fault Tolerance", "Microservices"]
 categories: ["Backend Deep Dive"]
 description: "외부 API/DB 장애가 내 서비스까지 번지지 않게 막는 Resilience4j 패턴과 설정값 가이드"
 module: "resilience"
+quizzes:
+  - question: "Circuit Breaker 패턴의 주요 목적은?"
+    options:
+      - "성능을 향상시킨다."
+      - "외부 서비스 장애가 호출하는 서비스로 전파되어 전체 시스템이 다운되는 것(Cascade Failure)을 방지한다."
+      - "보안을 강화한다."
+      - "로그를 수집한다."
+    answer: 1
+    explanation: "B 서비스가 죽었을 때, A 서비스가 계속 호출하면 A도 느려지다 죽습니다(스레드 풀 고갈). Circuit Breaker는 장애를 감지하면 호출을 차단(Fail Fast)하여 A 서비스를 보호합니다."
+
+  - question: "Circuit Breaker의 세 가지 상태(CLOSED, OPEN, HALF_OPEN)에서 OPEN 상태의 동작은?"
+    options:
+      - "정상적으로 요청을 전달한다."
+      - "외부 서비스를 호출하지 않고 즉시 예외(CallNotPermittedException)를 반환한다(Fail Fast)."
+      - "요청을 캐싱한다."
+      - "재시도를 무한 반복한다."
+    answer: 1
+    explanation: "OPEN 상태에서는 외부 호출 없이 즉시 실패를 반환합니다. 이로써 장애 서비스에 대기하지 않아 스레드 풀이 고갈되는 것을 방지하고, 장애 서비스에 추가 부하를 주지 않습니다."
+
+  - question: "HALF_OPEN 상태에서 Circuit Breaker의 동작은?"
+    options:
+      - "모든 요청을 차단한다."
+      - "지정된 수의 시험 호출을 허용하고, 결과에 따라 CLOSED(회복) 또는 OPEN(재차단)으로 전환한다."
+      - "무한정 대기한다."
+      - "Fallback만 실행한다."
+    answer: 1
+    explanation: "HALF_OPEN은 장애가 회복되었는지 확인하는 상태입니다. 몇 개의 요청을 보내보고 성공하면 CLOSED로 돌아가고, 실패하면 다시 OPEN으로 차단합니다."
+
+  - question: "Resilience4j에서 `slidingWindowSize`와 `failureRateThreshold` 설정의 의미는?"
+    options:
+      - "DB 연결 수와 타임아웃"
+      - "최근 N개(slidingWindowSize) 요청 중 실패율이 X%(failureRateThreshold)를 초과하면 OPEN 상태로 전환"
+      - "재시도 횟수와 간격"
+      - "스레드 풀 크기와 대기 시간"
+    answer: 1
+    explanation: "예: slidingWindowSize=100, failureRateThreshold=50이면 최근 100개 요청 중 50% 이상 실패하면 Circuit이 열립니다. 이를 통해 '일시적 오류'와 '지속적 장애'를 구분합니다."
+
+  - question: "Circuit Breaker에서 Fallback 메서드가 필요한 이유는?"
+    options:
+      - "성능을 측정하기 위해"
+      - "회로가 열렸을 때(호출 차단 시) 클라이언트에게 에러 대신 기본값이나 캐시된 데이터 등 대안 응답을 제공하기 위해"
+      - "로그를 기록하기 위해"
+      - "재시도를 위해"
+    answer: 1
+    explanation: "OPEN 상태에서 단순히 예외만 던지면 사용자 경험이 나빠집니다. Fallback으로 '잠시 점검 중입니다' 메시지나 캐시된 데이터를 반환하여 서비스 품질을 유지합니다."
 study_order: 500
 ---
 

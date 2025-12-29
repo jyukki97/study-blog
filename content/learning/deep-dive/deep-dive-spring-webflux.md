@@ -8,6 +8,51 @@ categories: ["Backend Deep Dive"]
 description: "MVC의 한계를 넘어서는 Event-Loop 기반 아키텍처와 Backpressure 메커니즘."
 module: "modern-frontiers"
 study_order: 1002
+quizzes:
+  - question: "Spring MVC(Thread per Request)와 WebFlux(Event Loop)의 핵심 차이는?"
+    options:
+      - "둘 다 동일하다."
+      - "MVC는 요청당 스레드를 할당하여 I/O 시 블로킹, WebFlux는 소수의 스레드(Event Loop)로 논블로킹 처리"
+      - "WebFlux가 더 느리다."
+      - "MVC가 더 적은 스레드를 사용한다."
+    answer: 1
+    explanation: "MVC는 DB 대기 시 스레드가 잠들어 스레드 풀 고갈 가능. WebFlux는 Node.js처럼 적은 스레드로 수만 연결을 처리합니다."
+
+  - question: "Mono와 Flux의 차이는?"
+    options:
+      - "둘 다 동일하다."
+      - "Mono: 0~1개 데이터(Optional의 비동기 버전), Flux: 0~N개 데이터 흐름(List+Stream의 비동기 버전)"
+      - "Flux가 단일 값이다."
+      - "Mono가 여러 값이다."
+    answer: 1
+    explanation: "사용자 한 명 조회는 Mono<User>, 사용자 목록은 Flux<User>를 반환합니다. 둘 다 subscribe() 전에는 실행되지 않습니다."
+
+  - question: "WebFlux에서 Backpressure(배압)가 중요한 이유는?"
+    options:
+      - "속도를 높이기 위해"
+      - "Consumer가 처리 가능한 속도보다 빠르게 데이터가 들어오면 OOM이 발생할 수 있어, 흐름 제어가 필요"
+      - "메모리를 더 쓰기 위해"
+      - "필요 없다"
+    answer: 1
+    explanation: "Producer가 1000 TPS로 보내는데 Consumer가 100 TPS만 처리하면 큐가 쌓입니다. Backpressure로 '천천히 보내라'고 신호를 줍니다."
+
+  - question: "WebFlux가 적합하지 않은 워크로드는?"
+    options:
+      - "I/O 바운드 작업"
+      - "CPU 집약적 연산(이미지 처리, 암호화 등) - Event Loop를 블로킹해 전체 성능 저하"
+      - "네트워크 호출이 많은 작업"
+      - "DB 조회가 많은 작업"
+    answer: 1
+    explanation: "Event Loop 스레드가 CPU 연산으로 묶이면 다른 요청도 처리 못합니다. CPU 작업은 별도 스레드 풀로 분리해야 합니다."
+
+  - question: "R2DBC가 WebFlux와 함께 사용되는 이유는?"
+    options:
+      - "성능이 더 나빠서"
+      - "기존 JDBC는 블로킹 I/O라 Event Loop를 막지만, R2DBC는 리액티브/논블로킹 DB 드라이버이기 때문"
+      - "JDBC보다 오래됐기 때문"
+      - "차이가 없다"
+    answer: 1
+    explanation: "JDBC는 결과를 기다리며 스레드를 블로킹합니다. WebFlux의 이점을 살리려면 R2DBC 같은 논블로킹 드라이버가 필요합니다."
 ---
 
 ## 이 글에서 얻는 것

@@ -9,6 +9,51 @@ tags: ["Configuration", "Spring Cloud Config", "Vault", "Secret Management"]
 categories: ["Ops"]
 draft: false
 module: "ops-observability"
+quizzes:
+  - question: "12-Factor App에서 '설정은 환경에 저장'한다는 원칙의 의미는?"
+    options:
+      - "설정을 코드에 하드코딩한다."
+      - "DB URL 같은 설정은 코드가 아닌 환경 변수로 주입하여, 코드 변경 없이 환경마다 다른 값을 사용한다."
+      - "설정 파일을 Git에 커밋하지 않는다."
+      - "설정을 암호화한다."
+    answer: 1
+    explanation: "하드코딩하면 환경마다 코드를 바꿔야 합니다. 환경 변수로 분리하면 같은 코드로 dev/staging/prod 환경을 운영할 수 있습니다."
+
+  - question: "Spring Cloud Config Server를 사용하는 장점은?"
+    options:
+      - "설정 파일을 삭제한다."
+      - "여러 마이크로서비스의 설정을 중앙(Git)에서 관리하고, 동적 갱신이 가능하다."
+      - "빌드 속도가 빨라진다."
+      - "로그가 줄어든다."
+    answer: 1
+    explanation: "각 서비스가 개별 설정을 가지면 관리가 어렵습니다. Config Server로 중앙화하면 한 곳에서 변경하고 @RefreshScope로 재시작 없이 갱신할 수 있습니다."
+
+  - question: "HashiCorp Vault를 시크릿 관리에 사용하는 이유는?"
+    options:
+      - "환경 변수보다 느리기 때문"
+      - "시크릿을 암호화하여 저장하고, 동적 시크릿 생성, 감사 로그, 시크릿 회전을 지원한다."
+      - "무료가 아니기 때문"
+      - "설정 관리와 동일하다."
+    answer: 1
+    explanation: "Git이나 환경 변수에 평문으로 저장하면 유출 위험이 큽니다. Vault는 암호화 저장, 접근 로깅, 동적 DB 자격증명 생성 등을 제공합니다."
+
+  - question: "@ConfigurationProperties에 @Validated를 함께 사용하는 이유는?"
+    options:
+      - "성능 최적화"
+      - "애플리케이션 시작 시 필수 설정이 누락되거나 잘못된 값인지 즉시 검증하여 실행 중 오류를 방지"
+      - "로깅을 위해"
+      - "필요 없다"
+    answer: 1
+    explanation: "필수 설정(DB URL 등)이 없는 상태로 서비스가 시작되면 런타임에 문제가 발생합니다. @NotBlank, @Min 등으로 시작 시 검증하면 빨리 발견할 수 있습니다."
+
+  - question: "Kubernetes에서 민감한 정보(DB 비밀번호)를 주입할 때 권장되는 방법은?"
+    options:
+      - "ConfigMap에 평문으로 저장"
+      - "Secret을 생성하고 환경 변수 또는 볼륨으로 주입"
+      - "Dockerfile에 하드코딩"
+      - "포트에 노출"
+    answer: 1
+    explanation: "ConfigMap은 평문입니다. Secret은 base64 인코딩(암호화는 아님)되며, 추가로 Sealed Secrets이나 외부 Secret Manager 연동이 권장됩니다."
 ---
 
 ## 이 글에서 얻는 것

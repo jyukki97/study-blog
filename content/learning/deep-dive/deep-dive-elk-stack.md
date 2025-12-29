@@ -8,6 +8,51 @@ categories: ["Backend Deep Dive"]
 description: "ELK Stack (Elasticsearch, Logstash, Kibana)으로 로그 수집, 저장, 분석 시스템 구축"
 module: "ops-observability"
 study_order: 341
+quizzes:
+  - question: "ELK Stack에서 각 컴포넌트의 역할로 올바른 것은?"
+    options:
+      - "Elasticsearch가 로그를 수집한다."
+      - "Filebeat(수집) → Logstash(변환/필터) → Elasticsearch(저장/검색) → Kibana(시각화)"
+      - "Kibana가 로그를 저장한다."
+      - "Logstash가 시각화를 담당한다."
+    answer: 1
+    explanation: "Filebeat는 경량 Agent로 로그 파일을 수집, Logstash는 파싱/변환, Elasticsearch는 저장 및 검색, Kibana는 시각화를 담당합니다."
+
+  - question: "Logstash에서 Grok 패턴을 사용하는 이유는?"
+    options:
+      - "로그를 압축하기 위해"
+      - "정규표현식 기반으로 비정형 로그 문자열을 구조화된 필드로 파싱하기 위해"
+      - "Kibana에 직접 전송하기 위해"
+      - "로그를 삭제하기 위해"
+    answer: 1
+    explanation: "일반 텍스트 로그 '2025-01-01 ERROR Something wrong'를 timestamp, level, message 필드로 분리하면 Kibana에서 필터링/집계가 쉬워집니다."
+
+  - question: "Kibana에서 Index Pattern을 생성하는 이유는?"
+    options:
+      - "로그를 삭제하기 위해"
+      - "Elasticsearch에 저장된 어떤 인덱스의 데이터를 시각화할지 지정하기 위해"
+      - "로그를 암호화하기 위해"
+      - "Filebeat를 설정하기 위해"
+    answer: 1
+    explanation: "`myapp-logs-*` 패턴을 생성하면 날짜별로 생성된 모든 myapp-logs 인덱스를 하나의 뷰로 검색/시각화할 수 있습니다."
+
+  - question: "Filebeat를 Logstash 없이 Elasticsearch에 직접 연결할 수 있는 경우는?"
+    options:
+      - "불가능하다."
+      - "로그 형식이 이미 JSON이거나 복잡한 변환이 필요 없을 때 경량 파이프라인으로 동작 가능"
+      - "항상 직접 연결해야 한다."
+      - "Kibana 없이 사용할 때"
+    answer: 1
+    explanation: "Filebeat는 Elasticsearch에 직접 전송할 수 있습니다. 단, 복잡한 파싱/변환이 필요하면 Logstash를 중간에 둡니다."
+
+  - question: "ELK 스택에서 로그 인덱스를 날짜별(myapp-logs-2025.01.01)로 만드는 이유는?"
+    options:
+      - "필수 형식이다."
+      - "오래된 로그 인덱스를 쉽게 삭제/관리(ILM)하여 스토리지 비용을 절약하기 위해"
+      - "검색 속도를 높이기 위해"
+      - "이름이 예쁘기 때문"
+    answer: 1
+    explanation: "30일 보관 정책이면 30일 이전 인덱스를 삭제하면 됩니다. 하나의 거대한 인덱스라면 오래된 데이터 삭제가 어렵습니다."
 ---
 
 ## 이 글에서 얻는 것

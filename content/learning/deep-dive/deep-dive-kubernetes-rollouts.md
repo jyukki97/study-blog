@@ -8,6 +8,51 @@ categories: ["DevOps"]
 description: "RollingUpdate, Canary, Blue/Green 전략과 실습 체크리스트"
 module: "ops-observability"
 study_order: 315
+quizzes:
+  - question: "Kubernetes RollingUpdate에서 maxSurge와 maxUnavailable 설정의 역할은?"
+    options:
+      - "둘 다 동일한 의미이다."
+      - "maxSurge: 새 파드를 추가로 띄울 수, maxUnavailable: 배포 중 내려가도 되는 파드 수를 제어"
+      - "CPU 사용량을 제한한다."
+      - "메모리를 제한한다."
+    answer: 1
+    explanation: "가용성 우선이면 maxUnavailable=0으로 설정하고 maxSurge를 늘립니다. 비용 우선이면 surge를 낮추되 배포가 느려질 수 있습니다."
+
+  - question: "Canary 배포의 핵심이 '배포'보다 '관측'인 이유는?"
+    options:
+      - "관측이 더 재미있어서"
+      - "소수 사용자에게 먼저 노출하고, 에러율/레이턴시 지표가 기준을 넘으면 즉시 롤백해야 하기 때문"
+      - "배포가 더 어려워서"
+      - "비용이 싸서"
+    answer: 1
+    explanation: "카나리는 '작게 먼저 터뜨리기' 전략입니다. 새 버전을 5%만 노출하고 모니터링해서 문제가 있으면 빠르게 중단합니다."
+
+  - question: "무중단 배포에서 readinessProbe가 중요한 이유는?"
+    options:
+      - "파드를 재시작하기 위해"
+      - "앱이 트래픽을 받을 준비가 될 때까지 Service 엔드포인트에 포함되지 않게 하여, 에러를 방지"
+      - "로깅을 위해"
+      - "보안을 위해"
+    answer: 1
+    explanation: "앱이 시작되는 중(warmup)에 트래픽이 들어오면 타임아웃/에러가 발생합니다. readiness가 통과해야 트래픽을 받습니다."
+
+  - question: "배포 시 종료 드레이닝(preStop + terminationGracePeriodSeconds)이 필요한 이유는?"
+    options:
+      - "빠른 종료를 위해"
+      - "기존 연결을 처리 중인 요청이 완료될 때까지 기다려 5xx 에러 없이 종료하기 위해"
+      - "메모리를 절약하기 위해"
+      - "필요 없다"
+    answer: 1
+    explanation: "종료 신호를 받은 즉시 끊으면 진행 중인 요청이 실패합니다. preStop에서 준비 상태를 내리고 grace period 동안 기존 연결이 빠져나가게 합니다."
+
+  - question: "kubectl rollout undo만으로 롤백이 완전하지 않을 수 있는 경우는?"
+    options:
+      - "항상 완전하다."
+      - "DB 스키마 변경(컬럼 삭제 등)이 backward compatible하지 않으면, 코드를 되돌려도 서비스가 깨질 수 있다."
+      - "네트워크 문제일 때"
+      - "CPU 부족일 때"
+    answer: 1
+    explanation: "새 버전이 컬럼을 삭제했다면 롤백한 구버전 코드가 그 컬럼을 참조하여 에러가 납니다. DB 마이그레이션도 backward compatible하게 설계해야 합니다."
 ---
 
 ## 이 글에서 얻는 것

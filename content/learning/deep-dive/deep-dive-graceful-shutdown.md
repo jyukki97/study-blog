@@ -9,6 +9,51 @@ tags: ["Graceful Shutdown", "Spring Boot", "Kubernetes", "Zero Downtime"]
 categories: ["Ops"]
 draft: false
 module: "ops-observability"
+quizzes:
+  - question: "Graceful Shutdown의 핵심 목적은?"
+    options:
+      - "애플리케이션을 더 빨리 종료시키는 것"
+      - "진행 중인 요청을 완료하고, 리소스를 정리한 후 안전하게 종료하여 데이터 손실과 오류 응답을 방지하는 것"
+      - "메모리 사용량을 줄이는 것"
+      - "로그를 더 많이 남기는 것"
+    answer: 1
+    explanation: "즉시 종료(SIGKILL)하면 진행 중인 트랜잭션이 롤백되거나 클라이언트가 Connection Reset을 받습니다. Graceful Shutdown은 새 요청을 거부하고, 기존 요청을 완료한 후 종료합니다."
+
+  - question: "Spring Boot에서 `server.shutdown=graceful` 설정 시 새 HTTP 요청에 대한 동작은?"
+    options:
+      - "정상적으로 처리된다."
+      - "종료 시작 후 새 요청은 503 Service Unavailable을 반환하며 거부된다."
+      - "요청이 무한 대기한다."
+      - "자동으로 다른 서버로 라우팅된다."
+    answer: 1
+    explanation: "Graceful Shutdown이 시작되면 새 HTTP 요청은 즉시 503을 반환합니다. 진행 중인 요청만 완료 후 종료됩니다."
+
+  - question: "Kubernetes에서 Pod 종료 시 preStop Hook에 `sleep 5`를 넣는 이유는?"
+    options:
+      - "CPU 사용량을 줄이기 위해"
+      - "Endpoint 제거가 모든 Load Balancer에 전파되기 전에 요청이 들어올 수 있으므로, 전파 시간을 기다리기 위해"
+      - "로그를 더 많이 남기기 위해"
+      - "메모리를 정리하기 위해"
+    answer: 1
+    explanation: "K8s가 SIGTERM을 보내면서 동시에 Endpoint를 제거하지만, 이 변경이 모든 LB/Ingress에 전파되기까지 약간의 시간이 걸립니다. sleep으로 대기하여 이 기간에 들어오는 요청을 처리합니다."
+
+  - question: "Kafka Consumer의 Graceful Shutdown에서 @PreDestroy로 `registry.stop()`을 호출하는 이유는?"
+    options:
+      - "Consumer를 더 빠르게 종료시키기 위해"
+      - "현재 처리 중인 메시지를 완료하고, 오프셋을 커밋한 후 Consumer를 안전하게 중지하기 위해"
+      - "재시작을 위해"
+      - "로그를 남기기 위해"
+    answer: 1
+    explanation: "Kafka Consumer가 처리 중인 메시지가 있는 상태에서 강제 종료되면 중복 처리가 발생할 수 있습니다. `stop()`으로 안전하게 처리를 완료하고 오프셋을 커밋해야 합니다."
+
+  - question: "`terminationGracePeriodSeconds`와 Spring의 `timeout-per-shutdown-phase`의 관계로 올바른 것은?"
+    options:
+      - "둘은 동일한 설정이다."
+      - "terminationGracePeriodSeconds는 K8s의 총 종료 대기 시간이고, Spring 타임아웃 + 여유 시간보다 길어야 한다."
+      - "Spring 설정이 K8s 설정을 덮어쓴다."
+      - "둘 다 필요 없다."
+    answer: 1
+    explanation: "Spring의 shutdown timeout이 30초라면 K8s의 terminationGracePeriodSeconds는 최소 35~40초 이상이어야 합니다. 그렇지 않으면 Spring이 완료하기 전에 SIGKILL이 전송됩니다."
 ---
 
 ## 이 글에서 얻는 것

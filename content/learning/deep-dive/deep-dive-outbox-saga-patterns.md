@@ -7,6 +7,51 @@ tags: ["Outbox", "Saga", "Event Driven", "분산트랜잭션"]
 categories: ["Backend Deep Dive"]
 description: "Outbox 패턴, Saga(Choreography/Orchestration)로 데이터 일관성을 유지하는 방법"
 module: "data-system"
+quizzes:
+  - question: "Outbox 패턴이 해결하는 핵심 문제는?"
+    options:
+      - "성능 향상"
+      - "DB 커밋은 성공했는데 메시지(Kafka) 발행이 실패하여 데이터와 이벤트가 불일치하는 문제"
+      - "DB 연결 관리"
+      - "로그 수집"
+    answer: 1
+    explanation: "DB 커밋 후 Kafka 발행을 동기로 하면, 발행 실패 시 커밋을 되돌릴 수 없습니다. Outbox는 이벤트를 같은 트랜잭션에서 DB에 저장하고, 별도 프로세스가 발행하여 일관성을 보장합니다."
+
+  - question: "Outbox 테이블의 이벤트를 Kafka로 발행하는 두 가지 대표적인 방법은?"
+    options:
+      - "동기 호출과 비동기 호출"
+      - "Polling(주기적 조회) 방식과 CDC(Change Data Capture, DB 로그 기반) 방식"
+      - "REST와 gRPC"
+      - "Push와 Pull"
+    answer: 1
+    explanation: "Polling은 구현이 단순하지만 지연이 생길 수 있습니다. CDC(Debezium 등)는 DB 트랜잭션 로그를 실시간으로 읽어 지연이 적지만 운영 복잡도가 높습니다."
+
+  - question: "Saga 패턴에서 '멱등성(Idempotency)'이 필수인 이유는?"
+    options:
+      - "코드가 깔끔해져서"
+      - "네트워크 오류, 재시도, 리밸런스 등으로 같은 요청이나 이벤트가 중복 처리될 수 있으므로, 여러 번 실행해도 결과가 한 번만 반영되어야 하기 때문"
+      - "성능이 향상되기 때문"
+      - "보안을 위해"
+    answer: 1
+    explanation: "분산 환경에서 중복은 정상입니다. 예: 결제 이벤트가 두 번 오면 두 번 결제되면 안 됩니다. eventId 기반 처리 이력을 확인하여 중복을 무시해야 합니다."
+
+  - question: "Saga에서 보상 트랜잭션 설계가 선행되어야 하는 이유는?"
+    options:
+      - "테스트가 쉬워져서"
+      - "실패 시 어떻게 복구할지 정의되지 않으면, 운영 중 데이터 정합성이 깨지고 수동 개입이 필요해지기 때문"
+      - "성능이 향상되기 때문"
+      - "코드량이 줄어들기 때문"
+    answer: 1
+    explanation: "Saga의 핵심은 '실패하면 되돌린다'입니다. 보상 로직 없이 do()만 구현하면, 중간 실패 시 이전 단계가 그대로 남아 데이터가 오염됩니다."
+
+  - question: "Outbox 패턴에서도 중복 발행이 발생할 수 있는 이유는?"
+    options:
+      - "Outbox 테이블이 없어서"
+      - "퍼블리셔가 이벤트를 발행한 후 상태를 SENT로 업데이트하기 전에 장애가 발생하면, 재시작 시 같은 이벤트를 다시 발행할 수 있기 때문"
+      - "Kafka가 느려서"
+      - "트랜잭션이 롤백되어서"
+    answer: 1
+    explanation: "Outbox도 exactly-once를 완벽히 보장하지 않습니다. 발행 후 상태 업데이트 전에 크래시하면 중복 발행이 됩니다. 컨슈머가 eventId 기반으로 멱등 처리해야 합니다."
 study_order: 270
 ---
 

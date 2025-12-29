@@ -8,6 +8,51 @@ categories: ["Backend Deep Dive"]
 description: "이벤트 소싱과 CQRS 기본 개념, 장단점, 적용 시 고려사항"
 module: "architecture"
 study_order: 460
+quizzes:
+  - question: "Event Sourcing의 핵심 원리는?"
+    options:
+      - "현재 상태만 저장한다."
+      - "상태 변화의 이벤트 로그를 저장하고, 현재 상태는 이벤트를 재생(replay)해서 만든다."
+      - "이벤트를 수정할 수 있다."
+      - "읽기와 쓰기 모델이 동일하다."
+    answer: 1
+    explanation: "Event Sourcing은 '상태'가 아닌 '상태 변화(이벤트)'를 append-only로 저장합니다. 현재 잔액은 'MoneyDeposited/Withdrawn' 이벤트를 처음부터 재생해 계산합니다."
+
+  - question: "CQRS(Command Query Responsibility Segregation)가 읽기 모델을 분리하는 이유는?"
+    options:
+      - "코드 양을 늘리기 위해"
+      - "쓰기(Command)는 도메인 규칙 검증에, 읽기(Query)는 조회 성능/편의에 최적화된 별도 모델을 사용하기 위해"
+      - "보안을 위해"
+      - "트랜잭션을 분리하기 위해"
+    answer: 1
+    explanation: "쓰기는 불변식/검증이 중요하고, 읽기는 비정규화/인덱스가 중요합니다. 요구사항이 다르므로 모델을 분리하면 각각 최적화할 수 있습니다."
+
+  - question: "Event Sourcing에서 스냅샷(Snapshot)을 사용하는 이유는?"
+    options:
+      - "이벤트를 삭제하기 위해"
+      - "이벤트가 너무 많아지면 재생(replay) 비용이 커지므로, 특정 시점의 상태를 저장해두어 성능을 최적화하기 위해"
+      - "이벤트를 압축하기 위해"
+      - "필수 요소이다."
+    answer: 1
+    explanation: "10만 개 이벤트를 매번 재생하면 느립니다. 1만 번째 상태를 스냅샷으로 저장하면 그 이후 이벤트만 재생하면 됩니다."
+
+  - question: "Event Sourcing/CQRS를 사용하기 좋은 경우는?"
+    options:
+      - "단순 CRUD 애플리케이션"
+      - "감사/이력 추적이 핵심이거나, 읽기 모델이 다양해야 하거나, 과거 시점 상태 복원이 필요한 경우"
+      - "팀이 작고 운영 여력이 부족한 경우"
+      - "강한 일관성이 필수인 경우"
+    answer: 1
+    explanation: "금융/정산처럼 '누가 언제 무엇을 바꿨는지' 이력이 중요하거나, 대시보드/검색/리포트 등 다양한 읽기 뷰가 필요할 때 가치가 큽니다."
+
+  - question: "Event Sourcing에서 이벤트를 설계할 때 지켜야 할 원칙은?"
+    options:
+      - "이벤트는 명령형으로 작성한다."
+      - "이벤트는 '발생한 사실(과거형)'로 작성하고, 불변(Immutable)으로 유지한다."
+      - "이벤트는 수정 가능해야 한다."
+      - "이벤트에 현재 상태를 포함한다."
+    answer: 1
+    explanation: "'WithdrawRequested'(명령)보다 'MoneyWithdrawn'(사실)처럼 과거형으로 명명합니다. 이벤트는 한 번 저장되면 수정하지 않습니다(불변성)."
 ---
 
 ## 이 글에서 얻는 것

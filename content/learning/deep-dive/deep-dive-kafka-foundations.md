@@ -7,6 +7,51 @@ tags: ["Kafka", "Partition", "Consumer Group", "Offset"]
 categories: ["Backend Deep Dive"]
 description: "Kafka 핵심 개념과 메시지 흐름, Ordering/스루풋 설계를 위한 기초"
 module: "distributed-system"
+quizzes:
+  - question: "Kafka가 RabbitMQ 같은 전통적인 메시지 큐와 구별되는 가장 핵심적인 특징은?"
+    options:
+      - "메시지가 소비되면 즉시 삭제된다."
+      - "메시지가 파일에 로그처럼 저장되어 설정된 기간 동안 보존되며, 재처리(Replay)가 가능하다."
+      - "반드시 FIFO(선입선출) 순서로 처리된다."
+      - "단일 구독자만 지원한다."
+    answer: 1
+    explanation: "Kafka는 'Distributed Log'로서, 메시지를 소비해도 삭제되지 않고 보존됩니다. 이 덕분에 장애 시 재처리가 가능하고, 여러 시스템이 각자의 속도로 읽을 수 있습니다."
+
+  - question: "Kafka에서 메시지의 순서가 보장되는 범위는?"
+    options:
+      - "토픽(Topic) 전체에서 순서가 보장된다."
+      - "동일한 Consumer Group 내에서 순서가 보장된다."
+      - "동일한 파티션(Partition) 내에서만 순서가 보장된다."
+      - "Consumer에서 명시적으로 정렬해야만 순서가 보장된다."
+    answer: 2
+    explanation: "Kafka의 순서 보장은 파티션 단위입니다. 같은 Key를 가진 메시지는 같은 파티션으로 보내져 순서가 보장되지만, 다른 파티션 간에는 순서가 보장되지 않습니다."
+
+  - question: "Consumer Group 내에서 파티션과 Consumer의 매핑 규칙이 아닌 것은?"
+    options:
+      - "하나의 파티션은 그룹 내 하나의 Consumer에게만 할당된다."
+      - "Consumer 수가 파티션 수보다 많으면, 일부 Consumer는 유휴(Idle) 상태가 된다."
+      - "파티션보다 Consumer가 적으면, 일부 Consumer가 여러 파티션을 처리한다."
+      - "하나의 파티션을 그룹 내 여러 Consumer가 동시에 처리할 수 있다."
+    answer: 3
+    explanation: "Consumer Group 내에서 하나의 파티션은 반드시 하나의 Consumer에게만 할당됩니다. Consumer를 파티션 수 이상으로 늘려도 성능이 향상되지 않습니다."
+
+  - question: "Kafka Consumer 운영 시 '리밸런싱(Rebalancing)'이 발생하면 어떤 문제가 생기는가?"
+    options:
+      - "메시지 처리 성능이 일시적으로 크게 향상된다."
+      - "리밸런싱 중에는 Consumer들이 메시지 처리를 중단(Stop-the-World)하여 지연이 발생한다."
+      - "새로운 파티션이 자동으로 생성된다."
+      - "Producer가 메시지를 보낼 수 없게 된다."
+    answer: 1
+    explanation: "리밸런싱은 Consumer가 추가/제거되거나 장애 시 파티션을 재분배하는 과정인데, 이 동안 모든 Consumer가 일시적으로 처리를 멈춥니다. 이를 최소화하는 것이 Kafka 운영의 핵심입니다."
+
+  - question: "Kafka Producer에서 Key를 지정하여 메시지를 보내는 목적으로 가장 적절한 것은?"
+    options:
+      - "메시지 압축률을 높이기 위해"
+      - "특정 사용자(또는 주문)의 메시지가 항상 같은 파티션으로 전달되어 순서를 보장받기 위해"
+      - "Consumer가 메시지를 필터링하기 쉽게 하기 위해"
+      - "메시지를 자동으로 암호화하기 위해"
+    answer: 1
+    explanation: "Key를 지정하면 해시 함수에 의해 항상 같은 파티션에 메시지가 전달됩니다. 예를 들어, `userId`를 Key로 사용하면 특정 사용자의 이벤트 순서가 보장됩니다."
 study_order: 401
 ---
 

@@ -7,7 +7,61 @@ tags: ["Java", "GC", "JVM", "GC Logs", "G1GC"]
 categories: ["Backend Deep Dive"]
 description: "할당/생존/승격 관점으로 GC를 이해하고, STW/메모리 문제를 로그로 진단하는 기본기"
 module: "foundation"
-study_order: 102
+quizzes:
+  - question: "Java GC의 핵심 이론인 'Weak Generational Hypothesis(약한 세대 가설)'의 두 가지 전제 조건은?"
+    options:
+      - "1. 대부분의 객체는 금방 접근 불가능(Unreachable) 상태가 된다. 2. 오래된 객체에서 새로운 객체로의 참조는 아주 드물다."
+      - "1. Old 영역이 Young 영역보다 항상 커야 한다. 2. 객체는 불변이어야 한다."
+      - "1. 메모리는 무한하다. 2. 참조는 순환될 수 없다."
+      - "1. GC는 STW 없이 동작해야 한다. 2. 모든 객체는 Old 영역에서 생성된다."
+    answer: 0
+    explanation: "이 가설 덕분에 Heap을 Young/Old로 나누고, Young 영역에서 빈번하게(Minor GC) 객체를 청소하는 방식이 효율적임이 증명되었습니다."
+
+  - question: "GC 튜닝에서 'Stop-The-World (STW)' 시간을 줄인다는 것은 어떤 의미인가?"
+    options:
+      - "애플리케이션 스레드가 GC 작업을 위해 멈추는 시간(Pause Time)을 최소화한다는 뜻이다."
+      - "JVM을 종료시키는 시간을 줄인다는 뜻이다."
+      - "전체 처리량(Throughput)을 높이기 위해 GC 횟수를 늘린다는 뜻이다."
+      - "메모리 사용량을 0으로 만든다는 뜻이다."
+    answer: 0
+    explanation: "STW가 발생하면 애플리케이션의 모든 스레드가 멈추므로, 응답 지연(Latency)에 직접적인 영향을 줍니다. G1GC, ZGC 등은 이 시간을 줄이는 데 초점을 맞춥니다."
+
+  - question: "G1 GC (Garbage First GC)의 가장 큰 특징이자 기존 CMS/Parallel GC와의 구조적 차이점은?"
+    options:
+      - "메모리를 바둑판 모양의 'Region' 단위로 나누어 관리하며, 가비지가 많은 영역을 우선적으로 청소한다."
+      - "Young 영역 없이 Old 영역만 사용한다."
+      - "단일 스레드로만 동작하여 메모리를 절약한다."
+      - "STW가 아예 발생하지 않는다."
+    answer: 0
+    explanation: "G1 GC는 물리적으로 연속된 Young/Old 영역 대신, 논리적인 Region 단위로 힙을 관리하여 대용량 메모리에서도 예측 가능한 일시 정지 시간(MaxGCPauseMillis)을 제공합니다."
+
+  - question: "Young Generation에서 발생하는 GC인 'Minor GC'가 발생했을 때 살아남은 객체들의 이동 경로는?"
+    options:
+      - "Eden -> Survivor -> Old"
+      - "Eden -> Old -> PermGen"
+      - "Survivor -> Eden -> Old"
+      - "Old -> Survivor -> Eden"
+    answer: 0
+    explanation: "객체는 Eden에서 생성되어, Minor GC에서 살아남으면 Survivor 영역(S0/S1)을 오가며 나이(Age)를 먹고, 임계값(MaxTenuringThreshold)을 넘으면 Old 영역으로 승격(Promotion)됩니다."
+
+  - question: "GC가 객체를 삭제할지 말지 결정하는 기준인 'Reachability'의 시작점(GC Root)이 될 수 없는 것은?"
+    options:
+      - "힙 영역(Heap Area) 내의 다른 객체의 인스턴스 변수 (순환 참조인 경우)"
+      - "스택 영역(Stack Area)의 로컬 변수 및 파라미터"
+      - "메서드 영역(Method Area)의 Static 변수"
+      - "JNI(Native Stack)의 참조"
+    answer: 0
+    explanation: "힙 내부의 객체끼리만 참조하고 있고 외부(Stack, Static 등)에서 닿을 수 없다면, 그 객체 그룹은 Unreachable 상태로 간주되어 GC 대상이 됩니다."
+
+  - question: "ZGC (Z Garbage Collector)의 가장 큰 장점은?"
+    options:
+      - "TB 단위의 대용량 힙에서도 STW 시간을 10ms 이하로 유지한다."
+      - "윈도우 OS에서만 동작한다."
+      - "Young Generation을 사용하지 않는다."
+      - "처리량(Throughput)이 Parallel GC보다 항상 높다."
+    answer: 0
+    explanation: "ZGC는 Load Barrier와 Colored Pointer 기술을 사용하여 동시성을 극대화, 힙 크기와 무관하게 매우 짧은 일시 정지 시간을 보장합니다."
+study_order: 41
 ---
 
 ## 🗑️ 1. GC는 '청소부'가 아니라 '생존자 선별기'다

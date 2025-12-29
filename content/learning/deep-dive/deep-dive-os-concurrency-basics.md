@@ -7,7 +7,79 @@ tags: ["OS", "Process", "Thread", "Scheduling", "Concurrency"]
 categories: ["Backend Deep Dive"]
 description: "프로세스/스레드 차이, 컨텍스트 스위칭, 스케줄링 알고리즘, 동기화 기본"
 module: "foundation"
-study_order: 80
+study_order: 20
+quizzes:
+  - question: "프로세스와 스레드의 가장 큰 차이점(Trade-off)을 올바르게 설명한 것은?"
+    options:
+      - "프로세스는 빠르고 스레드는 느리다."
+      - "프로세스는 메모리를 공유하지만 스레드는 격리된다."
+      - "프로세스는 격리되어 안정적이지만 생성 비용이 크고, 스레드는 메모리를 공유해 효율적이지만 동기화 문제가 발생한다."
+      - "자바 애플리케이션은 스레드를 사용하지 않는다."
+    answer: 2
+    explanation: "프로세스는 독립된 주소 공간을 가지므로 격리가 보장되지만 무겁고, 스레드는 가볍고 통신이 쉽지만 공유 자원 문제가 발생합니다."
+
+  - question: "'스레드를 무조건 많이 만들면 성능이 좋아진다'는 말이 틀린 이유는 무엇 때문에 발생하는 오버헤드 때문일까요?"
+    options:
+      - "메모리 누수"
+      - "컨텍스트 스위칭 (Context Switching)"
+      - "네트워크 지연"
+      - "디스크 I/O"
+    answer: 1
+    explanation: "CPU가 스레드를 바꿔가며 실행할 때마다 레지스터/캐시 등을 저장하고 복원하는 비용(컨텍스트 스위칭)이 발생합니다."
+
+  - question: "다음 중 CPU 바운드(CPU Bound) 작업에 해당하는 것은?"
+    options:
+      - "데이터베이스 쿼리 결과 기다리기"
+      - "외부 API 호출하기"
+      - "비디오 인코딩 및 암호화 연산"
+      - "파일 읽기/쓰기"
+    answer: 2
+    explanation: "연산이 주가 되는 작업은 CPU 바운드입니다. 나머지는 대기가 주가 되는 I/O 바운드 작업입니다."
+
+  - question: "한 번에 하나의 스레드만 접근할 수 있도록 보장하는 잠금 메커니즘은?"
+    options:
+      - "뮤텍스 (Mutex)"
+      - "세마포어 (Semaphore)"
+      - "스핀락 (Spinlock)"
+      - "CAS (Compare And Swap)"
+    answer: 0
+    explanation: "뮤텍스(Mutual Exclusion)는 상호 배제를 통해 단 하나의 스레드만 임계 구역에 진입하게 합니다. (세마포어는 N개)"
+
+  - question: "데드락(Deadlock, 교착상태)이 발생하기 위한 4가지 필수 조건이 아닌 것은?"
+    options:
+      - "상호 배제 (Mutual Exclusion)"
+      - "환형 대기 (Circular Wait)"
+      - "비선점 (No Preemption)"
+      - "기아 상태 (Starvation)"
+    answer: 3
+    explanation: "기아 상태는 특정 프로세스가 자원을 못 받는 문제이고, 데드락의 필수 4조건은 상호배제, 점유대기, 비선점, 환형대기입니다."
+
+  - question: "CPU 바운드 작업 위주의 시스템에서 스레드 풀 크기를 적절하게 설정하는 기준은?"
+    options:
+      - "무조건 100개 이상으로 크게 잡는다."
+      - "CPU 코어 수 + 1 정도로 비슷하게 잡는다."
+      - "메모리가 허용하는 한 최대한 많이 잡는다."
+      - "1개로 설정한다."
+    answer: 1
+    explanation: "CPU 바운드 작업은 코어 수보단 많이 만들어도 컨텍스트 스위칭 비용만 늘어나므로, 코어 수와 비슷하게 유지하는 것이 효율적입니다."
+
+  - question: "자바의 `synchronized` 키워드나 `ReentrantLock`은 운영체제의 어떤 동기화 도구와 개념적으로 가장 비슷한가요?"
+    options:
+      - "파이프"
+      - "뮤텍스"
+      - "공유 메모리"
+      - "소켓"
+    answer: 1
+    explanation: "둘 다 기본적으로 임계 영역에 하나의 스레드만 진입하도록 보장하는 뮤텍스(Mutex) 역할을 수행합니다."
+
+  - question: "I/O 바운드 작업(DB, Network)이 많은 애플리케이션의 성능을 높이기 위해 가장 중요한 전략은?"
+    options:
+      - "CPU 클럭 속도 높이기"
+      - "스레드를 적게 유지하기"
+      - "I/O 대기 시간 동안 CPU가 다른 작업을 할 수 있게 블로킹을 줄이거나 스레드를 충분히 늘리기"
+      - "캐시 끄기"
+    answer: 2
+    explanation: "I/O 바운드에서는 CPU가 놀지 않도록 충분한 스레드를 두거나, 비동기/논블로킹 모델을 사용하는 것이 유리합니다."
 ---
 
 ## 이 글에서 얻는 것

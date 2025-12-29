@@ -7,7 +7,61 @@ tags: ["REST", "API", "HTTP", "RESTful", "Web"]
 categories: ["Backend Deep Dive"]
 description: "RESTful API 설계 원칙과 HTTP 메서드, 상태코드, URL 설계 패턴을 실전 예제로 마스터"
 module: "foundation"
-study_order: 28
+quizzes:
+  - question: "HTTP 메서드 중 '리소스의 식별자(ID)를 알고 있을 때, 해당 리소스 전체를 클라이언트가 보낸 데이터로 완전히 교체(Replace)'하는 메서드는?"
+    options:
+      - "PATCH"
+      - "PUT"
+      - "POST"
+      - "OPTIONS"
+    answer: 1
+    explanation: "PUT은 리소스 전체를 교체하는 의미를 가지며, 멱등성(Idempotence)을 가집니다. 반면 PATCH는 리소스의 일부만 변경할 때 사용합니다."
+
+  - question: "다음 중 '안전함(Safe)'과 '멱등함(Idempotent)'을 모두 만족하는 HTTP 메서드는?"
+    options:
+      - "DELETE"
+      - "POST"
+      - "GET"
+      - "PATCH"
+    answer: 2
+    explanation: "GET은 서버의 상태를 변경하지 않으므로 안전(Safe)하고, 여러 번 호출해도 결과가 같으므로 멱등(Idempotent)합니다. (DELETE는 멱등하지만 안전하지 않고, POST는 둘 다 아닙니다.)"
+
+  - question: "REST API 설계 시, '특정 사용자(ID: 123)의 주문 목록'을 조회하는 가장 적절한 URL 구조는?"
+    options:
+      - "GET /getOrders?userId=123"
+      - "POST /users/getOrders {id: 123}"
+      - "GET /users/123/orders"
+      - "GET /orders/users/123"
+    answer: 2
+    explanation: "REST는 리소스 간의 계층 구조를 URL 경로로 표현하는 것을 권장합니다. `/users/{id}/orders`는 '사용자 123의 하위 리소스인 주문들'을 명확히 표현합니다."
+
+  - question: "리소스 생성 요청(POST)이 성공했을 때, 서버가 반환해야 하는 가장 적절한 상태 코드와 헤더는?"
+    options:
+      - "200 OK"
+      - "201 Created 와 Location 헤더"
+      - "204 No Content"
+      - "202 Accepted"
+    answer: 1
+    explanation: "생성 성공 시 `201 Created` 코드와 함께, 새로 생성된 리소스에 접근할 수 있는 URI를 `Location` 헤더에 담아 보내는 것이 표준입니다."
+
+  - question: "클라이언트가 요청한 데이터 형식이 맞지 않거나 유효성 검증(Validation)에 실패했을 때 반환하기 가장 적절한 상태 코드는?"
+    options:
+      - "500 Internal Server Error"
+      - "401 Unauthorized"
+      - "400 Bad Request"
+      - "404 Not Found"
+    answer: 2
+    explanation: "400 Bad Request는 클라이언트의 잘못된 문법이나 유효하지 않은 요청 데이터로 인해 서버가 요청을 처리할 수 없음을 의미합니다."
+
+  - question: "REST 아키텍처 원칙 중 하나로, 서버가 응답에 '이 데이터를 어떻게 처리해야 하는지' 또는 '다음 상태로 전이할 수 있는 링크'를 포함하는 개념은?"
+    options:
+      - "Stateless (무상태성)"
+      - "Cacheable (캐시 가능)"
+      - "Layered System (계층형 시스템)"
+      - "HATEOAS (Hypermedia as the Engine of Application State)"
+    answer: 3
+    explanation: "HATEOAS를 만복하면 클라이언트는 서버가 제공하는 링크(Links)를 통해 동적으로 리소스 상태를 전이할 수 있게 됩니다."
+study_order: 53
 ---
 
 ## 이 글에서 얻는 것
@@ -68,7 +122,7 @@ GET /orders/{orderId}/items             # 주문의 아이템 목록
 
 ### 2-1) GET: 리소스 조회
 
-```http
+```text
 # 목록 조회
 GET /users HTTP/1.1
 Host: api.example.com
@@ -83,7 +137,7 @@ Content-Type: application/json
 ]
 ```
 
-```http
+```text
 # 단일 조회
 GET /users/1 HTTP/1.1
 
@@ -101,7 +155,7 @@ Content-Type: application/json
 
 ### 2-2) POST: 리소스 생성
 
-```http
+```text
 POST /users HTTP/1.1
 Content-Type: application/json
 
@@ -130,7 +184,7 @@ Content-Type: application/json
 
 ### 2-3) PUT: 리소스 전체 교체
 
-```http
+```text
 PUT /users/1 HTTP/1.1
 Content-Type: application/json
 
@@ -157,7 +211,7 @@ Content-Type: application/json
 
 ### 2-4) PATCH: 리소스 부분 수정
 
-```http
+```text
 PATCH /users/1 HTTP/1.1
 Content-Type: application/json
 
@@ -182,7 +236,7 @@ Content-Type: application/json
 
 ### 2-5) DELETE: 리소스 삭제
 
-```http
+```text
 DELETE /users/1 HTTP/1.1
 
 # 응답
@@ -289,7 +343,7 @@ public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
 
 ### 4-3) 쿼리 파라미터 활용
 
-```http
+```text
 # 필터링
 GET /users?status=active&age=25
 
@@ -308,7 +362,7 @@ GET /users?fields=id,name,email
 
 ### 4-4) 하위 리소스
 
-```http
+```text
 # 특정 사용자의 주문
 GET /users/{userId}/orders
 
@@ -324,7 +378,7 @@ GET /orders/{orderId}/items
 
 ### 5-1) 페이징
 
-```http
+```text
 GET /users?page=1&size=20 HTTP/1.1
 
 # 응답
@@ -345,7 +399,7 @@ Content-Type: application/json
 
 ### 5-2) 필터링 & 정렬
 
-```http
+```text
 # 필터링
 GET /products?category=electronics&minPrice=10000&maxPrice=50000
 
@@ -358,7 +412,7 @@ GET /products?category=electronics&sort=price,asc&page=1&size=10
 
 ### 5-3) 부분 응답 (Field Selection)
 
-```http
+```text
 GET /users?fields=id,name,email HTTP/1.1
 
 # 응답 (필요한 필드만)
@@ -370,7 +424,7 @@ GET /users?fields=id,name,email HTTP/1.1
 
 ### 5-4) API 버저닝
 
-```http
+```text
 # URL 버전
 GET /v1/users
 GET /v2/users
@@ -385,7 +439,7 @@ GET /users?version=1
 
 ### 5-5) 에러 응답 포맷
 
-```http
+```text
 POST /users HTTP/1.1
 Content-Type: application/json
 
@@ -431,7 +485,7 @@ Content-Type: application/json
 
 ### 블로그 시스템 API
 
-```http
+```text
 # 게시글 (Posts)
 GET    /posts                    # 목록 조회
 GET    /posts/{id}               # 상세 조회

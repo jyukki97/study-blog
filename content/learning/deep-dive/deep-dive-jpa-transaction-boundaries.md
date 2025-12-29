@@ -7,6 +7,51 @@ tags: ["JPA", "Transaction", "Flush", "영속성컨텍스트"]
 categories: ["Backend Deep Dive"]
 description: "트랜잭션 경계, flush 시점, 지연 쓰기와 N+1 예방을 정리"
 module: "spring-core"
+quizzes:
+  - question: "JPA에서 flush()와 commit()의 차이는?"
+    options:
+      - "둘 다 동일한 동작을 한다."
+      - "flush()는 영속성 컨텍스트의 변경을 DB로 동기화(SQL 전송)하고, commit()은 트랜잭션을 확정한다."
+      - "commit()이 먼저 실행되고 flush()가 나중에 실행된다."
+      - "flush()는 트랜잭션을 롤백한다."
+    answer: 1
+    explanation: "flush()는 변경된 SQL을 DB로 보내지만 아직 확정되지 않습니다(롤백 가능). commit()이 호출되어야 비로소 트랜잭션이 완료됩니다. 보통 commit 직전에 자동 flush가 발생합니다."
+
+  - question: "JPQL 쿼리 실행 직전에 자동으로 flush가 발생하는 이유는?"
+    options:
+      - "성능 최적화를 위해"
+      - "영속성 컨텍스트에서 수정된 데이터가 JPQL 쿼리 결과에도 반영되어 데이터 정합성을 보장하기 위해"
+      - "캐시를 초기화하기 위해"
+      - "JPQL 쿼리가 느리기 때문에"
+    answer: 1
+    explanation: "JPQL은 DB를 직접 조회합니다. 만약 영속성 컨텍스트에서 수정된 데이터가 flush되지 않으면, DB에 반영되지 않은 stale한 데이터를 조회하게 됩니다. 이를 방지하기 위해 JPQL 실행 전에 자동 flush됩니다."
+
+  - question: "`LazyInitializationException`이 발생하는 일반적인 원인은?"
+    options:
+      - "Eager Loading이 설정되어 있기 때문"
+      - "트랜잭션(또는 세션)이 종료된 후에 Lazy 로딩된 연관 엔티티에 접근하기 때문"
+      - "엔티티를 영속성 컨텍스트에 저장하지 않았기 때문"
+      - "쿼리가 잘못되었기 때문"
+    answer: 1
+    explanation: "Lazy 로딩은 연관 엔티티 접근 시 DB 쿼리를 실행합니다. 트랜잭션이 끝나면 세션이 닫혀 DB 연결이 없으므로 예외가 발생합니다. Fetch Join으로 미리 조회하거나 트랜잭션 내에서 처리해야 합니다."
+
+  - question: "JPQL Bulk Update/Delete 후에 `entityManager.clear()`를 호출하는 이유는?"
+    options:
+      - "트랜잭션을 커밋하기 위해"
+      - "벌크 연산은 영속성 컨텍스트를 거치지 않아 캐시된 엔티티가 DB와 불일치할 수 있으므로, 캐시를 초기화하기 위해"
+      - "Lazy 로딩을 활성화하기 위해"
+      - "새로운 트랜잭션을 시작하기 위해"
+    answer: 1
+    explanation: "Bulk 연산은 DB를 직접 수정합니다. 영속성 컨텍스트에 캐시된 엔티티는 여전히 옛날 값을 가지고 있습니다. clear()로 캐시를 초기화해야 다시 조회할 때 최신 값을 가져옵니다."
+
+  - question: "트랜잭션 경계를 Service 레이어에 두는 것이 권장되는 이유는?"
+    options:
+      - "Controller에 두면 코드가 길어지기 때문"
+      - "트랜잭션이 너무 넓으면 락/커넥션 점유 시간이 길어져 동시성 문제와 성능 저하가 발생하기 때문"
+      - "JPA 스펙에서 강제하기 때문"
+      - "Repository에서는 트랜잭션을 사용할 수 없기 때문"
+    answer: 1
+    explanation: "트랜잭션이 Controller부터 시작하면 View 렌더링 등 오래 걸리는 작업까지 커넥션을 점유합니다. Service에서 비즈니스 로직 단위로 트랜잭션을 관리하면 커넥션 점유 시간을 최소화합니다."
 study_order: 157
 ---
 

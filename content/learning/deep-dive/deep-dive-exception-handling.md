@@ -9,6 +9,51 @@ tags: ["Exception Handling", "Spring", "Error Handling", "Best Practices"]
 categories: ["Spring"]
 draft: false
 module: "spring-core"
+quizzes:
+  - question: "Java에서 비즈니스 예외를 Checked Exception 대신 Unchecked Exception(RuntimeException)으로 만드는 이유는?"
+    options:
+      - "Checked가 더 안전하기 때문"
+      - "Unchecked는 throws 선언 없이 사용할 수 있어 코드가 간결해지고, 호출자가 처리 방법을 강제받지 않기 때문"
+      - "컴파일 속도가 빨라지기 때문"
+      - "JVM이 Unchecked만 지원하기 때문"
+    answer: 1
+    explanation: "Checked Exception은 모든 호출 경로에서 try-catch나 throws가 필요해 코드가 복잡해집니다. 비즈니스 예외는 대부분 글로벌 핸들러에서 처리하므로 Unchecked가 적합합니다."
+
+  - question: "@RestControllerAdvice와 @ExceptionHandler를 사용하는 이유는?"
+    options:
+      - "성능을 향상시키기 위해"
+      - "모든 컨트롤러에서 발생하는 예외를 한 곳에서 일관된 형식(ErrorResponse)으로 처리하기 위해"
+      - "예외를 숨기기 위해"
+      - "로깅을 비활성화하기 위해"
+    answer: 1
+    explanation: "글로벌 예외 핸들러를 통해 모든 API에서 동일한 형식의 에러 응답({code, message, timestamp, path})을 반환할 수 있어 클라이언트 처리가 쉬워집니다."
+
+  - question: "비즈니스 예외에 `errorCode`를 포함시키는 이유는?"
+    options:
+      - "디버깅이 어려워지기 때문"
+      - "클라이언트가 에러 종류를 식별하고 적절히 대응할 수 있도록 하기 위해 (예: USER_NOT_FOUND → 회원가입 유도)"
+      - "보안을 위해"
+      - "필요 없다"
+    answer: 1
+    explanation: "HTTP 상태 코드(404)만으로는 '무엇이' 없는지 알 수 없습니다. errorCode를 추가하면 클라이언트가 UI/UX를 다르게 처리할 수 있습니다."
+
+  - question: "예외 로깅 레벨로 올바른 조합은?"
+    options:
+      - "모든 예외를 ERROR로 기록"
+      - "404/400은 WARN, 500 Internal Error는 ERROR, 예상된 비즈니스 오류는 INFO"
+      - "모든 예외를 DEBUG로 기록"
+      - "로깅하지 않음"
+    answer: 1
+    explanation: "클라이언트 오류(404, 400)는 시스템 문제가 아니므로 WARN으로, 서버 오류는 조사가 필요하므로 ERROR로 기록합니다. 정상적인 비즈니스 흐름의 예외는 INFO가 적합합니다."
+
+  - question: "Repository 계층에서 DataIntegrityViolationException을 BusinessException으로 래핑하는 이유는?"
+    options:
+      - "성능을 높이기 위해"
+      - "저수준 DB 예외를 비즈니스 의미가 있는 예외(예: DuplicateResourceException)로 변환하여 상위 계층이 이해하기 쉽게 하기 위해"
+      - "예외를 숨기기 위해"
+      - "JPA가 요구하기 때문"
+    answer: 1
+    explanation: "Service/Controller 계층은 DB 구현 세부사항(Unique 제약조건)을 몰라도 됩니다. '이미 존재하는 이메일' 같은 비즈니스 의미로 변환하면 처리가 명확해집니다."
 ---
 
 ## 이 글에서 얻는 것

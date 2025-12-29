@@ -7,6 +7,51 @@ tags: ["DDD", "Architecture", "Entity", "Value Object", "Aggregate"]
 categories: ["Backend Deep Dive"]
 description: "도메인 주도 설계의 핵심 빌딩 블록을 이해하고, 왜 불변 객체(VO)가 중요한지 파헤칩니다."
 module: "architecture-mastery"
+quizzes:
+  - question: "DDD에서 Entity와 Value Object(VO)를 구분하는 핵심 기준은?"
+    options:
+      - "크기가 큰 것이 Entity, 작은 것이 VO"
+      - "Entity는 고유한 식별자(ID)를 가지고, VO는 식별자 없이 값 자체로 동일성을 비교한다."
+      - "Entity는 읽기 전용, VO는 수정 가능"
+      - "둘은 동일한 개념이다."
+    answer: 1
+    explanation: "Entity는 ID로 식별됩니다(같은 ID면 같은 객체). VO는 모든 필드 값이 같으면 같은 객체입니다. 예: User(Entity)는 ID로, Money(VO)는 금액과 통화로 동일성을 판단합니다."
+
+  - question: "Value Object(VO)를 불변(Immutable)으로 만드는 이유는?"
+    options:
+      - "성능이 저하되기 때문"
+      - "불변 객체는 공유해도 안전(Thread-safe)하며, 예상치 못한 사이드 이펙트를 방지한다."
+      - "데이터베이스에 저장하기 어렵기 때문"
+      - "JPA에서 지원하지 않기 때문"
+    answer: 1
+    explanation: "불변 VO는 값이 바뀌지 않으므로 여러 곳에서 참조해도 안전합니다. 값을 변경하려면 새 객체를 생성(`money.plus(...)`)하므로 원본이 변경되는 버그를 방지합니다."
+
+  - question: "Aggregate Root의 역할로 올바른 것은?"
+    options:
+      - "모든 데이터를 캐싱한다."
+      - "Aggregate 내부 객체의 일관성(Invariant)을 보장하고, 외부에서 Aggregate 내부로 접근하는 유일한 진입점 역할을 한다."
+      - "다른 Aggregate를 직접 수정할 수 있다."
+      - "데이터베이스 연결을 관리한다."
+    answer: 1
+    explanation: "Aggregate Root는 트랜잭션의 경계이자 일관성을 지키는 수문장입니다. 외부에서는 Root를 통해서만 내부 객체에 접근해야 비즈니스 규칙을 보장할 수 있습니다."
+
+  - question: "DDD에서 Repository가 Aggregate Root 단위로만 존재해야 하는 이유는?"
+    options:
+      - "코드를 줄이기 위해"
+      - "Aggregate는 트랜잭션의 일관성 단위이므로, 내부 Entity를 개별적으로 저장하면 일관성이 깨질 수 있기 때문"
+      - "성능이 향상되기 때문"
+      - "JPA에서 강제하기 때문"
+    answer: 1
+    explanation: "OrderItemRepository가 따로 있으면 Order 없이 OrderItem만 변경할 수 있어 비즈니스 규칙이 깨질 수 있습니다. OrderRepository를 통해 Order(Root)와 함께 저장해야 일관성을 유지합니다."
+
+  - question: "'빈약한 도메인 모델(Anemic Domain Model)'의 문제점은?"
+    options:
+      - "객체에 비즈니스 로직이 많아 복잡하다."
+      - "Entity가 getter/setter만 가지고 비즈니스 로직이 Service에 흩어져 있어, 응집도가 낮고 중복 로직이 발생하기 쉽다."
+      - "테스트하기 쉽다."
+      - "성능이 좋다."
+    answer: 1
+    explanation: "Entity가 단순한 데이터 구조체이고 로직이 Service에 있으면, 같은 로직이 여러 Service에 중복됩니다. Rich Domain Model은 Entity 안에 관련 로직을 두어 응집도를 높입니다."
 study_order: 1101
 ---
 

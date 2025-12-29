@@ -7,6 +7,51 @@ tags: ["WebClient", "Timeout", "Retry", "Resilience", "Reactive"]
 categories: ["Backend Deep Dive"]
 description: "WebClient로 외부 API 호출 시 타임아웃/재시도/서킷 브레이커/백프레셔 설정 가이드"
 module: "spring-core"
+quizzes:
+  - question: "외부 API 호출 시 타임아웃을 설정하지 않았을 때 발생할 수 있는 가장 치명적인 문제는?"
+    options:
+      - "CPU 사용률이 급격히 증가한다."
+      - "데이터베이스 락(Lock)이 걸린다."
+      - "응답이 오지 않는 연결이 스레드나 커넥션 풀을 점유하여, 결국 서비스 전체의 자원이 고갈된다."
+      - "네트워크 대역폭이 소진된다."
+    answer: 2
+    explanation: "타임아웃이 없으면 상대 서버가 응답하지 않을 때 연결이 무한히 대기하게 되고, 이들이 쌓이면 스레드/DB 커넥션 풀을 모두 점유하여 서비스 전체가 응답 불능 상태에 빠집니다."
+
+  - question: "WebClient에서 재시도(Retry) 패턴을 적용할 때, 일시적인 네트워크 오류나 서버 과부하를 악화시키지 않기 위해 필수적으로 함께 적용해야 하는 전략은?"
+    options:
+      - "무제한 재시도 (Endless Retry)"
+      - "즉시 재시도 (Immediate Retry)"
+      - "지수 백오프 (Exponential Backoff) 및 Jitter"
+      - "동기식(Blocking) 재시도"
+    answer: 2
+    explanation: "즉시 재시도하거나 타이밍이 겹치면 'Retry Storm'이 발생하여 서버 부하를 가중시킵니다. 점진적으로 대기 시간을 늘리는 백오프와 랜덤성을 부여하는 Jitter가 필요합니다."
+
+  - question: "서킷 브레이커(Circuit Breaker)의 상태 중, 시스템이 정상적으로 동작하여 요청을 통과시키는 상태는?"
+    options:
+      - "Open"
+      - "Closed"
+      - "Half-Open"
+      - "Disabled"
+    answer: 1
+    explanation: "서킷 브레이커에서 `Closed` 상태는 전류가 흐르듯 요청이 정상적으로 처리되는 상태를 의미합니다. (장애 감지 시 `Open`되어 차단됨)"
+
+  - question: "HTTP POST 요청과 같이 서버의 상태를 변경하는 API에 대해 재시도(Retry)를 적용할 때 주의해야 할 점은?"
+    options:
+      - "POST 요청은 절대 재시도하면 안 된다."
+      - "반드시 모든 4xx, 5xx 에러에 대해 재시도해야 한다."
+      - "API가 멱등성(Idempotency)을 보장하는지 확인하고, 그렇지 않다면 재시도를 신중히 하거나 피해야 한다."
+      - "타임아웃을 매우 짧게 설정해야 한다."
+    answer: 2
+    explanation: "POST 요청은 멱등하지 않은 경우(예: 결제, 주문 생성)가 많으므로, 중복 실행 시 데이터 정합성이 깨질 수 있어 재시도 적용 시 매우 주의해야 합니다."
+
+  - question: "외부 시스템의 장애가 나의 시스템 전체로 전파되는 것을 막기 위해, 외부 호출마다 별도의 스레드 풀이나 세마포어로 자원을 격리하는 패턴은?"
+    options:
+      - "Circuit Breaker"
+      - "Rate Limiter"
+      - "Bulkhead (격벽)"
+      - "Time Limiter"
+    answer: 2
+    explanation: "`Bulkhead` 패턴은 선박의 격벽처럼 시스템을 여러 구획으로 나누어, 한 곳(외부 호출)에서 자원이 고갈되더라도 다른 기능은 정상 동작하도록 격리합니다."
 study_order: 180
 ---
 

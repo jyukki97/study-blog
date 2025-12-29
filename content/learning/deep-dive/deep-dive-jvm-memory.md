@@ -7,7 +7,79 @@ tags: ["Java", "JVM", "Memory", "Metaspace", "JIT"]
 categories: ["Backend Deep Dive"]
 description: "JVM 메모리 영역과 GC Root, OOM/Metaspace/StackOverflow 같은 장애를 빠르게 진단하는 기본기"
 module: "foundation"
-study_order: 85
+quizzes:
+  - question: "다음 중 JVM의 Runtime Data Area 중 '스레드(Thread) 별로 독립적으로 생성'되는 영역이 아닌 것은?"
+    options:
+      - "PC Register"
+      - "JVM Stack"
+      - "Native Method Stack"
+      - "Heap Area"
+    answer: 3
+    explanation: "Heap 영역과 Method Area(Metaspace)는 모든 스레드가 공유하는 영역입니다. 반면 Stack, PC Register, Native Stack은 스레드마다 별도로 생성됩니다."
+
+  - question: "Java 8부터 PermGen 영역이 제거되고 도입된 'Metaspace'의 가장 큰 특징은?"
+    options:
+      - "Heap 메모리 내부에 존재한다."
+      - "JVM이 관리하는 Heap이 아니라, OS가 관리하는 Native Memory 영역을 사용한다."
+      - "고정된 크기를 가지며 절대 늘어나지 않는다."
+      - "Garbage Collection이 발생하지 않는다."
+    answer: 1
+    explanation: "Metaspace는 Native Memory를 사용하므로, OS가 허용하는 한도 내에서 유동적으로 크기가 조정될 수 있어 PermGen에 비해 OOM 발생 빈도가 낮아졌습니다."
+
+  - question: "클래스 로더(Class Loader)의 3가지 원칙 중, '하위 로더가 클래스를 로딩하기 전에 상위 로더에게 먼저 요청을 위임하는 것'을 무엇이라 하는가?"
+    options:
+      - "Visibility Principle (가시성 원칙)"
+      - "Uniqueness Principle (유일성 원칙)"
+      - "Delegation Principle (위임 원칙)"
+      - "Isolation Principle (격리 원칙)"
+    answer: 2
+    explanation: "위임 원칙(Delegation Principle)에 따라 AppClassLoader -> ExtClassLoader -> BootstrapClassLoader 순으로 위임하며 올라갔다가, 없으면 다시 내려오며 로드합니다."
+
+  - question: "JVM Stack 영역에서 발생할 수 있는 대표적인 에러는?"
+    options:
+      - "OutOfMemoryError: Java heap space"
+      - "StackOverflowError"
+      - "NoClassDefFoundError"
+      - "NullPointerException"
+    answer: 1
+    explanation: "메서드 호출 시마다 스택 프레임이 쌓이는데, 재귀 호출 등으로 스택 깊이가 허용치를 초과하면 `StackOverflowError`가 발생합니다."
+
+  - question: "Execution Engine의 JIT(Just-In-Time) 컴파일러가 하는 주된 역할은?"
+    options:
+      - "자바 소스 코드(.java)를 바이트코드(.class)로 컴파일한다."
+      - "바이트코드를 한 줄씩 해석하여 실행한다."
+      - "자주 실행되는 바이트코드(Hot Spot)를 파악하여 기계어(Native Code)로 컴파일하고 캐싱한다."
+      - "Garbage Collection을 수행한다."
+    answer: 2
+    explanation: "JIT는 인터프리터 방식의 단점을 보완하기 위해, 반복되는 코드를 네이티브 코드로 변환해두고 재사용하여 실행 속도를 높입니다."
+
+  - question: "Heap 영역에서 객체가 생성된 직후 가장 먼저 저장되는 공간은?"
+    options:
+      - "Old Generation"
+      - "Eden Space"
+      - "Survivor 0"
+      - "Survivor 1"
+    answer: 1
+    explanation: "대부분의 객체는 Young Generation의 Eden 영역에 처음 할당됩니다. 여기서 GC 후 살아남으면 Survivor 영역으로 이동합니다."
+
+  - question: "다음 중 `static` 변수와 클래스 메타데이터가 저장되는 메모리 영역은?"
+    options:
+      - "Heap Area"
+      - "JVM Stack"
+      - "Method Area (Metaspace)"
+      - "PC Register"
+    answer: 2
+    explanation: "클래스 정보, 상수(Constant Pool), static 변수 등은 Method Area(Java 8+에서는 Metaspace)에 저장되어 공유됩니다."
+
+  - question: "스택 프레임(Stack Frame) 내부에 저장되지 않는 정보는?"
+    options:
+      - "Local Variables (지역 변수)"
+      - "Operand Stack (피연산자 스택)"
+      - "Return Address (복귀 주소)"
+      - "Heap Object 자체"
+    answer: 3
+    explanation: "객체 인스턴스 자체는 Heap에 저장되며, 스택 프레임의 지역 변수에는 그 객체를 가리키는 '참조값(Reference)'만 저장됩니다."
+study_order: 40
 ---
 
 ## 이 글에서 얻는 것

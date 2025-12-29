@@ -8,6 +8,51 @@ categories: ["Backend Deep Dive"]
 description: "GC 로그 해석, Young/Old 튜닝 포인트, GC 선택(G1/ZGC) 가이드"
 module: "ops-observability"
 study_order: 355
+quizzes:
+  - question: "GC 튜닝에서 '플래그 조정보다 먼저 해야 할 것'은?"
+    options:
+      - "바로 플래그를 조정한다."
+      - "GC 로그를 켜서 측정하고, 과도한 객체 할당/리텐션/큰 객체 같은 루트 원인을 먼저 수정"
+      - "JVM 버전을 낮춘다."
+      - "메모리를 무한정 늘린다."
+    answer: 1
+    explanation: "GC 문제의 많은 원인은 불필요한 객체 생성, 캐시 누수, 큰 배열 등입니다. 플래그는 '마지막'에 최소한만 조정합니다."
+
+  - question: "GC 로그에서 가장 먼저 봐야 할 4가지 지표는?"
+    options:
+      - "CPU, 메모리, 디스크, 네트워크"
+      - "정지 시간(pause time), 빈도, 힙 변화(전/후), Full GC 존재 여부"
+      - "스레드 수, 클래스 로딩 시간"
+      - "JIT 컴파일 시간"
+    answer: 1
+    explanation: "정지 시간이 SLO에 직결되고, 빈도가 높으면 할당률 문제, 힙이 안 줄면 리텐션, Full GC는 상태 불량 신호입니다."
+
+  - question: "G1 GC와 ZGC 선택 기준으로 올바른 것은?"
+    options:
+      - "항상 ZGC가 좋다."
+      - "G1: 균형형 기본 선택, ZGC: 큰 힙에서 긴 STW를 줄이고 싶을 때(저지연 우선)"
+      - "G1이 항상 더 빠르다."
+      - "ZGC는 사용하면 안 된다."
+    answer: 1
+    explanation: "대부분 G1이 기본 선택입니다. p99 지연이 '비용'인 서비스(실시간/대화형)에서 ZGC를 고려해볼 수 있습니다."
+
+  - question: "Old 영역이 계속 증가하고 GC 후에도 줄지 않는 증상의 원인은?"
+    options:
+      - "Young GC가 너무 자주 발생해서"
+      - "메모리 리텐션/누수 - 캐시, 전역 컬렉션, 스케줄러 큐가 객체를 계속 붙잡고 있음"
+      - "힙이 너무 작아서"
+      - "네트워크 문제"
+    answer: 1
+    explanation: "힙 덤프로 '누가 잡고 있나(도미네이터)'를 확인합니다. 캐시 만료 정책 누락이나 리스너 미해제가 흔한 원인입니다."
+
+  - question: "Full GC가 발생하면 확인해야 할 것은?"
+    options:
+      - "네트워크 설정"
+      - "왜 Full GC로 갔는지(메모리 부족/승격 실패 등) 로그 힌트와 힙 크기, 큰 객체(humongous) 여부"
+      - "DNS 설정"
+      - "무시해도 된다"
+    answer: 1
+    explanation: "Full GC는 '상태가 안 좋다'는 신호입니다. 지연이 크게 튀므로 원인을 찾아 힙 설정이나 코드를 수정해야 합니다."
 ---
 
 ## 이 글에서 얻는 것

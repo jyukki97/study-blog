@@ -9,6 +9,51 @@ tags: ["Pagination", "Database", "Performance", "JPA", "Spring Data"]
 categories: ["Data"]
 draft: false
 module: "data-system"
+quizzes:
+  - question: "Offset 페이징의 가장 큰 문제점은?"
+    options:
+      - "구현이 복잡하다."
+      - "페이지가 깊어질수록 OFFSET만큼 데이터를 스캔 후 버리므로 성능이 급격히 저하된다."
+      - "정렬을 사용할 수 없다."
+      - "총 개수를 알 수 없다."
+    answer: 1
+    explanation: "`OFFSET 10000 LIMIT 20`은 DB가 10000건을 읽고 버린 후 20건을 반환합니다. 깊은 페이지일수록 불필요한 스캔이 늘어나 성능이 저하됩니다."
+
+  - question: "No-Offset(Cursor 기반) 페이징의 핵심 원리는?"
+    options:
+      - "모든 데이터를 메모리에 로드한 후 페이징"
+      - "마지막 조회 항목의 키 값(예: id, createdAt)을 기준으로 WHERE 조건을 걸어 다음 데이터를 조회"
+      - "캐시된 데이터를 사용"
+      - "DB 파티셔닝을 활용"
+    answer: 1
+    explanation: "`WHERE id < 마지막_조회_id ORDER BY id DESC LIMIT 20`처럼 이전 페이지의 마지막 키를 조건으로 사용합니다. OFFSET 없이 항상 일정한 성능을 유지합니다."
+
+  - question: "Cursor 기반 페이징에서 여러 컬럼으로 정렬할 때 주의할 점은?"
+    options:
+      - "인덱스를 사용할 수 없다."
+      - "동일한 값(예: 같은 createdAt)이 있을 때 중복/누락을 방지하기 위해 유니크한 컬럼(예: id)을 추가 조건으로 사용해야 한다."
+      - "페이지 크기를 1로 고정해야 한다."
+      - "DB 종류에 따라 동작하지 않을 수 있다."
+    answer: 1
+    explanation: "`createdAt`이 같은 행이 여러 개면 `WHERE createdAt < ?`만으로는 일부가 누락될 수 있습니다. `(createdAt, id)` 조합으로 정렬하고 복합 조건을 사용해야 합니다."
+
+  - question: "대용량 테이블에서 `SELECT COUNT(*)`가 느린 이유와 대안은?"
+    options:
+      - "DB가 COUNT를 지원하지 않아서 / 별도 쿼리 사용"
+      - "조건에 맞는 모든 행을 스캔해야 하기 때문 / 캐시된 카운트 또는 `hasNext`만 제공"
+      - "네트워크 지연 때문 / 비동기 처리"
+      - "인덱스가 없어서 / 인덱스 추가"
+    answer: 1
+    explanation: "COUNT는 조건에 맞는 모든 행을 카운팅해야 합니다. 대용량에서는 Redis에 캐싱된 근사값을 주기적으로 갱신하거나, 총 개수 없이 `hasNext` 여부만 제공하는 것이 일반적입니다."
+
+  - question: "Offset 페이징과 Cursor 페이징 중 '무한 스크롤' UI에 더 적합한 방식은?"
+    options:
+      - "Offset 페이징 (페이지 번호로 이동 가능)"
+      - "Cursor 페이징 (일정한 성능, 데이터 변경에 강함)"
+      - "둘 다 동일"
+      - "어느 쪽도 적합하지 않음"
+    answer: 1
+    explanation: "무한 스크롤은 페이지 번호가 필요 없고 '다음 항목'만 로드합니다. Cursor 페이징은 깊은 페이지에서도 성능이 일정하고, 데이터가 추가/삭제되어도 중복/누락이 적어 무한 스크롤에 이상적입니다."
 ---
 
 ## 이 글에서 얻는 것
@@ -113,7 +158,7 @@ public class OrderPageResponse {
 
 ### API
 
-```http
+```text
 # 첫 페이지
 GET /api/orders?size=20
 

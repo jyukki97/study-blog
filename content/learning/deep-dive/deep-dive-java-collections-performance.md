@@ -7,7 +7,70 @@ tags: ["Java", "Collections", "Performance", "HashMap", "ArrayList"]
 categories: ["Backend Deep Dive"]
 description: "ArrayList/LinkedList/HashMap/ConcurrentHashMap 등 주요 컬렉션의 성능 특성과 튜닝 포인트"
 module: "foundation"
-study_order: 70
+quizzes:
+  - question: "ArrayList에 데이터를 계속 추가하다가 내부 배열 용량이 꽉 찼을 때 발생하는 '리사이즈(Resize)' 과정의 비용 설명으로 옳은 것은?"
+    options:
+      - "O(1) 비용으로 매우 저렴하다."
+      - "새로운 더 큰 배열을 만들고 기존 데이터를 모두 복사해야 하므로 O(n) 비용이 들고 순간적인 레이턴시 튀는 현상(Spike)이 발생한다."
+      - "기존 배열의 크기만 늘리므로 복사 비용은 없다."
+      - "자동으로 리사이즈되지 않고 예외가 발생한다."
+    answer: 1
+    explanation: "배열은 크기가 고정되어 있으므로, 확장을 위해서는 '새 배열 할당 -> 전체 복사 -> 참조 변경'의 비싼 과정이 필요합니다."
+
+  - question: "LinkedList가 이론적으로는 중간 삽입/삭제가 O(1)이지만, 실제 성능은 ArrayList보다 느린 경우가 많은 주된 이유는?"
+    options:
+      - "CPU 캐시 지역성(Cache Locality)이 떨어져서 메모리 접근 속도가 느리기 때문이다."
+      - "LinkedList는 데이터 압축을 수행하기 때문이다."
+      - "ArrayList가 멀티스레드에 더 최적화되어 있어서."
+      - "자바 컴파일러가 LinkedList를 지원하지 않아서."
+    answer: 0
+    explanation: "노드들이 힙 메모리 여기저기에 흩어져 있어(참조 포인터로 연결), 연속된 메모리를 사용하는 배열에 비해 캐시 미스(Cache Miss)가 자주 발생합니다."
+
+  - question: "HashMap의 부하율(Load Factor, 기본 0.75)이 의미하는 바는?"
+    options:
+      - "데이터가 75% 찰 때마다 데이터를 삭제한다."
+      - "버킷 용량의 75%가 차면 리사이즈를 수행하여 해시 충돌을 줄인다."
+      - "해시 함수의 성능을 75%로 제한한다."
+      - "메모리를 75%만 사용하도록 강제한다."
+    answer: 1
+    explanation: "Load Factor는 시간(속도)과 공간(메모리)의 트레이드오프 설정값입니다. 너무 높으면 충돌이 늘고, 너무 낮으면 메모리 낭비와 잦은 리사이즈가 발생합니다."
+
+  - question: "멀티스레드 환경에서 공유 카운터(Counter)를 구현할 때, `ConcurrentHashMap + AtomicLong` 조합보다 `LongAdder`가 더 유리한 상황은?"
+    options:
+      - "키값의 개수가 적을 때"
+      - "단일 스레드일 때"
+      - "경합(Contention)이 매우 심할 때"
+      - "정확성이 중요하지 않을 때"
+    answer: 2
+    explanation: "LongAdder는 내부적으로 변수를 분산시켜 경합을 줄이기 때문에, 여러 스레드가 동시에 하나의 값을 업데이트할 때 AtomicLong보다 성능이 뛰어납니다."
+
+  - question: "자바 컬렉션 사용 시 `Map<Long, Long>` 처럼 래퍼 클래스를 키/값으로 사용할 때의 성능상 단점은?"
+    options:
+      - "해시 충돌이 더 자주 발생한다."
+      - "오토박싱/언박싱으로 인한 객체 생성과 GC 오버헤드가 발생한다."
+      - "컴파일 에러가 발생한다."
+      - "메모리를 더 적게 사용한다."
+    answer: 1
+    explanation: "원시 타입(long)을 래퍼 객체(Long)로 감싸는 오토박싱은 힙 메모리 할당을 유발하므로 대량 처리 시 GC 부담이 됩니다."
+
+  - question: "정확한 마이크로 벤치마크(Micro-benchmark) 측정을 위해 권장되는 도구는?"
+    options:
+      - "System.currentTimeMillis()"
+      - "JMH (Java Microbenchmark Harness)"
+      - "StopWatch"
+      - "Timer"
+    answer: 1
+    explanation: "단순 시간 측정은 JIT 컴파일러 최적화(Warm-up)나 GC 등의 영향을 배제하기 어렵습니다. JMH는 이를 보정하여 정확한 측정을 돕습니다."
+
+  - question: "초기 데이터 개수를 대략 알고 있을 때, `new ArrayList<>(10000)` 처럼 초기 용량을 지정하는 것의 가장 큰 장점은?"
+    options:
+      - "타입 안정성이 보장된다."
+      - "리사이즈(배열 재할당 및 복사) 횟수를 줄여 성능을 최적화한다."
+      - "데이터 정렬이 자동으로 수행된다."
+      - "메모리 사용량을 줄일 수 있다."
+    answer: 1
+    explanation: "불필요한 리사이즈를 방지하여 CPU 사용량과 GC 압박을 줄일 수 있습니다."
+study_order: 33
 ---
 
 ## 이 글에서 얻는 것

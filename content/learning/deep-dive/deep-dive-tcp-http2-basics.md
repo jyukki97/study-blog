@@ -7,7 +7,61 @@ tags: ["TCP", "HTTP2", "Handshake", "Multiplexing"]
 categories: ["Backend Deep Dive"]
 description: "TCP 3-way, 흐름/혼잡 제어, HTTP/2 멀티플렉싱·HPACK·헤더 압축 핵심"
 module: "foundation"
-study_order: 40
+quizzes:
+  - question: "TCP 3-Way Handshake 과정에서 클라이언트가 서버에 연결 요청을 보내기 위해 처음 전송하는 패킷(Flag)은?"
+    options:
+      - "ACK"
+      - "SYN"
+      - "FIN"
+      - "RST"
+    answer: 1
+    explanation: "클라이언트는 연결 수립을 위해 SYN(Synchronize) 패킷을 보내고, 서버는 SYN-ACK로 응답하며, 마지막으로 클라이언트가 ACK를 보내 연결이 성립됩니다."
+
+  - question: "TCP 연결 종료 후, 마지막 ACK가 유실될 경우를 대비하여 일정 시간 동안 소켓을 닫지 않고 기다리는 상태는?"
+    options:
+      - "ESTABLISHED"
+      - "CLOSE_WAIT"
+      - "TIME_WAIT"
+      - "SYN_SENT"
+    answer: 2
+    explanation: "TIME_WAIT는 먼저 연결 종료를 요청한 쪽(Active Closer)에서 발생하며, 지연된 패킷이 뒤늦게 도착하거나 마지막 ACK 재전송을 위해 필요하지만 너무 많으면 포트 고갈의 원인이 되기도 합니다."
+
+  - question: "HTTP/1.1의 문제점 중 하나로, 하나의 연결에서 요청을 순차적으로 처리해야 해서 앞선 요청이 늦어지면 뒤의 요청도 막히는 현상은?"
+    options:
+      - "Head-of-Line (HOL) Blocking"
+      - "Deadlock"
+      - "Race Condition"
+      - "Throttling"
+    answer: 0
+    explanation: "HTTP/1.1의 파이프라이닝은 불완전하여 실무에서 잘 쓰이지 않았고, 결국 요청을 순서대로 처리해야 하는 HOL Blocking 문제가 있었습니다. HTTP/2는 멀티플렉싱으로 이를 해결했습니다."
+
+  - question: "HTTP/2의 핵심 기능인 'Multiplexing(멀티플렉싱)'의 특징은?"
+    options:
+      - "여러 개의 TCP 연결을 맺어 데이터를 전송한다."
+      - "하나의 TCP 연결 안에서 여러 개의 스트림(Stream)을 사용하여 요청과 응답을 뒤섞어서(Parallel) 동시에 전송한다."
+      - "헤더를 압축하지 않고 전송한다."
+      - "UDP 프로토콜을 사용한다."
+    answer: 1
+    explanation: "멀티플렉싱 덕분에 HTTP/1.1처럼 여러 개의 TCP 연결(도메인 샤딩 등)을 맺을 필요가 줄어들었고, 하나의 연결로도 높은 병렬성을 가집니다."
+
+  - question: "TCP의 '흐름 제어(Flow Control)'와 '혼잡 제어(Congestion Control)'의 차이점은?"
+    options:
+      - "차이가 없다."
+      - "흐름 제어는 송신 측의 속도를 조절하고, 혼잡 제어는 수신 측의 속도를 조절한다."
+      - "흐름 제어는 수신 측의 처리 능력(버퍼)을 고려하여 조절하고, 혼잡 제어는 네트워크 망의 혼잡 상태를 고려하여 조절한다."
+      - "흐름 제어는 UDP에서 사용하고, 혼잡 제어는 TCP에서 사용한다."
+    answer: 2
+    explanation: "흐름 제어는 '상대방이 못 받을까봐(Window Size)', 혼잡 제어는 '중간 네트워크가 막힐까봐(Slow Start 등)' 속도를 조절하는 메커니즘입니다."
+
+  - question: "HTTP/2에서 중복되는 헤더(Header)의 크기를 줄이기 위해 사용하는 압축 기술은?"
+    options:
+      - "GZIP"
+      - "Brotli"
+      - "HPACK"
+      - "LZ4"
+    answer: 2
+    explanation: "HPACK은 정적/동적 테이블을 사용하여 헤더 필드를 인덱싱하고 중복을 제거하여 헤더 오버헤드를 획기적으로 줄여줍니다."
+study_order: 51
 ---
 
 ## 이 글에서 얻는 것

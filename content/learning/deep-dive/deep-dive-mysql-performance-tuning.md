@@ -7,6 +7,51 @@ tags: ["MySQL", "Performance", "Slow Query", "HikariCP"]
 categories: ["Backend Deep Dive"]
 description: "슬로우 쿼리 로그, 커넥션 풀(HikariCP) 파라미터, 실행 계획 튜닝 포인트"
 module: "data-system"
+quizzes:
+  - question: "MySQL 성능 튜닝의 첫 단계로 가장 적절한 것은?"
+    options:
+      - "파라미터부터 변경한다."
+      - "서버 CPU와 메모리를 업그레이드한다."
+      - "슬로우 쿼리 로그를 분석하여 문제 쿼리를 찾고, 원인을 분류한다."
+      - "커넥션 풀 사이즈를 최대로 설정한다."
+    answer: 2
+    explanation: "측정 없이 파라미터를 바꾸는 것은 효과가 없거나 역효과를 낼 수 있습니다. 슬로우 로그에서 빈도/지연이 높은 쿼리를 찾고 EXPLAIN으로 원인을 분석하는 것이 우선입니다."
+
+  - question: "슬로우 쿼리 로그에서 'rows_examined'가 매우 높게 나타날 때, 가장 가능성 높은 원인은?"
+    options:
+      - "네트워크 지연"
+      - "쿼리가 적절한 인덱스를 사용하지 못해 많은 행을 스캔하고 있다."
+      - "트랜잭션 격리 수준이 너무 높다."
+      - "커넥션 풀이 부족하다."
+    answer: 1
+    explanation: "`rows_examined`가 높다는 것은 쿼리가 결과를 찾기 위해 많은 행을 읽었다는 의미입니다. 인덱스가 없거나 조건에 맞지 않아 풀 스캔 또는 넓은 범위 스캔이 발생했을 가능성이 높습니다."
+
+  - question: "HikariCP `maximumPoolSize`를 무작정 늘리면 발생할 수 있는 문제는?"
+    options:
+      - "애플리케이션 메모리가 부족해진다."
+      - "DB의 동시 처리 한도를 초과하여 큐잉, 락 경합, 컨텍스트 스위칭이 증가해 오히려 성능이 저하된다."
+      - "슬로우 쿼리 로그가 비활성화된다."
+      - "트랜잭션이 자동으로 롤백된다."
+    answer: 1
+    explanation: "커넥션 풀을 키우면 DB에 더 많은 동시 요청이 가지만, DB가 처리할 수 있는 한계를 넘으면 오히려 락 경합과 대기가 늘어 전체 성능이 저하됩니다."
+
+  - question: "HikariCP `maxLifetime` 설정의 목적은?"
+    options:
+      - "쿼리 실행 시간을 제한한다."
+      - "커넥션이 특정 시간 후 재생성되도록 하여, DB/네트워크 장비의 idle timeout으로 인한 끊김을 방지한다."
+      - "슬로우 쿼리를 감지한다."
+      - "트랜잭션 타임아웃을 설정한다."
+    answer: 1
+    explanation: "`maxLifetime`은 커넥션 수명을 제한합니다. DB나 중간 네트워크 장비가 오래된 idle 커넥션을 끊을 수 있으므로, 이보다 짧게 설정하여 애플리케이션이 먼저 재연결하도록 합니다."
+
+  - question: "`connectionTimeout`이 자주 발생할 때, 올바른 대응 순서는?"
+    options:
+      - "즉시 maximumPoolSize를 2배로 늘린다."
+      - "먼저 슬로우 쿼리/DB 지연/락 대기 여부를 확인하여 DB 병목인지 판단하고, 그 후에 풀 조정을 검토한다."
+      - "connectionTimeout 값을 무제한으로 설정한다."
+      - "애플리케이션을 재시작한다."
+    answer: 1
+    explanation: "`connectionTimeout`은 풀에서 커넥션을 빌리지 못할 때 발생합니다. 풀을 키우기 전에 DB 자체가 느려서 커넥션을 반환하지 못하는 것인지(슬로우 쿼리, 락 대기) 확인해야 합니다."
 study_order: 215
 ---
 

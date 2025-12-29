@@ -8,6 +8,51 @@ categories: ["Backend Deep Dive"]
 description: "APM 핵심 개념과 Spring Boot Actuator로 애플리케이션 성능 모니터링 구현"
 module: "ops-observability"
 study_order: 342
+quizzes:
+  - question: "APM(Application Performance Monitoring)의 핵심 'Golden Signals' 4가지는?"
+    options:
+      - "CPU, 메모리, 디스크, 네트워크"
+      - "Latency(지연시간), Traffic(트래픽), Errors(오류율), Saturation(포화도)"
+      - "GET, POST, PUT, DELETE"
+      - "Create, Read, Update, Delete"
+    answer: 1
+    explanation: "Google SRE가 정의한 Golden Signals는 서비스 건강 상태를 판단하는 핵심 지표입니다. 이 4가지만 모니터링해도 대부분의 문제를 조기 발견할 수 있습니다."
+
+  - question: "응답 시간 지표에서 P95가 P50보다 더 중요한 이유는?"
+    options:
+      - "P95가 더 작은 값이기 때문"
+      - "P95는 95% 사용자가 경험하는 최대 응답 시간을 보여주어, 일부 사용자의 느린 경험을 파악할 수 있기 때문"
+      - "P50은 측정이 어렵기 때문"
+      - "모든 시스템에서 P95가 더 낮기 때문"
+    answer: 1
+    explanation: "평균(또는 P50)은 극단적으로 느린 응답을 숨깁니다. P95=1초면 20명 중 1명은 1초 이상 기다린다는 의미입니다. 사용자 경험을 정확히 파악하려면 P95/P99가 중요합니다."
+
+  - question: "Spring Boot Actuator에서 `/actuator/prometheus` 엔드포인트의 역할은?"
+    options:
+      - "애플리케이션을 재시작한다."
+      - "Prometheus가 스크랩할 수 있는 형식으로 메트릭을 노출한다."
+      - "로그를 출력한다."
+      - "데이터베이스를 백업한다."
+    answer: 1
+    explanation: "Prometheus는 Pull 방식으로 메트릭을 수집합니다. `/actuator/prometheus`는 애플리케이션의 메트릭을 Prometheus 형식(Counter, Gauge 등)으로 제공합니다."
+
+  - question: "Micrometer에서 Counter, Gauge, Timer의 차이점으로 올바른 것은?"
+    options:
+      - "모두 동일한 기능을 한다."
+      - "Counter는 누적 횟수(증가만), Gauge는 현재 값(증감), Timer는 실행 시간을 측정한다."
+      - "Counter만 Prometheus에서 사용 가능하다."
+      - "Timer는 문자열을 저장한다."
+    answer: 1
+    explanation: "Counter는 주문 수, 로그인 횟수 같은 누적값. Gauge는 현재 활성 유저, 커넥션 풀 크기 같은 순간 값. Timer는 API 응답 시간 같은 duration을 측정합니다."
+
+  - question: "운영 환경에서 모니터링 알림(Alerting) 설정 시 '알림 피로(Alert Fatigue)'를 방지하려면?"
+    options:
+      - "모든 메트릭에 알림을 설정한다."
+      - "중요한 지표만 알림을 설정하고, 임계값을 적절히 조정하여 실제 문제만 알림을 받는다."
+      - "알림을 끈다."
+      - "알림을 이메일로만 받는다."
+    answer: 1
+    explanation: "사소한 경고까지 모두 알림을 보내면 담당자가 무시하게 됩니다. 오류율 > 1%, 응답시간 > 1초 같이 실제 조치가 필요한 상황만 알림을 설정해야 합니다."
 ---
 
 ## 이 글에서 얻는 것

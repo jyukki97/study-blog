@@ -1,6 +1,6 @@
 ---
 title: "클린 코드: 읽기 좋은 코드 작성법"
-study_order: 109
+study_order: 22
 date: 2025-12-28
 topic: "Code Quality"
 topic_icon: "✨"
@@ -9,6 +9,78 @@ tags: ["Clean Code", "Refactoring", "Best Practices", "Code Quality"]
 categories: ["Foundation"]
 draft: false
 module: "foundation"
+quizzes:
+  - question: "변수나 메서드의 이름을 지을 때 가장 중요한 원칙은?"
+    options:
+      - "가장 짧게 짓는 것"
+      - "의도와 맥락을 명확하게 드러내는 것"
+      - "모든 변수에 데이터 타입(접두어)을 붙이는 것"
+      - "a, b, c 순서대로 짓는 것"
+    answer: 1
+    explanation: "코드는 읽는 시간이 쓰는 시간보다 훨씬 깁니다. 이름만 보고도 '무엇을 하는지, 왜 존재하는지' 알 수 있어야 합니다."
+
+  - question: "클린 코드에서 권장하는 '함수(메서드)의 크기'와 책임에 대한 설명으로 옳은 것은?"
+    options:
+      - "함수는 길수록 많은 정보를 담아 좋다."
+      - "가능한 작게 만들고, 한 가지 일만 단일 책임으로 수행해야 한다."
+      - "모든 로직을 하나의 main 함수에 넣는 것이 효율적이다."
+      - "함수 인자는 많을수록 재사용성이 높아진다."
+    answer: 1
+    explanation: "함수가 작고 한 가지 일만 할 때 이해하기 쉽고, 테스트하기 쉬우며, 재사용성이 높아집니다."
+
+  - question: "다음 중 '나쁜 주석(Bad Comment)'에 해당하는 것은?"
+    options:
+      - "저작권 정보 및 라이선스 표시"
+      - "TODO 주석"
+      - "코드로 충분히 설명할 수 있는데 중복 서술한 주석"
+      - "API의 중요 제약사항이나 경고"
+    answer: 2
+    explanation: "주석은 코드가 표현하지 못하는 '왜(Why)'를 설명해야 합니다. 코드 자체를 설명하는 주석은 관리가 안 되어 거짓말을 하게 될 위험이 큽니다."
+
+  - question: "함수의 인자(Parameter) 개수에 대한 클린 코드의 조언으로 가장 적절한 것은?"
+    options:
+      - "인자는 많을수록 유연하다."
+      - "인자 개수는 0~2개가 이상적이며, 3개 이상이면 객체로 묶는 것을 고려한다."
+      - "인자의 순서는 중요하지 않다."
+      - "모든 인자를 문자열(String)로 받는 것이 좋다."
+    answer: 1
+    explanation: "인자가 많으면 함수를 이해하고 호출하기 어려워집니다. 관련된 데이터는 DTO나 별도 클래스로 묶어 전달하는 것이 좋습니다."
+
+  - question: "코드에서 매직 넘버(Magic Number, 예: if (status == 3))를 발견했을 때 가장 좋은 리팩토링 방법은?"
+    options:
+      - "주석으로 3이 뭔지 설명한다."
+      - "그냥 둔다."
+      - "의미 있는 이름을 가진 상수(Constant)나 Enum으로 대체한다."
+      - "3 대신 4로 바꾼다."
+    answer: 2
+    explanation: "숫자 3이 무엇을 의미하는지(`ORDER_SHIPPED` 등) 상수로 정의하면 가독성이 높아지고 유지보수가 쉬워집니다."
+
+  - question: "단일 책임 원칙(SRP)을 위배하는 클래스의 특징은?"
+    options:
+      - "클래스가 변경되어야 할 이유가 하나뿐이다."
+      - "클래스 이름이 명확하다."
+      - "하나의 클래스가 비즈니스 로직, 데이터베이스 접근, UI 출력 등 너무 많은 일을 한다."
+      - "응집도가 높다."
+    answer: 2
+    explanation: "God Class처럼 너무 많은 책임을 가진 클래스는 변경에 취약하고 재사용이 어렵습니다. 책임을 분리해야 합니다."
+
+  - question: "코드를 작성할 때 'DRY 원칙'이 의미하는 것은?"
+    options:
+      - "Don't Repeat Yourself (중복하지 마라)"
+      - "Do Repeat Yourself (반복해라)"
+      - "Direct Run Yield (바로 실행해라)"
+      - "Database Record Year (DB 기록 연도)"
+    answer: 0
+    explanation: "같은 로직이 여러 곳에 중복되면 수정 시 실수할 가능성이 커집니다. 중복을 제거하고 추상화해야 합니다."
+
+  - question: "불리언(boolean) 플래그 인자를 사용하는 함수(예: render(true))가 좋지 않은 이유는?"
+    options:
+      - "메모리를 많이 차지해서"
+      - "함수가 한 번에 두 가지 일(true일 때, false일 때)을 처리하고 있음을 암시하기 때문에"
+      - "컴파일 속도가 느려서"
+      - "자바에서는 불리언을 지원하지 않아서"
+    answer: 1
+    explanation: "플래그 인자는 함수 내부에서 분기 처리를 유발합니다. 두 개의 함수로 분리하는 것이 더 명확합니다."
 ---
 
 ## 이 글에서 얻는 것

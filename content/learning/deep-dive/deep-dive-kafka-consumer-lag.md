@@ -7,6 +7,51 @@ tags: ["Kafka", "Consumer Lag", "Rebalance", "Offset"]
 categories: ["Backend Deep Dive"]
 description: "Lag 모니터링, 리밸런스 원인, 처리량/중복/손실 사이 트레이드오프 정리"
 module: "data-system"
+quizzes:
+  - question: "Kafka Consumer Lag의 정의로 올바른 것은?"
+    options:
+      - "Producer가 메시지를 보내는 데 걸린 시간"
+      - "브로커의 최신 오프셋(log_end_offset)과 Consumer가 커밋한 오프셋(committed_offset)의 차이"
+      - "Consumer가 메시지를 처리하는 데 걸린 시간"
+      - "리밸런싱에 소요된 시간"
+    answer: 1
+    explanation: "Lag은 '브로커에 쌓인 메시지 중 아직 처리/커밋되지 않은 양'을 의미합니다. Lag이 커지면 Consumer가 Producer를 따라가지 못하고 있다는 신호입니다."
+
+  - question: "Lag이 증가하는 원인 중 '하나의 메시지 처리가 너무 오래 걸려 파티션 전체가 막히는 현상'의 해결책으로 가장 적절한 것은?"
+    options:
+      - "파티션 수를 늘린다."
+      - "Consumer 수를 늘린다."
+      - "처리 실패/지연 메시지를 Retry 토픽 또는 DLQ(Dead Letter Queue)로 분리한다."
+      - "max.poll.interval.ms 값을 크게 늘린다."
+    answer: 2
+    explanation: "특정 '독(poison) 메시지'가 전체를 막는 경우, 스케일 아웃으로는 해결되지 않습니다. 문제 메시지를 분리하여 다른 정상 메시지들이 처리될 수 있도록 해야 합니다."
+
+  - question: "Kafka Consumer의 `max.poll.interval.ms` 설정값을 초과하면 어떤 일이 발생하는가?"
+    options:
+      - "해당 Consumer에게 더 많은 파티션이 할당된다."
+      - "해당 Consumer가 그룹에서 제외되고 리밸런싱이 발생한다."
+      - "메시지가 자동으로 DLQ로 전송된다."
+      - "Producer가 전송을 중단한다."
+    answer: 1
+    explanation: "`poll()` 호출 간격이 `max.poll.interval.ms`보다 길면, 그룹 코디네이터는 해당 Consumer가 멈췄다고 판단하여 파티션을 다른 Consumer에게 재할당(리밸런싱)합니다."
+
+  - question: "Kafka에서 '리밸런싱(Rebalancing)' 충격을 줄이기 위한 방법으로 적절한 것은?"
+    options:
+      - "auto.commit.interval.ms 값을 0으로 설정한다."
+      - "session.timeout.ms 값을 가능한 짧게 설정한다."
+      - "Cooperative Rebalancing(점진적 리밸런싱) 전략을 사용한다."
+      - "enable.auto.commit을 true로 설정한다."
+    answer: 2
+    explanation: "Cooperative Rebalancing은 기존의 Eager Rebalancing과 달리, 파티션 할당을 점진적으로 변경하여 리밸런싱 중에도 일부 Consumer가 계속 처리할 수 있게 해줍니다."
+
+  - question: "Kafka Consumer의 커밋 전략에서 '처리 완료 후 수동 커밋'을 사용할 때, 동일 메시지가 중복 처리될 수 있는 상황은?"
+    options:
+      - "커밋을 먼저 하고 처리를 나중에 할 때"
+      - "처리는 완료했지만 커밋 전에 Consumer가 비정상 종료되었을 때(재시작 시 마지막 커밋 오프셋부터 다시 읽음)"
+      - "auto.commit이 활성화되어 있을 때"
+      - "Producer가 acks=all로 설정되어 있을 때"
+    answer: 1
+    explanation: "수동 커밋 시 처리 완료 후 커밋 전에 장애가 발생하면, 재시작 시 마지막 커밋 지점부터 다시 읽어 중복 처리가 발생할 수 있습니다. 이를 대비해 '멱등(idempotent) 처리' 로직이 필요합니다."
 study_order: 260
 ---
 

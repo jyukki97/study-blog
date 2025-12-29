@@ -8,6 +8,51 @@ categories: ["Backend Deep Dive"]
 description: "Raft와 Paxos 같은 Consensus 알고리즘으로 분산 시스템의 일관성을 보장하는 원리"
 module: "architecture"
 study_order: 465
+quizzes:
+  - question: "분산 시스템에서 Consensus(합의) 알고리즘이 필요한 이유는?"
+    options:
+      - "성능을 높이기 위해"
+      - "여러 서버가 서로 다른 값을 가질 때, 어떤 값이 '진짜'인지 합의하여 일관성을 보장하기 위해"
+      - "데이터를 암호화하기 위해"
+      - "서버를 줄이기 위해"
+    answer: 1
+    explanation: "분산 시스템에서 네트워크 장애나 서버 장애로 상태가 불일치할 수 있습니다. Consensus 알고리즘으로 과반수 동의를 통해 일관된 값을 결정합니다."
+
+  - question: "Raft 알고리즘에서 Leader의 역할은?"
+    options:
+      - "데이터를 저장하지 않음"
+      - "모든 클라이언트 요청을 받아 처리하고, Follower들에게 로그를 복제하는 단일 진입점"
+      - "Follower와 동일한 역할"
+      - "백업 역할만 수행"
+    answer: 1
+    explanation: "Raft는 Strong Leader 모델입니다. Leader만 쓰기 요청을 처리하고 Follower에게 복제합니다. Leader가 죽으면 Follower 중 하나가 새 Leader로 선출됩니다."
+
+  - question: "Raft에서 로그가 '커밋'되었다고 판단하는 기준은?"
+    options:
+      - "Leader가 저장했을 때"
+      - "과반수(Majority)의 서버가 로그를 복제했을 때"
+      - "모든 서버가 복제했을 때"
+      - "클라이언트가 확인했을 때"
+    answer: 1
+    explanation: "5대 중 3대(과반수)가 로그를 저장하면 커밋됩니다. 네트워크 분단 시에도 과반수가 있는 쪽에서 서비스가 계속될 수 있습니다."
+
+  - question: "etcd, Consul 같은 분산 설정 저장소가 Raft를 사용하는 이유는?"
+    options:
+      - "속도가 빠르기 때문"
+      - "클러스터 설정, 리더 선출 등에서 모든 노드가 일관된 정보를 가져야 하기 때문"
+      - "보안 때문"
+      - "비용이 저렴해서"
+    answer: 1
+    explanation: "Kubernetes의 etcd는 클러스터 상태(Pod 정보 등)를 저장합니다. 모든 노드가 같은 상태를 봐야 하므로 Raft로 일관성을 보장합니다."
+
+  - question: "Raft와 Paxos의 관계로 올바른 것은?"
+    options:
+      - "완전히 다른 문제를 해결한다."
+      - "Raft는 Paxos의 복잡한 개념을 이해하기 쉽게 재설계한 알고리즘이다."
+      - "Paxos가 Raft보다 더 쉽다."
+      - "둘은 동일한 알고리즘이다."
+    answer: 1
+    explanation: "Paxos는 정확하지만 이해하기 어렵습니다. Raft는 'Leader 선출 → 로그 복제 → 안전성'으로 단계를 명확히 나눠 이해하기 쉽게 만들었습니다."
 ---
 
 ## 이 글에서 얻는 것

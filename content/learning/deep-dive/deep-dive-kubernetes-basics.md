@@ -8,6 +8,51 @@ categories: ["Backend Deep Dive"]
 description: "컨테이너 오케스트레이션이 필요한 이유. Pod/Deployment/Service의 관계와 자가 치유(Self-Healing)"
 module: "ops-observability"
 study_order: 601
+quizzes:
+  - question: "Kubernetes(K8s)가 Docker Compose보다 강력한 가장 큰 이유는?"
+    options:
+      - "Docker보다 빠르기 때문"
+      - "다중 노드 클러스터에서 자동 스케일링, 자가 치유(Self-healing), 롤링 업데이트를 지원하기 때문"
+      - "YAML 파일이 더 간단하기 때문"
+      - "무료이기 때문"
+    answer: 1
+    explanation: "Docker Compose는 단일 호스트에서 동작하지만, K8s는 여러 노드에 걸쳐 컨테이너를 배포하고, 장애 시 자동 복구, HPA로 자동 스케일링이 가능합니다."
+
+  - question: "Kubernetes에서 Pod가 '일시적(Ephemeral)'이라는 것의 의미와 이에 따른 설계 원칙은?"
+    options:
+      - "Pod는 영구적이므로 IP를 설정에 하드코딩해도 된다."
+      - "Pod가 죽으면 새 Pod가 생성되고 IP가 바뀌므로, Pod IP를 직접 참조하지 말고 Service를 통해 접근해야 한다."
+      - "Pod는 재시작되지 않으므로 재시작 정책이 필요 없다."
+      - "Pod는 메모리에만 존재한다."
+    answer: 1
+    explanation: "Pod는 언제든 죽고 새로 생성될 수 있으며, 새 Pod는 다른 IP를 받습니다. 그래서 Service(고정 IP/ClusterIP)를 사용해 Pod 집합에 접근해야 합니다."
+
+  - question: "Kubernetes에서 Deployment와 Service의 관계로 올바른 것은?"
+    options:
+      - "둘은 동일한 역할을 한다."
+      - "Deployment는 'Pod N개 유지'를 담당하고, Service는 '변하는 Pod들에게 고정 IP(로드밸런서)'를 제공한다."
+      - "Service가 Pod를 직접 생성한다."
+      - "Deployment는 네트워킹을 담당한다."
+    answer: 1
+    explanation: "Deployment는 ReplicaSet을 관리하여 원하는 개수의 Pod를 유지합니다. Service는 Label Selector로 Pod를 찾아 트래픽을 분산하는 내부 로드밸런서입니다."
+
+  - question: "Kubernetes에서 Service가 Pod를 찾을 때 사용하는 메커니즘은?"
+    options:
+      - "Pod의 IP 주소"
+      - "Label과 Selector 매칭"
+      - "Pod 이름"
+      - "컨테이너 ID"
+    answer: 1
+    explanation: "Service의 selector와 Pod의 labels가 정확히 일치해야 연결됩니다. `kubectl get pod --show-labels`로 라벨을 확인할 수 있습니다."
+
+  - question: "Kubernetes의 '선언적(Declarative) API'가 의미하는 것은?"
+    options:
+      - "명령어로 직접 Pod를 실행한다."
+      - "'원하는 상태(Desired State)'를 YAML로 선언하면 K8s가 현재 상태를 맞춰간다."
+      - "수동으로 Pod를 관리해야 한다."
+      - "REST API만 사용할 수 있다."
+    answer: 1
+    explanation: "K8s는 'replicas: 3'이라고 선언하면 현재 Pod 수를 확인하고 부족하면 생성, 많으면 삭제하여 원하는 상태를 유지합니다."
 ---
 
 ## ☸️ 1. Docker만 쓰면 되지 않나요?

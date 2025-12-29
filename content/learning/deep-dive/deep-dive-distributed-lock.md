@@ -7,6 +7,51 @@ tags: ["Distributed Lock", "Redis", "Redisson", "Concurrency"]
 categories: ["Backend Deep Dive"]
 description: "서버가 여러 대일 때 synchronized는 무용지물입니다. Redis와 Redisson을 활용한 안전한 락 구현"
 module: "distributed-system"
+quizzes:
+  - question: "Java의 `synchronized` 키워드가 분산 환경에서 동작하지 않는 이유는?"
+    options:
+      - "Java 버전이 낮아서"
+      - "synchronized는 단일 JVM(프로세스) 내에서만 유효하고, 여러 서버(JVM)는 서로의 락을 볼 수 없기 때문"
+      - "데이터베이스와 연동되지 않아서"
+      - "너무 느려서"
+    answer: 1
+    explanation: "synchronized는 하나의 JVM 메모리 내에서 스레드 간 동기화를 합니다. 서버가 2대 이상이면 각각 다른 JVM이므로 락이 공유되지 않아 Race Condition이 발생합니다."
+
+  - question: "Redis SETNX 기반 분산 락(Spin Lock)의 가장 큰 단점은?"
+    options:
+      - "구현이 너무 복잡하다."
+      - "락을 얻을 때까지 계속 Redis에 요청(Polling)하여 부하가 발생하고, 서버가 죽으면 락이 영원히 안 풀릴 수 있다."
+      - "Redis가 느리다."
+      - "보안에 취약하다."
+    answer: 1
+    explanation: "Spin Lock은 무한 루프로 락 상태를 확인하여 Redis 부하가 커집니다. 또한 락을 잡은 서버가 죽으면 DEL이 호출되지 않아 Deadlock이 발생합니다. TTL 설정이 필수입니다."
+
+  - question: "Redisson이 Spin Lock 문제를 해결하는 방식은?"
+    options:
+      - "더 빠른 폴링"
+      - "Pub/Sub 방식으로 '락이 풀리면 알려줘'라고 구독하고 대기하여, 무한 루프 없이 알림을 받는다."
+      - "락을 사용하지 않는다."
+      - "데이터베이스 락을 사용한다."
+    answer: 1
+    explanation: "Redisson은 락 해제 시 PUBLISH로 대기 중인 클라이언트에게 알립니다. 클라이언트는 SUBSCRIBE로 대기하므로 Redis에 계속 요청을 보내지 않아 부하가 줄어듭니다."
+
+  - question: "Optimistic Lock과 Pessimistic Lock의 사용 시점으로 올바른 것은?"
+    options:
+      - "둘 다 동일한 상황에 사용한다."
+      - "충돌이 드물면 Optimistic Lock(@Version), 충돌이 잦고 데이터 무결성이 중요하면 Pessimistic Lock(SELECT FOR UPDATE)"
+      - "Optimistic Lock이 항상 더 빠르다."
+      - "Pessimistic Lock은 분산 환경에서 사용할 수 없다."
+    answer: 1
+    explanation: "Optimistic Lock은 충돌 시 재시도하므로 충돌이 잦으면 비용이 커집니다. Pessimistic Lock은 미리 락을 걸어 안전하지만 성능 저하와 데드락 위험이 있습니다."
+
+  - question: "Redisson `tryLock(waitTime, leaseTime, TimeUnit)`에서 leaseTime의 역할은?"
+    options:
+      - "락 대기 시간"
+      - "락 점유 시간(이 시간이 지나면 락이 자동으로 해제되어 Deadlock 방지)"
+      - "Redis 연결 타임아웃"
+      - "재시도 간격"
+    answer: 1
+    explanation: "leaseTime은 락을 잡은 후 최대 점유 시간입니다. 이 시간이 지나면 락이 자동 해제되어, 서버가 죽거나 처리가 길어져도 영원히 락이 걸려있는 상황을 방지합니다."
 study_order: 400
 ---
 

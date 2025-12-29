@@ -1,6 +1,6 @@
 ---
 title: "Java Concurrent Collections: 스레드 안전 컬렉션 완벽 가이드"
-study_order: 108
+study_order: 45
 date: 2025-12-28
 topic: "Java"
 topic_icon: "☕"
@@ -9,6 +9,51 @@ tags: ["Java", "Concurrency", "Collections", "Thread Safety"]
 categories: ["Foundation"]
 draft: false
 module: "foundation"
+quizzes:
+  - question: "`ConcurrentHashMap` (Java 8+)이 `Collections.synchronizedMap`이나 `Hashtable`보다 멀티스레드 환경에서 성능이 월등히 좋은 주된 이유는?"
+    options:
+      - "락을 아예 사용하지 않기 때문이다."
+      - "모든 데이터에 대해 하나의 거대한 락(Global Lock)을 거는 대신, 각 버킷(Node/TreeBin) 단위로 쪼개진 락(Fine-grained Locking)과 CAS 연산을 사용하여 경합을 최소화하기 때문이다."
+      - "데이터를 메모리가 아닌 디스크에 저장하기 때문이다."
+      - "읽기 작업에 대해서도 항상 락을 걸기 때문이다."
+    answer: 1
+    explanation: "전통적인 동기화 맵은 맵 전체에 락을 걸어 병목이 심하지만, ConcurrentHashMap은 버킷(슬롯) 별로 락을 분산시키고 읽기에는 락을 걸지 않아 동시성을 극대화합니다."
+
+  - question: "`CopyOnWriteArrayList`가 가장 적합한 사용처는?"
+    options:
+      - "데이터가 1초에도 수백 번씩 변경되는 실시간 주식 시세 처리"
+      - "데이터 변경(Write)은 매우 드물지만, 다수의 스레드가 빈번하게 조회(Read)하는 이벤트 리스너 목록이나 설정 정보"
+      - "메모리가 매우 부족한 환경"
+      - "단일 스레드 환경"
+    answer: 1
+    explanation: "쓰기 작업 시마다 배열 전체를 복사하는 비용이 들기 때문에, 변경이 잦으면 성능이 매우 떨어집니다. 대신 읽기 작업은 락 없이 고속으로 수행됩니다."
+
+  - question: "생산자-소비자(Producer-Consumer) 패턴을 구현할 때, 큐가 꽉 차면 생산자가 대기하고 비어있으면 소비자가 대기하는 기능을 가장 쉽게 구현할 수 있는 컬렉션은?"
+    options:
+      - "ArrayList"
+      - "BlockingQueue (예: LinkedBlockingQueue)"
+      - "HashSet"
+      - "TreeMap"
+    answer: 1
+    explanation: "`BlockingQueue`의 `put()`과 `take()` 메서드는 각각 큐가 가득 차거나 비었을 때 스레드를 자동으로 대기(Block) 상태로 만들어주어 복잡한 동기화 코드를 줄여줍니다."
+
+  - question: "`ConcurrentHashMap`을 사용할 때 올바른 원자적(Atomic) 연산 패턴은?"
+    options:
+      - "`if (!map.containsKey(key)) { map.put(key, val); }`"
+      - "`map.computeIfAbsent(key, k -> val);`"
+      - "`map.get(key);` 호출 후 null이면 `put`"
+      - "synchronized(map) { ... }"
+    answer: 1
+    explanation: "`containsKey`와 `put`을 따로 호출하면 그 사이에 다른 스레드가 개입할 수 있습니다(Check-then-Act 문제). `computeIfAbsent`, `putIfAbsent`, `merge` 등을 사용해야 원자성이 보장됩니다."
+
+  - question: "`BlockingQueue`의 구현체 중, 내부 버퍼(저장 공간)가 전혀 없어(크기 0) 생산자가 데이터를 넣으려 하면 소비자가 가져갈 때까지 반드시 대기(Hand-off)해야 하는 큐는?"
+    options:
+      - "ArrayBlockingQueue"
+      - "LinkedBlockingQueue"
+      - "SynchronousQueue"
+      - "PriorityBlockingQueue"
+    answer: 2
+    explanation: "`SynchronousQueue`는 데이터를 저장하지 않고 스레드 간에 데이터를 직접 건네주는 랑데부(Rendezvous) 채널 역할을 합니다."
 ---
 
 ## 이 글에서 얻는 것

@@ -7,6 +7,51 @@ tags: ["API Gateway", "Microservices", "Kong", "Spring Cloud Gateway", "Routing"
 categories: ["Backend Deep Dive"]
 description: "왜 Gateway를 써야 하는가? 인증/라우팅/공통 관심사의 분리"
 module: "resilience"
+quizzes:
+  - question: "API Gateway의 주요 역할로 올바르지 않은 것은?"
+    options:
+      - "클라이언트 요청을 적절한 백엔드 서비스로 라우팅"
+      - "JWT 검증 등 인증/인가를 중앙에서 처리"
+      - "각 마이크로서비스의 핵심 비즈니스 로직 처리"
+      - "Rate Limiting, Circuit Breaker 같은 Resilience 패턴 적용"
+    answer: 2
+    explanation: "API Gateway는 횡단 관심사(인증, 라우팅, Rate Limiting)를 처리하는 곳입니다. 비즈니스 로직은 각 마이크로서비스 내부에서 처리해야 하며, Gateway가 비대해지면 'God Object' 안티패턴이 됩니다."
+
+  - question: "Spring Cloud Gateway와 Nginx/Kong의 선택 기준으로 올바른 것은?"
+    options:
+      - "성능이 중요하면 무조건 Spring Cloud Gateway"
+      - "복잡한 비즈니스 로직(동적 라우팅, DB 조회 기반 라우팅)이 필요하면 Spring Cloud Gateway, 단순 라우팅이면 Nginx/Kong"
+      - "Java 프로젝트면 무조건 Nginx"
+      - "둘 사이에 차이가 없다"
+    answer: 1
+    explanation: "Spring Cloud Gateway는 Java 기반이라 커스텀 필터 구현이 쉽습니다. Nginx/Kong은 C/Lua 기반으로 매우 빠르지만 복잡한 로직 구현이 어렵습니다."
+
+  - question: "BFF(Backend For Frontend) 패턴을 사용하는 이유는?"
+    options:
+      - "단일 Gateway가 모든 클라이언트를 감당하기 때문"
+      - "클라이언트 종류별(Web, Mobile, IoT)로 다른 데이터 형태나 최적화가 필요할 때, 각각에 맞는 Gateway를 분리하기 위해"
+      - "Database를 분리하기 위해"
+      - "테스트를 쉽게 하기 위해"
+    answer: 1
+    explanation: "Web은 풍부한 데이터가 필요하고, Mobile은 경량화된 데이터가 필요합니다. BFF 패턴으로 클라이언트별 Gateway를 분리하면 각각에 최적화된 API를 제공할 수 있습니다."
+
+  - question: "API Gateway에서 인증(Auth Offloading)을 처리하면 어떤 이점이 있는가?"
+    options:
+      - "인증 로직을 각 서비스마다 중복 구현해야 한다."
+      - "Gateway에서 JWT 검증을 한 번만 수행하고, 뒷단 서비스는 비즈니스 로직에만 집중할 수 있다."
+      - "인증이 비활성화된다."
+      - "성능이 저하된다."
+    answer: 1
+    explanation: "인증을 Gateway에서 중앙 처리하면 각 마이크로서비스에서 중복 구현할 필요가 없습니다. 서비스는 이미 검증된 요청만 받으므로 비즈니스 로직에 집중할 수 있습니다."
+
+  - question: "Gateway Filter Chain의 처리 순서로 올바른 것은?"
+    options:
+      - "라우팅 → 인증 → Rate Limit → 로깅"
+      - "인증(Token 검증) → Rate Limit 확인 → 라우팅 → 로깅/응답 변환"
+      - "로깅 → 라우팅 → 인증 → Rate Limit"
+      - "순서는 중요하지 않다"
+    answer: 1
+    explanation: "보통 인증이 가장 먼저(유효하지 않은 요청 조기 거부), 그 다음 Rate Limit(과부하 방지), 라우팅, 마지막으로 로깅/응답 변환 순서로 진행됩니다."
 study_order: 502
 ---
 

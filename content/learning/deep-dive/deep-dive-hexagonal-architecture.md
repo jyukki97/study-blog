@@ -7,6 +7,51 @@ tags: ["Hexagonal", "Ports and Adapters", "Clean Architecture", "Architecture"]
 categories: ["Backend Deep Dive"]
 description: "스프링조차도 도메인 로직에 침범하지 못하게 하라. Ports & Adapters 패턴의 구현."
 module: "architecture-mastery"
+quizzes:
+  - question: "헥사고날(육각형) 아키텍처의 핵심 원칙은?"
+    options:
+      - "모든 레이어가 데이터베이스에 의존한다."
+      - "도메인 코어는 외부(Web, DB)를 몰라야 하며, 모든 의존성은 도메인을 향해야 한다(Dependency Rule)."
+      - "Controller가 모든 비즈니스 로직을 처리한다."
+      - "프레임워크를 최대한 많이 사용한다."
+    answer: 1
+    explanation: "헥사고날 아키텍처에서 도메인 로직은 순수하게 유지되어야 합니다. 외부 기술(JPA, Web)은 Adapter로 분리되고, 도메인은 Port(인터페이스)만 바라봅니다."
+
+  - question: "'Port'와 'Adapter'의 관계로 올바른 것은?"
+    options:
+      - "Port가 Adapter를 구현한다."
+      - "Port는 도메인이 외부와 소통하는 인터페이스이고, Adapter는 그 인터페이스를 구현하는 외부 기술 계층이다."
+      - "Port와 Adapter는 동일한 개념이다."
+      - "Adapter는 도메인 로직을 담당한다."
+    answer: 1
+    explanation: "Port는 도메인 계층에 정의된 인터페이스입니다. Adapter(예: JPA Repository, REST Controller)는 Port를 구현하여 외부 기술과 도메인을 연결합니다."
+
+  - question: "'In Port'와 'Out Port'의 차이는?"
+    options:
+      - "In Port는 입력 포트, Out Port는 출력 포트로 동일하다."
+      - "In Port는 외부(Controller)가 도메인을 호출하는 UseCase 인터페이스이고, Out Port는 도메인이 외부(DB, 외부 API)를 호출하는 인터페이스이다."
+      - "둘 다 Controller에서 정의한다."
+      - "In Port는 DB 접근, Out Port는 HTTP 접근에 사용된다."
+    answer: 1
+    explanation: "In Port(Driving Side)는 Controller가 Service를 호출할 때 사용하는 UseCase 인터페이스입니다. Out Port(Driven Side)는 Service가 DB나 외부 시스템을 호출할 때 사용하는 인터페이스입니다."
+
+  - question: "헥사고날 아키텍처를 적용하면 JPA를 MyBatis로 교체할 때 어떤 코드가 변경되는가?"
+    options:
+      - "도메인 로직 전체"
+      - "Controller와 Service"
+      - "Out Port를 구현하는 Persistence Adapter만 변경하면 되고, 도메인 로직은 변경 불필요"
+      - "모든 계층"
+    answer: 2
+    explanation: "도메인은 Out Port 인터페이스에만 의존합니다. JPA Adapter를 MyBatis Adapter로 교체해도 Port 구현체만 바꾸면 되므로 도메인 로직은 1줄도 수정할 필요가 없습니다."
+
+  - question: "전통적인 계층형 아키텍처(Controller → Service → Repository)의 한계는?"
+    options:
+      - "테스트가 쉽다."
+      - "Service가 Repository 구현체(JPA)에 직접 의존하여 비즈니스 로직이 영속성 프레임워크에 오염될 수 있다."
+      - "성능이 좋다."
+      - "확장성이 뛰어나다."
+    answer: 1
+    explanation: "계층형 아키텍처에서 Service가 JpaRepository를 직접 사용하면 도메인 로직이 JPA에 종속됩니다. 헥사고날 아키텍처는 인터페이스(Port)로 이 의존성을 끊어 도메인을 순수하게 유지합니다."
 study_order: 1102
 ---
 

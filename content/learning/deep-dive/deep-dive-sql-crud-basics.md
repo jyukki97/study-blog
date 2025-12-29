@@ -7,6 +7,51 @@ tags: ["SQL", "Database", "MySQL", "CRUD", "Query"]
 categories: ["Backend Deep Dive"]
 description: "SQL의 기본 CRUD 작업과 WHERE/ORDER BY/LIMIT 조건을 실전 예제로 마스터"
 module: "data-system"
+quizzes:
+  - question: "SQL에서 데이터를 삽입, 조회, 수정, 삭제하는 명령어들을 총칭하는 용어는?"
+    options:
+      - "DDL (Data Definition Language)"
+      - "DML (Data Manipulation Language)"
+      - "DCL (Data Control Language)"
+      - "TCL (Transaction Control Language)"
+    answer: 1
+    explanation: "DML(Data Manipulation Language)은 데이터 조작 언어로, SELECT, INSERT, UPDATE, DELETE 등이 포함됩니다. DDL은 테이블 생성/수정(CREATE, ALTER, DROP), DCL은 권한 관리(GRANT, REVOKE)입니다."
+
+  - question: "다음 중 NULL 값을 올바르게 비교하는 SQL 구문은?"
+    options:
+      - "WHERE deleted_at = NULL"
+      - "WHERE deleted_at == NULL"
+      - "WHERE deleted_at IS NULL"
+      - "WHERE deleted_at EQUALS NULL"
+    answer: 2
+    explanation: "NULL은 '알 수 없는 값'이므로 등호(=)로 비교할 수 없습니다. `IS NULL` 또는 `IS NOT NULL`을 사용해야 정상적으로 비교됩니다."
+
+  - question: "WHERE 절 없이 `UPDATE users SET status = 'INACTIVE';`를 실행하면 어떤 결과가 발생하는가?"
+    options:
+      - "오류가 발생하며 실행되지 않는다."
+      - "첫 번째 행만 업데이트된다."
+      - "테이블의 모든 행의 status 컬럼이 'INACTIVE'로 변경된다."
+      - "아무 변화도 없다."
+    answer: 2
+    explanation: "WHERE 절이 없으면 테이블의 모든 행이 대상이 됩니다. 이는 치명적인 데이터 손상을 유발할 수 있으므로, UPDATE/DELETE 전에 반드시 WHERE 절을 확인해야 합니다."
+
+  - question: "LIKE 패턴 검색에서 `%`와 `_` 와일드카드의 차이점은?"
+    options:
+      - "`%`는 정확히 한 문자, `_`는 0개 이상의 문자"
+      - "`%`는 0개 이상의 문자, `_`는 정확히 한 문자"
+      - "둘 다 같은 의미이다."
+      - "`%`는 숫자만, `_`는 문자만 매칭한다."
+    answer: 1
+    explanation: "`%`는 0개 이상의 임의의 문자열을, `_`는 정확히 한 글자를 의미합니다. 예: `'김%'`은 '김철수', '김' 모두 매칭, `'010-____-1234'`는 중간 4자리만 매칭."
+
+  - question: "DELETE와 TRUNCATE의 가장 큰 차이점 중 하나는?"
+    options:
+      - "DELETE는 DDL, TRUNCATE는 DML이다."
+      - "DELETE는 롤백(ROLLBACK)이 가능하지만, TRUNCATE는 일반적으로 롤백이 불가능하고 훨씬 빠르다."
+      - "TRUNCATE는 특정 행만 삭제할 수 있다."
+      - "둘 사이에 차이가 없다."
+    answer: 1
+    explanation: "DELETE는 행 단위로 삭제하며 트랜잭션 로그가 남아 롤백이 가능합니다. TRUNCATE는 테이블 전체를 빠르게 초기화하며, AUTO_INCREMENT 값도 리셋되고 보통 롤백이 불가능합니다."
 study_order: 200
 ---
 

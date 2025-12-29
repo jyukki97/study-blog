@@ -7,6 +7,51 @@ tags: ["Spring", "Bean Scope", "Singleton", "Prototype", "Proxy"]
 categories: ["Backend Deep Dive"]
 description: "Spring 빈의 생명주기 스코프(Singleton/Prototype/Request/Session)와 프록시 모드를 실무 관점으로 정리"
 module: "spring-core"
+quizzes:
+  - question: "Spring에서 빈 스코프를 별도로 명시하지 않았을 때 적용되는 기본값(Default)은 무엇이며, 인스턴스는 언제 생성되는가?"
+    options:
+      - "Prototype - 요청 시마다 생성"
+      - "Singleton - 애플리케이션 컨텍스트 초기화 시 생성"
+      - "Request - HTTP 요청 시 생성"
+      - "Lazy Singleton - 최초 사용 시 생성"
+    answer: 1
+    explanation: "Spring의 기본 스코프는 Singleton이며, 컨테이너 구동 시점에 빈 인스턴스를 미리 생성(Eager Initialization)하여 애플리케이션 전반에서 공유합니다."
+
+  - question: "Singleton 빈(A)이 Prototype 빈(B)을 의존성 주입(DI) 받아 사용할 때 발생하는 대표적인 문제는?"
+    options:
+      - "Prototype 빈 B가 생성되지 않는다."
+      - "Singleton 빈 A가 생성될 때 주입된 Prototype 빈 B가 계속 유지되어, B의 '매번 새로운 객체'라는 특성이 사라진다."
+      - "서버가 즉시 종료된다."
+      - "Prototype 빈 B가 Singleton으로 승격된다."
+    answer: 1
+    explanation: "Singleton 빈은 한 번만 생성되므로, 생성 시점에 주입받은 Prototype 빈의 참조를 계속 유지하게 됩니다. 이를 해결하려면 `ObjectProvider`나 `scoped proxy`를 사용해야 합니다."
+
+  - question: "Request Scope 빈을 Singleton 빈(예: Controller)에 주입받아 사용하려 할 때, `proxyMode = ScopedProxyMode.TARGET_CLASS` 설정이 필요한 이유는?"
+    options:
+      - "성능 최적화를 위해"
+      - "보안을 강화하기 위해"
+      - "Singleton 빈 생성(주입) 시점에는 아직 HTTP 요청(Request)이 없어서 실제 빈을 생성할 수 없으므로, 가짜 프록시 객체를 미리 주입해두기 위해"
+      - "데이터베이스 트랜잭션을 적용하기 위해"
+    answer: 2
+    explanation: "Request 빈은 실제 요청이 들어와야 생성될 수 있습니다. 앱 구동 시점에는 존재하지 않으므로, Spring은 CGLIB 등을 이용해 프록시(대리자)를 먼저 주입하고, 실제 호출 시점에 진짜 Request 빈을 찾아 위임합니다."
+
+  - question: "Singleton 빈을 설계할 때 가장 주의해야 할 점은?"
+    options:
+      - "메서드 개수를 줄여야 한다."
+      - "상태(State)를 가지는 필드(멤버 변수)를 공유하면 안 되며, 무상태(Stateless)로 설계해야 한다."
+      - "생성자를 public으로 만들어야 한다."
+      - "인터페이스를 상속받아야 한다."
+    answer: 1
+    explanation: "Singleton 빈은 멀티스레드 환경에서 여러 스레드에 의해 동시에 접근되므로, 인스턴스 변수에 상태를 저장하면 Race Condition 등의 심각한 동시성 문제가 발생합니다."
+
+  - question: "다음 중 `Prototype` 스코프가 가장 적절한 사용 사례는?"
+    options:
+      - "데이터베이스 커넥션 풀"
+      - "전역 설정 정보 관리"
+      - "Stateful한 사용자 세션 정보 (단, Session Scope가 아닌 경우)"
+      - "Service나 Repository 같은 비즈니스 로직 컴포넌트"
+    answer: 2
+    explanation: "Prototype은 상태를 가지고 있거나, 사용할 때마다 별도의 독립적인 인스턴스가 필요한 경우(예: 복잡한 상태를 가진 빌더, 폼 데이터 홀더 등)에 유용합니다."
 study_order: 201
 ---
 

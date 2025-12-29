@@ -8,6 +8,51 @@ categories: ["Backend Deep Dive"]
 description: "프로토 정의, 일방향/양방향 스트리밍, gRPC-Gateway 연계 등 gRPC 설계 핵심"
 module: "ops-observability"
 study_order: 606
+quizzes:
+  - question: "gRPC가 REST보다 성능이 좋은 주요 이유는?"
+    options:
+      - "HTTP/1.1을 사용하기 때문"
+      - "Protobuf로 바이너리 직렬화하여 데이터 크기가 작고, HTTP/2 기반으로 멀티플렉싱이 가능하기 때문"
+      - "JSON보다 개발이 쉽기 때문"
+      - "암호화가 없기 때문"
+    answer: 1
+    explanation: "JSON은 필드 이름이 반복되어 용량이 크지만, Protobuf는 바이너리로 압축됩니다. 또한 HTTP/2는 하나의 커넥션으로 여러 요청을 동시 처리(Multiplexing)하여 Head-of-Line Blocking을 피합니다."
+
+  - question: "gRPC에서 proto 파일을 먼저 정의하고 코드를 생성하는 이유는?"
+    options:
+      - "성능을 위해"
+      - "IDL(Interface Definition Language)로 계약을 명확히 하고, 여러 언어(Java, Go, Python 등)로 일관된 클라이언트/서버 코드를 자동 생성하기 위해"
+      - "보안을 위해"
+      - "테스트가 쉬워지기 때문"
+    answer: 1
+    explanation: "proto 파일은 서비스 계약(Contract)을 정의합니다. protoc 컴파일러가 이를 기반으로 스텁 코드를 생성하므로, 언어가 달라도 호환되는 통신이 가능합니다."
+
+  - question: "gRPC의 4가지 통신 패턴 중 '실시간 채팅'에 가장 적합한 것은?"
+    options:
+      - "Unary (단순 요청-응답)"
+      - "Server Streaming"
+      - "Client Streaming"
+      - "Bidirectional Streaming (양방향 스트리밍)"
+    answer: 3
+    explanation: "채팅은 클라이언트와 서버가 동시에 메시지를 주고받아야 합니다. Bidirectional Streaming은 양쪽 모두 스트림으로 데이터를 보낼 수 있어 적합합니다."
+
+  - question: "gRPC proto 스키마 진화 시 '필드 번호를 재사용하면 안 되는' 이유는?"
+    options:
+      - "성능이 저하되기 때문"
+      - "구버전 클라이언트가 새 필드를 잘못 해석하여 데이터 오류가 발생할 수 있기 때문"
+      - "컴파일이 안 되기 때문"
+      - "보안 문제"
+    answer: 1
+    explanation: "Protobuf는 필드 번호(Tag)로 데이터를 식별합니다. 번호를 재사용하면 구버전 코드가 잘못된 타입으로 데이터를 읽어 파싱 에러나 데이터 손상이 발생합니다."
+
+  - question: "gRPC에서 데드라인(Deadline)을 클라이언트가 설정하는 이유는?"
+    options:
+      - "서버가 더 많은 요청을 처리하기 위해"
+      - "클라이언트가 '얼마나 기다릴지'를 정하고, 서버는 데드라인 초과 시 불필요한 작업을 중단하여 리소스를 절약하기 위해"
+      - "보안을 강화하기 위해"
+      - "로깅을 위해"
+    answer: 1
+    explanation: "클라이언트가 이미 포기했는데 서버가 계속 작업하면 리소스 낭비입니다. 데드라인 초과 시 서버가 즉시 중단하면 부하가 누적되지 않아 장애를 예방할 수 있습니다."
 ---
 
 ## 이 글에서 얻는 것

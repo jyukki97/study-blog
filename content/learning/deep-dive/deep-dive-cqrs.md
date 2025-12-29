@@ -9,6 +9,51 @@ tags: ["CQRS", "Architecture", "DDD", "Event Sourcing"]
 categories: ["Architecture"]
 draft: false
 module: "architecture-mastery"
+quizzes:
+  - question: "CQRS(Command Query Responsibility Segregation) 패턴의 핵심 아이디어는?"
+    options:
+      - "모든 CRUD를 하나의 모델로 처리한다."
+      - "쓰기(Command)와 읽기(Query)를 위한 모델을 분리하여 각각 최적화한다."
+      - "데이터베이스를 사용하지 않는다."
+      - "REST API 대신 GraphQL을 사용한다."
+    answer: 1
+    explanation: "전통적 CRUD는 같은 모델로 읽기/쓰기를 처리하지만, CQRS는 쓰기용 Write Model(정합성 최적화)과 읽기용 Read Model(조회 최적화)을 분리합니다."
+
+  - question: "CQRS를 적용하기에 적합한 상황은?"
+    options:
+      - "단순한 CRUD 애플리케이션"
+      - "읽기가 쓰기보다 압도적으로 많고, 복잡한 도메인 로직이 있으며, 다양한 조회 뷰가 필요한 경우"
+      - "강한 일관성이 필수인 경우"
+      - "팀 규모가 작고 빠른 개발이 필요한 경우"
+    answer: 1
+    explanation: "CQRS는 복잡성이 추가되므로, 읽기/쓰기 비율이 극단적이거나 조회 성능 요구사항이 높을 때 가치가 있습니다. 단순 CRUD에는 과도한 설계입니다."
+
+  - question: "CQRS에서 Read Model을 동기화하는 일반적인 방법은?"
+    options:
+      - "직접 Write Model을 조회한다."
+      - "도메인 이벤트를 발행하고, Projector가 이벤트를 수신하여 Read Model을 갱신한다."
+      - "정해진 시간에 배치로 동기화한다."
+      - "동기화하지 않는다."
+    answer: 1
+    explanation: "Command가 처리되면 OrderCreatedEvent 같은 도메인 이벤트를 발행하고, Projector(또는 Event Handler)가 이벤트를 받아 Read Model 테이블을 갱신합니다."
+
+  - question: "Event Sourcing과 CQRS를 함께 사용할 때 '상태'를 어떻게 관리하는가?"
+    options:
+      - "현재 상태만 DB에 저장한다."
+      - "모든 상태 변경을 이벤트로 저장(Event Store)하고, 이벤트를 재생(Replay)하여 현재 상태를 구성한다."
+      - "상태를 저장하지 않는다."
+      - "캐시에만 저장한다."
+    answer: 1
+    explanation: "Event Sourcing은 'OrderCreated → OrderPaid → OrderShipped' 같은 이벤트 시퀀스를 저장합니다. 현재 상태는 이벤트들을 순서대로 적용하여 재구성합니다."
+
+  - question: "CQRS에서 Eventual Consistency(결과적 일관성)가 발생하는 이유는?"
+    options:
+      - "데이터베이스가 느려서"
+      - "Command가 성공한 직후 Read Model이 아직 갱신되지 않았을 수 있기 때문 (비동기 동기화)"
+      - "네트워크가 불안정해서"
+      - "클라이언트 캐싱 때문"
+    answer: 1
+    explanation: "Command 처리 → 이벤트 발행 → Read Model 갱신은 비동기로 이루어지므로, 쓰기 직후 조회하면 아직 반영되지 않았을 수 있습니다. 이를 허용할 수 있는 시스템에 CQRS가 적합합니다."
 ---
 
 ## 이 글에서 얻는 것

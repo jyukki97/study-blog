@@ -7,7 +7,79 @@ tags: ["자료구조", "시간복잡도", "공간복잡도", "빅오"]
 categories: ["Backend Deep Dive"]
 description: "주요 자료구조의 삽입/삭제/탐색 시간복잡도와 사용 시 주의점 정리"
 module: "foundation"
-study_order: 55
+study_order: 21
+quizzes:
+  - question: "Big-O 표기법(O(n))에 대한 설명으로 가장 적절한 것은?"
+    options:
+      - "코드가 실행되는 절대적인 시간을 초 단위로 나타낸 것이다."
+      - "입력 데이터의 크기(n)가 증가할 때, 처리 시간이 얼마나 늘어나는지 보여주는 증가율이다."
+      - "가장 이상적인 상황(Best Case)에서의 성능을 의미한다."
+      - "메모리를 얼마나 사용하는지를 나타내는 지표이다."
+    answer: 1
+    explanation: "Big-O는 절대 시간이 아니라, 데이터 증가에 따른 성능 변화 추이(기울기)를 나타내는 척도입니다."
+
+  - question: "데이터의 '중간 삽입/삭제'가 빈번하게 발생하는 상황에서, 이론적으로 가장 효율적인 자료구조는?"
+    options:
+      - "Array (배열)"
+      - "ArrayList"
+      - "LinkedList (연결 리스트)"
+      - "Stack"
+    answer: 2
+    explanation: "LinkedList는 노드의 포인터만 변경하면 되므로 삽입/삭제가 O(1)입니다(단, 위치를 찾는 탐색 시간은 별개)."
+
+  - question: "HashMap의 평균적인 탐색(Lookup) 시간 복잡도는?"
+    options:
+      - "O(1)"
+      - "O(log n)"
+      - "O(n)"
+      - "O(n²)"
+    answer: 0
+    explanation: "해시 함수를 통해 곧바로 위치를 찾으므로 평균 O(1)입니다. 단, 해시 충돌이 많으면 O(n)까지 나빠질 수 있습니다."
+
+  - question: "이진 탐색 트리(BST)나 TreeMap에서 데이터를 탐색할 때의 평균 시간 복잡도는?"
+    options:
+      - "O(1)"
+      - "O(log n)"
+      - "O(n)"
+      - "O(n log n)"
+    answer: 1
+    explanation: "트리의 높이만큼만 비교하면 되므로 O(log n)입니다. 이는 데이터가 2배 늘어도 탐색 횟수는 1회만 증가함을 의미합니다."
+
+  - question: "데이터를 항상 정렬된 상태로 유지해야 하고, 특정 범위(Range) 검색이 필요한 경우 가장 적절한 자료구조는?"
+    options:
+      - "HashMap"
+      - "ArrayList"
+      - "TreeMap"
+      - "Queue"
+    answer: 2
+    explanation: "TreeMap은 내부적으로 Red-Black Tree를 사용하여 키를 정렬된 상태로 저장하므로, 범위 검색에 최적화되어 있습니다."
+
+  - question: "우선순위가 가장 높은 데이터를 빠르게 꺼내야 하는 '작업 스케줄링' 구현에 가장 적합한 자료구조는?"
+    options:
+      - "Stack"
+      - "Queue"
+      - "Heap (Priority Queue)"
+      - "Graph"
+    answer: 2
+    explanation: "Heap은 최댓값/최솟값을 O(1)에 찾고 O(log n)에 꺼낼 수 있어 우선순위 큐 구현에 사용됩니다."
+
+  - question: "ArrayList가 LinkedList보다 실제 성능(메모리/캐시) 면에서 더 유리한 이유는?"
+    options:
+      - "ArrayList는 메모리에 연속적으로 저장되어 CPU 캐시 히트율(Locality)이 높기 때문이다."
+      - "ArrayList는 삽입/삭제가 항상 O(1)이기 때문이다."
+      - "LinkedList는 데이터를 압축해서 저장하기 때문이다."
+      - "ArrayList는 크기가 고정되어 있어 관리가 쉽기 때문이다."
+    answer: 0
+    explanation: "LinkedList는 노드가 메모리 여기저기에 흩어져 있어 캐시 효율이 떨어지지만, Array는 연속된 메모리 공간을 사용하여 순차 접근이 매우 빠릅니다."
+
+  - question: "알고리즘의 시간 복잡도가 O(n²)인 경우, 데이터가 10배 늘어나면 처리 시간은 대략 몇 배 늘어날까요?"
+    options:
+      - "10배"
+      - "20배"
+      - "100배"
+      - "변화 없다"
+    answer: 2
+    explanation: "n의 제곱에 비례하므로, 10의 제곱인 100배만큼 시간이 늘어납니다. 그래서 대규모 데이터 처리에서 O(n²)은 피해야 합니다."
 ---
 
 ## 이 글에서 얻는 것

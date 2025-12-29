@@ -7,6 +7,51 @@ tags: ["Spring", "MVC", "DispatcherServlet", "Filter", "Interceptor", "Exception
 categories: ["Backend Deep Dive"]
 description: "요청이 들어와서 응답이 나가기까지: Filter/DispatcherServlet/Interceptor/예외 처리 흐름과 디버깅 포인트"
 module: "spring-core"
+quizzes:
+  - question: "Spring MVC의 요청 처리 흐름에서 가장 먼저 실행되는 컴포넌트는?"
+    options:
+      - "DispatcherServlet"
+      - "Interceptor (Spring)"
+      - "Filter (Servlet)"
+      - "Controller"
+    answer: 2
+    explanation: "Filter는 서블릿 컨테이너(Tomcat 등) 레벨에서 동작하므로 Spring의 DispatcherServlet보다 먼저 실행되어 인코딩, 보안 처리 등을 수행합니다."
+
+  - question: "DispatcherServlet 내부에서 URL을 분석하여 어떤 컨트롤러(Handler)가 요청을 처리할지 결정하는 컴포넌트는?"
+    options:
+      - "HandlerAdapter"
+      - "HandlerMapping"
+      - "ViewResolver"
+      - "ThemeResolver"
+    answer: 1
+    explanation: "HandlerMapping은 요청 URL(예: `/users`)과 매칭되는 핸들러(Controller 메서드)를 찾아주는 역할을 합니다."
+
+  - question: "Spring Interceptor의 `preHandle()` 메서드가 `false`를 반환하면 어떤 일이 발생하는가?"
+    options:
+      - "즉시 200 OK를 반환한다."
+      - "다음 Interceptor나 Controller로 진행하지 않고 요청 처리를 중단(취소)한다."
+      - "예외가 발생한다."
+      - "Filter로 되돌아간다."
+    answer: 1
+    explanation: "`preHandle`이 `false`를 반환하면 이후 단계(다른 Interceptor, Controller 실행)를 진행하지 않고 요청을 끝냅니다. 주로 인증 실패 시 사용됩니다."
+
+  - question: "API 예외 처리를 전역적(Global)으로 모아서 처리하기 위해 가장 권장되는 Spring 애노테이션은?"
+    options:
+      - "@ExceptionHandler"
+      - "@ControllerAdvice (또는 @RestControllerAdvice)"
+      - "@ResponseStatus"
+      - "@OnError"
+    answer: 1
+    explanation: "`@ControllerAdvice`는 모든 컨트롤러에서 발생하는 예외를 한곳에서 잡아 처리할 수 있게 해주어 코드 중복을 줄이고 일관된 에러 응답을 가능하게 합니다."
+
+  - question: "클라이언트가 보낸 JSON 데이터의 포맷이 잘못되어 파싱할 수 없을 때 발생하는 HTTP 상태 코드는?"
+    options:
+      - "404 Not Found"
+      - "405 Method Not Allowed"
+      - "400 Bad Request"
+      - "500 Internal Server Error"
+    answer: 2
+    explanation: "요청 본문(Body)을 읽을 수 없거나(`HttpMessageNotReadableException`), 타입이 맞지 않을 때 400 Bad Request가 발생합니다."
 study_order: 202
 ---
 

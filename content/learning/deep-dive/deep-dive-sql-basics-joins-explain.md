@@ -7,6 +7,51 @@ tags: ["SQL", "Join", "Aggregation", "EXPLAIN", "Index"]
 categories: ["Backend Deep Dive"]
 description: "SQL 실행 순서와 조인/집계 성능 함정, 인덱스가 타는 조건을 감각으로 잡는 기본기"
 module: "data-system"
+quizzes:
+  - question: "SQL의 논리적 실행 순서에서 WHERE 절은 언제 처리되는가?"
+    options:
+      - "SELECT 절 이후에 처리된다."
+      - "ORDER BY 절 이후에 처리된다."
+      - "FROM/JOIN 이후, GROUP BY 이전에 처리된다."
+      - "LIMIT 절 직전에 처리된다."
+    answer: 2
+    explanation: "SQL 논리적 처리 순서: FROM → JOIN → WHERE → GROUP BY → HAVING → SELECT → ORDER BY → LIMIT. WHERE는 JOIN 직후에 행 필터링을 수행합니다."
+
+  - question: "SQL 조인에서 성능이 느려지는 주요 원인이 아닌 것은?"
+    options:
+      - "조인 키에 인덱스가 없는 경우"
+      - "SELECT 절에 많은 컬럼을 지정한 경우"
+      - "조인 키의 데이터 타입이 불일치하여 인덱스를 사용할 수 없는 경우"
+      - "WHERE 필터가 조인 후에 적용되어 중간 결과 집합이 불필요하게 큰 경우"
+    answer: 1
+    explanation: "SELECT 컬럼 개수는 디스크 I/O에는 영향을 줄 수 있지만, 조인 성능의 핵심 요소(인덱스 사용, 타입 일치, 필터 적용 시점)만큼 결정적이지 않습니다."
+
+  - question: "'Sargable' 조건이란 무엇인가?"
+    options:
+      - "결과를 정렬(Sort)하는 조건"
+      - "인덱스를 효율적으로 사용할 수 있는(Search ARGument ABLE) 조건"
+      - "NULL 값을 포함하는 조건"
+      - "복합 조인을 수행하는 조건"
+    answer: 1
+    explanation: "Sargable 조건은 `col = ?`, `col BETWEEN ? AND ?`처럼 인덱스 탐색이 가능한 형태입니다. `FUNCTION(col) = ?`처럼 컬럼에 함수를 적용하면 인덱스를 사용할 수 없게 됩니다."
+
+  - question: "다음 중 인덱스를 타기 어려운(Non-Sargable) 조건은?"
+    options:
+      - "WHERE age = 30"
+      - "WHERE created_at >= '2025-01-01' AND created_at < '2025-02-01'"
+      - "WHERE user_id IN (1, 2, 3)"
+      - "WHERE DATE(created_at) = '2025-01-15'"
+    answer: 3
+    explanation: "컬럼에 함수(`DATE(created_at)`)를 적용하면 MySQL은 모든 행에 대해 함수를 계산해야 하므로 인덱스를 사용할 수 없습니다. `created_at >= ? AND created_at < ?` 형태로 범위 조건을 사용해야 합니다."
+
+  - question: "EXPLAIN 실행 계획에서 확인해야 할 핵심 포인트가 아닌 것은?"
+    options:
+      - "스캔 범위가 너무 큰지 (풀스캔 여부)"
+      - "의도한 인덱스를 사용하고 있는지"
+      - "정렬이나 임시 테이블 사용 여부"
+      - "SELECT 절에 사용된 컬럼의 데이터 타입"
+    answer: 3
+    explanation: "EXPLAIN은 쿼리의 실행 방식(인덱스 사용, 스캔 범위, 정렬/임시 테이블)을 보여줍니다. 컬럼의 데이터 타입은 스키마 정의에서 확인하는 것이지 EXPLAIN 결과에서 직접 확인하는 핵심 요소는 아닙니다."
 study_order: 201
 ---
 

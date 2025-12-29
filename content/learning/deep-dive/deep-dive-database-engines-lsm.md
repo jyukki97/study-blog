@@ -7,6 +7,51 @@ tags: ["Database", "B-Tree", "LSM-Tree", "Storage Engine", "Performance"]
 categories: ["Backend Deep Dive"]
 description: "DB 성능의 핵심인 스토리지 엔진. MySQL의 B-Tree와 Cassandra/RocksDB의 LSM-Tree 구조를 비교하고 장단점을 파헤칩니다."
 module: "data-system"
+quizzes:
+  - question: "B-Tree 기반 스토리지 엔진(MySQL InnoDB)의 쓰기 성능이 느려질 수 있는 주된 이유는?"
+    options:
+      - "데이터를 순차적으로 쓰기 때문"
+      - "정렬된 상태를 유지하기 위해 페이지 분할(Page Split)과 Random I/O가 발생하기 때문"
+      - "압축을 수행하기 때문"
+      - "로그를 쓰지 않기 때문"
+    answer: 1
+    explanation: "B-Tree는 데이터를 정렬된 위치에 삽입해야 하므로, 디스크의 임의 위치에 쓰기(Random I/O)가 발생합니다. 쓰기 부하가 높으면 페이지 분할이 빈번해져 성능이 저하됩니다."
+
+  - question: "LSM-Tree 기반 스토리지 엔진(Cassandra, RocksDB)의 핵심 쓰기 방식은?"
+    options:
+      - "데이터를 항상 정렬된 위치에 덮어씁니다(Update-in-Place)."
+      - "데이터를 메모리(MemTable)에 먼저 쓰고, 가득 차면 순차적으로 디스크(SSTable)에 Flush합니다(Append Only)."
+      - "데이터를 쓰기 전에 전체 인덱스를 재구성합니다."
+      - "모든 쓰기를 동기적으로 디스크에 커밋합니다."
+    answer: 1
+    explanation: "LSM-Tree는 '먼저 메모리에 쓰고, 나중에 파일로 한꺼번에 Flush'하는 방식입니다. 디스크에는 순차 쓰기(Sequential Write)로 기록되어 쓰기 성능이 매우 뛰어납니다."
+
+  - question: "LSM-Tree에서 'Compaction'이 필요한 이유는?"
+    options:
+      - "메모리 용량을 늘리기 위해"
+      - "여러 SSTable 파일을 병합하여 중복/삭제된 데이터를 정리하고, 읽기 성능을 개선하기 위해"
+      - "B-Tree로 변환하기 위해"
+      - "WAL을 삭제하기 위해"
+    answer: 1
+    explanation: "LSM-Tree는 쓰기 시 새 SSTable 파일을 계속 생성합니다. Compaction은 이 파일들을 병합하여 중복 키와 삭제된 데이터를 제거하고, 읽기 시 탐색해야 할 파일 수를 줄입니다."
+
+  - question: "LSM-Tree의 읽기 성능을 보완하기 위해 사용하는 대표적인 자료구조는?"
+    options:
+      - "Skip List"
+      - "Red-Black Tree"
+      - "Bloom Filter"
+      - "Hash Table"
+    answer: 2
+    explanation: "Bloom Filter는 특정 키가 SSTable 파일에 '확실히 없음'을 빠르게 판단할 수 있는 확률적 자료구조입니다. 이를 통해 불필요한 파일 읽기를 건너뛰어 읽기 성능을 개선합니다."
+
+  - question: "채팅 메시지나 로그 데이터처럼 쓰기가 압도적으로 많은 시스템에 더 적합한 스토리지 엔진은?"
+    options:
+      - "B-Tree (MySQL InnoDB)"
+      - "LSM-Tree (Cassandra, RocksDB)"
+      - "둘 다 동일한 성능을 보인다."
+      - "파일 시스템에 직접 쓰는 것이 가장 빠르다."
+    answer: 1
+    explanation: "LSM-Tree는 순차 쓰기를 최대화하여 쓰기 부하가 높은 워크로드에서 B-Tree보다 훨씬 뛰어난 성능을 보입니다. 로그 수집, 시계열 데이터, 채팅 등에 적합합니다."
 study_order: 305
 ---
 

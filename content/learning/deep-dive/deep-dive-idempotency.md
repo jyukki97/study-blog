@@ -9,6 +9,51 @@ tags: ["Idempotency", "API", "Retry", "Distributed Systems", "Deduplication"]
 categories: ["Distributed"]
 draft: false
 module: "distributed"
+quizzes:
+  - question: "HTTP 메서드 중 '멱등(Idempotent)'하지 않은 것은?"
+    options:
+      - "GET / DELETE / PUT"
+      - "POST (생성 요청)"
+      - "GET만"
+      - "모든 메서드가 멱등하다"
+    answer: 1
+    explanation: "GET/PUT/DELETE는 여러 번 호출해도 결과가 동일합니다. 하지만 POST는 호출할 때마다 새 리소스가 생성될 수 있어 멱등하지 않습니다."
+
+  - question: "Idempotency Key 패턴에서 클라이언트가 키를 생성해야 하는 이유는?"
+    options:
+      - "서버가 키를 생성하면 더 안전하다."
+      - "네트워크 타임아웃 시 클라이언트가 동일한 키로 재시도하여 서버가 중복 요청을 식별할 수 있도록 하기 위해"
+      - "키 생성 비용을 분산하기 위해"
+      - "보안상의 이유"
+    answer: 1
+    explanation: "응답을 받지 못하고 재시도할 때, 같은 Idempotency Key를 보내야 서버가 '이미 처리한 요청'인지 판별할 수 있습니다."
+
+  - question: "결제 API에서 Idempotency Key로 중복 요청을 감지했을 때, 서버가 해야 할 동작은?"
+    options:
+      - "에러를 반환한다."
+      - "첫 번째 요청의 저장된 응답을 그대로 반환한다."
+      - "새로운 결제를 다시 시도한다."
+      - "요청을 무시한다."
+    answer: 1
+    explanation: "동일한 Idempotency Key로 재시도가 오면 DB에 저장해둔 이전 응답을 반환합니다. 이렇게 하면 중복 결제 없이 클라이언트가 결과를 받을 수 있습니다."
+
+  - question: "분산 환경에서 Idempotency Key 구현 시 동시 요청을 처리하는 방법은?"
+    options:
+      - "모든 요청을 허용한다."
+      - "Redis SETNX로 락을 획득하고, 락 실패 시 409 Conflict + Retry-After 응답"
+      - "요청을 큐에 넣는다."
+      - "첫 번째 요청만 처리하고 나머지는 버린다."
+    answer: 1
+    explanation: "동시에 같은 키로 요청이 오면 한 쪽만 처리해야 합니다. Redis SETNX(Set if Not Exists)로 원자적 락을 획득하고, 실패한 쪽은 잠시 대기 후 재시도하도록 안내합니다."
+
+  - question: "Idempotency Record에 요청 본문 해시(requestHash)를 저장하는 이유는?"
+    options:
+      - "압축을 위해"
+      - "같은 Idempotency Key로 다른 요청 내용을 보내는 악용/실수를 방지하기 위해"
+      - "로깅을 위해"
+      - "필요 없다"
+    answer: 1
+    explanation: "같은 키로 금액이 다른 결제 요청이 오면 이를 거부해야 합니다. 해시 비교로 '같은 키, 같은 요청 내용'인지 검증합니다."
 ---
 
 ## 이 글에서 얻는 것

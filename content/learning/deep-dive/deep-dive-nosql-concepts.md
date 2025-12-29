@@ -7,6 +7,51 @@ tags: ["NoSQL", "MongoDB", "Redis", "CAP Theorem", "Document DB", "Key-Value Sto
 categories: ["Backend Deep Dive"]
 description: "NoSQL의 종류와 특징을 이해하고, RDBMS vs NoSQL 선택 기준을 실무 관점에서 정리"
 module: "data-system"
+quizzes:
+  - question: "CAP 이론에서 '분산 시스템은 최대 2가지만 보장할 수 있다'고 할 때, P(Partition Tolerance)를 포기할 수 없는 이유는?"
+    options:
+      - "P는 가장 쉽게 구현할 수 있기 때문"
+      - "실제 분산 환경에서 네트워크 장애는 피할 수 없으므로, P 없이는 분산 시스템 자체가 무의미하기 때문"
+      - "P가 성능과 직결되기 때문"
+      - "표준 스펙에서 P를 필수로 정의하기 때문"
+    answer: 1
+    explanation: "네트워크 장애(Partition)는 분산 환경에서 불가피합니다. 따라서 현실적인 분산 시스템은 P를 포기할 수 없고, C(일관성)와 A(가용성) 사이에서 선택해야 합니다 (CP 또는 AP)."
+
+  - question: "ACID와 BASE의 가장 핵심적인 차이는?"
+    options:
+      - "ACID는 NoSQL에서, BASE는 RDBMS에서 사용한다."
+      - "ACID는 즉각적인 강한 일관성을 보장하고, BASE는 일시적 불일치를 허용하며 '최종적 일관성(Eventually Consistent)'을 추구한다."
+      - "ACID는 느리고, BASE는 항상 빠르다."
+      - "둘 사이에 실질적인 차이는 없다."
+    answer: 1
+    explanation: "ACID는 트랜잭션의 강한 일관성을 보장하지만 동시성 처리에 제약이 있습니다. BASE는 가용성을 우선시하며, 일시적으로 데이터가 다를 수 있지만 결국에는 일관된 상태가 됩니다."
+
+  - question: "Key-Value Store인 Redis의 주된 사용 사례가 아닌 것은?"
+    options:
+      - "데이터 캐싱"
+      - "세션 저장"
+      - "복잡한 JOIN 쿼리 수행"
+      - "실시간 리더보드"
+    answer: 2
+    explanation: "Redis는 Key-Value 구조로 빠른 읽기/쓰기에 최적화되어 캐시, 세션, 리더보드(Sorted Set)에 적합합니다. 복잡한 JOIN은 RDBMS의 영역입니다."
+
+  - question: "MongoDB와 같은 Document Store의 장점으로 올바른 것은?"
+    options:
+      - "엄격한 스키마로 데이터 무결성을 강제한다."
+      - "유연한 스키마(Schema-less)로 중첩 구조와 배열을 쉽게 저장하고, 빠른 변화에 대응할 수 있다."
+      - "ACID 트랜잭션을 완벽하게 지원하여 금융 시스템에 적합하다."
+      - "JOIN 성능이 RDBMS보다 뛰어나다."
+    answer: 1
+    explanation: "Document Store는 JSON과 유사한 형태로 데이터를 저장하며, 스키마가 유연하여 필드 추가/변경이 쉽습니다. 다만, 복잡한 트랜잭션이나 JOIN은 RDBMS가 더 적합합니다."
+
+  - question: "실무에서 RDBMS와 NoSQL을 함께 사용하는 '하이브리드 전략'의 대표적인 예시는?"
+    options:
+      - "모든 데이터를 Redis에만 저장한다."
+      - "주문/결제 같은 핵심 데이터는 RDBMS(MySQL)에, 캐시/세션은 Redis에, 상품 리뷰/로그는 MongoDB에 저장한다."
+      - "RDBMS를 사용하면 NoSQL은 전혀 필요 없다."
+      - "NoSQL을 사용하면 RDBMS를 완전히 대체할 수 있다."
+    answer: 1
+    explanation: "각 저장소는 강점이 다릅니다. 강한 일관성이 필요한 데이터는 RDBMS, 빠른 접근이 필요하면 Redis, 유연한 스키마가 필요하면 MongoDB처럼 용도에 맞게 병행하는 것이 일반적입니다."
 study_order: 215
 ---
 

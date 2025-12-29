@@ -7,6 +7,51 @@ tags: ["Connection Pool", "HikariCP", "Database", "Performance", "Spring Boot"]
 categories: ["Backend Deep Dive"]
 description: "커넥션 풀의 동작 원리와 HikariCP 설정으로 데이터베이스 성능을 최적화하는 실무 가이드"
 module: "data-system"
+quizzes:
+  - question: "Connection Pool을 사용하는 가장 큰 이유는?"
+    options:
+      - "보안을 강화하기 위해"
+      - "매번 새로운 DB 연결을 생성/해제하는 비용(수십~수백 ms)을 줄이고 Connection을 재사용하기 위해"
+      - "동시 요청을 무제한으로 처리하기 위해"
+      - "SQL 쿼리를 캐싱하기 위해"
+    answer: 1
+    explanation: "DB Connection 생성은 TCP 핸드셰이크, 인증 등 비용이 큽니다. Pool에서 미리 생성된 Connection을 빌려쓰고 반환하면 생성/해제 오버헤드를 크게 줄일 수 있습니다."
+
+  - question: "HikariCP에서 maximum-pool-size를 너무 크게 설정하면 발생하는 문제는?"
+    options:
+      - "Connection 대기 시간이 길어진다."
+      - "DB에 너무 많은 동시 연결이 발생하여 DB 과부하 및 Context Switching 증가로 오히려 성능 저하가 발생한다."
+      - "메모리 사용량이 줄어든다."
+      - "Connection Leak이 자동으로 방지된다."
+    answer: 1
+    explanation: "Pool 크기를 크게 해도 DB가 처리할 수 있는 동시 쿼리 수는 제한적입니다. 과도한 Connection은 DB 부하와 CPU 컨텍스트 스위칭을 늘려 전체 성능을 떨어뜨립니다."
+
+  - question: "Connection Leak이 발생하는 원인은?"
+    options:
+      - "Pool 크기가 너무 작아서"
+      - "Connection을 사용 후 close()를 호출하지 않거나 예외 발생 시 반환하지 않아서"
+      - "max-lifetime이 너무 길어서"
+      - "validation-timeout이 짧아서"
+    answer: 1
+    explanation: "Connection을 빌린 후 close()를 호출하지 않으면 Pool로 반환되지 않아 점점 고갈됩니다. try-with-resources나 @Transactional로 자동 반환을 보장해야 합니다."
+
+  - question: "HikariCP `max-lifetime`을 DB의 `wait_timeout`보다 짧게 설정해야 하는 이유는?"
+    options:
+      - "성능을 향상시키기 위해"
+      - "DB가 먼저 Connection을 끊으면 Pool에 죽은 연결이 남아 오류가 발생하므로, HikariCP가 먼저 갱신하도록 하기 위해"
+      - "메모리를 절약하기 위해"
+      - "보안을 강화하기 위해"
+    answer: 1
+    explanation: "DB는 일정 시간 유휴 상태인 Connection을 끊습니다. Pool이 이를 모르고 죽은 연결을 빌려주면 오류가 발생합니다. max-lifetime을 더 짧게 설정하여 HikariCP가 먼저 연결을 갱신하도록 합니다."
+
+  - question: "HikariCP 공식 권장에 따르면 minimum-idle 설정은 어떻게 해야 하는가?"
+    options:
+      - "항상 0으로 설정"
+      - "maximum-pool-size와 동일하게 설정하거나 아예 설정하지 않음 (고정 크기 Pool)"
+      - "maximum-pool-size의 절반"
+      - "1로 고정"
+    answer: 1
+    explanation: "minimum-idle과 maximum-pool-size가 다르면 Pool 크기가 트래픽에 따라 변동하여 성능이 불안정해질 수 있습니다. HikariCP는 고정 크기 Pool을 권장합니다."
 study_order: 204
 ---
 

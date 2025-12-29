@@ -9,6 +9,51 @@ tags: ["GraphQL", "API", "DataLoader", "Federation"]
 categories: ["Modern"]
 draft: false
 module: "modern-frontiers"
+quizzes:
+  - question: "GraphQL이 REST의 Under-fetching 문제를 해결하는 방식은?"
+    options:
+      - "여러 번 요청한다."
+      - "클라이언트가 필요한 데이터를 쿼리로 명시하여 한 번의 요청으로 연관 데이터를 모두 가져온다."
+      - "캐시를 사용한다."
+      - "더 빠른 네트워크를 사용한다."
+    answer: 1
+    explanation: "REST에서 user → posts → comments를 가져오려면 3번 요청이 필요하지만, GraphQL은 한 쿼리에 모든 관계를 포함하여 1번으로 해결합니다."
+
+  - question: "GraphQL에서 N+1 문제가 발생하는 원인과 해결책은?"
+    options:
+      - "GraphQL은 N+1 문제가 없다."
+      - "각 User의 posts를 개별 쿼리로 가져오면 N+1 발생. DataLoader로 배치 처리하여 해결"
+      - "더 많은 서버를 사용한다."
+      - "캐시를 비운다."
+    answer: 1
+    explanation: "users 조회 1번 + 각 user의 posts 조회 N번 = N+1. DataLoader는 16ms 대기 후 모든 userId를 모아 IN절 한 번으로 처리합니다."
+
+  - question: "GraphQL Subscription의 동작 방식은?"
+    options:
+      - "클라이언트가 주기적으로 폴링한다."
+      - "WebSocket 연결을 유지하고, 서버에서 이벤트 발생 시 클라이언트에게 실시간으로 푸시한다."
+      - "HTTP Long Polling"
+      - "SMS로 알린다."
+    answer: 1
+    explanation: "Subscription은 WebSocket 기반입니다. 채팅, 알림 등 실시간 기능에 적합하며, 서버가 postCreated 같은 이벤트를 발행하면 구독자에게 전달됩니다."
+
+  - question: "GraphQL에서 Query Complexity 제한을 두는 이유는?"
+    options:
+      - "코드를 간단하게 유지하기 위해"
+      - "중첩이 깊은 쿼리로 인한 서버 과부하(DoS)를 방지하기 위해"
+      - "클라이언트를 빠르게 하기 위해"
+      - "필요 없다"
+    answer: 1
+    explanation: "`users { posts { comments { author } } }` 같은 깊은 중첩은 데이터베이스 쿼리 폭발을 일으킬 수 있습니다. 복잡도/깊이 제한으로 악의적 쿼리를 차단합니다."
+
+  - question: "GraphQL의 Cursor-based Pagination이 Offset 방식보다 나은 점은?"
+    options:
+      - "구현이 더 쉽다."
+      - "대용량 데이터에서 Page Drift(데이터 변경 시 중복/누락) 문제 없이 일관된 성능 제공"
+      - "페이지 번호를 사용한다."
+      - "차이 없다."
+    answer: 1
+    explanation: "Offset은 데이터가 추가/삭제되면 같은 아이템이 중복되거나 누락됩니다. Cursor는 '마지막으로 본 아이템' 기준이라 무한 스크롤에 적합합니다."
 ---
 
 ## 이 글에서 얻는 것

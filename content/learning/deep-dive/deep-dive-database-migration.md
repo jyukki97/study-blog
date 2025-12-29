@@ -8,6 +8,51 @@ categories: ["Backend Deep Dive"]
 description: "Flyway를 이용한 데이터베이스 스키마 버전 관리와 안전한 마이그레이션 전략"
 module: "data-system"
 study_order: 250
+quizzes:
+  - question: "DB 마이그레이션 도구(Flyway 등)를 사용하는 핵심 이유는?"
+    options:
+      - "SQL 실행 속도를 높이기 위해"
+      - "스키마 변경을 코드로 관리하여, 모든 환경(로컬/스테이징/운영)에서 일관된 DB 구조를 유지하고 변경 이력을 추적하기 위해"
+      - "DB 백업을 자동화하기 위해"
+      - "쿼리 최적화를 위해"
+    answer: 1
+    explanation: "수동 SQL 실행은 '누가 언제 실행했는지' 추적이 어렵고, 환경마다 스키마가 다를 수 있습니다. 마이그레이션 도구는 Git처럼 버전 관리를 해줍니다."
+
+  - question: "Flyway 마이그레이션 파일 명명 규칙 'V1__create_users_table.sql'에서 밑줄 두 개(__)의 역할은?"
+    options:
+      - "오타"
+      - "버전 번호와 설명을 구분하는 구분자"
+      - "주석 표시"
+      - "공백 대체"
+    answer: 1
+    explanation: "V{버전}__{설명}.sql 형식에서 __는 버전과 설명을 구분합니다. V1이 버전, create_users_table이 설명입니다."
+
+  - question: "이미 실행된 Flyway 마이그레이션 파일을 수정하면 어떤 문제가 발생하는가?"
+    options:
+      - "자동으로 재실행된다."
+      - "Checksum 불일치 에러가 발생하여 애플리케이션이 시작되지 않는다."
+      - "무시된다."
+      - "파일이 삭제된다."
+    answer: 1
+    explanation: "Flyway는 파일 내용의 해시(checksum)를 저장합니다. 파일을 수정하면 해시가 달라져 '변조 감지' 에러가 발생합니다."
+
+  - question: "운영 환경 마이그레이션 전 반드시 해야 할 작업은?"
+    options:
+      - "바로 실행한다."
+      - "DB 백업을 수행하여, 문제 발생 시 복구할 수 있도록 준비한다."
+      - "TTL을 늘린다."
+      - "캐시를 삭제한다."
+    answer: 1
+    explanation: "마이그레이션 실패 시 롤백이 필요합니다. `mysqldump`로 백업해두면 문제 발생 시 이전 상태로 복구할 수 있습니다."
+
+  - question: "Flyway에서 롤백이 필요할 때 권장되는 방법은?"
+    options:
+      - "기존 마이그레이션 파일을 삭제한다."
+      - "새로운 마이그레이션 파일(예: V3__remove_email.sql)을 생성하여 변경 사항을 되돌린다."
+      - "데이터베이스를 삭제한다."
+      - "flyway_schema_history 테이블을 삭제한다."
+    answer: 1
+    explanation: "Flyway Community는 자동 롤백을 지원하지 않습니다. 새 마이그레이션으로 'undo' 작업을 수행하는 것이 안전합니다."
 ---
 
 ## 이 글에서 얻는 것

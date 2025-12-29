@@ -7,6 +7,60 @@ tags: ["Spring", "IoC", "DI", "Bean", "ApplicationContext", "Dependency Injectio
 categories: ["Backend Deep Dive"]
 description: "Spring의 핵심인 IoC 컨테이너와 DI(의존성 주입) 원리를 이해하고, 빈 생명주기와 스코프를 실무 관점으로 정리"
 module: "spring-core"
+quizzes:
+  - question: "Spring Framework에서 '제어의 역전(IoC)'이 의미하는 바로 가장 적절한 것은?"
+    options:
+      - "개발자가 `new` 키워드로 직접 객체를 생성하고 연결한다."
+      - "프로그램의 제어 흐름과 객체(Bean)의 생명주기 관리를 개발자가 아닌 프레임워크(컨테이너)가 담당한다."
+      - "모든 코드가 순차적으로 실행된다."
+      - "데이터베이스가 애플리케이션의 흐름을 제어한다."
+    answer: 1
+    explanation: "IoC(Inversion of Control)는 객체의 생성, 의존성 주입, 생명주기 관리 등 프로그램의 흐름 제어권을 프레임워크에 위임하는 것입니다."
+
+  - question: "다음 중 의존성 주입(DI) 방식 중, Spring과 전문가들이 가장 권장하는 방식은?"
+    options:
+      - "필드 주입 (Field Injection, @Autowired)"
+      - "세터 주입 (Setter Injection)"
+      - "생성자 주입 (Constructor Injection)"
+      - "메서드 주입 (Method Injection)"
+    answer: 2
+    explanation: "생성자 주입은 불변성(final) 보장, 테스트 용이성(POJO 테스트 가능), 순환 참조 방지(컴파일/로딩 시점 감지), 필수 의존성 명확화 등의 장점이 있습니다."
+
+  - question: "Spring에서 빈(Bean)으로 등록된 클래스 A가 B에 의존하고, B가 다시 A에 의존하는 '순환 참조(Circular Dependency)'가 발생했을 때, 생성자 주입을 사용하면 어떤 일이 발생하는가?"
+    options:
+      - "정상적으로 실행된다."
+      - "애플리케이션 구동 시점(또는 컴파일 시점)에 에러(`BeanCurrentlyInCreationException`)가 발생하여 문제를 즉시 알 수 있다."
+      - "무한 루프에 빠져 서버가 멈춘다."
+      - "Spring이 알아서 하나를 삭제한다."
+    answer: 1
+    explanation: "생성자 주입은 빈 생성 시점에 모든 의존성을 주입해야 하므로, 순환 참조가 있으면 객체를 생성할 수 없어 즉시 에러를 발생시킵니다. (필드/세터 주입은 구동은 되지만 런타임에 문제 발생 가능)"
+
+  - question: "Spring Boot에서 컴포넌트 스캔(Component Scan)을 통해 빈을 자동 등록하기 위해 클래스에 붙여야 하는 애노테이션이 아닌 것은?"
+    options:
+      - "@Controller"
+      - "@Service"
+      - "@Repository"
+      - "@Autowired"
+    answer: 3
+    explanation: "`@Autowired`는 의존성을 주입받을 때 사용하는 애노테이션이고, 빈으로 등록(스캔 대상 지정)하려면 `@Component` 또는 그 특화 애노테이션(`@Controller`, `@Service`, `@Repository`, `@Configuration`)을 붙여야 합니다."
+
+  - question: "다음 중 빈(Bean)의 생명주기 콜백과 관련하여, 의존성 주입이 끝난 후 초기화 작업을 수행하기 위해 사용하는 애노테이션은?"
+    options:
+      - "@PostConstruct"
+      - "@PreDestroy"
+      - "@Bean"
+      - "@Component"
+    answer: 0
+    explanation: "`@PostConstruct`는 의존성 주입이 완료된 직후 호출되어 빈의 초기화 작업을 수행하는 표준 애노테이션입니다."
+
+  - question: "같은 타입의 빈이 2개 이상 있을 때, `NoUniqueBeanDefinitionException`을 방지하기 위한 방법이 아닌 것은?"
+    options:
+      - "우선순위를 높일 빈에 `@Primary`를 붙인다."
+      - "주입받는 곳에서 `@Qualifier(\"빈이름\")`을 사용한다."
+      - "주입받는 변수명(파라미터명)을 빈 이름과 일치시킨다."
+      - "모든 빈에 `@Autowired`를 붙인다."
+    answer: 3
+    explanation: "모든 빈에 `@Autowired`를 붙인다고 해결되지 않습니다. `@Primary`, `@Qualifier`, 혹은 변수명 매칭을 통해 어떤 빈을 주입할지 명확히 지정해야 합니다."
 study_order: 101
 ---
 

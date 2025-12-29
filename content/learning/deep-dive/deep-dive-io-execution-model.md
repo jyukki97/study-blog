@@ -7,7 +7,52 @@ tags: ["IO", "Blocking", "NonBlocking", "Async", "Sync", "Thread", "EventLoop"]
 categories: ["Backend Deep Dive"]
 description: "동기/비동기 vs 블로킹/논블로킹을 명확히 구분하고, 스레드풀·이벤트 루프·MVC/WebFlux 선택 기준까지 연결"
 module: "foundation"
-study_order: 50
+quizzes:
+  - question: "'함수를 호출한 쪽(Caller)이 리턴값(결과)을 신경 쓰는지 여부'를 기준으로 구분하는 개념은?"
+    options:
+      - "Blocking / Non-Blocking"
+      - "Synchronous / Asynchronous"
+      - "Process / Thread"
+      - "Serial / Parallel"
+    answer: 1
+    explanation: "동기(Synchronous)는 결과를 받을 때까지 기다리거나 계속 확인하는 반면, 비동기(Asynchronous)는 결과를 기다리지 않고 콜백이나 이벤트로 처리합니다. 즉, '결과 처리를 누가 주도하는가'의 차이입니다."
+
+  - question: "'제어권을 누가 가지고 있는지(함수가 바로 리턴하는지)'를 기준으로 구분하는 개념은?"
+    options:
+      - "Blocking / Non-Blocking"
+      - "Synchronous / Asynchronous"
+      - "Single-Thread / Multi-Thread"
+      - "Context Switching"
+    answer: 0
+    explanation: "블로킹(Blocking)은 작업이 끝날 때까지 제어권을 가지고 놓아주지 않는 것이고, 논블로킹(Non-Blocking)은 할 일을 다 못 마쳤어도 바로 제어권(리턴)을 돌려주는 것입니다."
+
+  - question: "다음 중 '비동기(Asynchronous) + 논블로킹(Non-Blocking)' 조합의 대표적인 예시는?"
+    options:
+      - "Java JDBC (전통적인 방식)"
+      - "Node.js (Event Loop)"
+      - "System.out.println()"
+      - "synchronized 블록"
+    answer: 1
+    explanation: "Node.js나 Netty, WebFlux는 적은 수의 스레드로 많은 요청을 처리하기 위해, IO 작업 시 스레드를 차단하지 않고(Non-blocking) 결과가 준비되면 이벤트를 발생시켜(Async) 처리합니다."
+
+  - question: "Spring MVC(전통적 서블릿 스택)가 주로 사용하는 실행 모델은?"
+    options:
+      - "Event Loop 모델"
+      - "Thread per Request 모델 (Blocking I/O)"
+      - "Actor 모델"
+      - "Single Thread 모델"
+    answer: 1
+    explanation: "Spring MVC는 요청마다 스레드를 할당하고, DB나 외부 API 호출 시 스레드가 응답을 기다리며 블로킹(Blocking)되는 구조가 기본입니다."
+
+  - question: "논블로킹(Non-Blocking) 시스템에서 가장 주의해야 할 실수는?"
+    options:
+      - "스레드를 너무 많이 만드는 것"
+      - "이벤트 루프(Event Loop)를 실행하는 스레드에서 블로킹 작업(오래 걸리는 연산이나 IO)을 수행하는 것"
+      - "메모리를 너무 적게 사용하는 것"
+      - "비동기 콜백을 사용하지 않는 것"
+    answer: 1
+    explanation: "이벤트 루프 스레드는 소수(보통 코어 수)이므로, 여기서 블로킹이 발생하면 전체 시스템의 처리량이 급격히 떨어지거나 멈춰버릴 수 있습니다(Block the Event Loop)."
+study_order: 54
 ---
 
 ## 이 글에서 얻는 것

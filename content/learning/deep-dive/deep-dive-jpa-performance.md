@@ -9,6 +9,51 @@ tags: ["JPA", "Hibernate", "Performance", "Batch", "Optimization"]
 categories: ["Data"]
 draft: false
 module: "data-system"
+quizzes:
+  - question: "JPA `@ManyToOne` 연관관계의 기본 FetchType은 무엇이며, 왜 문제가 될 수 있는가?"
+    options:
+      - "LAZY / 성능이 너무 느려서 문제"
+      - "EAGER / 연관 엔티티를 항상 조회하여 N+1 문제를 유발할 수 있음"
+      - "NONE / 연관 엔티티를 조회할 수 없어서 문제"
+      - "LAZY / 트랜잭션 외부에서 접근 시 예외 발생"
+    answer: 1
+    explanation: "@ManyToOne은 기본값이 EAGER입니다. 목록 조회 시 각 엔티티의 연관 엔티티를 추가 쿼리로 조회하여 N+1 문제가 발생합니다. 모든 연관관계를 LAZY로 명시적으로 설정하는 것이 권장됩니다."
+
+  - question: "컬렉션 Fetch Join과 페이징을 함께 사용하면 경고가 발생하는 이유는?"
+    options:
+      - "페이징이 비활성화되기 때문"
+      - "JPA가 전체 데이터를 메모리로 로드한 후 애플리케이션에서 페이징(메모리 페이징)을 수행하기 때문"
+      - "페이징 쿼리가 잘못 생성되기 때문"
+      - "트랜잭션이 롤백되기 때문"
+    answer: 1
+    explanation: "컬렉션 Fetch Join 시 DB 레벨에서 페이징을 적용하면 데이터가 잘릴 수 있어, Hibernate가 전체 데이터를 메모리로 가져와 페이징합니다. 대용량 데이터에서 OOM 위험이 있으므로 Batch Size를 사용해야 합니다."
+
+  - question: "`default_batch_fetch_size=100` 설정의 효과는?"
+    options:
+      - "한 번에 최대 100건만 조회할 수 있다."
+      - "Lazy Loading 시 100건씩 IN 쿼리로 묶어 조회하여 N+1 문제를 N/100+1로 줄인다."
+      - "배치 처리 시 트랜잭션을 100건마다 커밋한다."
+      - "페이지 크기를 100으로 고정한다."
+    answer: 1
+    explanation: "Batch Size는 `WHERE id IN (1,2,3,...100)`처럼 여러 건을 한 번에 조회합니다. 기존 N+1이 1+N에서 1+(N/100) 쿼리로 줄어들어 성능이 크게 개선됩니다."
+
+  - question: "대용량 데이터 배치 처리 시 `entityManager.clear()`를 주기적으로 호출하는 이유는?"
+    options:
+      - "트랜잭션을 커밋하기 위해"
+      - "영속성 컨텍스트에 쌓인 엔티티를 비워 메모리(OutOfMemory)를 방지하기 위해"
+      - "캐시를 활성화하기 위해"
+      - "Lazy Loading을 끄기 위해"
+    answer: 1
+    explanation: "영속성 컨텍스트는 조회/저장된 엔티티를 캐시합니다. 대용량 처리 시 계속 쌓이면 메모리가 부족해집니다. 주기적으로 flush() 후 clear()하여 메모리를 해제해야 합니다."
+
+  - question: "JPQL Bulk Update(`@Modifying @Query`)의 주의점은?"
+    options:
+      - "트랜잭션이 자동으로 시작된다."
+      - "영속성 컨텍스트를 거치지 않고 DB를 직접 수정하므로, 실행 후 영속성 컨텍스트와 불일치가 발생할 수 있다."
+      - "페이징을 사용할 수 없다."
+      - "Index가 사용되지 않는다."
+    answer: 1
+    explanation: "Bulk Update는 영속성 컨텍스트 캐시를 거치지 않습니다. 이미 조회된 엔티티가 있으면 stale한 상태가 됩니다. 실행 후 `entityManager.clear()`로 동기화하거나, 조회 전에 실행해야 합니다."
 ---
 
 ## 이 글에서 얻는 것

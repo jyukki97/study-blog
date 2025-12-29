@@ -7,6 +7,51 @@ tags: ["SQL", "Subquery", "GROUP BY", "HAVING", "Window Function", "Aggregation"
 categories: ["Backend Deep Dive"]
 description: "서브쿼리, GROUP BY/HAVING 집계, 윈도우 함수로 복잡한 데이터 분석 쿼리 작성"
 module: "data-system"
+quizzes:
+  - question: "WHERE 절과 HAVING 절의 주요 차이점은?"
+    options:
+      - "WHERE는 문자열만, HAVING은 숫자만 필터링한다."
+      - "WHERE는 GROUP BY 전에 행을 필터링하고, HAVING은 GROUP BY 후에 그룹을 필터링한다."
+      - "WHERE는 집계 함수와 함께 사용하고, HAVING은 일반 조건에 사용한다."
+      - "둘 다 동일한 기능을 한다."
+    answer: 1
+    explanation: "WHERE는 GROUP BY 전에 개별 행을 필터링하고, HAVING은 GROUP BY 후에 그룹화된 결과에 조건을 적용합니다. HAVING에서는 `COUNT(*) > 10`과 같은 집계 조건을 사용할 수 있습니다."
+
+  - question: "상관 서브쿼리(Correlated Subquery)의 특징은?"
+    options:
+      - "서브쿼리가 외부 쿼리와 독립적으로 한 번만 실행된다."
+      - "서브쿼리가 외부 쿼리의 각 행마다 실행되어 참조한다."
+      - "서브쿼리가 항상 JOIN보다 빠르다."
+      - "서브쿼리에서 집계 함수를 사용할 수 없다."
+    answer: 1
+    explanation: "상관 서브쿼리는 외부 쿼리의 컬럼을 참조하므로, 외부 쿼리의 각 행에 대해 서브쿼리가 반복 실행됩니다. 데이터가 많으면 성능 문제가 발생할 수 있어 JOIN으로 대체하는 것이 좋은 경우도 많습니다."
+
+  - question: "RANK()와 DENSE_RANK() 윈도우 함수의 차이점은?"
+    options:
+      - "RANK()는 내림차순, DENSE_RANK()는 오름차순 정렬에만 사용된다."
+      - "RANK()는 동점 시 다음 순위를 건너뛰지만, DENSE_RANK()는 순위를 연속으로 부여한다."
+      - "RANK()는 문자열만, DENSE_RANK()는 숫자만 정렬한다."
+      - "둘 다 동일한 결과를 반환한다."
+    answer: 1
+    explanation: "동점인 경우, RANK()는 다음 순위를 건너뜁니다(예: 1, 2, 2, 4). DENSE_RANK()는 순위를 연속으로 부여합니다(예: 1, 2, 2, 3)."
+
+  - question: "LAG() 윈도우 함수의 용도는?"
+    options:
+      - "현재 행과 다음 행의 값을 비교한다."
+      - "현재 행과 이전 행의 값을 비교할 수 있도록 이전 행의 값을 반환한다."
+      - "전체 데이터의 평균을 계산한다."
+      - "그룹 내 순위를 매긴다."
+    answer: 1
+    explanation: "`LAG(column, offset)`은 현재 행을 기준으로 지정된 offset만큼 이전 행의 값을 반환합니다. 예를 들어, 전일 대비 매출 변화량을 계산하는 데 유용합니다."
+
+  - question: "대용량 데이터에서 EXISTS와 IN 중 일반적으로 더 효율적인 것은?"
+    options:
+      - "항상 IN이 더 빠르다."
+      - "서브쿼리 결과가 클 때는 EXISTS가 더 효율적인 경우가 많다."
+      - "항상 EXISTS가 더 빠르다."
+      - "둘의 성능 차이는 없다."
+    answer: 1
+    explanation: "EXISTS는 조건을 만족하는 행을 발견하면 즉시 true를 반환하고 탐색을 중단합니다. 반면 IN은 서브쿼리 전체 결과를 먼저 만들어야 하므로, 서브쿼리 결과가 큰 경우 EXISTS가 더 효율적입니다."
 study_order: 201
 ---
 

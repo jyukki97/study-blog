@@ -8,6 +8,51 @@ categories: ["Backend Deep Dive"]
 description: "DDoS 방어부터 유료 API 사용량 제한까지. Token Bucket 알고리즘과 Redis 분산 처리"
 module: "resilience"
 study_order: 501
+quizzes:
+  - question: "Rate Limiting을 적용하는 가장 중요한 세 가지 이유는?"
+    options:
+      - "로깅, 캐싱, 인증"
+      - "DDoS/트래픽 폭주 방지(Protection), 특정 사용자의 리소스 독점 방지(Fairness), 유료 등급별 사용량 제한(Business)"
+      - "성능 향상, 메모리 절약, CPU 최적화"
+      - "보안, 인가, 암호화"
+    answer: 1
+    explanation: "Rate Limiting은 시스템 보호(Protection), 사용자 간 공정성(Fairness), 그리고 비즈니스 모델(유료 플랜 차등) 구현에 핵심적인 역할을 합니다."
+
+  - question: "Token Bucket 알고리즘에서 '버킷 크기(Capacity)'와 '충전 속도(Refill Rate)'가 의미하는 것은?"
+    options:
+      - "DB 연결 수와 쿼리 속도"
+      - "버킷 크기는 허용되는 순간 트래픽(Burst) 양이고, 충전 속도는 지속 가능한 평균 처리량"
+      - "메모리 크기와 CPU 속도"
+      - "네트워크 대역폭과 지연 시간"
+    answer: 1
+    explanation: "Token Bucket에서 Capacity=100, Refill Rate=10/sec이면 순간적으로 100개를 처리할 수 있고(Burst), 지속적으로는 초당 10개가 처리 가능한 평균 속도가 됩니다."
+
+  - question: "Fixed Window Rate Limiting의 경계값 문제(두 윈도우 경계에서 2배 트래픽 허용)를 해결하는 방법은?"
+    options:
+      - "윈도우 크기를 늘린다."
+      - "Sliding Window 방식을 사용하여 시간을 겹쳐서 계산한다."
+      - "Token Bucket을 사용하면 해결된다."
+      - "문제가 되지 않으므로 무시한다."
+    answer: 1
+    explanation: "Fixed Window는 59초에 100개, 01초에 100개가 들어오면 1분 내 200개를 허용하는 버그가 있습니다. Sliding Window는 현재 시점 기준으로 과거 1분간의 요청을 계산하여 이를 방지합니다."
+
+  - question: "분산 환경에서 Rate Limiting을 구현할 때 Redis와 Lua Script를 함께 사용하는 이유는?"
+    options:
+      - "Redis가 Lua만 지원하기 때문"
+      - "GET → 카운트 증가 → SET 사이의 Race Condition을 방지하기 위해 Lua Script로 원자성(Atomicity)을 보장하기 위해"
+      - "Lua가 더 빠르기 때문"
+      - "보안을 위해"
+    answer: 1
+    explanation: "여러 서버가 동시에 Redis를 읽고 쓸 때, 별도의 GET/INCR 명령 사이에 다른 요청이 끼어들 수 있습니다. Lua Script는 Redis에서 원자적으로 실행되어 이 문제를 해결합니다."
+
+  - question: "Rate Limit에 걸린 요청에 `429 Too Many Requests` 응답을 줄 때, 함께 제공하면 좋은 HTTP 헤더는?"
+    options:
+      - "Content-Type"
+      - "Retry-After (재시도 가능 시점 안내)"
+      - "Cache-Control"
+      - "Authorization"
+    answer: 1
+    explanation: "`Retry-After` 헤더로 클라이언트에게 언제 다시 요청해도 되는지 알려주면, 클라이언트가 불필요한 재시도 없이 적절히 대기할 수 있어 시스템 부하를 줄입니다."
 ---
 
 ## 🚧 1. 왜 막아야 하나요?

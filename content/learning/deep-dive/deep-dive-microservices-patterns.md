@@ -9,6 +9,51 @@ tags: ["Microservices", "Architecture", "Patterns", "Service Mesh"]
 categories: ["Distributed"]
 draft: false
 module: "distributed"
+quizzes:
+  - question: "마이크로서비스 환경에서 Service Discovery가 필요한 이유는?"
+    options:
+      - "보안을 위해"
+      - "컨테이너가 동적으로 생성/삭제되어 IP가 변하므로, 서비스 이름으로 인스턴스 목록을 찾기 위해"
+      - "속도를 높이기 위해"
+      - "비용 절감"
+    answer: 1
+    explanation: "오토스케일링이나 컨테이너 재시작으로 IP가 변하면 정적 설정으로는 관리가 어렵습니다. Eureka 같은 Registry에서 서비스 이름으로 현재 인스턴스를 조회합니다."
+
+  - question: "Sidecar 패턴과 Service Mesh의 관계는?"
+    options:
+      - "둘은 관련이 없다."
+      - "Service Mesh는 각 서비스에 Sidecar Proxy(예: Envoy)를 배치하여 mTLS, Retry, Circuit Breaker 등 횡단 관심사를 처리하는 아키텍처"
+      - "Sidecar가 Service Mesh보다 크다."
+      - "Service Mesh는 라이브러리다."
+    answer: 1
+    explanation: "Istio/Linkerd 같은 Service Mesh는 모든 Pod에 Envoy Sidecar를 주입합니다. 앱 코드 변경 없이 트래픽 관리, 관측, 보안을 일관되게 적용합니다."
+
+  - question: "BFF(Backend for Frontend) 패턴을 사용하는 이유는?"
+    options:
+      - "서버 수를 줄이기 위해"
+      - "모바일/웹 등 클라이언트별로 다른 데이터 요구사항을 최적화하여 Over-fetching/Under-fetching을 방지"
+      - "보안을 위해"
+      - "필요 없다"
+    answer: 1
+    explanation: "모바일은 최소 데이터, 웹은 풍부한 데이터가 필요합니다. 단일 API로 모두 맞추면 비효율적이므로 클라이언트별 BFF를 두어 최적화합니다."
+
+  - question: "Strangler Fig 패턴으로 레거시 마이그레이션을 하는 방식은?"
+    options:
+      - "한 번에 전체 시스템을 교체"
+      - "Proxy를 앞에 두고 일부 기능부터 새 서비스로 라우팅하며 점진적으로 확대, 레거시를 서서히 '교살'"
+      - "레거시를 그대로 유지"
+      - "새 서비스만 개발"
+    answer: 1
+    explanation: "무화과나무가 숙주를 서서히 감싸듯, /orders → 새 서비스, 나머지 → 레거시로 라우팅하다가 점차 새 서비스로 이관합니다."
+
+  - question: "Sidecar Proxy와 애플리케이션 Library(예: Resilience4j)의 트레이드오프는?"
+    options:
+      - "둘은 동일하다."
+      - "Sidecar: 언어 독립적/앱 재배포 없이 업데이트 가능하나 리소스 추가 필요. Library: 단순/경량하나 앱 재배포 필요"
+      - "Library가 더 좋다."
+      - "Sidecar가 항상 더 좋다."
+    answer: 1
+    explanation: "다양한 언어를 쓰는 큰 조직은 Sidecar가 유리하고, 단일 언어로 작은 팀은 Library가 단순합니다. 상황에 맞게 선택합니다."
 ---
 
 ## 이 글에서 얻는 것

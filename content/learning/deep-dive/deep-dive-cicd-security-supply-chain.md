@@ -8,6 +8,51 @@ categories: ["DevOps"]
 description: "내 코드는 안전해도 빌드 도구가 해킹당하면? 소스부터 배포까지 신뢰 루프 만들기"
 module: "ops-observability"
 study_order: 602
+quizzes:
+  - question: "공급망 공격(Supply Chain Attack)이란?"
+    options:
+      - "서버를 직접 해킹하는 것"
+      - "애플리케이션을 만드는 도구(빌드 파이프라인, 라이브러리)를 공격하여 정상 업데이트에 악성코드를 심는 것"
+      - "피싱 이메일"
+      - "DDoS 공격"
+    answer: 1
+    explanation: "SolarWinds 사태처럼, 빌드 과정에서 악성코드가 주입되면 정상 업데이트를 통해 모든 고객에게 배포됩니다."
+
+  - question: "SBOM(Software Bill of Materials)을 생성하는 이유는?"
+    options:
+      - "빌드 속도를 높이기 위해"
+      - "내 소프트웨어에 어떤 라이브러리가 사용되었는지 목록화하여, 취약점 발견 시 영향 범위를 즉시 파악하기 위해"
+      - "비용 절감"
+      - "로그 분석"
+    answer: 1
+    explanation: "log4j 사태 때 '우리 서비스 중 어디에 log4j가 있는지' 파악하는 데 시간이 걸렸습니다. SBOM이 있으면 즉시 확인 가능합니다."
+
+  - question: "컨테이너 이미지에 서명(Signing)하고 배포 시 검증하는 목적은?"
+    options:
+      - "이미지 크기를 줄이기 위해"
+      - "배포되는 이미지가 우리 CI에서 만든 것이 맞는지 암호학적으로 검증하여 변조를 방지"
+      - "빌드 속도 향상"
+      - "로깅을 위해"
+    answer: 1
+    explanation: "레지스트리의 이미지가 몰래 바뀌어도 서명이 맞지 않으면 Kubernetes가 배포를 거부합니다."
+
+  - question: "GitHub Actions에서 Action 버전을 `v1` 태그 대신 커밋 해시로 지정해야 하는 이유는?"
+    options:
+      - "속도가 빠르기 때문"
+      - "태그는 덮어쓰기가 가능하여 악성 코드로 교체될 수 있지만, 커밋 해시는 불변이기 때문"
+      - "필수 사항이기 때문"
+      - "비용 절감"
+    answer: 1
+    explanation: "Action 개발자의 계정이 탈취되면 `v1` 태그를 악성 버전으로 바꿀 수 있습니다. 커밋 해시는 변경 불가하여 안전합니다."
+
+  - question: "CI에서 AWS 키 같은 시크릿 누출을 방지하기 위한 권장 방법은?"
+    options:
+      - "시크릿을 환경 변수에 평문으로 저장"
+      - "Long-lived 키 대신 OIDC(임시 토큰)를 사용하고, PR 빌드에서는 시크릿을 사용하지 않도록 분리"
+      - "시크릿을 코드에 커밋"
+      - "시크릿 없이 운영"
+    answer: 1
+    explanation: "OIDC는 CI 실행 시 임시 토큰을 발급받아 키 유출 시 피해를 최소화합니다. PR에서는 테스트만, main에서만 배포하도록 분리합니다."
 ---
 
 ## ⛓️ 1. 공급망 공격(Supply Chain Attack)이란?

@@ -1,6 +1,6 @@
 ---
 title: "Thread Pool 튜닝: 적정 스레드 수 찾기"
-study_order: 111
+study_order: 44
 date: 2025-12-28
 topic: "Java"
 topic_icon: "🧵"
@@ -9,6 +9,60 @@ tags: ["Java", "Thread Pool", "Concurrency", "Performance"]
 categories: ["Foundation"]
 draft: false
 module: "foundation"
+quizzes:
+  - question: "`ThreadPoolExecutor`에서 새로운 스레드가 생성되는 시점은 언제인가? (기본 설정 기준)"
+    options:
+      - "작업이 들어올 때마다 항상 생성된다."
+      - "Core Pool Size가 꽉 차고, 작업 큐(Queue)도 가득 찼을 때 Max Pool Size까지 생성된다."
+      - "Core Pool Size가 꽉 차면 즉시 Max Pool Size까지 생성된다."
+      - "CPU 사용량이 100%일 때 생성된다."
+    answer: 1
+    explanation: "스레드 풀은 'Core 스레드 채움 -> 큐에 대기 -> 큐가 꽉 차면 Max 스레드까지 확장 -> 그것도 안 되면 거부(Reject)'의 순서로 동작합니다."
+
+  - question: "실무에서 `Executors.newFixedThreadPool()`이나 `newCachedThreadPool()` 대신 `ThreadPoolExecutor`를 직접 생성하여 사용하는 것을 권장하는 가장 큰 이유는?"
+    options:
+      - "코드가 더 짧아서"
+      - "기본 팩토리 메서드들은 '무제한 큐(Unbounded Queue)'나 '무제한 스레드 생성'을 허용하여 OOM(OutOfMemoryError) 발생 위험이 있기 때문이다."
+      - "성능이 더 빨라서"
+      - "자바 8부터 팩토리 메서드가 Deprecated 되었기 때문이다."
+    answer: 1
+    explanation: "`newFixedThreadPool`은 `LinkedBlockingQueue`의 크기 제한이 없고, `newCachedThreadPool`은 스레드를 무한정 생성할 수 있어 리소스 고갈 위험이 큽니다."
+
+  - question: "IO 바운드(DB 조회가 많은) 작업의 적정 스레드 수를 결정할 때, CPU 코어 수보다 훨씬 많은 스레드를 할당하는 이유는?"
+    options:
+      - "IO 작업 중에는 CPU가 놀지 않게 하기 위해 문맥 교환(Context Switching)을 늘려야 하므로"
+      - "스레드가 IO 응답을 기다리는(Blocking) 동안 CPU를 다른 스레드가 사용할 수 있도록 하여 전체 처리율을 높이기 위해"
+      - "메모리를 더 많이 사용하기 위해"
+      - "자바 스레드는 OS 스레드와 1:1 매핑되지 않으므로"
+    answer: 1
+    explanation: "IO 작업은 CPU를 거의 쓰지 않고 대기하는 시간이 길므로, 그 시간에 다른 스레드가 CPU를 쓰게 하면 자원 효율성이 높아집니다."
+
+  - question: "스레드 풀의 작업 큐가 가득 찼을 때, 요청을 버리지 않고 호출한 스레드(Main Thread 등)가 직접 작업을 실행하게 하여 자연스럽게 부하를 조절(Backpressure)하는 거부 정책은?"
+    options:
+      - "AbortPolicy"
+      - "CallerRunsPolicy"
+      - "DiscardPolicy"
+      - "DiscardOldestPolicy"
+    answer: 1
+    explanation: "`CallerRunsPolicy`는 작업을 제출한 스레드가 직접 실행하게 만듦으로써, 작업 제출 속도를 늦추는 효과(Throttle)를 줍니다."
+
+  - question: "`shutdown()`과 `shutdownNow()`의 차이점은?"
+    options:
+      - "차이가 없다."
+      - "`shutdown()`은 이미 제출된 작업은 끝까지 실행하고 종료하지만, `shutdownNow()`는 실행 중인 스레드에 인터럽트(Interrupt)를 걸어 강제 종료를 시도하고 대기 중인 작업 목록을 반환한다."
+      - "`shutdown()`이 더 강력하게 즉시 종료한다."
+      - "`shutdownNow()`는 JVM을 종료한다."
+    answer: 1
+    explanation: "우아한 종료(Graceful Shutdown)를 위해서는 `shutdown()`을 먼저 호출하고, 일정 시간(`awaitTermination`) 기다린 후 안 되면 `shutdownNow()`를 호출하는 패턴을 명시합니다."
+
+  - question: "`LinkedBlockingQueue`를 사용할 때 생성자에서 용량(Capacity)을 지정하지 않으면 발생하는 문제는?"
+    options:
+      - "큐의 크기가 0이 된다."
+      - "큐의 크기가 `Integer.MAX_VALUE`가 되어, 작업이 계속 쌓이면 메모리 부족(OOM)으로 앱이 죽을 수 있다."
+      - "성능이 가장 빠르다."
+      - "동시성 오류가 발생한다."
+    answer: 1
+    explanation: "무제한 큐는 소비(Consumer) 속도가 생산(Producer) 속도를 따라가지 못할 때 작업이 무한정 쌓이는 '메모리 폭탄'이 될 수 있습니다."
 ---
 
 ## 이 글에서 얻는 것

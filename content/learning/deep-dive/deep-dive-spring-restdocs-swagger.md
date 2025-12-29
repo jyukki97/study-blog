@@ -7,6 +7,51 @@ tags: ["REST Docs", "Swagger", "OpenAPI", "Spring"]
 categories: ["Backend Deep Dive"]
 description: "스펙 우선 vs 코드 기반 문서화 비교, REST Docs/Swagger 설정과 적용 패턴"
 module: "spring-core"
+quizzes:
+  - question: "Spring REST Docs와 Swagger(OpenAPI)의 가장 큰 차이점 중, Spring REST Docs의 핵심 특징은?"
+    options:
+      - "애노테이션 기반으로 API 스펙을 추출한다."
+      - "테스트(Test) 코드 실행 결과를 기반으로 문서를 생성하여 코드와 문서의 불일치를 방지한다."
+      - "UI가 화려하여 API 테스트가 쉽다."
+      - "XML 설정 파일을 사용하여 문서를 정의한다."
+    answer: 1
+    explanation: "Spring REST Docs는 MockMvc나 WebTestClient를 사용한 테스트 수행 시 생성되는 스니펫을 사용하여 문서를 만들므로, 테스트가 통과해야만 문서가 갱신되어 신뢰도가 높습니다."
+
+  - question: "Spring REST Docs에서 테스트 수행 후 생성된 스니펫(.adoc)을 문서로 변환하기 위해 주로 사용하는 도구는?"
+    options:
+      - "Markdown"
+      - "Asciidoctor"
+      - "LaTeX"
+      - "Pandoc"
+    answer: 1
+    explanation: "Spring REST Docs는 기본적으로 Asciidoctor를 사용하여 스니펫들을 조합하고 최종적으로 HTML이나 PDF 문서를 생성합니다."
+
+  - question: "OpenAPI(Swagger) 스펙을 사용하여 문서를 자동 생성할 때, 운영 환경(Production)에서 주의해야 할 보안 사항은?"
+    options:
+      - "문서 파일을 GZIP으로 압축해야 한다."
+      - "모든 API에 대해 자세한 설명을 추가해야 한다."
+      - "Swagger UI 및 OpenAPI 엔드포인트에 대한 접근을 제한(인증/IP제한)하거나 비활성화해야 한다."
+      - "항상 최신 버전의 Swagger UI를 사용해야 한다."
+    answer: 2
+    explanation: "Swagger UI는 API의 구조와 상세 정보를 노출하며 직접 호출도 가능하므로, 악의적인 공격자에게 악용될 수 있어 운영 환경에서는 접근을 통제해야 합니다."
+
+  - question: "API 문서화 방식 중 'Code-First'(코드 우선) 접근 방식의 대표적인 예는?"
+    options:
+      - "RAML"
+      - "Swagger(SpringDoc) 애노테이션 기반"
+      - "API Blueprint"
+      - "워드 프로세서로 작성"
+    answer: 1
+    explanation: "SpringDoc(Swagger)은 코드에 컨트롤러와 모델에 애노테이션을 붙여두면 이를 스캔하여 API 문서를 생성하는 Code-First 방식을 주로 사용합니다."
+
+  - question: "Spring REST Docs 사용 시, 문서화가 누락된 필드가 있으면 테스트가 실패하도록 하여 문서의 정확성을 강제하는 기능은?"
+    options:
+      - "Strict Mode"
+      - "Relaxed Binding"
+      - "Fail On Unknown Properties (기본 동작)"
+      - "Auto Documentation"
+    answer: 2
+    explanation: "기본적으로 Spring REST Docs는 요청/응답의 모든 필드가 문서화되지 않으면 테스트를 실패시킵니다. (모든 필드를 검증하지 않으려면 `relaxedResponseFields` 등을 써야 함)"
 study_order: 165
 ---
 

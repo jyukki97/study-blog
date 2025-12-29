@@ -6,7 +6,52 @@ topic: "Security"
 tags: ["Spring Security", "Filter Chain", "JWT", "OAuth2"]
 categories: ["Backend Deep Dive"]
 description: "어렵게만 느껴지는 Security의 내부 작동 원리(DelegatingFilterProxy, FilterChain)와 커스텀 필터"
-module: "spring-core"
+module: "security"
+quizzes:
+  - question: "Spring Security에서 '인증(Authentication)'과 '인가(Authorization)'의 차이로 올바른 것은?"
+    options:
+      - "인증은 권한을 부여하는 것이고, 인가는 신원을 확인하는 것이다."
+      - "인증은 '당신이 누구인가'를 확인하는 것이고, 인가는 '당신이 무엇을 할 수 있는가'를 허락하는 것이다."
+      - "인증은 로그아웃을 처리하고, 인가는 로그인을 처리한다."
+      - "Spring Security에서는 두 용어를 구분하지 않고 사용한다."
+    answer: 1
+    explanation: "인증(Authentication)은 사용자 신원(Who are you?)을 검증하는 절차이고, 인가(Authorization)는 검증된 사용자에게 리소스 접근 권한(What can you do?)을 부여하거나 제한하는 절차입니다."
+
+  - question: "Spring Security에서 현재 로그인한 사용자의 보안 정보(Authentication 객체)를 저장하고 있는 전역 저장소는?"
+    options:
+      - "HttpSession"
+      - "SecurityContextHolder"
+      - "ApplicationContext"
+      - "DispatcherServlet"
+    answer: 1
+    explanation: "`SecurityContextHolder`는 ThreadLocal을 사용하여 현재 실행 중인 스레드의 보안 컨텍스트(`SecurityContext`)를 저장하므로 application 어디서든 인증 정보에 접근할 수 있게 해줍니다."
+
+  - question: "JWT(JSON Web Token)를 사용하는 REST API 서버를 구축할 때, Spring Security에서 세션 설정(`SessionCreationPolicy`)은 어떻게 해야 하는가?"
+    options:
+      - "ALWAYS (항상 생성)"
+      - "IF_REQUIRED (필요시 생성 - 기본값)"
+      - "STATELESS (생성하지 않음)"
+      - "NEVER (생성하지 않으나 기존 세션은 사용)"
+    answer: 2
+    explanation: "JWT는 토큰 기반의 무상태(Stateless) 인증 방식이므로, 서버가 세션을 생성하거나 유지하지 않도록 `SessionCreationPolicy.STATELESS`로 설정해야 합니다."
+
+  - question: "커스텀 필터(예: `JwtFilter`)를 `UsernamePasswordAuthenticationFilter`보다 먼저 실행되게 하려면 어떤 설정 메서드를 사용해야 하는가?"
+    options:
+      - "http.addFilterAfter(filter, class)"
+      - "http.addFilterBefore(filter, class)"
+      - "http.addFilterAt(filter, class)"
+      - "http.setFilter(filter)"
+    answer: 1
+    explanation: "`addFilterBefore(커스텀필터, 기준필터.class)`를 사용하면 지정한 기준 필터의 **앞** 순서에 커스텀 필터를 배치할 수 있습니다."
+
+  - question: "JWT와 같은 토큰 방식을 사용할 때, 일반적으로 비활성화(disable) 권장되는 보안 기능은?"
+    options:
+      - "CORS (Cross-Origin Resource Sharing)"
+      - "CSRF (Cross-Site Request Forgery)"
+      - "XSS Protection"
+      - "HSTS"
+    answer: 1
+    explanation: "CSRF는 주로 브라우저의 쿠키/세션 기반 인증에서 발생하는 취약점이므로, 헤더에 토큰을 담아 보내는 REST API 방식에서는 보통 비활성화(`csrf.disable()`)합니다."
 study_order: 204
 ---
 

@@ -8,6 +8,51 @@ categories: ["Backend Deep Dive"]
 description: "Blocking vs Non-blocking, Synchronous vs Asynchronous의 정확한 구분과 고성능 서버(Nginx, Node.js, Kafka)의 기반 기술 해부."
 module: "advanced-cs"
 study_order: 901
+quizzes:
+  - question: "Blocking I/O와 Non-blocking I/O의 핵심 차이는?"
+    options:
+      - "둘은 동일하다."
+      - "Blocking은 커널이 응답할 때까지 스레드가 잠들고, Non-blocking은 즉시 리턴(EWOULDBLOCK)하여 다른 작업을 할 수 있다."
+      - "Non-blocking이 더 느리다."
+      - "Blocking이 더 복잡하다."
+    answer: 1
+    explanation: "Blocking에서는 read() 호출 시 데이터가 올 때까지 스레드가 대기합니다. Non-blocking은 데이터가 없으면 바로 에러를 리턴하여 앱이 다른 작업을 할 수 있습니다."
+
+  - question: "I/O Multiplexing(select/poll/epoll)이 C10K 문제를 해결하는 방식은?"
+    options:
+      - "스레드를 1만 개 생성한다."
+      - "여러 소켓을 감시하다가 '데이터가 온 소켓'만 알려주어, 적은 스레드로 많은 연결을 처리"
+      - "네트워크 속도를 높인다."
+      - "메모리를 늘린다."
+    answer: 1
+    explanation: "1만 연결에 1만 스레드를 쓰면 컨텍스트 스위칭 오버헤드가 큽니다. epoll은 준비된 소켓만 알려주어 적은 스레드로 효율적으로 처리합니다."
+
+  - question: "epoll이 select/poll보다 성능이 좋은 이유는?"
+    options:
+      - "더 오래되어서"
+      - "커널이 준비된 fd만 반환하고, fd 등록이 O(1)이며, 매번 전체 목록을 복사하지 않기 때문"
+      - "더 단순해서"
+      - "차이가 없다"
+    answer: 1
+    explanation: "select는 매번 모든 fd를 검사(O(n))하고 1024개 제한이 있습니다. epoll은 callback 방식으로 준비된 fd만 반환하여 O(1)에 가깝게 동작합니다."
+
+  - question: "Zero Copy 기술이 Kafka/Nginx 성능을 높이는 원리는?"
+    options:
+      - "데이터를 압축해서"
+      - "디스크→User Space→Socket 복사 대신, sendfile()로 커널 내에서 직접 전송하여 CPU 복사를 줄임"
+      - "더 빠른 디스크를 사용해서"
+      - "메모리를 늘려서"
+    answer: 1
+    explanation: "일반적으로 파일을 전송하면 디스크→커널→유저→커널→네트워크로 여러 번 복사합니다. Zero Copy는 유저 공간을 거치지 않아 복사 횟수가 줄어듭니다."
+
+  - question: "Node.js가 단일 스레드로 고성능을 달성하는 I/O 모델은?"
+    options:
+      - "Blocking I/O"
+      - "libuv를 이용한 Asynchronous I/O (이벤트 루프 + 논블로킹)"
+      - "멀티 스레드"
+      - "Polling"
+    answer: 1
+    explanation: "Node.js는 이벤트 루프가 I/O 완료 이벤트를 받아 콜백을 실행합니다. I/O 중에 블로킹되지 않으므로 적은 리소스로 많은 요청을 처리합니다."
 ---
 
 ## 이 글에서 얻는 것

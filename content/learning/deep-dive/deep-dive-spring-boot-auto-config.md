@@ -7,6 +7,51 @@ tags: ["Spring Boot", "AutoConfiguration", "Condition", "Classpath"]
 categories: ["Backend Deep Dive"]
 description: "자동 설정 동작 원리, 조건부 빈 등록, 커스터마이징 포인트 정리"
 module: "spring-core"
+quizzes:
+  - question: "Spring Boot의 자동 설정(Auto-Configuration)이 동작하는 핵심 원리는?"
+    options:
+      - "모든 빈을 무조건 다 등록한다."
+      - "클래스패스(Classpath)에 특정 라이브러리가 있는지, 사용자가 정의한 빈이 없는지 등의 조건(@Conditional)을 확인하여 필요한 빈만 자동으로 등록한다."
+      - "XML 설정 파일을 자동으로 생성한다."
+      - "인터넷에서 설정을 다운로드한다."
+    answer: 1
+    explanation: "`@EnableAutoConfiguration`은 `META-INF/spring.factories`(또는 imports)에 정의된 설정 클래스들을 로딩하되, `@ConditionalOnClass`, `@ConditionalOnMissingBean` 등의 조건이 맞을 때만 빈으로 등록합니다."
+
+  - question: "자동 설정이 적용된 이유나 제외된 이유를 확인하기 위해 애플리케이션 실행 시 사용하는 옵션인 `--debug`를 사용하면 출력되는 리포트의 이름은?"
+    options:
+      - "BeanDefinitionReport"
+      - "ConditionEvaluationReport"
+      - "AutoConfigurationReport"
+      - "DependencyReport"
+    answer: 1
+    explanation: "ConditionEvaluationReport는 어떤 자동 설정이 매칭되었는지(Positive Matches)와 매칭되지 않았는지(Negative Matches)를 상세히 보여줍니다."
+
+  - question: "Spring Boot가 자동 설정하는 기본 빈 대신 사용자가 직접 정의한 빈을 사용하고 싶을 때, 가장 일반적이고 권장되는 방법은?"
+    options:
+      - "자동 설정을 `exclude`로 끈다."
+      - "같은 이름이나 타입의 빈을 직접 선언하여 등록한다. (빈 오버라이딩)"
+      - "Spring Boot 소스 코드를 수정한다."
+      - "어플리케이션을 재설치한다."
+    answer: 1
+    explanation: "대부분의 자동 설정은 `@ConditionalOnMissingBean`이 붙어 있어, 사용자가 같은 타입의 빈을 직접 등록하면 자동 설정은 물러나고 사용자의 빈이 우선 적용됩니다."
+
+  - question: "다음 중 '특정 클래스(라이브러리)가 클래스패스에 존재할 때만' 설정을 활성화하는 애노테이션은?"
+    options:
+      - "@ConditionalOnBean"
+      - "@ConditionalOnProperty"
+      - "@ConditionalOnClass"
+      - "@ConditionalOnExpression"
+    answer: 2
+    explanation: "`@ConditionalOnClass`는 지정된 클래스가 런타임에 로딩 가능한 상태(의존성이 추가된 상태)인지 확인하여 설정을 켜거나 끕니다."
+
+  - question: "자동 설정을 커스터마이징할 때, `exclude` 옵션을 사용하는 것이 '마지막 수단'이어야 하는 이유는?"
+    options:
+      - "설정 파일이 너무 길어지기 때문에"
+      - "Spring Boot 실행 속도가 느려지기 때문에"
+      - "자동 설정 간의 의존성(Chaining)이 끊겨 다른 기능이 의도치 않게 오동작할 위험이 있기 때문에"
+      - "컴파일 에러가 발생하기 때문에"
+    answer: 2
+    explanation: "자동 설정들은 서로 밀접하게 연관된 경우가 많아, 하나를 강제로 끄면 그것을 필요로 하는 다른 설정들까지 영향을 받을 수 있습니다. 가능하면 프로퍼티 조정이나 빈 오버라이딩을 먼저 고려해야 합니다."
 study_order: 200
 ---
 

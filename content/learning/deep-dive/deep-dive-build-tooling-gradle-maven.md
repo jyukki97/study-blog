@@ -7,7 +7,79 @@ tags: ["Gradle", "Maven", "Dependencies", "Multi-module", "Build"]
 categories: ["Backend Deep Dive"]
 description: "의존성 해석/버전 충돌, 빌드·테스트 파이프라인, 멀티모듈 분리의 기준을 잡는 글"
 module: "foundation"
-study_order: 30
+study_order: 12
+quizzes:
+  - question: "Maven/Gradle을 사용하는 가장 핵심적인 이유는 무엇인가요?"
+    options:
+      - "코드를 컴파일하기 위해서"
+      - "복잡한 의존성 그래프와 전이 의존성을 자동으로 관리하기 위해서"
+      - "IDE를 실행하기 위해서"
+      - "자바를 설치하기 위해서"
+    answer: 1
+    explanation: "빌드 도구의 핵심 가치는 수많은 라이브러리 간의 의존 관계(그래프)를 해결해주는 것입니다."
+
+  - question: "라이브러리 A가 B를 사용하고, B가 C를 사용할 때, 내 프로젝트에 자동으로 C가 포함되는 현상을 무엇이라 하나요?"
+    options:
+      - "직접 의존성 (Direct Dependency)"
+      - "전이 의존성 (Transitive Dependency)"
+      - "순환 의존성 (Circular Dependency)"
+      - "선택적 의존성 (Optional Dependency)"
+    answer: 1
+    explanation: "전이 의존성 덕분에 필요한 라이브러리가 의존하는 다른 라이브러리들까지 자동으로 가져올 수 있습니다."
+
+  - question: "Gradle에서 의존성 충돌이나 트리를 확인하기 위해 사용하는 명령어는?"
+    options:
+      - "./gradlew build"
+      - "./gradlew dependencies"
+      - "./gradlew clean"
+      - "./gradlew test"
+    answer: 1
+    explanation: "dependencies 태스크를 실행하면 프로젝트의 의존성 트리를 계층적으로 볼 수 있습니다."
+
+  - question: "자바 런타임에서 'NoSuchMethodError'나 'ClassNotFoundException'이 발생하는 가장 흔한 원인은?"
+    options:
+      - "디스크 용량 부족"
+      - "의존성 버전 충돌 (Dependency Conflict)"
+      - "네트워크 연결 끊김"
+      - "자바 문법 오류"
+    answer: 1
+    explanation: "서로 다른 라이브러리가 같은 클래스의 다른 버전을 요구할 때, 런타임에 예상치 못한 버전이 로드되어 발생합니다."
+
+  - question: "Spring Boot에서 여러 의존성의 버전을 하나하나 명시하지 않아도 서로 호환되는 버전으로 맞춰주는 기능(개념)은?"
+    options:
+      - "BOM (Bill of Materials)"
+      - "DOM (Document Object Model)"
+      - "DTO (Data Transfer Object)"
+      - "ORM (Object Relational Mapping)"
+    answer: 0
+    explanation: "BOM을 사용하면 프로젝트 전체에서 사용하는 라이브러리들의 버전을 중앙에서 일관되게 관리할 수 있습니다."
+
+  - question: "CI(지속적 통합) 서버에서 빌드할 때 '재현 가능한 빌드'를 위해 중요한 것은?"
+    options:
+      - "로컬에 있는 라이브러리를 그대로 복사해서 쓴다."
+      - "항상 최신 버전(latest)을 다운로드 받는다."
+      - "의존성 버전과 실행 환경(JDK)을 고정한다."
+      - "빌드 캐시를 절대 사용하지 않는다."
+    answer: 2
+    explanation: "어디서 언제 빌드하든 같은 결과가 나오려면 환경과 의존성 버전이 명확히 고정되어야 합니다."
+
+  - question: "멀티모듈 프로젝트 도입을 고려해야 하는 신호로 적절하지 않은 것은?"
+    options:
+      - "빌드 시간이 너무 길어져서 병렬 빌드가 필요할 때"
+      - "코드가 적지만 그냥 멋있어 보일 때"
+      - "특정 도메인/기능 간의 의존성 방향을 강제하고 싶을 때"
+      - "공통 코드를 여러 서비스에서 명확히 분리해 쓰고 싶을 때"
+    answer: 1
+    explanation: "멀티모듈은 복잡도를 수반하므로, 명확한 문제 해결 목적(빌드 속도, 격리 등) 없이 도입하면 오버엔지니어링이 될 수 있습니다."
+
+  - question: "테스트 환경에서만 필요한 라이브러리(예: JUnit)를 런타임 배포에 포함시키지 않기 위해 사용하는 Scope/Configuration은?"
+    options:
+      - "implementation"
+      - "api"
+      - "testImplementation"
+      - "runtimeOnly"
+    answer: 2
+    explanation: "testImplementation으로 선언된 의존성은 테스트 컴파일/실행 시에만 사용되며 실 배포물에는 제외됩니다."
 ---
 
 ## 이 글에서 얻는 것

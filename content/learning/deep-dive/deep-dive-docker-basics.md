@@ -7,6 +7,51 @@ tags: ["Docker", "Container", "Dockerfile", "Docker Compose", "Image"]
 categories: ["Backend Deep Dive"]
 description: "VM과 컨테이너의 아키텍처 차이, 이미지 레이어 구조(Copy-on-Write)의 원리"
 module: "ops-observability"
+quizzes:
+  - question: "가상 머신(VM)과 비교했을 때, 도커 컨테이너가 훨씬 가볍고 빠르게 실행될 수 있는 핵심 이유는?"
+    options:
+      - "컨테이너는 Hypervisor 위에서 독립된 Guest OS를 부팅하기 때문이다."
+      - "컨테이너는 Host OS의 커널(Kernel)을 공유하며, 격리된 프로세스로 동작하기 때문이다."
+      - "컨테이너는 하드웨어 전체를 가상화하기 때문이다."
+      - "컨테이너는 RAM을 전혀 사용하지 않기 때문이다."
+    answer: 1
+    explanation: "VM은 무거운 Guest OS를 통째로 설치해야 하지만, 컨테이너는 Host OS의 커널을 공유하고 프로세스 레벨에서 격리되므로 부팅이 초 단위로 빠릅니다."
+
+  - question: "Docker 이미지의 레이어 구조와 관련된 설명으로 옳은 것은?"
+    options:
+      - "이미지의 모든 레이어는 읽기/쓰기(Read-Write)가 가능하다."
+      - "컨테이너를 실행하면 이미지 레이어 위에 얇은 Read-Only 레이어가 추가된다."
+      - "이미지 레이어는 불변(Read-Only)이며, 여러 컨테이너가 Base Image 레이어를 공유하여 디스크 공간을 절약한다."
+      - "이미지를 빌드할 때마다 모든 레이어가 새로 다운로드된다."
+    answer: 2
+    explanation: "이미지 레이어는 Read-Only로 설계되어 여러 컨테이너가 공유할 수 있으며, 컨테이너 실행 시에만 최상단에 쓰기 가능한(R/W) 레이어가 추가됩니다."
+
+  - question: "Dockerfile에서 'Multi-stage Build'를 사용하는 가장 주된 목적은?"
+    options:
+      - "빌드 속도를 늦추기 위해"
+      - "여러 개의 이미지를 동시에 실행하기 위해"
+      - "최종 이미지에 빌드 도구(Gradle 등)를 포함하지 않고, 실행 파일(Jar)만 남겨 이미지 크기를 최소화하기 위해"
+      - "더 복잡한 Dockerfile을 작성하기 위해"
+    answer: 2
+    explanation: "Multi-stage Build를 사용하면 빌드 단계(Compile)와 실행 단계(Runtime)를 분리하여, 최종 이미지에는 JVM과 Jar 파일만 남기고 무거운 빌드 도구는 제거할 수 있습니다."
+
+  - question: "도커 컨테이너가 종료되거나 삭제되어도 데이터베이스의 데이터가 사라지지 않게 하려면 Docker Compose에서 어떤 설정을 해야 하는가?"
+    options:
+      - "ports"
+      - "links"
+      - "volumes"
+      - "environment"
+    answer: 2
+    explanation: "`volumes` 설정을 통해 컨테이너 내부의 데이터 디렉토리를 호스트 머신(또는 볼륨)과 연결해야 컨테이너 수명과 관계없이 데이터를 영구 보존할 수 있습니다."
+
+  - question: "베이스 이미지(Base Image)를 지정하는 Dockerfile의 명령어는?"
+    options:
+      - "RUN"
+      - "FROM"
+      - "COPY"
+      - "CMD"
+    answer: 1
+    explanation: "`FROM openjdk:17`과 같이 `FROM` 명령어를 사용하여 기반이 될 이미지를 지정합니다."
 study_order: 604
 mermaid: true
 ---

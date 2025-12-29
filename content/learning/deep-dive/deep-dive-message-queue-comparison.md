@@ -9,6 +9,51 @@ tags: ["Kafka", "RabbitMQ", "Redis", "Message Queue", "Pub/Sub"]
 categories: ["Distributed"]
 draft: false
 module: "distributed"
+quizzes:
+  - question: "Kafka, RabbitMQ, Redis Pub/Sub 중 대용량 로그/이벤트 스트리밍에 가장 적합한 것은?"
+    options:
+      - "Redis Pub/Sub"
+      - "Kafka - 분산 로그 스토리지로 100만+ TPS, 메시지 영구 보관 및 Replay 가능"
+      - "RabbitMQ"
+      - "셋 다 동일"
+    answer: 1
+    explanation: "Kafka는 디스크에 메시지를 영구 저장하고, Consumer Group으로 병렬 처리하며, 과거 메시지도 재처리할 수 있습니다."
+
+  - question: "RabbitMQ가 Kafka보다 유리한 상황은?"
+    options:
+      - "대용량 로그 수집"
+      - "유연한 라우팅(Exchange 타입)이 필요하거나, 메시지 우선순위/ACK 기반 신뢰성이 중요한 작업 큐"
+      - "초저지연이 필요할 때"
+      - "메시지 유실이 허용될 때"
+    answer: 1
+    explanation: "RabbitMQ는 Direct/Topic/Fanout Exchange로 복잡한 라우팅이 가능하고, 이메일 발송 같은 신뢰성 있는 작업 큐에 적합합니다."
+
+  - question: "Redis Pub/Sub의 가장 큰 제약은?"
+    options:
+      - "속도가 느리다."
+      - "메시지가 저장되지 않아, 구독자가 없으면 메시지가 유실(Fire-and-Forget)"
+      - "설정이 복잡하다."
+      - "수평 확장이 안 된다."
+    answer: 1
+    explanation: "Redis Pub/Sub은 초저지연이지만 메시지를 저장하지 않습니다. 캐시 무효화 같은 임시 이벤트에 적합합니다."
+
+  - question: "Kafka에서 메시지 Replay(재처리)가 가능한 이유는?"
+    options:
+      - "메모리에 저장해서"
+      - "메시지를 디스크에 영구 저장하고, Consumer가 Offset을 직접 관리하여 원하는 시점부터 다시 읽을 수 있기 때문"
+      - "RabbitMQ처럼 ACK를 사용해서"
+      - "불가능하다"
+    answer: 1
+    explanation: "Kafka는 토픽의 메시지를 보관 기간 동안 삭제하지 않습니다. Offset을 되감으면 과거 데이터를 다시 처리할 수 있습니다."
+
+  - question: "실무에서 Kafka, RabbitMQ, Redis를 함께 사용하는 하이브리드 패턴의 예는?"
+    options:
+      - "하나만 사용해야 한다."
+      - "Redis: 캐시 무효화/실시간 알림, Kafka: 주문/결제 이벤트 로그, RabbitMQ: 이메일 발송 작업 큐"
+      - "세 개를 같은 용도로 사용"
+      - "불가능하다"
+    answer: 1
+    explanation: "각 시스템의 강점을 활용합니다. Redis는 초저지연, Kafka는 대용량+재처리, RabbitMQ는 유연한 라우팅과 작업 큐에 적합합니다."
 ---
 
 ## 이 글에서 얻는 것

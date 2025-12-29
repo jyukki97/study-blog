@@ -7,7 +7,61 @@ tags: ["JVM", "Memory Leak", "Heap Dump", "Profiling", "MAT", "VisualVM"]
 categories: ["Backend Deep Dive"]
 description: "메모리 누수를 진단하고 힙 덤프를 분석하여 원인을 찾는 실전 가이드"
 module: "foundation"
-study_order: 92
+quizzes:
+  - question: "Java에서 '메모리 누수(Memory Leak)'가 발생하는 근본적인 이유는?"
+    options:
+      - "개발자가 `free()`를 호출하지 않아서"
+      - "더 이상 사용되지 않지만, GC Root로부터 여전히 참조(Reachability)가 유지되어 GC가 수거하지 못하는 객체들이 존재하기 때문"
+      - "Heap 메모리 크기가 너무 작아서"
+      - "스택 영역이 꽉 차서"
+    answer: 1
+    explanation: "Java는 GC가 자동으로 메모리를 관리하지만, 실수로 불필요한 참조를 남겨두면(예: Static Collection) GC 대상이 되지 않아 누수가 발생합니다."
+
+  - question: "힙 덤프(Heap Dump) 분석 시 'Retained Heap' 크기가 의미하는 것은?"
+    options:
+      - "객체 자신이 차지하는 순수 메모리 크기"
+      - "객체 자신뿐만 아니라, 그 객체가 참조하고 있는(그리고 그 객체가 없으면 함께 사라질) 모든 객체들의 메모리 총합"
+      - "Old Generation의 전체 크기"
+      - "가비지 컬렉션 후 남은 메모리 양"
+    answer: 1
+    explanation: "Retained Heap은 해당 객체가 GC될 때 함께 회수될 수 있는 메모리 총량을 의미하므로, 메모리 누수의 '실질적인 원인'을 찾을 때 Shallow Heap보다 훨씬 중요합니다."
+
+  - question: "프로덕션 환경에서 `OutOfMemoryError` 발생 시 자동으로 힙 덤프를 남기기 위해 사용하는 JVM 옵션은?"
+    options:
+      - "-XX:+PrintGCDetails"
+      - "-XX:+HeapDumpOnOutOfMemoryError"
+      - "-Xmx2g"
+      - "-verbose:gc"
+    answer: 1
+    explanation: "이 옵션을 켜두면 OOM 발생 순간의 메모리 스냅샷을 파일로 저장해주어, 사후 원인 분석(Post-mortem analysis)이 가능해집니다."
+
+  - question: "ThreadLocal 사용 시 스레드 풀(Thread Pool) 환경에서 주의해야 할 점은?"
+    options:
+      - "동시성 문제가 발생한다."
+      - "스레드가 재사용될 때 이전 요청의 데이터가 남아있어 메모리 누수나 데이터 오염이 발생할 수 있으므로 반드시 `remove()` 해야 한다."
+      - "성능이 매우 느려진다."
+      - "사용할 수 없다."
+    answer: 1
+    explanation: "스레드 풀의 스레드는 작업을 마치고 사라지는 게 아니라 대기 상태로 돌아가므로, `ThreadLocal.remove()`를 호출하지 않으면 참조가 계속 유지되어 누수의 주범이 됩니다."
+
+  - question: "Eclipse MAT 같은 도구에서 'Dominator Tree' 뷰가 보여주는 핵심 정보는?"
+    options:
+      - "가장 최근에 생성된 객체 목록"
+      - "객체 간의 참조 그래프 구조와, 가장 큰 메모리를 붙잡고 있는 상위 객체(Dominator)"
+      - "GC 로그 타임라인"
+      - "스레드 덤프 텍스트"
+    answer: 1
+    explanation: "Dominator Tree를 보면 '누가 메모리를 다 먹고 있는지' 계층적으로 파악할 수 있어, 누수 원인 객체(Accumulation Point)를 찾기 쉽습니다."
+
+  - question: "`static final Map<String, Object> cache = new HashMap<>();` 코드의 문제점은?"
+    options:
+      - "동시성 문제만 있다."
+      - "데이터를 삭제하는 정책(Eviction Policy)이 없으면, JVM이 종료될 때까지 데이터가 계속 쌓여 결국 OOM을 유발한다."
+      - "컴파일 에러가 발생한다."
+      - "아무 문제가 없다."
+    answer: 1
+    explanation: "Static 필드는 클래스 로더가 살아있는 한 계속 유지되므로, 무제한으로 put만 하고 remove하지 않는 캐시는 전형적인 메모리 누수 패턴입니다."
+study_order: 42
 ---
 
 ## 이 글에서 얻는 것

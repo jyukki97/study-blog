@@ -8,6 +8,51 @@ categories: ["Backend Deep Dive"]
 description: "Redis의 고급 데이터 구조로 메모리 효율적인 솔루션 구현하기"
 module: "data-system"
 study_order: 304
+quizzes:
+  - question: "Redis BitMap으로 DAU(일일 활성 사용자)를 추적할 때의 메모리 효율은?"
+    options:
+      - "일반 Set과 동일하다."
+      - "1억 명을 12.5MB로 저장 가능 - 일반 Set 대비 약 64배 효율적"
+      - "더 많은 메모리를 사용한다."
+      - "1GB 이상 필요하다."
+    answer: 1
+    explanation: "BitMap은 user ID를 offset으로 사용해 비트 하나로 방문 여부를 표시합니다. 1억 비트 ÷ 8 = 12.5MB입니다."
+
+  - question: "HyperLogLog가 유니크 카운트에 적합한 이유는?"
+    options:
+      - "정확도가 100%여서"
+      - "고정 12KB 메모리로 수억 개의 유니크 요소를 0.81% 오차율로 카운트 가능"
+      - "데이터를 모두 저장해서"
+      - "느리기 때문"
+    answer: 1
+    explanation: "정확한 Set으로 1억 명을 저장하면 2GB 필요하지만, HyperLogLog는 12KB만으로 근사치를 구합니다. UV 집계에 적합합니다."
+
+  - question: "Redis Geo 명령으로 '내 위치에서 반경 5km 이내 매장 찾기'를 구현하는 명령은?"
+    options:
+      - "GET"
+      - "GEORADIUS 또는 GEOSEARCH로 중심 좌표와 반경을 지정하여 검색"
+      - "SET"
+      - "ZADD"
+    answer: 1
+    explanation: "GEOADD로 매장 위치를 저장하고, GEORADIUS로 반경 내 멤버를 거리순으로 조회할 수 있습니다. 위치 기반 서비스에 활용됩니다."
+
+  - question: "Bloom Filter가 '없다'는 100% 확실하지만 '있다'는 확률적인 이유는?"
+    options:
+      - "메모리가 부족해서"
+      - "해시 충돌로 인해 다른 요소가 같은 비트를 설정할 수 있어 False Positive 발생"
+      - "구현 오류"
+      - "둘 다 확실하다"
+    answer: 1
+    explanation: "비트가 0이면 '확실히 없음', 모든 비트가 1이면 '있을 수도 있음(다른 요소가 설정했을 수 있음)'입니다."
+
+  - question: "Bloom Filter를 활용한 차단 사용자 확인 로직의 이점은?"
+    options:
+      - "항상 DB를 조회한다."
+      - "대부분의 '차단 안 됨' 요청을 빠르게 걸러내어 DB 조회 횟수를 크게 줄임"
+      - "Bloom Filter만으로 최종 판단"
+      - "속도가 느려진다"
+    answer: 1
+    explanation: "Bloom Filter가 false면 DB 조회 없이 통과, true일 때만 DB 확인합니다. 대부분 차단되지 않은 사용자이므로 효율적입니다."
 ---
 
 ## 이 글에서 얻는 것

@@ -7,7 +7,79 @@ tags: ["Java", "Collection", "ArrayList", "HashMap", "HashSet", "Performance"]
 categories: ["Backend Deep Dive"]
 description: "ArrayList vs LinkedList, HashMap vs TreeMap, 언제 어떤 컬렉션을 선택할지 성능과 특성 기준으로 정리"
 module: "foundation"
-study_order: 103
+quizzes:
+  - question: "데이터의 중간 삽입과 삭제가 빈번하게 발생하지 않고, 인덱스를 통한 조회(Random Access)가 주된 작업일 때 가장 적합한 List 구현체는?"
+    options:
+      - "LinkedList"
+      - "ArrayList"
+      - "Vector"
+      - "Stack"
+    answer: 1
+    explanation: "ArrayList는 내부적으로 배열을 사용하여 인덱스 접근이 O(1)로 매우 빠르며, 대부분의 실무 조회 중심 환경에서 기본 선택지입니다."
+
+  - question: "HashMap의 동작 원리에 대한 설명 중 틀린 것은?"
+    options:
+      - "Key의 hashCode()를 사용하여 버킷 위치를 결정한다."
+      - "Key가 다르면 무조건 다른 버킷에 저장된다."
+      - "해시 충돌(Hash Collision)이 발생하면 같은 버킷 내에서 연결 리스트(또는 트리) 형태로 저장된다."
+      - "null을 Key와 Value로 사용할 수 있다."
+    answer: 1
+    explanation: "서로 다른 Key라도 해시 함수 결과가 같거나, 버킷 인덱스로 변환 시 충돌이 발생할 수 있습니다. 이를 해시 충돌이라고 합니다."
+
+  - question: "멀티 스레드 환경에서 안전하게 Map을 사용하고 싶을 때, 성능과 동시성을 모두 고려한 최선의 선택은?"
+    options:
+      - "HashMap"
+      - "Hashtable"
+      - "ConcurrentHashMap"
+      - "TreeMap"
+    answer: 2
+    explanation: "ConcurrentHashMap은 락 분할(Lock Stripping) 등을 통해 Hashtable보다 훨씬 높은 동시성 성능을 제공하면서 스레드 안전성을 보장합니다."
+
+  - question: "순서가 없는 Set이지만, 데이터를 입력한 순서대로 다시 꺼내보고 싶을 때 사용하는 구현체는?"
+    options:
+      - "HashSet"
+      - "TreeSet"
+      - "LinkedHashSet"
+      - "EnumSet"
+    answer: 2
+    explanation: "LinkedHashSet은 내부적으로 해시 테이블과 연결 리스트를 함께 사용하여, 중복은 제거하되 삽입 순서를 유지합니다."
+
+  - question: "`Arrays.asList(\"a\", \"b\")`로 생성한 리스트에 `.add(\"c\")`를 호출하면 발생하는 일은?"
+    options:
+      - "리스트에 \"c\"가 추가된다."
+      - "무시된다."
+      - "컴파일 에러가 발생한다."
+      - "UnsupportedOperationException 런타임 에러가 발생한다."
+    answer: 3
+    explanation: "`Arrays.asList`가 반환하는 리스트는 고정 크기(Fixed-size)이므로 구조를 변경하는 add/remove 호출 시 예외가 발생합니다."
+
+  - question: "List를 순회(for-each)하는 도중에 `list.remove(item)`을 직접 호출하면 어떤 예외가 발생할 가능성이 높나요?"
+    options:
+      - "NullPointerException"
+      - "IndexOutOfBoundsException"
+      - "ConcurrentModificationException"
+      - "ClassCastException"
+    answer: 2
+    explanation: "컬렉션의 구조가 순회 중에 변경되면 Fail-Fast 반복자가 이를 감지하고 ConcurrentModificationException을 던집니다. Iterator의 remove()를 써야 안전합니다."
+
+  - question: "TreeSet이나 TreeMap의 내부 구현 자료구조이자, 항상 정렬된 상태를 유지하면서 O(log n)의 성능을 보장하는 것은?"
+    options:
+      - "Binary Heap"
+      - "Red-Black Tree"
+      - "B-Tree"
+      - "Hash Table"
+    answer: 1
+    explanation: "Java의 TreeSet/TreeMap은 Red-Black Tree(균형 이진 탐색 트리)를 사용하여 최악의 경우에도 O(log n)을 보장합니다."
+
+  - question: "ArrayList의 초기 용량(Initial Capacity)을 지정하지 않고 사용할 때 발생할 수 있는 잠재적 성능 이슈는?"
+    options:
+      - "메모리 누수가 발생한다."
+      - "데이터가 많아질 때 내부 배열의 크기를 늘리기 위한 재할당(Resizing)과 복사(Copy) 비용이 발생한다."
+      - "데이터 조회가 느려진다."
+      - "스레드 안전성이 깨진다."
+    answer: 1
+    explanation: "배열이 가득 찰 때마다 새로운 더 큰 배열을 만들고 기존 데이터를 복사하는 과정은 비용이 큽니다. 데이터 크기를 안다면 미리 지정하는 것이 좋습니다."
+study_order: 32
 ---
 
 ## 이 글에서 얻는 것

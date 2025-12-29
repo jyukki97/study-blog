@@ -7,6 +7,51 @@ tags: ["MySQL", "Partitioning", "Sharding", "Scalability", "Database"]
 categories: ["Backend Deep Dive"]
 description: "MySQL 파티셔닝과 샤딩으로 대용량 데이터를 효율적으로 처리하는 방법"
 module: "data-system"
+quizzes:
+  - question: "파티셔닝(Partitioning)과 샤딩(Sharding)의 가장 큰 차이점은?"
+    options:
+      - "파티셔닝은 NoSQL에서만, 샤딩은 RDBMS에서만 사용한다."
+      - "파티셔닝은 단일 DB 내에서 테이블을 분할하고, 샤딩은 여러 DB 서버에 데이터를 분산한다."
+      - "파티셔닝은 자동이고, 샤딩은 수동이다."
+      - "둘 사이에 차이가 없다."
+    answer: 1
+    explanation: "파티셔닝은 하나의 MySQL 서버 내에서 테이블을 논리적으로 분할하여 쿼리 성능을 높입니다. 샤딩은 아예 다른 DB 서버에 데이터를 분산하여 수평적 확장을 가능하게 합니다."
+
+  - question: "Range 파티셔닝의 대표적인 사용 사례는?"
+    options:
+      - "사용자 ID를 균등하게 분배할 때"
+      - "주문 데이터를 연도별로 분할하여 오래된 데이터 삭제 및 특정 기간 조회 성능을 높일 때"
+      - "지역별로 데이터를 분할할 때"
+      - "랜덤하게 데이터를 분산할 때"
+    answer: 1
+    explanation: "Range 파티셔닝은 날짜나 숫자 범위로 데이터를 나눕니다. 예를 들어, 연도별 파티션을 만들면 `WHERE created_at BETWEEN ...` 쿼리가 해당 파티션만 스캔하고, 오래된 파티션을 DROP으로 빠르게 삭제할 수 있습니다."
+
+  - question: "Hash 기반 샤딩 `user_id % shard_count`의 가장 큰 문제점은?"
+    options:
+      - "데이터가 균등하게 분배되지 않는다."
+      - "샤드 개수를 변경(리샤딩)할 때 거의 모든 데이터를 재배치해야 한다."
+      - "특정 사용자의 데이터를 찾을 수 없다."
+      - "쿼리 성능이 저하된다."
+    answer: 1
+    explanation: "단순 Modular 해시는 샤드 개수가 바뀌면 `user_id % new_count` 값이 달라져 대부분의 데이터 위치가 바뀝니다. 이를 완화하려면 Consistent Hashing 같은 기법을 사용합니다."
+
+  - question: "샤딩 환경에서 어려워지는 작업이 아닌 것은?"
+    options:
+      - "여러 샤드에 걸친 JOIN 쿼리"
+      - "샤드 간 분산 트랜잭션"
+      - "단일 사용자의 데이터 조회 (shard key로 조회)"
+      - "전체 데이터에 대한 집계 쿼리"
+    answer: 2
+    explanation: "샤드 키(예: user_id)로 조회하면 해당 샤드 하나만 접근하면 되므로 간단합니다. 반면, JOIN, 분산 트랜잭션, 전체 집계는 여러 샤드를 조회해야 해서 복잡해집니다."
+
+  - question: "대용량 데이터 처리 시 파티셔닝을 먼저 고려해야 하는 이유는?"
+    options:
+      - "파티셔닝이 샤딩보다 항상 성능이 좋기 때문"
+      - "파티셔닝은 단일 DB에서 동작하므로 애플리케이션 코드 변경 없이 사용 가능하고 구현이 간단하기 때문"
+      - "파티셔닝은 비용이 들지 않기 때문"
+      - "샤딩은 MySQL에서 지원하지 않기 때문"
+    answer: 1
+    explanation: "파티셔닝은 DB 내부에서 처리되므로 애플리케이션 코드 변경이 적습니다. 샤딩은 애플리케이션 레벨에서 라우팅 로직, JOIN 처리, 트랜잭션 관리 등을 고려해야 하므로 복잡합니다."
 study_order: 218
 ---
 
