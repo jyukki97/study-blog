@@ -121,6 +121,36 @@
       {{- end }}
     </footer>
 
+    {{- $related := .Site.RegularPages.Related . | first 3 }}
+    {{- if gt (len $related) 0 }}
+    <div class="related-posts">
+      <h3>Related Posts</h3>
+      <div class="related-posts-grid">
+        {{- range $related }}
+        <div class="related-post">
+          {{- $cover := .Param "cover.image" }}
+          {{- if $cover }}
+          <div class="related-post-image">
+            <a href="{{ .Permalink }}">
+              <img src="{{ $cover | absURL }}" alt="{{ .Title }}">
+            </a>
+          </div>
+          {{- end }}
+          <div class="related-post-content">
+            <h4><a href="{{ .Permalink }}">{{ .Title }}</a></h4>
+            <div class="related-post-summary">
+              {{ .Summary | plainify | truncate 80 }}
+            </div>
+            <div class="related-post-meta">
+              <span>{{ .Date.Format "2006.01.02" }}</span>
+            </div>
+          </div>
+        </div>
+        {{- end }}
+      </div>
+    </div>
+    {{- end }}
+
     {{- if (.Param "comments") }}
     {{- partial "comments.html" . }}
     {{- end }}

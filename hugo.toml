@@ -126,6 +126,21 @@ relativeURLs = false
 [outputs]
 home = ["HTML", "RSS", "JSON"]
 
+# 관련 글 추천 (Related Posts) 설정
+[related]
+  includeNewer = true
+  threshold = 60
+  toLower = false
+[[related.indices]]
+  name = "tags"
+  weight = 100
+[[related.indices]]
+  name = "categories"
+  weight = 80
+[[related.indices]]
+  name = "date"
+  weight = 10
+
 [outputFormats]
 [outputFormats.JSON]
 mediaType = "application/json"
@@ -144,5 +159,15 @@ sidebar = ""
 content = ""
 banner = ""
 footer = ""
+
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
+  [markup.highlight]
+    codeFences = true
+    guessSyntax = true
+    lineNos = false
+    style = "dracula"
 
 

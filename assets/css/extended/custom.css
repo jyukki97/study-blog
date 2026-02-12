@@ -1,0 +1,193 @@
+/* --------------------------------------------------
+   1. Typography & Fonts (Pretendard + JetBrains Mono)
+   -------------------------------------------------- */
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+    --font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+    --font-code: 'JetBrains Mono', monospace;
+    
+    /* Light Mode Refined Palette */
+    --main-bg: #ffffff;
+    --entry-bg: #ffffff;
+    --primary: #2c3e50;
+    --secondary: #7f8c8d;
+    --tertiary: #bdc3c7;
+    --content: #34495e;
+    --code-block-bg: #f8f9fa;
+    --border: #ececec;
+    --link-color: #3498db;
+    --link-hover: #2980b9;
+    --quote-bg: #f1f9ff;
+    --toc-active: #3498db;
+}
+
+[data-theme="dark"] {
+    /* Dark Mode Refined Palette (Deep Blue/Grey) */
+    --main-bg: #1e1e24; /* Softer than pure black */
+    --entry-bg: #1e1e24;
+    --primary: #ecf0f1;
+    --secondary: #bdc3c7;
+    --tertiary: #95a5a6;
+    --content: #dcdde1;
+    --code-block-bg: #2d2d34;
+    --border: #333333;
+    --link-color: #5dade2;
+    --link-hover: #85c1e9;
+    --quote-bg: #2c2c34;
+    --toc-active: #5dade2;
+}
+
+body {
+    font-family: var(--font-family);
+    line-height: 1.7; /* Better readability */
+    word-break: keep-all; /* Korean typography fix */
+}
+
+/* --------------------------------------------------
+   2. Layout & Spacing
+   -------------------------------------------------- */
+.main {
+    max-width: calc(var(--main-width) + var(--gap) * 2);
+    margin: auto;
+    padding: 0 var(--gap);
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    color: var(--primary);
+}
+
+h1 { font-size: 2.2rem; }
+h2 { font-size: 1.8rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
+h3 { font-size: 1.5rem; }
+
+/* Paragraphs */
+p {
+    margin-bottom: 1.5rem;
+    color: var(--content);
+}
+
+/* --------------------------------------------------
+   3. Table of Contents (Sticky & Styled)
+   -------------------------------------------------- */
+.toc {
+    background: var(--entry-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 2rem;
+    font-size: 0.9rem;
+}
+
+.toc summary {
+    cursor: pointer;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.toc a {
+    color: var(--secondary);
+    text-decoration: none;
+    display: block;
+    padding: 0.2rem 0;
+    transition: all 0.2s;
+}
+
+.toc a:hover {
+    color: var(--toc-active);
+    transform: translateX(4px);
+}
+
+/* Desktop: Sticky TOC on the side if possible (requires layout change, styling safe fallback) */
+@media (min-width: 1300px) {
+    .toc {
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        width: 250px;
+        border: none;
+        background: transparent;
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+}
+
+/* --------------------------------------------------
+   4. Code Blocks (Mac-like Style)
+   -------------------------------------------------- */
+.post-content pre {
+    border-radius: 8px;
+    background: var(--code-block-bg) !important;
+    border: 1px solid var(--border);
+    position: relative;
+    padding-top: 2.5rem; /* Space for 'buttons' */
+    margin: 1.5rem 0;
+}
+
+/* Fake Mac window buttons */
+.post-content pre::before {
+    content: "";
+    position: absolute;
+    top: 14px;
+    left: 15px;
+    width: 12px;
+    height: 12px;
+    background: #ff5f56;
+    border-radius: 50%;
+    box-shadow: 20px 0 0 #ffbd2e, 40px 0 0 #27c93f;
+}
+
+.post-content code {
+    font-family: var(--font-code);
+    font-size: 0.9em;
+}
+
+/* Inline code styling */
+.post-content p > code, 
+.post-content li > code {
+    background: var(--code-block-bg);
+    color: var(--link-color);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: var(--font-code);
+    border: 1px solid var(--border);
+}
+
+/* --------------------------------------------------
+   5. Navigation & Header
+   -------------------------------------------------- */
+.header {
+    background: var(--main-bg);
+    box-shadow: 0 1px 0 var(--border);
+}
+
+.nav a {
+    font-weight: 500;
+}
+
+/* --------------------------------------------------
+   6. Additional Polish
+   -------------------------------------------------- */
+/* Blockquotes */
+blockquote {
+    border-left: 4px solid var(--link-color);
+    background: var(--quote-bg);
+    padding: 1rem;
+    margin: 1.5rem 0;
+    border-radius: 0 4px 4px 0;
+}
+
+/* Images */
+img {
+    border-radius: 8px;
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1.5rem auto;
+}
