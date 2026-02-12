@@ -162,6 +162,11 @@ img, figure {
     box-shadow: 0 1px 0 var(--border);
 }
 
+/* Fix: Prevent header from overlapping content on mobile */
+.main {
+    padding-top: 70px; /* Header height offset */
+}
+
 .nav { 
     max-width: var(--main-width); 
     margin: auto;
