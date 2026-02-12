@@ -45,6 +45,12 @@ body {
     word-break: keep-all; /* Korean typography fix */
 }
 
+/* Link Overflow Fix */
+a {
+    word-break: break-all;
+    overflow-wrap: break-word;
+}
+
 /* --------------------------------------------------
    2. Layout & Spacing
    -------------------------------------------------- */
@@ -119,29 +125,19 @@ p {
 }
 
 /* --------------------------------------------------
-   4. Code Blocks (Mac-like Style)
+   4. Code Blocks (Clean Style)
    -------------------------------------------------- */
 .post-content pre {
     border-radius: 8px;
     background: var(--code-block-bg) !important;
     border: 1px solid var(--border);
     position: relative;
-    padding-top: 2.5rem; /* Space for 'buttons' */
+    padding: 1rem; /* Revert padding (removed signal buttons) */
     margin: 1.5rem 0;
+    overflow-x: auto; /* Ensure scrolling for long lines */
 }
 
-/* Fake Mac window buttons */
-.post-content pre::before {
-    content: "";
-    position: absolute;
-    top: 14px;
-    left: 15px;
-    width: 12px;
-    height: 12px;
-    background: #ff5f56;
-    border-radius: 50%;
-    box-shadow: 20px 0 0 #ffbd2e, 40px 0 0 #27c93f;
-}
+/* Reverted: No fake Mac buttons */
 
 .post-content code {
     font-family: var(--font-code);
@@ -188,6 +184,7 @@ img {
     border-radius: 8px;
     max-width: 100%;
     height: auto;
+    object-fit: cover; /* Prevent aspect ratio distortion */
     display: block;
     margin: 1.5rem auto;
 }
