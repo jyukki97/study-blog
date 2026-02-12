@@ -8,6 +8,10 @@
     --font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
     --font-code: 'JetBrains Mono', monospace;
     
+    /* LAYOUT FIX: Widen the main container for Desktop */
+    --main-width: 1200px; 
+    --gap: 20px;
+
     /* Light Mode Refined Palette */
     --main-bg: #ffffff;
     --entry-bg: #ffffff;
@@ -25,8 +29,8 @@
 
 [data-theme="dark"] {
     /* Dark Mode Refined Palette (Deep Blue/Grey) */
-    --main-bg: #1e1e24; /* Softer than pure black */
-    --entry-bg: #1e1e24;
+    --main-bg: #1e1e24; 
+    --entry-bg: #25252d; /* Slightly lighter for cards */
     --primary: #ecf0f1;
     --secondary: #bdc3c7;
     --tertiary: #95a5a6;
@@ -41,11 +45,11 @@
 
 body {
     font-family: var(--font-family);
-    line-height: 1.7; /* Better readability */
-    word-break: keep-all; /* Korean typography fix */
+    line-height: 1.7;
+    word-break: keep-all; 
+    overflow-x: hidden; /* Prevent horizontal scroll */
 }
 
-/* Link Overflow Fix */
 a {
     word-break: break-all;
     overflow-wrap: break-word;
@@ -55,9 +59,10 @@ a {
    2. Layout & Spacing
    -------------------------------------------------- */
 .main {
-    max-width: calc(var(--main-width) + var(--gap) * 2);
+    max-width: var(--main-width);
     margin: auto;
     padding: 0 var(--gap);
+    overflow: visible; /* Fix content cutting off */
 }
 
 /* Headings */
@@ -91,30 +96,11 @@ p {
     font-size: 0.9rem;
 }
 
-.toc summary {
-    cursor: pointer;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-}
-
-.toc a {
-    color: var(--secondary);
-    text-decoration: none;
-    display: block;
-    padding: 0.2rem 0;
-    transition: all 0.2s;
-}
-
-.toc a:hover {
-    color: var(--toc-active);
-    transform: translateX(4px);
-}
-
-/* Desktop: Sticky TOC on the side if possible (requires layout change, styling safe fallback) */
-@media (min-width: 1300px) {
+/* Desktop Sticky TOC */
+@media (min-width: 1400px) {
     .toc {
         position: fixed;
-        top: 80px;
+        top: 100px;
         right: 20px;
         width: 250px;
         border: none;
@@ -125,19 +111,23 @@ p {
 }
 
 /* --------------------------------------------------
-   4. Code Blocks (Clean Style)
+   4. Code Blocks & Copy Button Fix
    -------------------------------------------------- */
 .post-content pre {
     border-radius: 8px;
     background: var(--code-block-bg) !important;
     border: 1px solid var(--border);
-    position: relative;
-    padding: 1rem; /* Revert padding (removed signal buttons) */
+    padding: 1rem;
     margin: 1.5rem 0;
-    overflow-x: auto; /* Ensure scrolling for long lines */
+    overflow-x: auto; /* Scroll for long code lines */
 }
 
-/* Reverted: No fake Mac buttons */
+/* Pseudo-elements removal (Delete Traffic Lights) */
+.post-content pre::before,
+.post-content pre::after {
+    display: none !important;
+    content: none !important;
+}
 
 .post-content code {
     font-family: var(--font-code);
@@ -156,35 +146,35 @@ p {
 }
 
 /* --------------------------------------------------
-   5. Navigation & Header
+   5. Fix Images & Layout Cut-off
+   -------------------------------------------------- */
+img, figure {
+    max-width: 100% !important;
+    height: auto !important;
+    object-fit: contain; /* Ensure full image is visible */
+    border-radius: 8px;
+    display: block;
+    margin: 1.5rem auto;
+}
+
+/* Card view image fix */
+.entry-cover img {
+    width: 100%;
+    height: 200px; /* Fixed height for cards */
+    object-fit: cover;
+    margin: 0;
+    border-radius: 8px 8px 0 0;
+}
+
+/* --------------------------------------------------
+   6. Navigation & Header
    -------------------------------------------------- */
 .header {
     background: var(--main-bg);
     box-shadow: 0 1px 0 var(--border);
 }
 
-.nav a {
-    font-weight: 500;
-}
-
-/* --------------------------------------------------
-   6. Additional Polish
-   -------------------------------------------------- */
-/* Blockquotes */
-blockquote {
-    border-left: 4px solid var(--link-color);
-    background: var(--quote-bg);
-    padding: 1rem;
-    margin: 1.5rem 0;
-    border-radius: 0 4px 4px 0;
-}
-
-/* Images */
-img {
-    border-radius: 8px;
-    max-width: 100%;
-    height: auto;
-    object-fit: cover; /* Prevent aspect ratio distortion */
-    display: block;
-    margin: 1.5rem auto;
+.nav { 
+    max-width: var(--main-width); 
+    margin: auto;
 }
