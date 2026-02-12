@@ -96,19 +96,7 @@ p {
     font-size: 0.9rem;
 }
 
-/* Desktop Sticky TOC */
-@media (min-width: 1400px) {
-    .toc {
-        position: fixed;
-        top: 100px;
-        right: 20px;
-        width: 250px;
-        border: none;
-        background: transparent;
-        max-height: 80vh;
-        overflow-y: auto;
-    }
-}
+/* TOC stays inline (no fixed positioning to avoid cutting content) */
 
 /* --------------------------------------------------
    4. Code Blocks & Copy Button Fix
