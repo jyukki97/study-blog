@@ -39,6 +39,24 @@ url: "/learning/modules/backend-advanced-cs-phase/"
 - **I/O Models**: Blocking, Non-blocking, Multiplexing (Epoll), BIO/NIO/AIO 비교.
 - **Zero Copy**: Kafka가 빠른 이유 (sendfile 시스템 콜).
 
+## 이 단계의 핵심 주제
+
+- 분산 정합성/합의(Consistency, Consensus)
+- DB 스토리지 엔진(B-Tree/LSM, WAL)
+- OS/네트워크 실행 모델(I/O, Zero Copy)
+
+## 미니 실습
+
+- **WAL 시뮬레이션**: 장애 시 복구 흐름을 순서도로 정리
+- **CAP/PACELC 케이스 분석**: 서비스 하나를 골라 트레이드오프 정리
+- **Zero Copy 추적**: sendfile 흐름을 다이어그램으로 정리
+
+## 완료 기준
+
+- “왜 깨졌는지”를 1차 원리로 설명할 수 있다
+- 스토리지 엔진 선택 기준을 말로 설명할 수 있다
+- 합의/리더 선출의 핵심 개념을 정리할 수 있다
+
 ## 추천 학습 자료
 - **책**: *Data-Intensive Applications (데이터 중심 애플리케이션 설계)* - 팀장급 필독서
 - **논문**: Google Spanner, Amazon Dynamo, Raft Consensus

@@ -37,6 +37,24 @@ url: "/learning/modules/backend-modern-frontiers/"
 - **MicroVM (Firecracker)**: 컨테이너보다 격리 수준은 높고 VM보다 가벼운 기술.
 - **eBPF (extended Berkeley Packet Filter)**: 커널 소스를 수정하지 않고 커널 기능을 확장/관측하는 리눅스의 초능력. (쿠버네티스 CNI, 보안 모니터링의 핵심)
 
+## 이 단계의 핵심 주제
+
+- Vector DB 인덱싱과 검색 알고리즘
+- HTTP/3 & QUIC의 성능/지연 최적화 원리
+- Serverless/MicroVM과 eBPF 기반 관측
+
+## 미니 실습
+
+- **RAG 파이프라인 설계**: 임베딩→검색→리랭킹 흐름 그리기
+- **HTTP/3 비교**: TCP vs QUIC의 병목 지점 정리
+- **콜드 스타트 분석**: 서버리스 초기 지연 원인 분해
+
+## 완료 기준
+
+- 신기술을 “왜 필요한지” 설명할 수 있다
+- 기존 기술의 한계와 해결 방식을 비교할 수 있다
+- 도입 시 트레이드오프를 말로 정리할 수 있다
+
 ## 추천 학습 자료
 - **논문**: [The QUIC Transport Protocol (Google)](https://dl.acm.org/doi/10.1145/3098822.3098842)
 - **영상**: [AWS re:Invent - Deep Dive on Firecracker](https://www.youtube.com/watch?v=Rds4Cq5Z44I)

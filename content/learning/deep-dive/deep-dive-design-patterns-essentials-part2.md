@@ -1,5 +1,5 @@
 ---
-title: "디자인 패턴 필수 (Part 1: 기초 패턴)"
+title: "디자인 패턴 필수 (Part 2: Strategy, 실무 적용)"
 date: 2025-10-09
 draft: false
 topic: "Design Patterns"
@@ -82,149 +82,186 @@ quizzes:
 study_order: 31
 ---
 
-## 이 글에서 얻는 것
+## 2) Strategy 패턴: 알고리즘을 런타임에 교체
 
-- **Factory 패턴**으로 객체 생성을 유연하게 관리합니다.
-- **Strategy 패턴**으로 알고리즘을 런타임에 교체합니다.
-- **Template Method 패턴**으로 공통 로직을 재사용합니다.
-- 각 패턴의 **사용 시점과 트레이드오프**를 판단할 수 있습니다.
+**"알고리즘을 캡슐화하고 교체 가능하게 만듦"**
 
-## 0) 디자인 패턴은 "반복되는 설계 문제의 해결책"
-
-디자인 패턴은 소프트웨어 설계에서 자주 발생하는 문제에 대한 검증된 해결책입니다.
-
-**GoF(Gang of Four) 패턴 분류:**
-- **생성 패턴**: 객체 생성 메커니즘 (Factory, Builder, Singleton)
-- **구조 패턴**: 클래스/객체 조합 (Adapter, Decorator, Proxy)
-- **행위 패턴**: 객체 간 협력 (Strategy, Template Method, Observer)
-
-이 글에서는 백엔드에서 가장 많이 쓰이는 3가지를 다룹니다.
-
-## 1) Factory 패턴: 객체 생성을 캡슐화
-
-**"객체 생성 로직을 별도 클래스로 분리"**
-
-### 1-1) 문제 상황
+### 2-1) 문제 상황
 
 ```java
-// ❌ 클라이언트가 구체 클래스에 의존
-public class PaymentService {
-    public void processPayment(String type, int amount) {
-        Payment payment;
-
-        if (type.equals("CARD")) {
-            payment = new CardPayment();
-        } else if (type.equals("BANK")) {
-            payment = new BankTransferPayment();
-        } else if (type.equals("PAYPAL")) {
-            payment = new PayPalPayment();
+// ❌ 할인 정책이 하드코딩됨
+public class OrderService {
+    public int calculateDiscount(Order order, String customerType) {
+        if (customerType.equals("VIP")) {
+            return order.getAmount() * 20 / 100;  // 20% 할인
+        } else if (customerType.equals("REGULAR")) {
+            return order.getAmount() * 10 / 100;  // 10% 할인
         } else {
-            throw new IllegalArgumentException("Unknown payment type");
+            return 0;
         }
-
-        payment.pay(amount);
     }
 }
 ```
 
 **문제점:**
-- 새 결제 수단 추가 시 PaymentService 수정 필요
-- if-else가 여러 곳에 중복
-- OCP(개방-폐쇄 원칙) 위반
+- 새 할인 정책 추가 시 기존 코드 수정
+- 할인 로직 재사용 불가
+- 테스트 어려움
 
-### 1-2) Factory Method 패턴 적용
+### 2-2) Strategy 패턴 적용
 
 ```java
-// 인터페이스
-public interface Payment {
-    void pay(int amount);
+// Strategy 인터페이스
+public interface DiscountStrategy {
+    int calculate(int amount);
 }
 
-// 구현체들
-public class CardPayment implements Payment {
+// 구체 전략들
+public class VipDiscountStrategy implements DiscountStrategy {
     @Override
-    public void pay(int amount) {
-        System.out.println("Card payment: " + amount);
+    public int calculate(int amount) {
+        return amount * 20 / 100;
     }
 }
 
-public class BankTransferPayment implements Payment {
+public class RegularDiscountStrategy implements DiscountStrategy {
     @Override
-    public void pay(int amount) {
-        System.out.println("Bank transfer: " + amount);
+    public int calculate(int amount) {
+        return amount * 10 / 100;
     }
 }
 
-// Factory 클래스
-public class PaymentFactory {
-    public static Payment createPayment(String type) {
-        switch (type) {
-            case "CARD":
-                return new CardPayment();
-            case "BANK":
-                return new BankTransferPayment();
-            case "PAYPAL":
-                return new PayPalPayment();
-            default:
-                throw new IllegalArgumentException("Unknown payment type: " + type);
-        }
+public class NoDiscountStrategy implements DiscountStrategy {
+    @Override
+    public int calculate(int amount) {
+        return 0;
+    }
+}
+
+// Context (전략 사용)
+public class Order {
+    private int amount;
+    private DiscountStrategy discountStrategy;
+
+    public Order(int amount, DiscountStrategy discountStrategy) {
+        this.amount = amount;
+        this.discountStrategy = discountStrategy;
+    }
+
+    public void setDiscountStrategy(DiscountStrategy discountStrategy) {
+        this.discountStrategy = discountStrategy;
+    }
+
+    public int getFinalAmount() {
+        int discount = discountStrategy.calculate(amount);
+        return amount - discount;
     }
 }
 
 // ✅ 사용
-public class PaymentService {
-    public void processPayment(String type, int amount) {
-        Payment payment = PaymentFactory.createPayment(type);  // Factory 사용
-        payment.pay(amount);
-    }
-}
+Order vipOrder = new Order(10000, new VipDiscountStrategy());
+System.out.println(vipOrder.getFinalAmount());  // 8000
+
+Order regularOrder = new Order(10000, new RegularDiscountStrategy());
+System.out.println(regularOrder.getFinalAmount());  // 9000
+
+// 런타임에 전략 변경 가능
+vipOrder.setDiscountStrategy(new NoDiscountStrategy());
+System.out.println(vipOrder.getFinalAmount());  // 10000
 ```
 
-**장점:**
-- 객체 생성 로직이 한 곳에 집중
-- 클라이언트는 인터페이스만 의존
-- 새 타입 추가 시 Factory만 수정
-
-### 1-3) Spring에서의 Factory 패턴
+### 2-3) 실전 예제: 정렬 전략
 
 ```java
-// Spring이 Factory 역할
-@Configuration
-public class PaymentConfig {
+public interface SortStrategy<T> {
+    void sort(List<T> list);
+}
 
-    @Bean
-    public Payment cardPayment() {
-        return new CardPayment();
-    }
-
-    @Bean
-    public Payment bankPayment() {
-        return new BankTransferPayment();
-    }
-
-    // 팩토리 메서드
-    @Bean
-    public PaymentFactory paymentFactory(List<Payment> payments) {
-        return new PaymentFactory(payments);
+public class QuickSortStrategy<T extends Comparable<T>> implements SortStrategy<T> {
+    @Override
+    public void sort(List<T> list) {
+        // 퀵 정렬 구현
+        Collections.sort(list);
     }
 }
 
-@Service
-public class PaymentService {
-    private final PaymentFactory factory;
+public class MergeSortStrategy<T extends Comparable<T>> implements SortStrategy<T> {
+    @Override
+    public void sort(List<T> list) {
+        // 병합 정렬 구현
+    }
+}
 
-    public PaymentService(PaymentFactory factory) {
-        this.factory = factory;
+public class DataProcessor<T extends Comparable<T>> {
+    private SortStrategy<T> sortStrategy;
+
+    public DataProcessor(SortStrategy<T> sortStrategy) {
+        this.sortStrategy = sortStrategy;
     }
 
-    public void processPayment(String type, int amount) {
-        Payment payment = factory.getPayment(type);
-        payment.pay(amount);
+    public void process(List<T> data) {
+        sortStrategy.sort(data);
+        System.out.println("Sorted: " + data);
+    }
+}
+
+// 사용
+List<Integer> numbers = Arrays.asList(5, 2, 8, 1, 9);
+DataProcessor<Integer> processor = new DataProcessor<>(new QuickSortStrategy<>());
+processor.process(numbers);
+```
+
+### 2-4) Spring에서의 Strategy 패턴
+
+```java
+// Strategy 인터페이스
+public interface NotificationStrategy {
+    void send(String message);
+}
+
+// 구현체들
+@Component("emailNotification")
+public class EmailNotificationStrategy implements NotificationStrategy {
+    @Override
+    public void send(String message) {
+        System.out.println("Email: " + message);
+    }
+}
+
+@Component("smsNotification")
+public class SmsNotificationStrategy implements NotificationStrategy {
+    @Override
+    public void send(String message) {
+        System.out.println("SMS: " + message);
+    }
+}
+
+// Context
+@Service
+public class NotificationService {
+    private final Map<String, NotificationStrategy> strategies;
+
+    public NotificationService(List<NotificationStrategy> strategyList) {
+        this.strategies = strategyList.stream()
+            .collect(Collectors.toMap(
+                s -> s.getClass().getSimpleName(),
+                s -> s
+            ));
+    }
+
+    public void notify(String type, String message) {
+        NotificationStrategy strategy = strategies.get(type + "NotificationStrategy");
+        if (strategy != null) {
+            strategy.send(message);
+        }
     }
 }
 ```
-
 
 ---
 
-👉 **[다음 편: 디자인 패턴 필수 (Part 2: Strategy, 실무 적용)](/learning/deep-dive/deep-dive-design-patterns-essentials-part2/)**
+> 📚 **다음 편:** 준비 중입니다.
+
+---
+
+👈 **[이전 편: 디자인 패턴 필수 (Part 1: 기초 패턴)](/learning/deep-dive/deep-dive-design-patterns-essentials/)**

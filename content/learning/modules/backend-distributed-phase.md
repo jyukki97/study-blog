@@ -12,7 +12,7 @@ layout: "learning-module"
 module_key: "distributed-system"
 url: "/learning/modules/backend-distributed-phase/"
 aliases:
-  - "/learning/modules/backend-architecture-phase/"
+  - "/learning/modules/backend-architecture-mastery/"
 ---
 
 ## 이 단계에서 얻는 것
@@ -33,3 +33,22 @@ aliases:
 
 분산 시스템은 **"확장성"을 얻는 대신 "일관성"을 희생**하는 트레이드오프의 연속입니다.
 그래서 이론적 배경(CAP/Consistency)을 먼저 잡고, 구체적인 기술(Kafka, Sharding)로 들어가는 흐름입니다.
+
+## 이 단계의 핵심 주제
+
+- CAP/PACELC, 일관성 모델
+- 샤딩/라우팅/리밸런싱 전략
+- 분산 트랜잭션(2PC/Saga)
+- 이벤트 기반 통신(Kafka, Outbox)
+
+## 미니 실습
+
+- **샤딩 키 설계**: 데이터 분포가 치우치는 케이스 만들기
+- **SAGA 시나리오**: 보상 트랜잭션 흐름을 시퀀스로 정리
+- **이벤트 흐름 추적**: Producer→Consumer 지연 구간 찾기
+
+## 완료 기준
+
+- 일관성/가용성/지연의 트레이드오프를 사례로 설명할 수 있다
+- 샤딩 키가 잘못될 때 어떤 문제가 생기는지 말로 설명할 수 있다
+- 분산 트랜잭션에서 “성공/실패/보상” 흐름을 그릴 수 있다

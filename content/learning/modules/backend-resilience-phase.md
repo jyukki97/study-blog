@@ -30,3 +30,22 @@ url: "/learning/modules/backend-resilience-phase/"
 ## 왜 이런 순서인가
 
 애플리케이션 내부의 보호 장치(Resilience4j)부터 시작해, 앞단의 게이트웨이, 로드밸런서로 나아가는 **Inside-Out** 접근 방식입니다.
+
+## 이 단계의 핵심 주제
+
+- Circuit Breaker/Retry/Timeout 기본 패턴
+- Rate Limiting/Backpressure 전략
+- API Gateway/Load Balancer 패턴
+- 헬스체크/장애 전파 차단
+
+## 미니 실습
+
+- **서킷 브레이커 실험**: 실패율에 따라 열린/닫힌 상태 확인
+- **레이트 리미터 적용**: 초당 요청 제한과 응답 코드 설계
+- **헬스체크 분리**: Liveness/Readiness 차이 적용
+
+## 완료 기준
+
+- 장애 전파를 막는 패턴과 사용 기준을 설명할 수 있다
+- 트래픽 급증 시 어떤 보호 장치를 먼저 켤지 판단할 수 있다
+- 헬스체크/타임아웃/재시도 조합을 설계할 수 있다

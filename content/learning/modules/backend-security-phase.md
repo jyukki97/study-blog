@@ -40,6 +40,25 @@ url: "/learning/modules/backend-security-phase/"
 - **Session vs Token**: 보안 관점에서의 트레이드오프 (Replay Attack, Hijacking 방지)
 - **MFA (Multi-Factor Authentication)**: 다중 인증 구현 원리
 
+## 이 단계의 핵심 주제
+
+- OWASP Top 10과 웹 취약점 방어
+- 인증/인가(OAuth2/OIDC, Session vs Token)
+- 전송 구간 보안(TLS, HSTS)
+- 비밀 관리/권한 최소화/보안 로그
+
+## 미니 실습
+
+- **CORS/CSRF 재현**: 허용/차단 케이스를 분리해서 동작 확인
+- **토큰 탈취 시나리오**: 만료/갱신/리프레시 전략 비교
+- **보안 헤더 적용**: CSP/HSTS/Referrer-Policy 적용 테스트
+
+## 완료 기준
+
+- 핵심 취약점 5개를 “어떻게 막는지” 설명할 수 있다
+- 인증/인가 흐름에서 공격 지점을 식별할 수 있다
+- 최소 권한/비밀 관리 원칙을 설계에 반영할 수 있다
+
 ## 추천 학습 순서
 
 1. **[OWASP Top 10 체크리스트](/learning/deep-dive/deep-dive-owasp-top10-checklist/)** (기존 글)

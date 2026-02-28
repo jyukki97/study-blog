@@ -39,6 +39,24 @@ url: "/learning/modules/backend-architecture-mastery/"
 - **Bounded Context**: 언어와 모델의 의미가 통용되는 경계 설정.
 - **Domain Events**: 결과적 정합성(Eventual Consistency)을 달성하는 핵심 도구.
 
+## 이 단계의 핵심 주제
+
+- 분산 트랜잭션(2PC/Saga/TCC) 설계
+- 샤딩/라우팅/리밸런싱 전략
+- DDD 전술 패턴과 경계(Bounded Context)
+
+## 미니 실습
+
+- **SAGA 시퀀스 설계**: 성공/실패/보상 흐름 작성
+- **샤딩 재배치 시나리오**: 노드 추가 시 데이터 이동량 계산
+- **Aggregate 경계 설계**: 트랜잭션 경계 1개로 제한하는 모델 작성
+
+## 완료 기준
+
+- 대규모 시스템의 핵심 난제를 구조적으로 설명할 수 있다
+- 데이터 정합성과 확장성의 균형점을 말로 정리할 수 있다
+- 도메인 경계가 어긋날 때 생기는 문제를 설명할 수 있다
+
 ## 추천 학습 자료
 - **책**: *Microservices Patterns (마이크로서비스 패턴)* - 크리스 리처드슨
 - **책**: *Domain-Driven Design (도메인 주도 설계)* - 에릭 에반스 (Blue Book)
