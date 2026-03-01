@@ -6,6 +6,7 @@ topic: "Backend"
 tags: ["DB", "성능", "튜닝", "트러블슈팅"]
 categories: ["Backend"]
 series: ["핵심 개념 Q&A"]
+description: "DB 병목 측정부터 쿼리/인덱스 최적화, 캐시, 비동기화, 스케일까지 대응 순서 Q&A"
 series_order: 31
 draft: false
 module: "interview-readiness"

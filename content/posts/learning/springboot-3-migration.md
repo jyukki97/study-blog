@@ -4,6 +4,7 @@ date: 2026-02-12T09:00:00+09:00
 draft: false
 tags: ["Spring Boot", "Java", "Migration", "Backend"]
 categories: ["Backend", "Spring"]
+description: "Java 17 필수화, Jakarta EE 전환 등 Spring Boot 3.0 마이그레이션 주요 변경사항과 트러블슈팅 가이드"
 ---
 
 Spring Boot 3.0은 2.x 버전 이후 가장 큰 변화를 담고 있는 메이저 업데이트입니다. 특히 **Java 17 이상이 필수**가 되었고, **Jakarta EE 9/10**으로의 전환이 강제되면서 단순 버전 업그레이드 이상의 작업이 필요합니다.

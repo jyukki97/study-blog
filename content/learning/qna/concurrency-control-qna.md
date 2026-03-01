@@ -6,6 +6,7 @@ topic: "Backend"
 tags: ["동시성", "Lock", "JPA", "낙관적락", "비관적락", "분산락"]
 categories: ["Backend"]
 series: ["핵심 개념 Q&A"]
+description: "낙관적/비관적 락, 분산 락의 기본 개념과 동시성 제어 전략 Q&A"
 series_order: 19
 draft: false
 module: "qna"

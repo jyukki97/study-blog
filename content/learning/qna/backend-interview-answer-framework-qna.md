@@ -6,6 +6,7 @@ topic: "Backend"
 tags: ["면접", "답변", "트레이드오프", "커뮤니케이션"]
 categories: ["Backend"]
 series: ["핵심 개념 Q&A"]
+description: "백엔드 면접 1분 답변 구조, 트레이드오프 정리 프레임워크 Q&A"
 series_order: 30
 draft: false
 module: "interview-readiness"

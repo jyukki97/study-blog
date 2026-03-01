@@ -6,6 +6,7 @@ topic: "Spring"
 tags: ["예외처리", "Spring", "ControllerAdvice", "에러처리", "GlobalException"]
 categories: ["Spring"]
 series: ["핵심 개념 Q&A"]
+description: "Checked/Unchecked 예외 구분, ControllerAdvice 등 실무 패턴 심화 Q&A"
 series_order: 18
 draft: false
 module: "qna"

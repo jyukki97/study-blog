@@ -6,6 +6,7 @@ topic: "Backend"
 tags: ["Kafka", "전달보장", "중복처리", "면접"]
 categories: ["Backend"]
 series: ["핵심 개념 Q&A"]
+description: "Kafka At-most/At-least/Exactly-once 전달 보장과 중복 처리 면접 Q&A"
 series_order: 33
 draft: false
 module: "interview-readiness"

@@ -6,6 +6,7 @@ topic: "Backend"
 tags: ["WebFlux", "Spring MVC", "비동기", "면접"]
 categories: ["Backend"]
 series: ["핵심 개념 Q&A"]
+description: "WebFlux와 Spring MVC 선택 기준, 운영 포인트 면접 Q&A"
 series_order: 34
 draft: false
 module: "interview-readiness"

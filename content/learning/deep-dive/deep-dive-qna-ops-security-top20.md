@@ -7,6 +7,7 @@ tags: ["Ops", "Security", "DevOps", "Q&A"]
 categories: ["Q&A"]
 description: "CI/CD, 모니터링/알람, 네트워크, CORS/CSRF/OWASP 등 운영/보안 관련 20문항 Q&A"
 module: "qna"
+study_order: 802
 ---
 
 ## 예시 질문

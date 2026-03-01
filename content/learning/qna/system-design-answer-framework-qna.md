@@ -6,6 +6,7 @@ topic: "Backend"
 tags: ["시스템설계", "면접", "트러블슈팅", "프레임워크"]
 categories: ["Backend"]
 series: ["핵심 개념 Q&A"]
+description: "시스템 설계 면접 답변 프레임워크: 가정 분리, 측정, 대응 우선순위 Q&A"
 series_order: 35
 draft: false
 module: "interview-readiness"

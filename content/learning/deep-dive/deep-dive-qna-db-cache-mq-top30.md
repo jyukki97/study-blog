@@ -7,6 +7,7 @@ tags: ["Database", "Redis", "Kafka", "Q&A", "Interview"]
 categories: ["Q&A"]
 description: "인덱스/격리/락, Redis 캐시/락, Kafka 파티션·정렬·리밸런스 등 30문항 Q&A"
 module: "qna"
+study_order: 801
 ---
 
 ## 예시 질문

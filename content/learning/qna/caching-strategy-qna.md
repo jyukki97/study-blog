@@ -6,6 +6,7 @@ topic: "Backend"
 tags: ["캐싱", "Redis", "Caffeine", "Cache", "성능최적화"]
 categories: ["Backend"]
 series: ["핵심 개념 Q&A"]
+description: "Cache-Aside, Write-through 등 캐시 패턴 기초 Q&A"
 series_order: 20
 draft: false
 module: "qna"

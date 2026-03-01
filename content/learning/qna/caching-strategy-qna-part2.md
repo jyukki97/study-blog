@@ -6,6 +6,7 @@ topic: "Backend"
 tags: ["캐싱", "Redis", "Caffeine", "Cache", "성능최적화"]
 categories: ["Backend"]
 series: ["핵심 개념 Q&A"]
+description: "2-Level Cache, 캐시 무효화, 실무 운영 전략 심화 Q&A"
 series_order: 20
 draft: false
 module: "qna"

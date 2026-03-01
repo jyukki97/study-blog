@@ -6,6 +6,7 @@ topic: "Security"
 tags: ["OAuth2", "인증", "보안", "Spring Security", "JWT", "Token"]
 categories: ["Security"]
 series: ["핵심 개념 Q&A"]
+description: "OAuth2 인증 흐름과 기초 개념 Q&A"
 series_order: 17
 draft: false
 module: "qna"

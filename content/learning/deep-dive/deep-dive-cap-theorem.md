@@ -7,6 +7,7 @@ tags: ["분산시스템", "CAP", "PACELC", "일관성"]
 categories: ["Learning"]
 study_order: 951
 module: "distributed-system"
+description: "CAP 이론과 PACELC 확장을 설계 의사결정 기준으로 이해하고, 주요 분산 시스템의 트레이드오프를 분류"
 ---
 
 ## 이 글에서 얻는 것

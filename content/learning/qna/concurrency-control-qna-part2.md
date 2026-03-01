@@ -6,6 +6,7 @@ topic: "Backend"
 tags: ["동시성", "Lock", "JPA", "낙관적락", "비관적락", "분산락"]
 categories: ["Backend"]
 series: ["핵심 개념 Q&A"]
+description: "재고 차감, Java 멀티스레드, 실무 동시성 제어 심화 Q&A"
 series_order: 19
 draft: false
 module: "qna"

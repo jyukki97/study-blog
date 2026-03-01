@@ -6,6 +6,7 @@ topic: "Backend"
 tags: ["JPA", "성능", "N+1", "면접"]
 categories: ["Backend"]
 series: ["핵심 개념 Q&A"]
+description: "JPA N+1 문제, fetch join, OSIV 등 성능 관련 면접 Q&A"
 series_order: 32
 draft: false
 module: "interview-readiness"

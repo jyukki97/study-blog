@@ -7,6 +7,7 @@ tags: ["Java", "Spring", "Interview", "Q&A"]
 categories: ["Q&A"]
 description: "JVM/GC, 동시성, 스프링 빈/트랜잭션/보안 등 자주 묻는 50문항 Q&A"
 module: "qna"
+study_order: 800
 ---
 
 ## 예시 질문

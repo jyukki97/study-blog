@@ -6,6 +6,7 @@ topic: "Spring"
 tags: ["예외처리", "Spring", "ControllerAdvice", "에러처리", "GlobalException"]
 categories: ["Spring"]
 series: ["핵심 개념 Q&A"]
+description: "예외 기초와 전략, Spring 예외 처리 패턴 Q&A"
 series_order: 18
 draft: false
 module: "qna"
