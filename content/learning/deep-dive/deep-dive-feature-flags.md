@@ -8,6 +8,7 @@ topic_description: "피처 토글, 카나리 릴리스, A/B 테스트 구현"
 tags: ["Feature Flag", "DevOps", "Release", "A/B Test", "Canary"]
 categories: ["Ops"]
 draft: false
+description: "피처 플래그로 안전한 기능 릴리스와 A/B 테스트를 구현하는 운영 전략"
 module: "ops-observability"
 quizzes:
   - question: "피처 플래그의 핵심 가치인 '배포 ≠ 릴리스'의 의미는?"

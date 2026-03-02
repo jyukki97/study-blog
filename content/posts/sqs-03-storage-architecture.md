@@ -4,7 +4,7 @@ date: 2025-06-19
 draft: false
 tags: ["Redis", "FIFO", "Spring Boot", "메시지큐"]
 categories: ["Development", "Learning"]
-description: "간단한 REST API + Redis 메시지 큐를 만들다가 멀티 테넌트 분리의 필요성을 깨달은 경험담"
+description: "메시지 큐의 저장소 계층을 Redis에서 분리하며 고민한 스토리지 아키텍처 설계 과정"
 project: "Simple Queue Service"
 series: "Simple Queue Service"
 ---

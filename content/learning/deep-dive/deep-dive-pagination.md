@@ -8,6 +8,7 @@ topic_description: "Offset vs Cursor, No-Offset 페이징, 성능 최적화"
 tags: ["Pagination", "Database", "Performance", "JPA", "Spring Data"]
 categories: ["Data"]
 draft: false
+description: "Offset vs Cursor 페이지네이션 비교, 대용량 데이터 정렬과 Spring Data 적용"
 module: "data-system"
 quizzes:
   - question: "Offset 페이징의 가장 큰 문제점은?"

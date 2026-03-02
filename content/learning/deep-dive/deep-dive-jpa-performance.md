@@ -8,6 +8,7 @@ topic_description: "Lazy/Eager 로딩, Batch Size, QueryDSL, Hibernate 통계"
 tags: ["JPA", "Hibernate", "Performance", "Batch", "Optimization"]
 categories: ["Data"]
 draft: false
+description: "JPA N+1 해결, Fetch 전략, 배치 처리 등 성능 최적화 실전 기법"
 module: "data-system"
 quizzes:
   - question: "JPA `@ManyToOne` 연관관계의 기본 FetchType은 무엇이며, 왜 문제가 될 수 있는가?"

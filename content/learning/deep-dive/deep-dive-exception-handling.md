@@ -8,6 +8,7 @@ topic_description: "커스텀 예외, 예외 계층, 글로벌 핸들링, 로깅
 tags: ["Exception Handling", "Spring", "Error Handling", "Best Practices"]
 categories: ["Spring"]
 draft: false
+description: "비즈니스 예외와 시스템 예외를 구분하고 일관된 에러 응답을 설계하는 패턴"
 module: "spring-core"
 quizzes:
   - question: "Java에서 비즈니스 예외를 Checked Exception 대신 Unchecked Exception(RuntimeException)으로 만드는 이유는?"

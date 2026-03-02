@@ -8,6 +8,7 @@ topic_description: "S3 개념, Presigned URL, 대용량 업로드, 비용 최적
 tags: ["S3", "Object Storage", "AWS", "File Upload", "Cloud"]
 categories: ["Ops"]
 draft: false
+description: "AWS S3 기반 오브젝트 스토리지 구조, Presigned URL, 멀티파트 업로드 실무"
 module: "ops-observability"
 ---
 

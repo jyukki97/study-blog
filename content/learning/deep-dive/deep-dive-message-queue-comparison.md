@@ -8,6 +8,7 @@ topic_description: "Kafka, RabbitMQ, Redis Pub/Sub 비교와 선택 기준"
 tags: ["Kafka", "RabbitMQ", "Redis", "Message Queue", "Pub/Sub"]
 categories: ["Distributed"]
 draft: false
+description: "Kafka, RabbitMQ, Redis Streams의 아키텍처 차이와 선택 기준"
 module: "distributed"
 quizzes:
   - question: "Kafka, RabbitMQ, Redis Pub/Sub 중 대용량 로그/이벤트 스트리밍에 가장 적합한 것은?"

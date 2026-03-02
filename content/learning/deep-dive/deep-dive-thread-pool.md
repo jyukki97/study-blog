@@ -8,6 +8,7 @@ topic_description: "ThreadPoolExecutor 구성, 큐 전략, 모니터링"
 tags: ["Java", "Thread Pool", "Concurrency", "Performance"]
 categories: ["Foundation"]
 draft: false
+description: "ThreadPoolExecutor 파라미터 튜닝, 적정 스레드 수 공식, 모니터링 전략"
 module: "foundation"
 quizzes:
   - question: "`ThreadPoolExecutor`에서 새로운 스레드가 생성되는 시점은 언제인가? (기본 설정 기준)"

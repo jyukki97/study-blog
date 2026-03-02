@@ -8,6 +8,7 @@ topic_description: "GraphQL 스키마 설계, N+1 해결, 실시간 Subscription
 tags: ["GraphQL", "API", "DataLoader", "Federation"]
 categories: ["Modern"]
 draft: false
+description: "GraphQL 스키마 설계, DataLoader로 N+1 해결, 성능 최적화와 보안 고려사항"
 module: "modern-frontiers"
 quizzes:
   - question: "GraphQL이 REST의 Under-fetching 문제를 해결하는 방식은?"

@@ -8,6 +8,7 @@ topic_description: "Traces, Metrics, Logs 통합, 분산 컨텍스트 전파"
 tags: ["OpenTelemetry", "Observability", "Tracing", "Metrics", "Logs"]
 categories: ["Ops"]
 draft: false
+description: "OpenTelemetry의 Trace/Metric/Log 통합 관측 표준과 Spring Boot 적용 가이드"
 module: "ops-observability"
 ---
 

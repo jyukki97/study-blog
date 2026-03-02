@@ -8,6 +8,7 @@ topic_description: "Bean Validation, Custom Validator, 에러 핸들링"
 tags: ["Spring", "Validation", "Bean Validation", "Error Handling"]
 categories: ["Spring"]
 draft: false
+description: "Bean Validation과 커스텀 검증 로직으로 입력 검증을 구현하는 완벽 가이드"
 module: "spring-core"
 ---
 

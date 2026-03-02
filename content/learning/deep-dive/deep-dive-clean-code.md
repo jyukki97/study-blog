@@ -8,6 +8,7 @@ topic_description: "네이밍, 함수 설계, 주석, 리팩토링 원칙"
 tags: ["Clean Code", "Refactoring", "Best Practices", "Code Quality"]
 categories: ["Foundation"]
 draft: false
+description: "네이밍, 함수 설계, 주석 원칙, 리팩토링 기법 등 읽기 좋은 코드의 핵심 원칙"
 module: "foundation"
 quizzes:
   - question: "변수나 메서드의 이름을 지을 때 가장 중요한 원칙은?"

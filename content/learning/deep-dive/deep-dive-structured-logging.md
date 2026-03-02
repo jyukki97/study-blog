@@ -8,6 +8,7 @@ topic_description: "JSON 로깅, MDC, 로그 레벨 전략과 ELK 연동"
 tags: ["Logging", "Observability", "Structured Logging", "MDC", "ELK"]
 categories: ["Ops"]
 draft: false
+description: "JSON 기반 구조화 로깅 설계, MDC 활용, ELK/Loki에서 검색 가능한 로그 전략"
 module: "ops-observability"
 quizzes:
   - question: "텍스트 기반 로그 대신 구조화된 로그(JSON 등)를 사용하는 가장 큰 장점은?"

@@ -8,6 +8,7 @@ topic_description: "Command Query Responsibility Segregation 패턴과 구현"
 tags: ["CQRS", "Architecture", "DDD", "Event Sourcing"]
 categories: ["Architecture"]
 draft: false
+description: "CQRS 패턴의 개념, 읽기/쓰기 모델 분리, Event Sourcing과의 조합 가이드"
 module: "architecture-mastery"
 quizzes:
   - question: "CQRS(Command Query Responsibility Segregation) 패턴의 핵심 아이디어는?"

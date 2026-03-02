@@ -8,6 +8,7 @@ topic_description: "Spring Config, Vault, 환경별 설정, 12-Factor App"
 tags: ["Configuration", "Spring Cloud Config", "Vault", "Secret Management"]
 categories: ["Ops"]
 draft: false
+description: "Spring Cloud Config, Vault 등을 활용한 외부 설정과 시크릿 관리 전략"
 module: "ops-observability"
 quizzes:
   - question: "12-Factor App에서 '설정은 환경에 저장'한다는 원칙의 의미는?"
