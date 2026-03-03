@@ -395,6 +395,6 @@ server {
 
 ## 🔗 Related Deep Dive
 
-- **[API Gateway 설계](/learning/deep-dive/deep-dive-api-gateway-design/)**: 진입점 패턴과 인증.
-- **[Circuit Breaker](/learning/deep-dive/deep-dive-resilience4j-circuit-breaker/)**: 장애 전파 차단.
-- **[분산 트랜잭션](/learning/deep-dive/deep-dive-distributed-transactions/)**: SAGA 패턴.
+- **API Gateway 설계** *(준비 중)*: 진입점 패턴과 인증.
+- **Circuit Breaker** *(준비 중)*: 장애 전파 차단.
+- **분산 트랜잭션** *(준비 중)*: SAGA 패턴.

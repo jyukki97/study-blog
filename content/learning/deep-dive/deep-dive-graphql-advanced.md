@@ -460,4 +460,4 @@ public Instrumentation depthInstrumentation() {
 ## 🔗 Related Deep Dive
 
 - **[gRPC 서비스 설계](/learning/deep-dive/deep-dive-grpc-service-design/)**: Protobuf와 HTTP/2 기반 API.
-- **[API Gateway 설계](/learning/deep-dive/deep-dive-api-gateway-design/)**: 인증, 라우팅, Rate Limiting.
+- **API Gateway 설계** *(준비 중)*: 인증, 라우팅, Rate Limiting.

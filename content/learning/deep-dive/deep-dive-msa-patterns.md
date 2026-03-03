@@ -273,6 +273,6 @@ public void publishEvents() {
 
 ## 다음 단계
 
-- API Gateway 설계: `/learning/deep-dive/deep-dive-api-gateway-design/`
+- API Gateway 설계: *(준비 중)*
 - 헥사고날 아키텍처: `/learning/deep-dive/deep-dive-hexagonal-architecture/`
 - DDD 전술적 설계: `/learning/deep-dive/deep-dive-ddd-tactical/`

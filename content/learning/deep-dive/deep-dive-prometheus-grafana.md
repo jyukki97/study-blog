@@ -138,4 +138,4 @@ groups:
 ## 다음 단계
 
 - APM: `/learning/deep-dive/deep-dive-apm-basics/`
-- 알림 전략: `/learning/deep-dive/deep-dive-alerting-strategy/`
+- 알림 전략: *(준비 중)*

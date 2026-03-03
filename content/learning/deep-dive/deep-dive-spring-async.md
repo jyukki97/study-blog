@@ -667,5 +667,5 @@ CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
 ## 다음 단계
 
 - Spring WebFlux: `/learning/deep-dive/deep-dive-spring-webflux-vs-mvc/`
-- Reactive Programming: `/learning/deep-dive/deep-dive-reactive-streams/`
-- 동시성 제어: `/learning/deep-dive/deep-dive-java-concurrency-basics/`
+- Reactive Programming: *(준비 중)*
+- 동시성 제어: *(준비 중)*

@@ -446,6 +446,6 @@ public class LocationPushService {
 
 ## 다음 단계
 
-- Redis 클러스터: `/learning/deep-dive/deep-dive-redis-cluster/`
+- Redis 클러스터: *(준비 중)*
 - Redis Streams: `/learning/deep-dive/deep-dive-redis-streams/`
-- 캐싱 전략: `/learning/deep-dive/deep-dive-caching-strategies/`
+- 캐싱 전략: *(준비 중)*

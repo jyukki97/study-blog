@@ -200,4 +200,4 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 ## 다음 단계
 
 - **OAuth 2.0 심화**: `/learning/deep-dive/deep-dive-oauth2-oidc/`
-- **JWT vs Session**: `/learning/deep-dive/deep-dive-jwt-session/`
+- **JWT vs Session**: *(준비 중)*

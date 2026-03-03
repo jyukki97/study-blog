@@ -410,4 +410,4 @@ public class OutboxEventListener {
 ## 🔗 Related Deep Dive
 
 - **[Kafka 기본](/learning/deep-dive/deep-dive-kafka-foundations/)**: 분산 이벤트 스트리밍.
-- **[SAGA 패턴](/learning/deep-dive/deep-dive-distributed-transactions/)**: 이벤트 기반 분산 트랜잭션.
+- **SAGA 패턴** *(준비 중)*: 이벤트 기반 분산 트랜잭션.

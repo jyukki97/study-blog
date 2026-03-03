@@ -453,5 +453,5 @@ flowchart TD
 
 ## 🔗 Related Deep Dive
 
-- **[Java 동시성 기초](/learning/deep-dive/deep-dive-java-concurrency-basics/)**: Thread, synchronized, volatile.
-- **[분산 락](/learning/deep-dive/deep-dive-distributed-lock/)**: 단일 JVM을 넘어선 동시성 제어.
+- **Java 동시성 기초** *(준비 중)*: Thread, synchronized, volatile.
+- **분산 락** *(준비 중)*: 단일 JVM을 넘어선 동시성 제어.

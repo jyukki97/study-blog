@@ -518,4 +518,4 @@ public void cleanupOldEvents() {
 더 깊이 있는 학습을 원한다면 심화 과정을 참고하세요:
 
 - **[Java GC 기본](/learning/deep-dive/deep-dive-java-gc/)**: 세대별 GC와 로그 분석.
-- **[Java 동시성](/learning/deep-dive/deep-dive-java-concurrency-basics/)**: 스레드, synchronized, volatile 시각화.
+- **Java 동시성** *(준비 중)*: 스레드, synchronized, volatile 시각화.

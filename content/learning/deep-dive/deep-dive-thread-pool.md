@@ -335,5 +335,5 @@ spring:
 
 ## 🔗 Related Deep Dive
 
-- **[Java 동시성 기초](/learning/deep-dive/deep-dive-java-concurrency-basics/)**: Thread, synchronized.
+- **Java 동시성 기초** *(준비 중)*: Thread, synchronized.
 - **[동시성 컬렉션](/learning/deep-dive/deep-dive-concurrent-collections/)**: BlockingQueue 상세.

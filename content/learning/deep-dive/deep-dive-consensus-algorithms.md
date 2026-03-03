@@ -141,5 +141,5 @@ ZooKeeper:
 
 ## 다음 단계
 
-- 분산 시스템: `/learning/deep-dive/deep-dive-distributed-systems/`
+- 분산 시스템: *(준비 중)*
 - CAP 이론: `/learning/deep-dive/deep-dive-cap-theorem/`

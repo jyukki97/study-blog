@@ -401,5 +401,5 @@ public class UserController {
 
 ## 🔗 Related Deep Dive
 
-- **[API Gateway 설계](/learning/deep-dive/deep-dive-api-gateway-design/)**: 버전 라우팅과 트래픽 관리.
+- **API Gateway 설계** *(준비 중)*: 버전 라우팅과 트래픽 관리.
 - **[GraphQL 심화](/learning/deep-dive/deep-dive-graphql-advanced/)**: Schema Evolution으로 버전 없는 API.

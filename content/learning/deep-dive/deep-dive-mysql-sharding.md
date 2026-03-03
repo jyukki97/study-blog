@@ -258,5 +258,5 @@ spring:
 
 ## 다음 단계
 
-- DB 레플리케이션: `/learning/deep-dive/deep-dive-db-replication/`
-- 읽기 전용 복제본: `/learning/deep-dive/deep-dive-read-replicas/`
+- DB 레플리케이션: *(준비 중)*
+- 읽기 전용 복제본: *(준비 중)*

@@ -507,4 +507,4 @@ for (long i = 0; i < VERY_LARGE_NUMBER; i++) {
 더 깊이 있는 학습을 원한다면 심화 과정을 참고하세요:
 
 - **[Java GC](/learning/deep-dive/deep-dive-java-gc/)**: G1GC, ZGC 알고리즘과 튜닝.
-- **[Java 동시성 기초](/learning/deep-dive/deep-dive-java-concurrency-basics/)**: ThreadPoolExecutor, CompletableFuture.
+- **Java 동시성 기초** *(준비 중)*: ThreadPoolExecutor, CompletableFuture.

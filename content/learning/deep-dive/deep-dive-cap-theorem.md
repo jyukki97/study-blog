@@ -121,6 +121,6 @@ public class FeedCounterService {
 
 ## 다음 글
 
-- **분산 시스템 기초**: `/learning/deep-dive/deep-dive-distributed-systems/`
-- **데이터베이스 샤딩**: `/learning/deep-dive/deep-dive-database-sharding/`
-- **DB 복제 전략**: `/learning/deep-dive/deep-dive-database-replication/`
+- **분산 시스템 기초**: *(준비 중)*
+- **데이터베이스 샤딩**: *(준비 중)*
+- **DB 복제 전략**: *(준비 중)*

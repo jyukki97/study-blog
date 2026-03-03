@@ -470,4 +470,4 @@ public OrderReadModel getOrder(@PathVariable String orderId) {
 ## 🔗 Related Deep Dive
 
 - **[DDD 전술 설계](/learning/deep-dive/deep-dive-ddd-tactical/)**: Aggregate, Entity, Value Object.
-- **[분산 트랜잭션](/learning/deep-dive/deep-dive-distributed-transactions/)**: SAGA 패턴.
+- **분산 트랜잭션** *(준비 중)*: SAGA 패턴.

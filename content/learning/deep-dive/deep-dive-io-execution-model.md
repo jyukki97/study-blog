@@ -168,6 +168,6 @@ IO/락/큐 대기처럼 “조건이 만족될 때까지” 현재 스레드가 
 
 ## 연결해서 읽기
 
-- 동시성 기본기(락/스레드풀/JMM): `/learning/deep-dive/deep-dive-java-concurrency-basics/`
+- 동시성 기본기(락/스레드풀/JMM): *(준비 중)*
 - OS 관점(스케줄링/컨텍스트 스위칭): `/learning/deep-dive/deep-dive-os-concurrency-basics/`
 - Spring MVC vs WebFlux 선택 기준: `/learning/deep-dive/deep-dive-spring-webflux-vs-mvc/`

@@ -618,6 +618,6 @@ V20251216_1030__add_phone.sql
 
 ## 다음 단계
 
-- 데이터베이스 샤딩: `/learning/deep-dive/deep-dive-database-sharding/`
-- 읽기 전용 복제본: `/learning/deep-dive/deep-dive-database-replication/`
-- 무중단 배포: `/learning/deep-dive/deep-dive-zero-downtime-deployment/`
+- 데이터베이스 샤딩: *(준비 중)*
+- 읽기 전용 복제본: *(준비 중)*
+- 무중단 배포: *(준비 중)*

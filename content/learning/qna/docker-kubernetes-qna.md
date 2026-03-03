@@ -917,4 +917,4 @@ readinessProbe:
 더 깊이 있는 학습을 원한다면 심화 과정을 참고하세요:
 
 - **[Docker 기본](/learning/deep-dive/deep-dive-docker-basics/)**: 컨테이너 격리 원리와 Image Layer 구조.
-- **[Kubernetes 서비스 디스커버리](/learning/deep-dive/deep-dive-kubernetes-service-discovery/)**: Service, Ingress, DNS 다이어그램.
+- **Kubernetes 서비스 디스커버리** *(준비 중)*: Service, Ingress, DNS 다이어그램.

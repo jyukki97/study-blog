@@ -480,5 +480,5 @@ async function createPaymentWithRetry(data, maxRetries = 3) {
 
 ## 🔗 Related Deep Dive
 
-- **[분산 트랜잭션](/learning/deep-dive/deep-dive-distributed-transactions/)**: SAGA와 보상 트랜잭션.
-- **[API Gateway](/learning/deep-dive/deep-dive-api-gateway-design/)**: 중앙 집중식 멱등성 처리.
+- **분산 트랜잭션** *(준비 중)*: SAGA와 보상 트랜잭션.
+- **API Gateway** *(준비 중)*: 중앙 집중식 멱등성 처리.

@@ -494,5 +494,5 @@ NoSQL은 트랜잭션이 약함
 ## 다음 단계
 
 - Redis 심화: `/learning/deep-dive/deep-dive-redis-advanced/`
-- MongoDB 인덱싱: `/learning/deep-dive/deep-dive-mongodb-indexing/`
+- MongoDB 인덱싱: *(준비 중)*
 - Elasticsearch: `/learning/deep-dive/deep-dive-elasticsearch-basics/`

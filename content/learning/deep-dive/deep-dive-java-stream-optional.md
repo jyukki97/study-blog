@@ -655,6 +655,6 @@ class ReportService {
 
 ## 다음 단계
 
-- Java 동시성 기초: `/learning/deep-dive/deep-dive-java-concurrency-basics/`
+- Java 동시성 기초: *(준비 중)*
 - 객체지향 설계 원칙(SOLID): `/learning/deep-dive/deep-dive-oop-solid-principles/`
 - 자료구조 복잡도: `/learning/deep-dive/deep-dive-data-structure-complexity/`

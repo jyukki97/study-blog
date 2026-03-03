@@ -207,6 +207,6 @@ chaos run experiment.yaml
 
 ## 다음 단계
 
-- Circuit Breaker: `/learning/deep-dive/deep-dive-resilience4j-circuit-breaker/`
+- Circuit Breaker: *(준비 중)*
 - 모니터링: `/learning/deep-dive/deep-dive-prometheus-grafana/`
-- 분산 시스템: `/learning/deep-dive/deep-dive-distributed-systems/`
+- 분산 시스템: *(준비 중)*

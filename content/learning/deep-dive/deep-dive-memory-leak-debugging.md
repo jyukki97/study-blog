@@ -477,4 +477,4 @@ jstack <pid> > thread-dump.txt
 
 - GC 튜닝: `/learning/deep-dive/deep-dive-gc-tuning-practical/`
 - JVM 메모리: `/learning/deep-dive/deep-dive-jvm-memory/`
-- Java 동시성: `/learning/deep-dive/deep-dive-java-concurrency-basics/`
+- Java 동시성: *(준비 중)*
