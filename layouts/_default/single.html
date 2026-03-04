@@ -123,21 +123,21 @@
 
     {{- $related := .Site.RegularPages.Related . | first 3 }}
     {{- if gt (len $related) 0 }}
-    <div class="related-posts">
-      <h3>Related Posts</h3>
+    <nav class="related-posts" aria-label="관련 글">
+      <h3>관련 글</h3>
       <div class="related-posts-grid">
         {{- range $related }}
-        <div class="related-post">
+        <article class="related-post">
           {{- $cover := .Param "cover.image" }}
           {{- if $cover }}
           <div class="related-post-image">
-            <a href="{{ .Permalink }}">
-              <img src="{{ $cover | absURL }}" alt="{{ .Title }}">
+            <a href="{{ .RelPermalink }}" aria-label="{{ .Title }} 읽기">
+              <img src="{{ $cover | absURL }}" alt="{{ .Title }}" loading="lazy" decoding="async">
             </a>
           </div>
           {{- end }}
           <div class="related-post-content">
-            <h4><a href="{{ .Permalink }}">{{ .Title }}</a></h4>
+            <h4><a href="{{ .RelPermalink }}">{{ .Title }}</a></h4>
             <div class="related-post-summary">
               {{ .Summary | plainify | truncate 80 }}
             </div>
@@ -145,10 +145,10 @@
               <span>{{ .Date.Format "2006.01.02" }}</span>
             </div>
           </div>
-        </div>
+        </article>
         {{- end }}
       </div>
-    </div>
+    </nav>
     {{- end }}
 
     {{- if (.Param "comments") }}
@@ -282,7 +282,7 @@
         });
         ticking = true;
       }
-    });
+    }, { passive: true });
 
     // 페이지 로드 시 초기화
     updateTOC();

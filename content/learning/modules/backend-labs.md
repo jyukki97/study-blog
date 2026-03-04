@@ -1,3 +1,4 @@
+---
 title: "부록: 실습실 (Hands-on Labs)"
 date: 2025-12-28
 draft: false
