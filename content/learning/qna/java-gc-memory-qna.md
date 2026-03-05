@@ -7,6 +7,7 @@ topic_icon: "💬"
 topic_description: "Java GC, Heap/Stack, OutOfMemoryError 관련 핵심 개념과 실전 예제 정리"
 tags: ["Java", "GC", "Memory", "JVM"]
 categories: ["Java"]
+description: "Java Heap/Stack 메모리 구조, GC 알고리즘, OutOfMemoryError 원인과 대응 Q&A"
 draft: false
 module: "qna"
 ---

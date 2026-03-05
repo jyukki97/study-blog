@@ -7,6 +7,7 @@ topic_icon: "💬"
 topic_description: "Thread Dump, Slow Query, 캐싱, Connection Pool 관련 핵심 개념과 실전 예제 정리"
 tags: ["Performance", "API", "Thread Dump", "Caching"]
 categories: ["Backend"]
+description: "Slow Query 최적화, Execution Plan 분석, 쿼리 튜닝 심화 전략 Q&A"
 draft: false
 module: "qna"
 ---

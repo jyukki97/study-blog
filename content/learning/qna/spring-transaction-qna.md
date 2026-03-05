@@ -7,6 +7,7 @@ topic_icon: "💬"
 topic_description: "@Transactional, Propagation, Isolation Level 관련 핵심 개념과 실전 예제 정리"
 tags: ["Spring", "Transaction", "ACID", "Database"]
 categories: ["Backend"]
+description: "@Transactional 동작 원리, AOP 프록시, Isolation Level 기본 개념 Q&A"
 draft: false
 module: "qna"
 ---

@@ -7,6 +7,7 @@ topic_icon: "💬"
 topic_description: "Spring Bean 생성 순서, Proxy 객체, @Configuration 관련 핵심 개념과 실전 예제 정리"
 tags: ["Spring", "Bean", "Lifecycle", "Proxy"]
 categories: ["Spring"]
+description: "Spring Bean 생성 순서, 초기화/소멸 콜백, Proxy 객체와 @Configuration 동작 Q&A"
 draft: false
 module: "qna"
 ---

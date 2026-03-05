@@ -7,6 +7,7 @@ topic_icon: "💬"
 topic_description: "Mono/Flux 차이, subscribe 시점, Scheduler 종류에 대한 핵심 개념 정리"
 tags: ["Spring WebFlux", "Reactor", "Reactive", "Mono", "Flux"]
 categories: ["Spring"]
+description: "WebFlux 내부 구조, Reactor 패턴, 이벤트 루프와 스레드 모델 Q&A"
 draft: false
 module: "qna"
 ---

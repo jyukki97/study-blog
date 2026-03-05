@@ -7,6 +7,7 @@ topic_icon: "💬"
 topic_description: "Kafka Consumer Group, Rebalance, Offset Commit 관련 핵심 개념과 실전 예제 정리"
 tags: ["Kafka", "Consumer Group", "Rebalance", "Offset"]
 categories: ["Kafka"]
+description: "Kafka Consumer Group 동작 원리, 리밸런싱, 오프셋 관리 전략 Q&A"
 draft: false
 module: "qna"
 ---

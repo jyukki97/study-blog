@@ -7,6 +7,7 @@ topic_icon: "💬"
 topic_description: "DB 인덱스, B-Tree, 복합 인덱스, Index Scan 관련 핵심 개념과 실전 예제 정리"
 tags: ["Database", "Index", "B-Tree", "Optimization"]
 categories: ["Database"]
+description: "B-Tree 인덱스, 복합 인덱스 설계, Index Scan 종류별 차이와 실전 최적화 전략 Q&A"
 draft: false
 module: "qna"
 ---

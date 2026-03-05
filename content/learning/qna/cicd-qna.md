@@ -7,6 +7,7 @@ topic_icon: "💬"
 topic_description: "CI/CD, Jenkins, ArgoCD, Rollback 전략 관련 핵심 개념과 실전 예제 정리"
 tags: ["CI/CD", "Jenkins", "ArgoCD", "DevOps"]
 categories: ["DevOps"]
+description: "CI/CD 기본 개념, 파이프라인 구성, Jenkins/ArgoCD 비교와 롤백 전략 Q&A"
 draft: false
 module: "qna"
 ---

@@ -7,6 +7,7 @@ topic_icon: "💬"
 topic_description: "Redux, Zustand, Context API 비교 및 상태관리 패턴 관련 핵심 개념과 실전 예제 정리"
 tags: ["React", "Redux", "Zustand", "Context API", "State Management"]
 categories: ["Frontend"]
+description: "Redux, Zustand, Context API 비교 및 상태관리 기초 패턴 Q&A"
 draft: false
 module: "qna"
 ---

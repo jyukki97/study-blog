@@ -7,6 +7,7 @@ topic_icon: "💬"
 topic_description: "CI/CD, Jenkins, ArgoCD, Rollback 전략 관련 핵심 개념과 실전 예제 정리"
 tags: ["CI/CD", "Jenkins", "ArgoCD", "DevOps"]
 categories: ["DevOps"]
+description: "Jenkins Pipeline Stage 구성, Blue-Green/Canary 배포 전략, 실무 롤백 패턴 Q&A"
 draft: false
 module: "qna"
 ---

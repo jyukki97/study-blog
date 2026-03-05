@@ -7,6 +7,7 @@ topic_icon: "💬"
 topic_description: "Kafka Partition 설계, Key 기반 분배, Ordering 보장 관련 핵심 개념과 실전 예제 정리"
 tags: ["Kafka", "Partition", "Ordering", "Key"]
 categories: ["Kafka"]
+description: "Kafka Partition 설계 전략, Key 기반 분배, 순서 보장과 리밸런싱 Q&A"
 draft: false
 module: "qna"
 ---

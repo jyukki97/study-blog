@@ -7,6 +7,7 @@ topic_icon: "💬"
 topic_description: "DispatcherServlet, HandlerMapping, Interceptor, Controller 동작 순서에 대한 핵심 개념 정리"
 tags: ["Spring", "Spring MVC", "DispatcherServlet", "Interceptor"]
 categories: ["Spring"]
+description: "DispatcherServlet 동작 순서, HandlerMapping, Interceptor, ViewResolver 흐름 Q&A"
 draft: false
 module: "qna"
 ---
