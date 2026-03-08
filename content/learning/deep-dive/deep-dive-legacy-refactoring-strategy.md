@@ -88,3 +88,13 @@ study_order: 450
 - 레거시 코드에서 “가장 자주 장애가 나는 경로”를 하나 골라, Characterization test 5개로 동작을 고정해보기
 - Branch by Abstraction을 적용해, 큰 의존성(외부 API/스토리지)을 인터페이스 뒤로 숨긴 뒤 구현을 교체해보기
 - 피처 플래그를 도입해 “코드는 배포됐지만 기능은 꺼진 상태”로 배포해보고, 안전한 릴리스 루프를 경험해보기
+
+---
+
+## 관련 심화 학습
+
+- [모놀리스에서 모듈러로](/learning/deep-dive/deep-dive-monolith-to-modular/) — 점진적 분해 전략의 구체적 사례
+- [헥사고날 아키텍처](/learning/deep-dive/deep-dive-hexagonal-architecture/) — 리팩터링 목표 아키텍처 패턴
+- [TDD & JUnit/Mockito](/learning/deep-dive/deep-dive-tdd-junit-mockito/) — Characterization test 작성 실전
+- [데이터베이스 마이그레이션](/learning/deep-dive/deep-dive-database-migration/) — 레거시 DB 스키마 점진 변경
+- [피처 플래그와 배포 전략](/learning/deep-dive/deep-dive-online-ddl-expand-contract/) — Expand/Contract 패턴

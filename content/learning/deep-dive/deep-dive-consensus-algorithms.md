@@ -143,3 +143,12 @@ ZooKeeper:
 
 - 분산 시스템: *(준비 중)*
 - CAP 이론: `/learning/deep-dive/deep-dive-cap-theorem/`
+
+---
+
+## 관련 심화 학습
+
+- [CAP 정리와 분산 시스템](/learning/deep-dive/deep-dive-cap-theorem/) — 합의 알고리즘의 이론적 배경
+- [분산 락](/learning/deep-dive/deep-dive-distributed-lock/) — 리더 선출과 락의 관계
+- [DB 복제 & 읽기/쓰기 분리](/learning/deep-dive/deep-dive-db-replication-read-write-splitting/) — 복제 합의와 Failover
+- [MSA 패턴](/learning/deep-dive/deep-dive-msa-patterns/) — 분산 시스템 설계 패턴

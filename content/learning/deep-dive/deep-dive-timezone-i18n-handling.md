@@ -86,3 +86,12 @@ DST가 있는 지역에서는 “지역 시각”이 다음을 겪습니다.
 - “매일 9시 알림”을 설계해보기: 저장은 어떤 값으로 할지(UTC? local time + zone?)와 DST 때 동작을 정의해보기
 - “오늘 00:00~23:59” 조회 API를 사용자 타임존 기준으로 구현하고, 서버/DB는 UTC인 상태에서 올바르게 동작하는지 테스트해보기
 - DST 전환일(해당 지역)을 골라, 존재하지 않는 시각/두 번 존재하는 시각을 처리하는 테스트를 작성해보기
+
+---
+
+## 관련 심화 학습
+
+- [Spring Validation 심화](/learning/deep-dive/deep-dive-spring-validation/) — 입력 검증에서 날짜/시간 포맷 처리
+- [Spring Batch & 스케줄링](/learning/deep-dive/deep-dive-spring-batch-scheduling/) — DST가 배치 스케줄에 미치는 영향
+- [테스팅 전략](/learning/deep-dive/deep-dive-testing-strategy/) — 시간 의존 코드의 테스트 설계
+- [설정 관리 전략](/learning/deep-dive/deep-dive-config-management/) — 환경별 타임존 설정 분리

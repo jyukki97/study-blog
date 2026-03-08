@@ -98,3 +98,13 @@ Strangler 패턴의 핵심은 “새 시스템을 옆에 붙이고, 트래픽을
 - 현재 모놀리스에서 “경계가 가장 뚜렷한 도메인” 1개를 골라 모듈러 모놀리스 형태로 패키지/의존성 규칙을 만든 뒤, 변경 반경을 비교해보기
 - 데이터 소유권 표를 만들어보기(테이블/컬렉션의 오너 서비스는 누구인가?)
 - Strangler 전환 시나리오를 작성해보기(Shadow → Canary → Cutover, 롤백 조건 포함)
+
+---
+
+## 관련 심화 학습
+
+- [레거시 리팩터링 전략](/learning/deep-dive/deep-dive-legacy-refactoring-strategy/) — Strangler, Branch by Abstraction
+- [모듈 아키텍처](/learning/deep-dive/deep-dive-module-architecture/) — 패키지 설계와 의존성 규칙
+- [헥사고날 아키텍처](/learning/deep-dive/deep-dive-hexagonal-architecture/) — 분리 목표 아키텍처
+- [MSA 패턴](/learning/deep-dive/deep-dive-msa-patterns/) — 모듈러 → MSA 전환 시 참고
+- [도메인 모델링과 Aggregate](/learning/deep-dive/deep-dive-domain-modeling-aggregates/) — 모듈 경계의 도메인 기준

@@ -92,3 +92,12 @@ GraphQL은 “필드 추가”가 자연스럽고, “필드 삭제”가 어려
 - “주문 조회 화면”을 예로 스키마를 설계하고, N+1이 어떻게 발생하는지 리졸버 호출 흐름을 그려보기
 - DataLoader를 적용해 DB 쿼리 수가 어떻게 줄어드는지 측정해보기
 - 쿼리 depth/complexity 제한 정책을 정하고, 악의적 쿼리를 만들어 차단되는지 확인해보기
+
+---
+
+## 관련 심화 학습
+
+- [GraphQL 심화](/learning/deep-dive/deep-dive-graphql-advanced/) — 페이징, 에러 처리, 고급 최적화
+- [JPA N+1 문제 해결](/learning/deep-dive/deep-dive-jpa-n-plus-1/) — DataLoader와 유사한 배치 로딩 개념
+- [Redis 캐싱 전략](/learning/deep-dive/deep-dive-redis-caching/) — GraphQL 응답 캐싱
+- [인증/인가 모델 (RBAC/ABAC/ReBAC)](/learning/deep-dive/deep-dive-authorization-models-rbac-abac-rebac/) — 필드 단위 권한 설계

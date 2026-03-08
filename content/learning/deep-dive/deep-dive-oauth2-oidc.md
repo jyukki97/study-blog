@@ -108,3 +108,13 @@ block-beta
 
 - **Spring Security 구현**: Oauth2 Client 설정을 통해 실제로 카카오/구글 로그인을 붙여봅니다.
 - **HTTPS/SSL**: `/learning/deep-dive/deep-dive-https-ssl-handshake/` 보안 통신의 기본.
+
+---
+
+## 관련 심화 학습
+
+- [OAuth2 소셜 로그인 실전](/learning/deep-dive/deep-dive-oauth2-social-login/) — 구글/카카오 연동 구현
+- [JWT 인증 심화](/learning/deep-dive/deep-dive-jwt-auth/) — 토큰 설계와 갱신 전략
+- [Spring Security 아키텍처](/learning/deep-dive/deep-dive-spring-security-architecture/) — 필터 체인과 인증 흐름
+- [Spring Security OAuth2 + JWT 실전](/learning/deep-dive/deep-dive-spring-security-oauth2-jwt-practical/) — 실전 구현 가이드
+- [CORS/CSRF/보안 헤더](/learning/deep-dive/deep-dive-security-cors-csrf-headers/) — OAuth2와 함께 필요한 보안 설정

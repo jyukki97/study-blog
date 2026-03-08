@@ -89,3 +89,13 @@ Mono<Result> result = Mono.fromCallable(() -> legacyBlockingCall())
 - 외부 API 10개를 동시에 호출하는 팬아웃 예제를 MVC(동기) vs WebFlux(논블로킹)로 만들어 처리량/지연을 비교해보기
 - 일부러 이벤트 루프에서 블로킹을 발생시키고(예: `Thread.sleep`), 전체 지연이 어떻게 무너지는지 관찰해보기
 - `StepVerifier`로 timeout/retry가 섞인 흐름을 테스트로 고정해보기
+
+---
+
+## 관련 심화 학습
+
+- [Spring WebFlux 심화](/learning/deep-dive/deep-dive-spring-webflux/) — Mono/Flux 체인, 스케줄러, 배압 설계
+- [I/O 실행 모델](/learning/deep-dive/deep-dive-io-execution-model/) — 블로킹/논블로킹의 OS 레벨 원리
+- [스레드 풀 설계](/learning/deep-dive/deep-dive-thread-pool/) — MVC의 스레드 풀 튜닝 전략
+- [WebClient & Resilience](/learning/deep-dive/deep-dive-webclient-resilience/) — WebFlux 클라이언트 실전
+- [Spring MVC 요청 생명주기](/learning/deep-dive/deep-dive-spring-mvc-request-lifecycle/) — MVC 내부 처리 흐름

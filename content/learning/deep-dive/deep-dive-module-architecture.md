@@ -104,3 +104,12 @@ study_order: 420
 - 현재 프로젝트에서 “가장 자주 바뀌는 기능” 1개를 골라, 기능 기준 패키지로 재배치해보기(변경 반경이 줄어드는지 관찰)
 - 도메인 레이어에 Port 인터페이스를 두고, 인프라 구현을 어댑터로 분리해보기(DB/외부 API 중 하나)
 - 순환 의존을 찾아(IDE/빌드 도구), 끊는 방법(인터페이스 분리/이벤트/DTO) 2가지를 시도해보기
+
+---
+
+## 관련 심화 학습
+
+- [헥사고날 아키텍처](/learning/deep-dive/deep-dive-hexagonal-architecture/) — 포트/어댑터 기반 모듈 경계
+- [모놀리스에서 모듈러로](/learning/deep-dive/deep-dive-monolith-to-modular/) — 실전 모듈 분리 전략
+- [DDD Tactical 패턴](/learning/deep-dive/deep-dive-ddd-tactical/) — 도메인 기반 모듈 설계
+- [빌드 도구 (Gradle/Maven)](/learning/deep-dive/deep-dive-build-tooling-gradle-maven/) — 멀티모듈 빌드 구성

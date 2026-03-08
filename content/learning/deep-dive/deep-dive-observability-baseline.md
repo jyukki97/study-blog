@@ -120,3 +120,12 @@ study_order: 330
 - Spring 로그에 `traceId`가 찍히게 만들고, “한 요청의 로그를 traceId로 묶어” 조회해보기
 - p95/p99 레이턴시/에러율/처리량 대시보드(한 화면)를 만들고, 알람 기준을 1개 정의해보기
 - 외부 API 호출/DB 쿼리 구간이 트레이스에 스팬으로 보이게 인스트루먼트해보기
+
+---
+
+## 관련 심화 학습
+
+- [OpenTelemetry 실전](/learning/deep-dive/deep-dive-opentelemetry/) — 트레이싱/메트릭 통합 계측
+- [ELK 스택 구축](/learning/deep-dive/deep-dive-elk-stack/) — 로그 수집/분석 파이프라인
+- [알람 설계와 노이즈 제거](/learning/deep-dive/deep-dive-observability-alarms/) — 효과적인 알림 전략
+- [부하 테스트 전략](/learning/deep-dive/deep-dive-load-testing-strategy/) — 성능 기준선 측정

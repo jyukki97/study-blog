@@ -100,3 +100,12 @@ public void runHourly() { ... }
 - Chunk 크기를 100/1000/5000으로 바꿔보며 처리 시간/DB 부하가 어떻게 변하는지 관찰해보기
 - 일부 데이터만 실패하도록 만들고 skip/retry를 적용해 “전체 실패 없이” 처리하는 흐름을 만들어보기
 - 동일 배치를 2개 인스턴스에서 동시에 실행했을 때 중복 실행이 나는지 확인하고, 락으로 막아보기
+
+---
+
+## 관련 심화 학습
+
+- [배치 멱등성 & 재처리](/learning/deep-dive/deep-dive-batch-idempotency-reprocessing/) — 실패 시 안전한 재실행
+- [분산 락](/learning/deep-dive/deep-dive-distributed-lock/) — 다중 인스턴스 배치 중복 실행 방지
+- [설정 관리 전략](/learning/deep-dive/deep-dive-config-management/) — 환경별 배치 설정 분리
+- [Spring Profiles & Config](/learning/deep-dive/deep-dive-spring-profiles-config/) — 프로파일 기반 배치 동작 분기

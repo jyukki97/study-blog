@@ -117,3 +117,12 @@ public record AppProperties(String name, String baseUrl) {}
 - `app.*` 설정을 `@ConfigurationProperties`로 옮기고, 누락 시 시작 단계에서 실패하도록 검증 추가해보기
 - dev/prod 프로필을 분리하고, 운영에서는 환경변수로만 시크릿이 들어오게 구성해보기
 - “왜 이 설정이 적용됐는지”를 `--debug`/actuator로 추적하는 연습을 해보기
+
+---
+
+## 관련 심화 학습
+
+- [설정 관리 전략](/learning/deep-dive/deep-dive-config-management/) — 외부 설정 서버, 시크릿 관리
+- [시크릿 관리](/learning/deep-dive/deep-dive-secret-management/) — 민감 설정의 안전한 관리
+- [Docker 기초](/learning/deep-dive/deep-dive-docker-basics/) — 컨테이너 환경 변수와 프로파일
+- [Spring Boot Auto Configuration](/learning/deep-dive/deep-dive-spring-boot-auto-config/) — 프로파일에 따른 자동 설정

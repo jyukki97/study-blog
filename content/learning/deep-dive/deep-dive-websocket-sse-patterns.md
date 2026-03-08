@@ -105,3 +105,12 @@ Webhook은 “상대가 반드시 실패한다”를 전제로 합니다.
 - SSE로 “알림 스트림”을 만들고, 이벤트 id 기반으로 재연결 시 이어받기(Last-Event-ID)를 구현해보기
 - WebSocket에서 느린 클라이언트를 시뮬레이션해 버퍼가 쌓일 때 정책(드롭/종료/샘플링)을 비교해보기
 - Webhook 수신 API에 서명 검증 + 멱등성 키 + 재시도(백오프) 정책을 붙이고, 중복/지연이 와도 안전한지 테스트해보기
+
+---
+
+## 관련 심화 학습
+
+- [Spring WebFlux 심화](/learning/deep-dive/deep-dive-spring-webflux/) — SSE/WebSocket의 리액티브 구현
+- [TCP/HTTP2 기초](/learning/deep-dive/deep-dive-tcp-http2-basics/) — WebSocket 업그레이드가 일어나는 프로토콜 레이어
+- [로드 밸런서와 헬스체크](/learning/deep-dive/deep-dive-load-balancer-healthchecks/) — WebSocket 연결의 로드밸런싱 이슈
+- [Redis Streams 심화](/learning/deep-dive/deep-dive-redis-streams-advanced/) — 실시간 이벤트 배달 백엔드

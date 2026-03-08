@@ -124,3 +124,13 @@ public class FeedCounterService {
 - **분산 시스템 기초**: *(준비 중)*
 - **데이터베이스 샤딩**: *(준비 중)*
 - **DB 복제 전략**: *(준비 중)*
+
+---
+
+## 관련 심화 학습
+
+- [합의 알고리즘 (Raft, Paxos)](/learning/deep-dive/deep-dive-consensus-algorithms/) — CP 시스템의 리더 선출 메커니즘
+- [DB 복제 & 읽기/쓰기 분리](/learning/deep-dive/deep-dive-db-replication-read-write-splitting/) — 복제 지연과 일관성 트레이드오프
+- [샤딩 & Consistent Hashing](/learning/deep-dive/deep-dive-sharding-consistent-hashing/) — 파티션 내성과 확장성
+- [분산 락](/learning/deep-dive/deep-dive-distributed-lock/) — 분산 환경에서의 동시성 보장
+- [CQRS 패턴](/learning/deep-dive/deep-dive-cqrs/) — Eventually Consistent 설계
