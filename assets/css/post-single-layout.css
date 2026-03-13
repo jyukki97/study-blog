@@ -252,6 +252,11 @@ body.focus-mode .focus-mode-toggle {
     box-shadow: none;
     border-radius: 0;
   }
+
+  /* 모바일/태블릿에서는 TOC가 기본 숨김이라 집중모드 의미가 작아 버튼 숨김 */
+  .post-actions {
+    display: none;
+  }
 }
 
 @media (max-width: 768px) {
