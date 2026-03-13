@@ -2,7 +2,7 @@
 title: "pgmux"
 date: 2026-03-11
 draft: false
-description: "PostgreSQL 프록시 직접 구현하기 - 커넥션 풀링, R/W 분산, 쿼리 캐싱, TLS, Circuit Breaker, 무중단 리로드, LSN Causal Consistency, AST 파서, 쿼리 방화벽, Audit Logging, Helm Chart, Serverless Data API, OpenTelemetry, fsnotify"
+description: "PostgreSQL 프록시 직접 구현하기 - 커넥션 풀링, R/W 분산, 쿼리 캐싱, TLS, Circuit Breaker, 무중단 리로드, LSN Causal Consistency, AST 파서, 쿼리 방화벽, Audit Logging, Helm Chart, Serverless Data API, OpenTelemetry, fsnotify, Prepared Statement Multiplexing, Query Mirroring, GitHub Actions CI/CD, Multi-Database Routing"
 icon: "🗄️"
 status: "완료"
 tech: ["Go", "PostgreSQL", "Wire Protocol", "Prometheus", "Redis", "TLS", "Circuit Breaker", "pg_query_go", "AST", "Helm", "Kubernetes", "OpenTelemetry", "fsnotify"]
@@ -123,12 +123,38 @@ duration: "2026.03.11"
 - 1초 디바운싱으로 연속 이벤트 병합
 - 기존 SIGHUP 리로드 경로 재사용
 
+**Prepared Statement Multiplexing**
+- Parse/Bind 인터셉트 → 파라미터 바인딩된 Simple Query 합성
+- 20+ PG 타입별 안전한 SQL 리터럴 직렬화
+- SQL Injection 방어 테스트 매트릭스 (NULL byte, 중첩 이스케이핑 등)
+- Transaction Pooling + Prepared Statement 동시 사용 가능 (PgBouncer 불가)
+
+**Query Mirroring**
+- 프로덕션 쿼리를 Shadow DB에 비동기 미러링 (fire-and-forget)
+- 패턴별 P50/P99 레이턴시 비교 + 자동 성능 회귀 감지
+- 테이블 필터, read_only/all 모드
+- 순환 버퍼 기반 메모리 효율적 통계 수집
+
+**GitHub Actions CI/CD**
+- CI: golangci-lint, test (-race), build, benchmark 자동화
+- Release: `v*` 태그 push 시 multi-platform Docker 이미지 GHCR 자동 배포
+- Dockerfile multi-platform 빌드 (TARGETARCH)
+
+**Multi-Database Routing**
+- 단일 프록시 인스턴스에서 여러 PostgreSQL 데이터베이스 동시 프록시
+- `StartupMessage.database` 필드로 DB 그룹 자동 분기
+- DatabaseGroup: per-DB writer/reader 풀, 밸런서, Circuit Breaker 캡슐화
+- 캐시 키에 DB명 FNV-1a XOR 혼합으로 per-DB 캐시 격리
+- Data API: `?database=` 쿼리 파라미터 지원
+- 기존 single-DB config 완전 하위호환
+
 **Admin API**
-- `/admin/health` — 백엔드 헬스 상태 조회
-- `/admin/stats` — 풀, 캐시 통계 JSON
+- `/admin/health` — DB별 백엔드 헬스 상태 조회
+- `/admin/stats` — DB별 풀, 캐시 통계 JSON
 - `/admin/config` — 현재 설정 (비밀번호 마스킹)
 - `/admin/cache/flush[/{table}]` — 전체/테이블별 캐시 비우기
 - `/admin/reload` — 무중단 설정 리로드
+- `/admin/mirror/stats` — 쿼리 미러링 통계
 
 **멀티 인스턴스 스케일링**
 - Redis Pub/Sub 기반 캐시 무효화 브로드캐스트
@@ -257,6 +283,21 @@ Go testing              # 단위 테스트 + 통합 테스트 + 벤치마크
 17. [Channel Blocking과 Connection Poisoning 버그 수정](/posts/2026-03-11-pgmux-17-channel-blocking-connection-poisoning/)
 18. [OpenTelemetry 분산 추적과 설정 자동 리로드](/posts/2026-03-11-pgmux-18-opentelemetry-fsnotify/)
 19. [Writer-Only 모드와 진입장벽 낮추기](/posts/2026-03-11-pgmux-19-optional-readers/)
+20. [Hot Reload Data Race와 sync.RWMutex](/posts/2026-03-11-pgmux-20-hot-reload-data-race/)
+21. [Prepared Statement Multiplexing](/posts/2026-03-12-pgmux-21-prepared-statement-multiplexing/)
+22. [COPY 프로토콜 교착과 Map 메모리 누수](/posts/2026-03-12-pgmux-22-copy-deadlock-and-map-leak/)
+23. [커넥션 풀 오염과 Panic 격리](/posts/2026-03-12-pgmux-23-pool-poisoning-and-panic-recovery/)
+24. [좀비 고루틴과 Dangling Pointer](/posts/2026-03-12-pgmux-24-zombie-goroutine-and-dangling-pointer/)
+25. [2,259줄 God Object 해체기](/posts/2026-03-12-pgmux-25-split-server-go/)
+26. [Cancel Request, Graceful Shutdown, Data Race](/posts/2026-03-12-pgmux-26-cancel-request-shutdown-data-race/)
+27. [QA 2차 — Hot Reload 함정](/posts/2026-03-12-pgmux-27-qa-round2-hot-reload-pitfalls/)
+28. [Admin Reload과 Webhook 유실](/posts/2026-03-12-pgmux-28-admin-reload-and-webhook-leak/)
+29. [WriteHeader 동결과 테스트 사각지대](/posts/2026-03-12-pgmux-29-writeheader-freeze-and-test-blindspot/)
+30. [AST 라우팅 사각지대와 캐시 무효화 실종](/posts/2026-03-12-pgmux-30-qa-round3-routing-cache-parsing/)
+31. [캐시 포맷 충돌과 HTTP 서버 수명주기](/posts/2026-03-12-pgmux-31-cache-format-collision-and-http-lifecycle/)
+32. [Query Mirroring과 레이턴시 비교](/posts/2026-03-12-pgmux-32-query-mirroring/)
+33. [GitHub Actions CI/CD와 Docker 자동 배포](/posts/2026-03-13-pgmux-33-github-actions-cicd/)
+34. [Multi-Database Routing](/posts/2026-03-13-pgmux-34-multi-database-routing/)
 
 ## 🔗 관련 링크
 
