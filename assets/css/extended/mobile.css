@@ -978,3 +978,45 @@
         padding-right: 0.72rem !important;
     }
 }
+
+/* ========================================
+   19. 모바일 스크롤 성능/안정성 보강
+   ======================================== */
+@media (max-width: 768px) {
+    .post-entry,
+    .related-post,
+    .project-card,
+    .recent-post-card,
+    .view-project-btn,
+    .view-all-btn,
+    .view-all-project-posts,
+    .nav-back {
+        transition: none !important;
+    }
+
+    .post-entry:hover,
+    .related-post:hover,
+    .project-card:hover,
+    .recent-post-card:hover,
+    .view-project-btn:hover,
+    .view-all-btn:hover,
+    .view-all-project-posts:hover,
+    .nav-back:hover {
+        transform: none !important;
+    }
+
+    .post-cover img,
+    .related-post-image img,
+    .entry-cover img {
+        transition: none !important;
+        transform: none !important;
+    }
+
+    /* 모바일 주소창 변화 시 점프 완화 */
+    .project-single-container,
+    .projects-container,
+    .list-page,
+    .post-layout-container {
+        min-height: 100dvh;
+    }
+}
