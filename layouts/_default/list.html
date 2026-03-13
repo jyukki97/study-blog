@@ -393,6 +393,17 @@
     text-decoration: none;
 }
 
+.post-entry .post-summary {
+    margin-top: 0.45rem !important;
+    color: var(--secondary) !important;
+    font-size: 0.95rem !important;
+    line-height: 1.64 !important;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
 /* 카드 제목만 원래 크기 유지 */
 .post-entry .post-title {
     font-size: 1.25rem !important;
@@ -760,6 +771,36 @@
     .post-entry {
         border: none;
         box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .post-entry .post-cover {
+        height: 185px !important;
+    }
+
+    .post-entry .post-content {
+        padding: 1.05rem !important;
+    }
+
+    .post-entry .post-title {
+        font-size: 1.15rem !important;
+        line-height: 1.42 !important;
+        margin-bottom: 0.72rem !important;
+    }
+
+    .post-entry .post-summary {
+        font-size: 1rem !important;
+        line-height: 1.72 !important;
+        -webkit-line-clamp: 4;
+    }
+
+    .post-entry .post-meta {
+        margin-top: 0.78rem !important;
+        gap: 0.35rem !important;
+        line-height: 1.45 !important;
+    }
+
+    .reading-time-chip {
+        font-size: 0.8rem !important;
     }
     
     .post-tags,
