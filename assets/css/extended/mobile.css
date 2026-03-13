@@ -874,3 +874,28 @@
         border-left-width: 3px !important;
     }
 }
+
+/* ========================================
+   17. 모바일 링크/제목 줄바꿈 가독성 보정
+   ======================================== */
+@media (max-width: 768px) {
+    .post-title a,
+    .post-card-title a,
+    .related-post-content h4 a,
+    .project-title a,
+    .content-body a,
+    .post-content a {
+        word-break: keep-all !important;
+        overflow-wrap: anywhere;
+    }
+
+    .post-content {
+        text-wrap: pretty;
+    }
+
+    .post-card-title,
+    .related-post-content h4,
+    .project-title {
+        letter-spacing: -0.01em;
+    }
+}
