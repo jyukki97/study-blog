@@ -852,6 +852,13 @@
 </style>
 
 <script>
+const projectTotals = {};
+{{- range where .Site.RegularPages "Section" "posts" }}
+  {{- with .Params.project }}
+projectTotals[{{ . | lower | jsonify }}] = (projectTotals[{{ . | lower | jsonify }}] || 0) + 1;
+  {{- end }}
+{{- end }}
+
 let currentTagFilter = null;
 let currentProjectFilter = null;
 let currentSearchQuery = '';
@@ -911,12 +918,15 @@ function adjustTagDisplay() {
     }
 }
 
-function updatePostHeader(label, count) {
+function updatePostHeader(label, count, totalCount = null) {
     const postHeader = document.querySelector('.post-header h2');
     if (!postHeader) return;
 
     if (label) {
-        postHeader.innerHTML = `Posts <span style="color: var(--primary-color, #b19cd9); font-size: 0.8em;">${label} (${count})</span>`;
+        const countText = (totalCount && totalCount >= count)
+            ? `${count} / 전체 ${totalCount}`
+            : `${count}`;
+        postHeader.innerHTML = `Posts <span style="color: var(--primary-color, #b19cd9); font-size: 0.8em;">${label} (${countText})</span>`;
     } else {
         postHeader.textContent = 'Posts';
     }
@@ -946,11 +956,17 @@ function applyCombinedFilters() {
     });
 
     let label = null;
-    if (currentProjectFilter) label = `🚀${currentProjectFilter}`;
+    let totalCount = null;
+
+    if (currentProjectFilter) {
+        const projectKey = currentProjectFilter.toLowerCase();
+        totalCount = projectTotals[projectKey] || null;
+        label = `🚀${currentProjectFilter}`;
+    }
     if (currentTagFilter) label = `#${currentTagFilter}`;
     if (currentSearchQuery) label = `검색: ${currentSearchQuery}`;
 
-    updatePostHeader(label, visibleCount);
+    updatePostHeader(label, visibleCount, totalCount);
 }
 
 function filterPostsByTag(tagName, clickedElement) {
