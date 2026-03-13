@@ -4,6 +4,7 @@ date: 2026-03-12
 draft: false
 tags: ["Go", "PostgreSQL", "Database", "Proxy", "HTTP API", "Goroutine", "WaitGroup", "Graceful Shutdown"]
 categories: ["Database"]
+project: "pgmux"
 description: "QA에서 발견된 2가지 버그 — /admin/reload 실패에도 HTTP 200 반환, 감사 로그 Webhook 고루틴 미추적으로 종료 시 유실 — 의 원인과 수정 과정을 정리한다."
 ---
 

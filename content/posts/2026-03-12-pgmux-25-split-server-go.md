@@ -4,6 +4,7 @@ date: 2026-03-12
 draft: false
 tags: ["Go", "PostgreSQL", "Database", "Proxy", "Refactoring", "Code Organization", "Maintainability"]
 categories: ["Database"]
+project: "pgmux"
 description: "2,259줄짜리 server.go를 역할별 9개 파일로 분리한 리팩토링 과정 — 왜 쪼개야 했는지, 어떤 기준으로 경계를 나눴는지, Go 패키지 내 파일 분리 전략을 정리한다."
 ---
 

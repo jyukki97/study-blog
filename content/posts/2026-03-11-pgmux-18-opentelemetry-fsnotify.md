@@ -4,6 +4,7 @@ date: 2026-03-11
 draft: false
 tags: ["Go", "PostgreSQL", "Database", "Proxy", "OpenTelemetry", "Observability", "fsnotify", "Kubernetes"]
 categories: ["Database"]
+project: "pgmux"
 description: "프록시 내부 처리 단계를 OpenTelemetry Span으로 계측하고, fsnotify로 설정 파일 변경을 자동 감지하여 무중단 리로드하는 과정을 다룬다."
 ---
 

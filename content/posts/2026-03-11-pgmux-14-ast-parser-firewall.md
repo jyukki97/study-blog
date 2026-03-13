@@ -4,6 +4,7 @@ date: 2026-03-11
 draft: false
 tags: ["Go", "PostgreSQL", "Database", "Proxy", "AST", "Query Parser", "Firewall", "Security"]
 categories: ["Database"]
+project: "pgmux"
 description: "pg_query_go로 PostgreSQL의 실제 파서를 활용하여 정확한 쿼리 분류, 위험 쿼리 차단, 시맨틱 캐시 키를 구현한다."
 ---
 

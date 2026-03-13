@@ -4,6 +4,7 @@ date: 2026-03-13
 draft: false
 tags: ["Go", "PostgreSQL", "Database", "Proxy", "CI/CD", "GitHub Actions", "Docker", "GHCR"]
 categories: ["Database"]
+project: "pgmux"
 description: "golangci-lint, 테스트, 벤치마크를 자동화하는 CI 파이프라인과 태그 push 시 multi-platform Docker 이미지를 GHCR에 자동 배포하는 Release 파이프라인을 구축한다."
 ---
 

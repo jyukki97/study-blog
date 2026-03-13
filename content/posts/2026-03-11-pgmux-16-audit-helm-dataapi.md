@@ -4,6 +4,7 @@ date: 2026-03-11
 draft: false
 tags: ["Go", "PostgreSQL", "Database", "Proxy", "Audit", "Helm", "Kubernetes", "REST API", "Wire Protocol"]
 categories: ["Database"]
+project: "pgmux"
 description: "비동기 감사 로그와 Slow Query Webhook, K8s Helm Chart, HTTP REST → PG Wire Protocol 변환 Data API를 구현한다."
 ---
 

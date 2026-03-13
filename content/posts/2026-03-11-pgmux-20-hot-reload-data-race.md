@@ -4,6 +4,7 @@ date: 2026-03-11
 draft: false
 tags: ["Go", "PostgreSQL", "Database", "Proxy", "Bug Fix", "Concurrency", "Data Race"]
 categories: ["Database"]
+project: "pgmux"
 description: "설정 파일 Hot Reload 시 concurrent map read/write로 프록시가 즉사하는 Critical 버그를 분석하고, sync.RWMutex로 수정한다."
 ---
 

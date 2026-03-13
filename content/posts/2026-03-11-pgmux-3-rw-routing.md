@@ -4,6 +4,7 @@ date: 2026-03-11
 draft: false
 tags: ["Go", "PostgreSQL", "Database", "Proxy", "Load Balancing", "Replication"]
 categories: ["Database"]
+project: "pgmux"
 description: "쿼리를 파싱해서 Writer/Reader로 자동 분산하고, 트랜잭션 추적과 replication lag까지 대응하는 라우팅을 구현한다."
 ---
 

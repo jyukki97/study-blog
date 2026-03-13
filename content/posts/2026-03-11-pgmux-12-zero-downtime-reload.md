@@ -4,6 +4,7 @@ date: 2026-03-11
 draft: false
 tags: ["Go", "PostgreSQL", "Database", "Proxy", "Hot Reload", "SIGHUP", "DevOps"]
 categories: ["Database"]
+project: "pgmux"
 description: "SIGHUP 시그널과 Admin API로 프록시를 재시작하지 않고 설정을 변경한다. Reader Pool 핫스왑과 Balancer 원자적 갱신."
 ---
 

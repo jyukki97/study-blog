@@ -4,6 +4,7 @@ date: 2026-03-11
 draft: false
 tags: ["Go", "PostgreSQL", "Database", "Proxy", "Redis", "Scaling", "QA"]
 categories: ["Database"]
+project: "pgmux"
 description: "QA 리뷰에서 발견된 Critical/Major 버그 4건을 수정하고, 프록시 수평 확장을 위한 Redis Pub/Sub 캐시 무효화를 구현한다."
 ---
 

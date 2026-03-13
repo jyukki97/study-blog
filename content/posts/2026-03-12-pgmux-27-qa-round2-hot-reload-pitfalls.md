@@ -4,6 +4,7 @@ date: 2026-03-12
 draft: false
 tags: ["Go", "PostgreSQL", "Database", "Proxy", "Hot Reload", "ConfigMap", "fsnotify", "Data Race", "Cache Invalidation"]
 categories: ["Database"]
+project: "pgmux"
 description: "QA에서 발견된 5가지 버그 — Data API 인증 stale, 캐시 전파 누락, ConfigMap symlink 미감지, Reload 주석 불일치, 테스트 race — 의 원인 분석과 수정 과정을 정리한다."
 ---
 

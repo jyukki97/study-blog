@@ -4,6 +4,7 @@ date: 2026-03-11
 draft: false
 tags: ["Go", "PostgreSQL", "Database", "Proxy", "Configuration", "DX"]
 categories: ["Database"]
+project: "pgmux"
 description: "readers 설정을 선택사항으로 변경하여 Primary 1대만으로도 풀링+캐싱을 사용할 수 있게 한 과정과, 오픈소스 프로젝트의 사용성에 대한 고민을 다룬다."
 ---
 

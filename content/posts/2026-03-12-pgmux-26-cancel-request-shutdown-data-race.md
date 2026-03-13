@@ -4,6 +4,7 @@ date: 2026-03-12
 draft: false
 tags: ["Go", "PostgreSQL", "Database", "Proxy", "Cancel Request", "Graceful Shutdown", "Data Race", "sync.Map", "sync.RWMutex"]
 categories: ["Database"]
+project: "pgmux"
 description: "QA에서 발견된 3가지 버그 — CancelRequest 무시, Graceful Shutdown 무한 대기, Balancer 데이터 레이스 — 의 원인 분석과 수정 과정을 정리한다."
 ---
 

@@ -4,6 +4,7 @@ date: 2026-03-11
 draft: false
 tags: ["Go", "PostgreSQL", "Database", "Proxy", "Replication", "LSN", "Causal Consistency"]
 categories: ["Database"]
+project: "pgmux"
 description: "타이머 대신 WAL LSN을 추적하여, 쓰기 직후 읽기에서 정확히 복제된 Reader만 선택한다."
 ---
 

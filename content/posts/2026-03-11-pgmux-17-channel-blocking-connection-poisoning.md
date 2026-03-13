@@ -4,6 +4,7 @@ date: 2026-03-11
 draft: false
 tags: ["Go", "PostgreSQL", "Database", "Proxy", "Bug Fix", "Concurrency", "Connection Pool"]
 categories: ["Database"]
+project: "pgmux"
 description: "Webhook 동기 호출이 Audit 이벤트를 마비시키는 Channel Blocking과, 죽은 커넥션이 풀에 반환되는 Connection Poisoning 버그를 분석하고 수정한다."
 ---
 

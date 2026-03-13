@@ -4,6 +4,7 @@ date: 2026-03-12
 draft: false
 tags: ["Go", "PostgreSQL", "Database", "Proxy", "Prepared Statement", "Wire Protocol", "Security"]
 categories: ["Database"]
+project: "pgmux"
 description: "Transaction Pooling 환경에서 Prepared Statement를 사용할 수 없는 PgBouncer의 한계를 극복하기 위해, Parse/Bind 메시지를 인터셉트하여 Simple Query로 합성하는 Multiplexing 기능을 구현한다."
 ---
 

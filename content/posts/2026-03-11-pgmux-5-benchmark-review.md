@@ -4,6 +4,7 @@ date: 2026-03-11
 draft: false
 tags: ["Go", "PostgreSQL", "Database", "Proxy", "Benchmark", "Review"]
 categories: ["Database"]
+project: "pgmux"
 description: "독립적으로 만든 컴포넌트들을 프록시 서버에 통합하고, Docker 환경에서 E2E 테스트로 검증한 뒤, 전체 프로젝트를 돌아본다."
 ---
 

@@ -4,6 +4,7 @@ date: 2026-03-11
 draft: false
 tags: ["Go", "PostgreSQL", "Database", "Proxy", "Resilience", "Circuit Breaker", "Rate Limiting"]
 categories: ["Database"]
+project: "pgmux"
 description: "연쇄 장애를 차단하는 Circuit Breaker와 과부하를 방지하는 Token Bucket Rate Limiter를 구현한다."
 ---
 

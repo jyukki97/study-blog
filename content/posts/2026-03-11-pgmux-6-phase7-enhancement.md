@@ -4,6 +4,7 @@ date: 2026-03-11
 draft: false
 tags: ["Go", "PostgreSQL", "Database", "Proxy", "Prometheus", "Monitoring"]
 categories: ["Database"]
+project: "pgmux"
 description: "프록시를 운영 가능한 수준으로 고도화한다. Prometheus 메트릭 계측, Extended Query Protocol의 Prepared Statement reader 라우팅, Admin API를 구현한다."
 ---
 

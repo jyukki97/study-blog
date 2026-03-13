@@ -4,6 +4,7 @@ date: 2026-03-13
 draft: false
 tags: ["Go", "PostgreSQL", "Database", "Proxy", "Multi-Database", "Connection Pool", "Routing"]
 categories: ["Database"]
+project: "pgmux"
 description: "단일 pgmux 인스턴스에서 여러 PostgreSQL 데이터베이스를 동시 프록시하는 Multi-Database Routing을 구현한다. DatabaseGroup 추상화, per-DB 풀/밸런서 격리, 캐시 키 혼합까지."
 ---
 

@@ -4,6 +4,7 @@ date: 2026-03-12
 draft: false
 tags: ["Go", "PostgreSQL", "Database", "Proxy", "HTTP", "net/http", "WriteHeader", "Data Race", "Testing"]
 categories: ["Database"]
+project: "pgmux"
 description: "WriteHeader 호출 이후 Content-Type이 사라지는 버그, SetReloadFunc data race, httptest.ResponseRecorder가 감지하지 못하는 회귀의 원인과 수정 과정을 정리한다."
 ---
 

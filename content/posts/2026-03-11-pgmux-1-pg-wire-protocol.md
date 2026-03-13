@@ -4,6 +4,7 @@ date: 2026-03-11
 draft: false
 tags: ["Go", "PostgreSQL", "Database", "Proxy", "Wire Protocol", "Network"]
 categories: ["Database"]
+project: "pgmux"
 description: "PostgreSQL wire protocol을 바이트 레벨로 분석하고, Go로 프록시 서버를 구현하며 핸드셰이크와 쿼리 릴레이를 직접 만들어본다."
 ---
 

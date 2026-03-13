@@ -4,6 +4,7 @@ date: 2026-03-11
 draft: false
 tags: ["Go", "PostgreSQL", "Database", "Proxy", "Security", "QA"]
 categories: ["Database"]
+project: "pgmux"
 description: "프로토콜 레벨 DoS 공격, SQL 문자열 리터럴을 이용한 힌트 인젝션과 키워드 오탐을 수정한다."
 ---
 

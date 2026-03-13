@@ -4,6 +4,7 @@ date: 2026-03-11
 draft: false
 tags: ["Go", "PostgreSQL", "Database", "Proxy", "Connection Pool", "Concurrency"]
 categories: ["Database"]
+project: "pgmux"
 description: "Go의 mutex와 channel을 활용해 커넥션 풀을 직접 구현한다. idle timeout, max lifetime, 헬스체크까지."
 ---
 

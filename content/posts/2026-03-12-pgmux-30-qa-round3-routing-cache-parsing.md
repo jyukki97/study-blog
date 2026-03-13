@@ -4,6 +4,7 @@ date: 2026-03-12
 draft: false
 tags: ["Go", "PostgreSQL", "Database", "Proxy", "AST", "Cache", "Routing", "QA", "Performance"]
 categories: ["Database"]
+project: "pgmux"
 description: "QA 3차 리포트 5건 — AST 분류가 라우팅에 미반영, 캐시 테이블 무효화 no-op, 중복 파싱 5회/요청, 헬스체크 순차 지연, splitStatements 달러쿼팅 미처리 — 의 원인과 수정 과정을 정리한다."
 ---
 

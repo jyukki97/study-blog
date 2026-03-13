@@ -4,6 +4,7 @@ date: 2026-03-11
 draft: false
 tags: ["Go", "PostgreSQL", "Database", "Proxy", "Connection Pooling", "PgBouncer"]
 categories: ["Database"]
+project: "pgmux"
 description: "진정한 커넥션 다중화를 위한 트랜잭션 레벨 풀링을 구현한다. DISCARD ALL, 세션 바인딩, PgBouncer와의 비교."
 ---
 

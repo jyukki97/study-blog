@@ -4,6 +4,7 @@ date: 2026-03-11
 draft: false
 tags: ["Go", "PostgreSQL", "Database", "Proxy", "Security", "QA", "Cache", "Firewall"]
 categories: ["Database"]
+project: "pgmux"
 description: "QA 과정에서 발견된 4건의 보안 취약점 — 캐시 충돌로 인한 개인정보 유출, 무한 재귀, 방화벽 우회, 힌트 주입 — 을 분석하고 수정한다."
 ---
 

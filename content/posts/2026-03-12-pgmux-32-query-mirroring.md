@@ -4,6 +4,7 @@ date: 2026-03-12
 draft: false
 tags: ["Go", "PostgreSQL", "Database", "Proxy", "Mirroring", "Shadow Traffic", "Performance"]
 categories: ["Database"]
+project: "pgmux"
 description: "프로덕션 쿼리를 Shadow DB에 비동기 미러링하여 패턴별 P50/P99 레이턴시를 비교하고 성능 회귀를 자동 감지하는 기능을 구현한다. PgBouncer에 없는 pgmux만의 킬러 피처."
 ---
 

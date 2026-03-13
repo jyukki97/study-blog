@@ -4,6 +4,7 @@ date: 2026-03-12
 draft: false
 tags: ["Go", "PostgreSQL", "Database", "Proxy", "COPY Protocol", "Deadlock", "Memory Leak", "Bug Fix"]
 categories: ["Database"]
+project: "pgmux"
 description: "pgmux에서 발견된 두 가지 CRITICAL 버그 — COPY 프로토콜 교착(Deadlock)과 Audit Logger의 무한 Map 메모리 누수 — 를 분석하고 수정한다."
 ---
 

@@ -4,6 +4,7 @@ date: 2026-03-11
 draft: false
 tags: ["Go", "PostgreSQL", "Database", "Proxy", "TLS", "Security", "Authentication"]
 categories: ["Database"]
+project: "pgmux"
 description: "프록시 앞단에서 TLS를 종단하고, 백엔드 없이 클라이언트를 직접 인증하는 Front-end Auth를 구현한다."
 ---
 

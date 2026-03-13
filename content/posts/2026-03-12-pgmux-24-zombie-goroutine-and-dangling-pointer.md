@@ -4,6 +4,7 @@ date: 2026-03-12
 draft: false
 tags: ["Go", "PostgreSQL", "Database", "Proxy", "Context Cancellation", "Goroutine Leak", "Dangling Pointer", "Hot Reload", "Bug Fix"]
 categories: ["Database"]
+project: "pgmux"
 description: "pgmux에서 발견된 두 가지 CRITICAL 버그 — HTTP 클라이언트 끊김을 무시해 고루틴과 DB 커넥션이 영원히 블로킹되는 좀비 누수와, 핫-리로드 후 Admin/Data API가 닫힌 풀을 바라보는 Dangling Pointer — 를 분석하고 수정한다."
 ---
 

@@ -4,6 +4,7 @@ date: 2026-03-11
 draft: false
 tags: ["Go", "PostgreSQL", "Database", "Proxy", "Cache", "LRU"]
 categories: ["Database"]
+project: "pgmux"
 description: "LRU 캐시를 직접 구현하고, 쓰기 시 테이블 기반으로 캐시를 자동 무효화하는 전략을 만든다."
 ---
 

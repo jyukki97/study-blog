@@ -4,6 +4,7 @@ date: 2026-03-12
 draft: false
 tags: ["Go", "PostgreSQL", "Database", "Proxy", "Connection Pool", "Panic Recovery", "Protocol Desync", "Bug Fix"]
 categories: ["Database"]
+project: "pgmux"
 description: "pgmux에서 발견된 두 가지 CRITICAL 버그 — 에러 시 오염된 커넥션이 풀에 반납되는 Protocol Desync와, 단일 panic이 전체 서버를 크래시시키는 Global Panic Vulnerability — 를 분석하고 수정한다."
 ---
 
