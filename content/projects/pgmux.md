@@ -4,7 +4,7 @@ date: 2026-03-11
 draft: false
 description: "PostgreSQL 프록시 직접 구현하기 - 커넥션 풀링, R/W 분산, 쿼리 캐싱, TLS, Circuit Breaker, 무중단 리로드, LSN Causal Consistency, AST 파서, 쿼리 방화벽, Audit Logging, Helm Chart, Serverless Data API, OpenTelemetry, fsnotify, Prepared Statement Multiplexing, Query Mirroring, GitHub Actions CI/CD, Multi-Database Routing"
 icon: "🗄️"
-status: "완료"
+status: "진행중"
 tech: ["Go", "PostgreSQL", "Wire Protocol", "Prometheus", "Redis", "TLS", "Circuit Breaker", "pg_query_go", "AST", "Helm", "Kubernetes", "OpenTelemetry", "fsnotify"]
 links:
   - name: "GitHub Repository"
