@@ -209,6 +209,10 @@
         transition: transform 0.3s ease;
     }
 
+    body.mobile-ui-lock {
+        overflow: hidden;
+    }
+
     .nav {
         display: flex;
         align-items: center;
@@ -683,15 +687,18 @@
             top: 52px;
             left: 0;
             width: 100%;
+            height: calc(100vh - 52px);
             background: var(--entry);
             flex-direction: column;
-            padding: 1rem 0;
+            padding: 0.75rem 0 calc(0.9rem + env(safe-area-inset-bottom));
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             transform: translateX(-100%);
             transition: transform 0.3s ease;
             z-index: 1000;
             border-top: 1px solid var(--border);
             visibility: hidden;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         #menu.active {
@@ -715,6 +722,10 @@
 
         #menu li a:hover {
             background: rgba(177, 156, 217, 0.1);
+        }
+
+        #menu li:last-child a {
+            border-bottom: none;
         }
 
         /* 검색 컨테이너 간소화 */
@@ -989,6 +1000,27 @@
 </style>
 
 <script>
+    function syncMobileBodyLock() {
+        const isMobile = window.innerWidth <= 768;
+        const menu = document.getElementById('menu');
+        const searchWrapper = document.querySelector('.search-input-wrapper');
+        const hasMobileSearchInput = !!document.getElementById('mobile-search-input');
+
+        const menuOpen = !!(menu && menu.classList.contains('active'));
+        const searchOpen = !!(searchWrapper && searchWrapper.classList.contains('active')) || hasMobileSearchInput;
+
+        document.body.classList.toggle('mobile-ui-lock', isMobile && (menuOpen || searchOpen));
+    }
+
+    function closeMobileMenu() {
+        const menu = document.getElementById('menu');
+        const toggle = document.querySelector('.mobile-menu-toggle');
+
+        if (menu) menu.classList.remove('active');
+        if (toggle) toggle.classList.remove('active');
+        syncMobileBodyLock();
+    }
+
     function toggleSearch() {
         const wrapper = document.querySelector('.search-input-wrapper');
         const input = document.getElementById('search-input');
@@ -1018,6 +1050,8 @@
             results.innerHTML = '';
             removeSearchOverlay();
         }
+
+        syncMobileBodyLock();
     }
 
     function createMobileSearchInput() {
@@ -1164,18 +1198,21 @@
         const menu = document.getElementById('menu');
         const toggle = document.querySelector('.mobile-menu-toggle');
 
-        if (menu && toggle) {
-            menu.classList.toggle('active');
-            toggle.classList.toggle('active');
+        if (!(menu && toggle)) return;
 
-            // 모바일 메뉴가 열렸을 때 검색창이 열려있으면 닫기
-            if (menu.classList.contains('active')) {
-                const searchWrapper = document.querySelector('.search-input-wrapper');
-                if (searchWrapper && searchWrapper.classList.contains('active')) {
-                    toggleSearch();
-                }
+        const willOpen = !menu.classList.contains('active');
+
+        // 모바일 메뉴를 열기 전에 검색이 열려 있으면 닫기
+        if (willOpen) {
+            const searchWrapper = document.querySelector('.search-input-wrapper');
+            if (searchWrapper && searchWrapper.classList.contains('active')) {
+                toggleSearch();
             }
         }
+
+        menu.classList.toggle('active', willOpen);
+        toggle.classList.toggle('active', willOpen);
+        syncMobileBodyLock();
     }
 
     // 모바일 검색 오버레이 기능
@@ -1429,8 +1466,7 @@
                 !menu.contains(e.target) &&
                 !toggle.contains(e.target) &&
                 menu.classList.contains('active')) {
-                menu.classList.remove('active');
-                toggle.classList.remove('active');
+                closeMobileMenu();
             }
         });
 
@@ -1438,13 +1474,19 @@
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 const menu = document.getElementById('menu');
-                const toggle = document.querySelector('.mobile-menu-toggle');
-
-                if (menu && toggle && menu.classList.contains('active')) {
-                    menu.classList.remove('active');
-                    toggle.classList.remove('active');
+                if (menu && menu.classList.contains('active')) {
+                    closeMobileMenu();
                 }
             }
         });
+
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768) {
+                closeMobileMenu();
+            }
+            syncMobileBodyLock();
+        });
+
+        syncMobileBodyLock();
     });
 </script>
