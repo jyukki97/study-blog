@@ -145,8 +145,8 @@
       <h3>관련 글</h3>
       <div class="related-posts-grid">
         {{- range $related }}
-        <article class="related-post">
-          {{- $cover := .Param "cover.image" }}
+        {{- $cover := .Param "cover.image" }}
+        <article class="related-post {{ if $cover }}has-image{{ else }}no-image{{ end }}">
           {{- if $cover }}
           <div class="related-post-image">
             <a href="{{ .RelPermalink }}" aria-label="{{ .Title }} 읽기">
