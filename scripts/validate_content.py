@@ -6,6 +6,8 @@
 2) posts 글의 필수 필드(title/date/description/tags)
 3) posts 글의 제목 중복
 4) 마크다운 내부 링크(/...) 경로 유효성
+5) posts 글 최소 본문 길이(실질 내용) 확인
+6) 라우트 충돌(동일 URL 경로를 여러 문서가 점유) 확인
 """
 
 from __future__ import annotations
@@ -21,6 +23,8 @@ STATIC_DIR = REPO / "static"
 FRONT_MATTER_RE = re.compile(r"^---\n(.*?)\n---\n", re.DOTALL)
 LINK_RE = re.compile(r"\[[^\]]+\]\((/[^)\s]+)\)")
 
+MIN_POST_BODY_CHARS = 1500
+
 
 def normalize_route(path: str) -> str:
     path = path.strip()
@@ -32,8 +36,9 @@ def normalize_route(path: str) -> str:
     return path
 
 
-def build_content_routes() -> set[str]:
+def build_content_routes() -> tuple[set[str], dict[str, set[Path]]]:
     routes: set[str] = set(["/"])
+    route_to_files: dict[str, set[Path]] = {}
 
     for md in CONTENT_DIR.rglob("*.md"):
         rel = md.relative_to(CONTENT_DIR)
@@ -59,14 +64,17 @@ def build_content_routes() -> set[str]:
 
         route = normalize_route(route)
         routes.add(route)
+        route_to_files.setdefault(route, set()).add(md)
 
         # front matter custom url 지원
         if fm:
             custom_url = extract_custom_url(fm)
             if custom_url:
-                routes.add(normalize_route(custom_url))
+                normalized_custom = normalize_route(custom_url)
+                routes.add(normalized_custom)
+                route_to_files.setdefault(normalized_custom, set()).add(md)
 
-    return routes
+    return routes, route_to_files
 
 
 def build_static_routes() -> set[str]:
@@ -102,8 +110,29 @@ def required_fields_missing(front_matter: str, fields: list[str]) -> list[str]:
     return missing
 
 
+def extract_markdown_body(text: str) -> str:
+    m = FRONT_MATTER_RE.match(text)
+    if not m:
+        return text
+    return text[m.end() :]
+
+
+def substantive_char_count(markdown_body: str) -> int:
+    """대략적인 '실질 본문 길이' 측정.
+
+    - 코드블록/인라인코드를 제외해 텍스트 밀도를 본다.
+    - 공백 제거 후 문자 수를 계산한다.
+    """
+
+    body = re.sub(r"```[\s\S]*?```", " ", markdown_body)
+    body = re.sub(r"`[^`]*`", " ", body)
+    body = re.sub(r"!\[[^\]]*\]\([^\)]*\)", " ", body)
+    body = re.sub(r"\[[^\]]*\]\([^\)]*\)", " ", body)
+    return len(re.sub(r"\s+", "", body))
+
+
 def main() -> int:
-    routes = build_content_routes()
+    routes, route_to_files = build_content_routes()
     static_routes = build_static_routes()
     errors: list[str] = []
     warnings: list[str] = []
@@ -130,6 +159,14 @@ def main() -> int:
                 title = tm.group(1).strip()
                 title_to_files.setdefault(title, []).append(md)
 
+            # 품질 규칙: 본문 실질 내용 최소 길이
+            if md.name not in {"_index.md", "index.md"}:
+                body_chars = substantive_char_count(extract_markdown_body(text))
+                if body_chars < MIN_POST_BODY_CHARS:
+                    warnings.append(
+                        f"[content] 본문 길이 점검 필요({body_chars}자 < {MIN_POST_BODY_CHARS}자): {rel}"
+                    )
+
         # 내부 링크 점검
         for m in LINK_RE.finditer(text):
             raw_link = m.group(1)
@@ -148,6 +185,13 @@ def main() -> int:
 
             if normalized not in routes:
                 errors.append(f"[link] 콘텐츠 경로 없음: {rel} -> {raw_link}")
+
+    # 라우트 충돌 검사
+    for route, files in route_to_files.items():
+        if len(files) <= 1:
+            continue
+        rel_files = ", ".join(sorted(str(f.relative_to(REPO)) for f in files))
+        errors.append(f"[route] 동일 경로 충돌: {route} ({rel_files})")
 
     # 제목 중복
     for title, files in title_to_files.items():

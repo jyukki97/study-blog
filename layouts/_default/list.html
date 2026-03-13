@@ -43,6 +43,11 @@
             <h2>Posts</h2>
         </div>
 
+        <div class="post-toolbar" role="search" aria-label="포스트 빠른 검색">
+            <input id="post-search-input" type="search" placeholder="제목/설명/태그로 검색" autocomplete="off" />
+            <button id="post-search-clear" type="button" aria-label="검색어 지우기">초기화</button>
+        </div>
+
         <div class="post-grid">
             {{ $pages := .Pages }}
             {{ if .IsHome }}
@@ -61,7 +66,9 @@
                          data-tags="{{ if .Params.tags }}{{ delimit .Params.tags "," }}{{ end }}"
                          data-project="{{ if .Params.project }}{{ .Params.project }}{{ end }}"
                          data-topic="{{ if .Params.topic }}{{ .Params.topic }}{{ end }}"
-                         data-section="{{ .Section }}">
+                         data-section="{{ .Section }}"
+                         data-title="{{ .Title | lower }}"
+                         data-summary="{{ with .Description }}{{ . | plainify | lower }}{{ end }}">
                     {{ if .Params.cover.image }}
                         <a class="post-cover" href="{{ .Permalink }}">
                             <img src="{{ .Params.cover.image | absURL }}" alt="{{ .Title }}">
@@ -97,6 +104,7 @@
                                 <span class="section-badge project-badge">🚀 {{ .Params.project }}</span>
                             {{ end }}
                             <span title='{{ .Date }}'>{{ .Date | time.Format (default "January 2, 2006" site.Params.DateFormat) }}</span>
+                            <span class="reading-time-chip">⏱ {{ .ReadingTime }}분</span>
                         </div>
                         {{ if .Description }}
                             <p class="post-summary">{{ .Description }}</p>
@@ -139,6 +147,53 @@
     -webkit-text-fill-color: transparent;
     background-clip: text;
     font-weight: 700;
+}
+
+.post-toolbar {
+    display: flex;
+    gap: 0.6rem;
+    align-items: center;
+    padding: 0 1rem 1.2rem;
+}
+
+.post-toolbar input[type="search"] {
+    flex: 1;
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-radius: 10px;
+    padding: 0.62rem 0.8rem;
+    background: var(--bg-primary, #fff);
+    color: var(--primary);
+    min-width: 220px;
+}
+
+.post-toolbar input[type="search"]:focus {
+    outline: none;
+    border-color: #b19cd9;
+    box-shadow: 0 0 0 3px rgba(177, 156, 217, 0.18);
+}
+
+#post-search-clear {
+    border: 1px solid var(--border-color, #e2e8f0);
+    background: var(--bg-secondary, #f8f9fa);
+    color: var(--secondary);
+    border-radius: 10px;
+    padding: 0.6rem 0.85rem;
+    cursor: pointer;
+}
+
+#post-search-clear:hover {
+    border-color: #b19cd9;
+    color: #7f67a3;
+}
+
+.reading-time-chip {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    background: rgba(177, 156, 217, 0.12);
+    color: #7f67a3;
+    padding: 0.12rem 0.5rem;
+    font-size: 0.78rem;
 }
 
 .post-grid {
@@ -599,6 +654,23 @@
     border-color: var(--border-color, #4a5568);
 }
 
+[data-theme="dark"] .post-toolbar input[type="search"] {
+    background: var(--bg-secondary, #2d3748);
+    border-color: #4a5568;
+    color: #e5e7eb;
+}
+
+[data-theme="dark"] #post-search-clear {
+    background: var(--bg-tertiary, #4a5568);
+    border-color: #64748b;
+    color: #e5e7eb;
+}
+
+[data-theme="dark"] .reading-time-chip {
+    background: rgba(177, 156, 217, 0.22);
+    color: #e9ddff;
+}
+
 [data-theme="dark"] .post-tag,
 [data-theme="dark"] .tag-link,
 [data-theme="dark"] .more-link,
@@ -670,6 +742,16 @@
         padding: 0 1rem;
     }
 
+    .post-toolbar {
+        padding: 0 1rem 1rem;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    #post-search-clear {
+        width: 100%;
+    }
+
     .post-header h2,
     .tags-header h2 {
         font-size: 1.5rem;
@@ -728,12 +810,16 @@
 </style>
 
 <script>
+let currentTagFilter = null;
+let currentProjectFilter = null;
+let currentSearchQuery = '';
+
 function toggleTags(postId) {
     const tagsContainer = document.getElementById('post-tags-' + postId);
     const button = event.target.closest('.show-more-tags');
     const showText = button.querySelector('.show-text');
     const hideText = button.querySelector('.hide-text');
-    
+
     if (tagsContainer.classList.contains('expanded')) {
         tagsContainer.classList.remove('expanded');
         showText.style.display = 'inline';
@@ -748,26 +834,24 @@ function toggleTags(postId) {
 function adjustTagDisplay() {
     const allTags = document.querySelector('.all-tags');
     if (!allTags) return;
-    
+
     const tagLinks = allTags.querySelectorAll('.tag-link:not(.more-tags)');
     const moreTagsLink = allTags.querySelector('.more-tags');
     const moreText = allTags.querySelector('.more-text');
-    
+
     if (tagLinks.length === 0) return;
-    
+
     let maxTags;
     const width = window.innerWidth;
-    
-    // 디바이스별 태그 개수 설정
+
     if (width <= 768) {
-        maxTags = 8; // 모바일: 8개
+        maxTags = 8;
     } else if (width <= 1024) {
-        maxTags = 12; // 태블릿: 12개
+        maxTags = 12;
     } else {
-        maxTags = 18; // 데스크톱: 18개
+        maxTags = 18;
     }
-    
-    // 태그 표시/숨김 처리
+
     tagLinks.forEach((tag, index) => {
         if (index < maxTags) {
             tag.style.display = 'inline-flex';
@@ -775,8 +859,7 @@ function adjustTagDisplay() {
             tag.style.display = 'none';
         }
     });
-    
-    // 더보기 링크 처리
+
     if (moreTagsLink && tagLinks.length > maxTags) {
         const hiddenCount = tagLinks.length - maxTags;
         moreText.textContent = `+${hiddenCount}개 더보기`;
@@ -786,150 +869,144 @@ function adjustTagDisplay() {
     }
 }
 
-// 페이지 로드 시와 창 크기 변경 시 실행
-document.addEventListener('DOMContentLoaded', adjustTagDisplay);
-window.addEventListener('resize', adjustTagDisplay);
-
-// 태그별 포스트 필터링 함수
-function filterPostsByTag(tagName, clickedElement) {
-    const allPosts = document.querySelectorAll('.post-entry');
-    const allTagLinks = document.querySelectorAll('.tag-link:not(.more-tags):not(.show-all-posts)');
-    const showAllButton = document.querySelector('.show-all-posts');
-    
-    // 모든 태그에서 active 클래스 제거
-    allTagLinks.forEach(tag => tag.classList.remove('active'));
-    
-    // 클릭된 태그에 active 클래스 추가
-    clickedElement.classList.add('active');
-    
-    // 전체 보기 버튼 표시
-    if (showAllButton) {
-        showAllButton.style.display = 'inline-flex';
-        adjustTagDisplay(); // 태그 표시 재조정
-    }
-    
-    let visibleCount = 0;
-    
-    // 포스트 필터링
-    allPosts.forEach(post => {
-        const postTags = post.getAttribute('data-tags');
-        if (postTags && postTags.toLowerCase().includes(tagName.toLowerCase())) {
-            post.style.display = 'block';
-            visibleCount++;
-        } else {
-            post.style.display = 'none';
-        }
-    });
-    
-    // 포스트 헤더 업데이트
-    updatePostHeader(tagName, visibleCount);
-    
-    // 포스트 섹션으로 스크롤 (부드럽게)
-    const postHeader = document.querySelector('.post-header');
-    if (postHeader) {
-        postHeader.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-}
-
-// 모든 포스트 보기 함수
-function showAllPosts(clickedElement) {
-    const allPosts = document.querySelectorAll('.post-entry');
-    const allTagLinks = document.querySelectorAll('.tag-link:not(.more-tags):not(.show-all-posts)');
-    const showAllButton = document.querySelector('.show-all-posts');
-    
-    // 모든 태그에서 active 클래스 제거
-    allTagLinks.forEach(tag => tag.classList.remove('active'));
-    
-    // 전체 보기 버튼 숨기기
-    if (showAllButton) {
-        showAllButton.style.display = 'none';
-        adjustTagDisplay(); // 태그 표시 재조정
-    }
-    
-    // 모든 포스트 표시
-    allPosts.forEach(post => {
-        post.style.display = 'block';
-    });
-    
-    // 포스트 헤더를 원래대로 복원
-    updatePostHeader(null, allPosts.length);
-}
-
-// 포스트 헤더 업데이트 함수
-function updatePostHeader(tagName, count) {
+function updatePostHeader(label, count) {
     const postHeader = document.querySelector('.post-header h2');
-    if (postHeader) {
-        if (tagName) {
-            postHeader.innerHTML = `Posts <span style="color: var(--primary-color, #b19cd9); font-size: 0.8em;">#${tagName} (${count})</span>`;
-        } else {
-            postHeader.textContent = 'Posts';
-        }
+    if (!postHeader) return;
+
+    if (label) {
+        postHeader.innerHTML = `Posts <span style="color: var(--primary-color, #b19cd9); font-size: 0.8em;">${label} (${count})</span>`;
+    } else {
+        postHeader.textContent = 'Posts';
     }
 }
 
-// 프로젝트별 포스트 필터링 함수
-function filterPostsByProject(projectName) {
+function applyCombinedFilters() {
     const allPosts = document.querySelectorAll('.post-entry');
+    let visibleCount = 0;
+
+    allPosts.forEach(post => {
+        const postTags = (post.getAttribute('data-tags') || '').toLowerCase();
+        const postProject = (post.getAttribute('data-project') || '').toLowerCase();
+        const postTitle = (post.getAttribute('data-title') || '').toLowerCase();
+        const postSummary = (post.getAttribute('data-summary') || '').toLowerCase();
+
+        const matchTag = !currentTagFilter || postTags.includes(currentTagFilter.toLowerCase());
+        const matchProject = !currentProjectFilter || postProject === currentProjectFilter.toLowerCase();
+        const matchSearch = !currentSearchQuery ||
+            postTitle.includes(currentSearchQuery) ||
+            postSummary.includes(currentSearchQuery) ||
+            postTags.includes(currentSearchQuery) ||
+            postProject.includes(currentSearchQuery);
+
+        const visible = matchTag && matchProject && matchSearch;
+        post.style.display = visible ? 'block' : 'none';
+        if (visible) visibleCount += 1;
+    });
+
+    let label = null;
+    if (currentProjectFilter) label = `🚀${currentProjectFilter}`;
+    if (currentTagFilter) label = `#${currentTagFilter}`;
+    if (currentSearchQuery) label = `검색: ${currentSearchQuery}`;
+
+    updatePostHeader(label, visibleCount);
+}
+
+function filterPostsByTag(tagName, clickedElement) {
     const allTagLinks = document.querySelectorAll('.tag-link:not(.more-tags):not(.show-all-posts)');
     const showAllButton = document.querySelector('.show-all-posts');
-    
-    // 모든 태그에서 active 클래스 제거
+
     allTagLinks.forEach(tag => tag.classList.remove('active'));
-    
-    // 전체 보기 버튼 표시
+    clickedElement.classList.add('active');
+
+    currentTagFilter = tagName;
+    currentProjectFilter = null;
+
     if (showAllButton) {
         showAllButton.style.display = 'inline-flex';
         adjustTagDisplay();
     }
-    
-    let visibleCount = 0;
-    
-    // 포스트 필터링
-    allPosts.forEach(post => {
-        const postProject = post.getAttribute('data-project');
-        if (postProject && postProject.toLowerCase() === projectName.toLowerCase()) {
-            post.style.display = 'block';
-            visibleCount++;
-        } else {
-            post.style.display = 'none';
-        }
-    });
-    
-    // 포스트 헤더 업데이트
-    updateProjectHeader(projectName, visibleCount);
-    
-    // 포스트 섹션으로 스크롤
+
+    applyCombinedFilters();
+
     const postHeader = document.querySelector('.post-header');
     if (postHeader) {
         postHeader.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 }
 
-// 프로젝트별 헤더 업데이트 함수
-function updateProjectHeader(projectName, count) {
-    const postHeader = document.querySelector('.post-header h2');
+function showAllPosts() {
+    const allTagLinks = document.querySelectorAll('.tag-link:not(.more-tags):not(.show-all-posts)');
+    const showAllButton = document.querySelector('.show-all-posts');
+
+    allTagLinks.forEach(tag => tag.classList.remove('active'));
+
+    currentTagFilter = null;
+    currentProjectFilter = null;
+
+    if (showAllButton) {
+        showAllButton.style.display = 'none';
+        adjustTagDisplay();
+    }
+
+    applyCombinedFilters();
+}
+
+function filterPostsByProject(projectName) {
+    const allTagLinks = document.querySelectorAll('.tag-link:not(.more-tags):not(.show-all-posts)');
+    const showAllButton = document.querySelector('.show-all-posts');
+
+    allTagLinks.forEach(tag => tag.classList.remove('active'));
+
+    currentProjectFilter = projectName;
+    currentTagFilter = null;
+
+    if (showAllButton) {
+        showAllButton.style.display = 'inline-flex';
+        adjustTagDisplay();
+    }
+
+    applyCombinedFilters();
+
+    const postHeader = document.querySelector('.post-header');
     if (postHeader) {
-        if (projectName) {
-            postHeader.innerHTML = `Posts <span style="color: var(--primary-color, #b19cd9); font-size: 0.8em;">🚀${projectName} (${count})</span>`;
-        } else {
-            postHeader.textContent = 'Posts';
-        }
+        postHeader.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 }
 
-// URL 파라미터 확인 및 자동 필터링
-document.addEventListener('DOMContentLoaded', function() {
+function bindSearchUI() {
+    const searchInput = document.getElementById('post-search-input');
+    const clearButton = document.getElementById('post-search-clear');
+
+    if (!searchInput || !clearButton) return;
+
+    searchInput.addEventListener('input', function () {
+        currentSearchQuery = this.value.trim().toLowerCase();
+        applyCombinedFilters();
+    });
+
+    clearButton.addEventListener('click', function () {
+        searchInput.value = '';
+        currentSearchQuery = '';
+        applyCombinedFilters();
+        searchInput.focus();
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    adjustTagDisplay();
+    bindSearchUI();
+
     const urlParams = new URLSearchParams(window.location.search);
     const projectParam = urlParams.get('project');
-    
     if (projectParam) {
-        // URL 디코딩
         const projectName = decodeURIComponent(projectParam).replace(/-/g, ' ');
         filterPostsByProject(projectName);
+        return;
     }
-    
-    // 기존 태그 디스플레이 조정
-    adjustTagDisplay();
+
+    applyCombinedFilters();
 });
+
+window.addEventListener('resize', adjustTagDisplay);
 </script>
 {{ end }}

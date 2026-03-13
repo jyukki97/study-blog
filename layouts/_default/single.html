@@ -1,5 +1,17 @@
 {{- define "main" }}
 
+{{- $postSingleStyle := resources.Get "css/post-single-layout.css" | resources.Minify }}
+{{- if not site.Params.assets.disableFingerprinting }}
+{{- $postSingleStyle = $postSingleStyle | fingerprint }}
+<link rel="stylesheet" href="{{ $postSingleStyle.RelPermalink | absURL }}" integrity="{{ $postSingleStyle.Data.Integrity }}">
+{{- else }}
+<link rel="stylesheet" href="{{ $postSingleStyle.RelPermalink | absURL }}">
+{{- end }}
+
+<div class="reading-progress" aria-hidden="true">
+  <div class="reading-progress-bar" id="reading-progress-bar"></div>
+</div>
+
 <div class="post-layout-container">
   <article class="post-single">
     <header class="post-header">
@@ -25,6 +37,12 @@
         {{- partial "translation_list.html" . -}}
         {{- partial "edit_post.html" . -}}
         {{- partial "post_canonical.html" . -}}
+        <span class="reading-time">⏱ {{ .ReadingTime }}분 읽기</span>
+      </div>
+      <div class="post-actions">
+        <button id="focus-mode-toggle" class="focus-mode-toggle" type="button" aria-pressed="false">
+          집중 모드
+        </button>
       </div>
       {{- end }}
 
@@ -163,381 +181,12 @@
   {{- end }}
 </div>
 
-<script>
-  // TOC 자동 스크롤 및 활성화
-  document.addEventListener('DOMContentLoaded', function () {
-    const tocSidebar = document.querySelector('.toc-sidebar');
-    const tocLinks = document.querySelectorAll('.toc a');
-    const headings = document.querySelectorAll('.post-content h1[id], .post-content h2[id], .post-content h3[id], .post-content h4[id], .post-content h5[id], .post-content h6[id]');
-
-    if (!tocSidebar || tocLinks.length === 0 || headings.length === 0) return;
-
-    let isScrollingToSection = false;
-
-    // TOC 링크 클릭 시 해당 섹션으로 부드럽게 스크롤
-    tocLinks.forEach(link => {
-      link.addEventListener('click', function (e) {
-        e.preventDefault();
-        isScrollingToSection = true;
-
-        const targetId = decodeURIComponent(this.getAttribute('href').substring(1));
-        const targetElement = document.getElementById(targetId);
-
-        if (targetElement) {
-          window.scrollTo({
-            top: targetElement.offsetTop - 100,
-            behavior: 'smooth'
-          });
-
-          setTimeout(() => {
-            isScrollingToSection = false;
-          }, 1000);
-        }
-      });
-    });
-
-    // 현재 보고 있는 섹션을 찾아서 TOC를 업데이트하는 함수
-    function updateTOC() {
-      if (isScrollingToSection) return;
-
-      const scrollPosition = window.scrollY + 150;
-      const windowHeight = window.innerHeight;
-      const documentHeight = document.documentElement.scrollHeight;
-      const isNearBottom = (window.scrollY + windowHeight) >= (documentHeight - 100);
-
-      let currentHeading = null;
-
-      if (isNearBottom) {
-        // 페이지 맨 아래면 마지막 heading 활성화
-        currentHeading = headings[headings.length - 1];
-      } else {
-        // 현재 스크롤 위치에 해당하는 heading 찾기
-        for (let i = headings.length - 1; i >= 0; i--) {
-          if (headings[i].offsetTop <= scrollPosition) {
-            currentHeading = headings[i];
-            break;
-          }
-        }
-      }
-
-      // 모든 TOC 링크의 active 클래스 제거
-      tocLinks.forEach(link => link.classList.remove('active'));
-
-      // 현재 heading에 해당하는 TOC 링크 활성화
-      if (currentHeading) {
-        const currentId = currentHeading.getAttribute('id');
-
-        // URL 인코딩된 TOC 링크와 매칭
-        let activeLink = null;
-        for (let link of tocLinks) {
-          const href = link.getAttribute('href');
-          if (href) {
-            const linkId = href.substring(1);
-            const decodedLinkId = decodeURIComponent(linkId);
-
-            if (decodedLinkId === currentId || linkId === currentId) {
-              activeLink = link;
-              break;
-            }
-          }
-        }
-
-        if (activeLink) {
-          activeLink.classList.add('active');
-
-          // TOC 사이드바 내에서 활성 링크의 위치 계산
-          let linkOffsetTop = 0;
-          let element = activeLink;
-          while (element && element !== tocSidebar) {
-            linkOffsetTop += element.offsetTop;
-            element = element.offsetParent;
-          }
-
-          // 활성 링크가 TOC 중앙에 오도록 계산
-          let centerPosition = linkOffsetTop - (tocSidebar.clientHeight / 2) + (activeLink.offsetHeight / 2);
-
-          // 경계값 처리
-          const maxScroll = tocSidebar.scrollHeight - tocSidebar.clientHeight;
-          centerPosition = Math.max(0, Math.min(centerPosition, maxScroll));
-
-          // 20px 이상 차이나면 스크롤
-          const scrollDiff = Math.abs(tocSidebar.scrollTop - centerPosition);
-          if (scrollDiff > 20) {
-            tocSidebar.scrollTo({
-              top: centerPosition,
-              behavior: 'smooth'
-            });
-          }
-        }
-      }
-    }
-
-    // 스크롤 이벤트 리스너 (성능 최적화)
-    let ticking = false;
-    window.addEventListener('scroll', function () {
-      if (!ticking) {
-        window.requestAnimationFrame(function () {
-          updateTOC();
-          ticking = false;
-        });
-        ticking = true;
-      }
-    }, { passive: true });
-
-    // 페이지 로드 시 초기화
-    updateTOC();
-  });
-</script>
-
-<style>
-  /* 포스트 레이아웃 컨테이너 개선 */
-  .post-layout-container {
-    display: flex;
-    max-width: 1200px;
-    margin: 2.5rem auto 0 auto;
-    padding: 2rem;
-    gap: 3rem;
-    background: var(--bg-primary);
-    border-radius: 16px;
-    box-shadow: 0 4px 20px var(--shadow-light);
-  }
-
-  .post-single {
-    flex: 1;
-    max-width: 800px;
-    min-width: 0;
-    background: var(--bg-primary);
-    padding: 2rem;
-    border-radius: 12px;
-    box-shadow: 0 2px 12px var(--shadow-light);
-  }
-
-  .toc-sidebar {
-    flex: 0 0 280px;
-    position: sticky;
-    top: 100px;
-    align-self: flex-start;
-    max-height: calc(100vh - 100px);
-    overflow-y: auto;
-    scroll-behavior: smooth;
-  }
-
-  /* TOC 스타일 재정의 */
-  .toc-sidebar .toc {
-    background: var(--theme);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 1.5rem;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    transition: all 0.3s ease;
-  }
-
-  .toc-sidebar .toc:hover {
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-  }
-
-  .toc-sidebar .toc details {
-    position: relative;
-  }
-
-  .toc-sidebar .toc summary {
-    cursor: pointer;
-    padding: 0.75rem 0;
-    font-weight: 600;
-    color: var(--primary);
-    border-bottom: 2px solid var(--border);
-    margin-bottom: 1rem;
-    font-size: 1.1rem;
-    transition: color 0.3s ease;
-  }
-
-  .toc-sidebar .toc summary:hover {
-    color: #b19cd9;
-  }
-
-  .toc-sidebar .toc .inner {
-    padding-top: 0;
-  }
-
-  .toc-sidebar .toc ul {
-    list-style: none;
-    padding-left: 0;
-    margin: 0;
-  }
-
-  .toc-sidebar .toc li {
-    margin: 0.5rem 0;
-  }
-
-  .toc-sidebar .toc a {
-    display: block;
-    padding: 0.5rem 0.75rem;
-    color: var(--secondary);
-    text-decoration: none;
-    border-radius: 6px;
-    transition: all 0.2s ease;
-    font-size: 0.9rem;
-    line-height: 1.4;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .toc-sidebar .toc a:hover {
-    background: rgba(177, 156, 217, 0.1);
-    color: #b19cd9;
-    transform: translateX(4px);
-  }
-
-  .toc-sidebar .toc a.active {
-    background: linear-gradient(135deg, #b19cd9, #9a7bc8);
-    color: white;
-    font-weight: 600;
-    transform: translateX(8px);
-    box-shadow: 0 2px 10px rgba(177, 156, 217, 0.3);
-  }
-
-  .toc-sidebar .toc a.active::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 3px;
-    background: rgba(255, 255, 255, 0.8);
-  }
-
-  /* 중첩된 목차 항목 들여쓰기 */
-  .toc-sidebar .toc ul ul a {
-    padding-left: 1.5rem;
-    font-size: 0.85rem;
-  }
-
-  .toc-sidebar .toc ul ul ul a {
-    padding-left: 2.25rem;
-    font-size: 0.8rem;
-  }
-
-  .toc-sidebar .toc ul ul ul ul a {
-    padding-left: 3rem;
-    font-size: 0.75rem;
-  }
-
-  /* 스크롤바 스타일링 */
-  .toc-sidebar::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  .toc-sidebar::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  .toc-sidebar::-webkit-scrollbar-thumb {
-    background: rgba(177, 156, 217, 0.3);
-    border-radius: 3px;
-  }
-
-  .toc-sidebar::-webkit-scrollbar-thumb:hover {
-    background: rgba(177, 156, 217, 0.5);
-  }
-
-  /* 다크모드 지원 */
-  [data-theme="dark"] .toc-sidebar .toc {
-    background: var(--entry);
-    border-color: var(--border);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-  }
-
-  [data-theme="dark"] .toc-sidebar .toc:hover {
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
-  }
-
-  [data-theme="dark"] .toc-sidebar .toc summary {
-    color: var(--primary);
-    border-color: var(--border);
-  }
-
-  [data-theme="dark"] .toc-sidebar .toc a {
-    color: var(--secondary);
-  }
-
-  [data-theme="dark"] .toc-sidebar .toc a:hover {
-    background: rgba(177, 156, 217, 0.15);
-    color: #b19cd9;
-  }
-
-  /* 모바일 반응형 */
-  @media (max-width: 1024px) {
-    .post-layout-container {
-      flex-direction: column;
-      padding: 1rem;
-      border-radius: 0;
-      box-shadow: none;
-    }
-
-    .toc-sidebar {
-      display: none;
-    }
-
-    .toc-sidebar .toc {
-      margin: 0;
-    }
-
-    .post-single {
-      max-width: none;
-      padding: 1.5rem;
-      box-shadow: none;
-      border-radius: 0;
-    }
-  }
-
-  @media (max-width: 768px) {
-    .post-layout-container {
-      padding: 0;
-      gap: 0;
-      margin-top: 0;
-    }
-
-    .post-single {
-      padding: 1rem;
-      box-shadow: none;
-      border-radius: 0;
-    }
-
-    .toc-sidebar .toc {
-      padding: 1rem;
-    }
-
-    .toc-sidebar .toc summary {
-      font-size: 1rem;
-    }
-
-    .toc-sidebar .toc a {
-      font-size: 0.85rem;
-      padding: 0.4rem 0.6rem;
-    }
-  }
-
-  /* 접근성 개선 */
-  @media (prefers-reduced-motion: reduce) {
-
-    .toc-sidebar .toc,
-    .toc-sidebar .toc a {
-      transition: none;
-      transform: none;
-    }
-  }
-
-  /* 고대비 모드 지원 */
-  @media (prefers-contrast: high) {
-    .toc-sidebar .toc {
-      border-width: 2px;
-    }
-
-    .toc-sidebar .toc a.active {
-      background: var(--primary);
-      color: var(--theme);
-    }
-  }
-</style>
+{{- $postSingleScript := resources.Get "js/post-toc-sync.js" | resources.Minify }}
+{{- if not site.Params.assets.disableFingerprinting }}
+{{- $postSingleScript = $postSingleScript | fingerprint }}
+<script src="{{ $postSingleScript.RelPermalink | absURL }}" integrity="{{ $postSingleScript.Data.Integrity }}" defer></script>
+{{- else }}
+<script src="{{ $postSingleScript.RelPermalink | absURL }}" defer></script>
+{{- end }}
 
 {{- end }}{{/* end main */}}

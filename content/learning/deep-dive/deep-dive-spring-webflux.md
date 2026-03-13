@@ -139,6 +139,15 @@ sequenceDiagram
 - **Mono**는 단일 값, **Flux**는 스트림입니다.
 - **Backpressure**는 시스템 전체의 과부하를 막는 안전장치입니다.
 
+## 실무 적용 전에 확인할 것
+
+- WebFlux를 도입하기 전에 **현재 병목이 정말 I/O 대기인지**(CPU 병목 아님) 지표로 확인합니다.
+- 외부 호출은 `WebClient + timeout + retry 제한` 조합으로 기본 가드레일을 먼저 둡니다.
+- JDBC/JPA 중심 서비스라면, 서버 프레임워크를 바꾸기 전에 쿼리/캐시/스레드풀 병목부터 제거하는 편이 안전합니다.
+
 ## 다음 단계
 
-- **아키텍처 마스터리**: 프레임워크를 넘어 설계의 영역(DDD)으로 갑니다.
+- 선택 기준이 필요하면: [WebFlux vs MVC 선택 가이드](/learning/deep-dive/deep-dive-spring-webflux-vs-mvc/)
+- 외부 API 안정화가 필요하면: [WebClient 회복탄력성](/learning/deep-dive/deep-dive-webclient-resilience/)
+- 실행 모델 기초를 더 보려면: [I/O 실행 모델](/learning/deep-dive/deep-dive-io-execution-model/)
+- 부하 검증이 필요하면: [부하 테스트 전략](/learning/deep-dive/deep-dive-load-testing-strategy/)
