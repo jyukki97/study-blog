@@ -145,9 +145,14 @@
     }
 
     /* 테이블 헤더 강조 */
+    .post-content table thead {
+        color: inherit;
+    }
+
     .post-content table th {
         background-color: var(--code-bg);
-        font-weight: 600;
+        color: var(--primary);
+        font-weight: 700;
         white-space: nowrap;
         /* 헤더는 한 줄로 */
     }
