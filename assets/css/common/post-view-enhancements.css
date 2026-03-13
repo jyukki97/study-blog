@@ -190,17 +190,82 @@
 
 /* 모바일 반응형 */
 @media (max-width: 768px) {
-  .related-posts-grid {
-    grid-template-columns: 1fr;
+  .related-posts {
+    padding: 0;
+    margin: 2rem 0 1.2rem;
+    background: transparent;
+    border: none;
   }
 
-  .related-posts {
-    padding: 1.5rem;
-    margin: 2rem 0;
+  .related-posts h3 {
+    text-align: left;
+    font-size: 1.18rem;
+    margin-bottom: 1rem;
+  }
+
+  .related-posts h3::after {
+    left: 0;
+    transform: none;
+    width: 40px;
+    height: 2px;
+  }
+
+  .related-posts-grid {
+    grid-template-columns: 1fr;
+    gap: 0.8rem;
+  }
+
+  .related-post {
+    display: grid;
+    grid-template-columns: 96px 1fr;
+    border-radius: 12px;
+  }
+
+  .related-post-image {
+    height: 100%;
+    min-height: 96px;
+  }
+
+  .related-post-content {
+    padding: 0.78rem 0.86rem;
+  }
+
+  .related-post-content h4 {
+    font-size: 1rem;
+    line-height: 1.45;
+    margin-bottom: 0.45rem;
+  }
+
+  .related-post-summary {
+    font-size: 0.95rem;
+    line-height: 1.62;
+    margin-bottom: 0.52rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .related-post-meta {
+    font-size: 0.82rem;
   }
 
   .post-tags {
     justify-content: center;
+  }
+}
+
+@media (max-width: 430px) {
+  .related-post {
+    grid-template-columns: 84px 1fr;
+  }
+
+  .related-post-image {
+    min-height: 84px;
+  }
+
+  .related-post-content {
+    padding: 0.72rem 0.75rem;
   }
 }
 
