@@ -582,18 +582,21 @@
             flex-wrap: nowrap;
             justify-content: space-between;
             align-items: center;
+            padding: 0.22rem 0.65rem;
+            min-height: 48px;
         }
 
         .logo {
             flex-shrink: 0;
-            font-size: 1.1rem;
+            font-size: 1rem;
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: 0.45rem;
+            margin: 0;
         }
 
         .logo a {
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 600;
         }
 
@@ -629,20 +632,20 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            width: 40px;
-            height: 40px;
+            width: 34px;
+            height: 34px;
             background: none;
             border: none;
             cursor: pointer;
             padding: 0;
-            margin-right: 0.5rem;
+            margin-right: 0.3rem;
         }
 
         .mobile-menu-toggle span {
-            width: 20px;
+            width: 18px;
             height: 2px;
             background: var(--primary);
-            margin: 2px 0;
+            margin: 1.8px 0;
             transition: all 0.3s ease;
             border-radius: 1px;
         }
@@ -662,7 +665,7 @@
         /* 모바일 메뉴 숨기기 */
         #menu {
             position: fixed;
-            top: 60px;
+            top: 52px;
             left: 0;
             width: 100%;
             background: var(--entry);
@@ -710,18 +713,18 @@
         .mobile-menu-toggle {
             order: 3;
             margin-right: 0;
-            margin-left: 0.5rem;
+            margin-left: 0.3rem;
         }
 
         .search-input-wrapper {
             position: relative;
-            width: 40px;
-            height: 40px;
+            width: 34px;
+            height: 34px;
         }
 
         .search-input-wrapper.active {
-            width: 40px !important;
-            height: 40px !important;
+            width: 34px !important;
+            height: 34px !important;
             position: relative !important;
             background: transparent !important;
             border: none !important;
@@ -729,13 +732,23 @@
             margin: 0 !important;
         }
 
+        .search-button {
+            width: 34px;
+            height: 34px;
+        }
+
+        .search-button svg {
+            width: 18px;
+            height: 18px;
+        }
+
         .search-input-wrapper.active #search-input {
             position: fixed !important;
-            top: 70px !important;
+            top: 58px !important;
             left: 10px !important;
             right: 10px !important;
             width: calc(100vw - 20px) !important;
-            height: 50px !important;
+            height: 46px !important;
             background: var(--entry) !important;
             border: 1px solid var(--primary-color, #b19cd9) !important;
             border-radius: 25px !important;
@@ -749,11 +762,11 @@
 
         .search-results {
             position: fixed !important;
-            top: 130px !important;
+            top: 116px !important;
             left: 10px !important;
             right: 10px !important;
             width: calc(100vw - 20px) !important;
-            max-height: calc(100vh - 150px) !important;
+            max-height: calc(100vh - 132px) !important;
             z-index: 1999 !important;
             border-radius: 15px !important;
         }
@@ -762,15 +775,16 @@
     /* 더 작은 모바일 화면 대응 */
     @media (max-width: 480px) {
         .search-input-wrapper.active #search-input {
-            top: 65px !important;
+            top: 54px !important;
             left: 5px !important;
             right: 5px !important;
             width: calc(100vw - 10px) !important;
             padding: 0 15px !important;
+            height: 44px !important;
         }
 
         .search-results {
-            top: 125px !important;
+            top: 108px !important;
             left: 5px !important;
             right: 5px !important;
             width: calc(100vw - 10px) !important;
@@ -778,15 +792,16 @@
 
         /* 모바일 검색창과 결과창도 작은 화면에 맞게 조정 */
         #mobile-search-input {
-            top: 65px !important;
+            top: 54px !important;
             left: 5px !important;
             right: 5px !important;
             width: calc(100vw - 10px) !important;
             padding: 0 15px !important;
+            height: 44px !important;
         }
 
         #mobile-search-results {
-            top: 125px !important;
+            top: 108px !important;
             left: 5px !important;
             right: 5px !important;
             width: calc(100vw - 10px) !important;
@@ -947,11 +962,11 @@
     /* 반응형 디자인 */
     @media (max-width: 768px) {
         .main-logo {
-            max-height: 40px;
+            max-height: 32px;
         }
 
         .logo {
-            margin-right: 15px;
+            margin-right: 8px;
         }
     }
 </style>
@@ -994,8 +1009,8 @@
 
         const isSmallMobile = window.innerWidth <= 480;
         const leftRight = isSmallMobile ? '5px' : '10px';
-        const topInput = isSmallMobile ? '65px' : '70px';
-        const topResults = isSmallMobile ? '125px' : '130px';
+        const topInput = isSmallMobile ? '54px' : '58px';
+        const topResults = isSmallMobile ? '112px' : '116px';
         const padding = isSmallMobile ? '0 15px' : '0 20px';
 
         const mobileInput = document.createElement('input');
