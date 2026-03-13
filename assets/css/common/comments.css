@@ -246,36 +246,51 @@
 /* 반응형 디자인 */
 @media (max-width: 768px) {
     .comments-container {
-        margin: 2rem 0;
-        padding: 1.5rem;
-        border-radius: 8px;
+        margin: 1.5rem 0 1.2rem;
+        padding: 1rem;
+        border-radius: 10px;
     }
-    
+
+    .comments-header {
+        margin-bottom: 1rem;
+        padding-bottom: 0.75rem;
+    }
+
     .comments-title {
-        font-size: 1.3rem;
+        font-size: 1.12rem;
+        line-height: 1.35;
     }
-    
+
+    .comments-info small {
+        font-size: 0.82rem;
+        line-height: 1.45;
+    }
+
+    .giscus-container {
+        min-height: 170px;
+    }
+
     .comments-preview {
         width: 95%;
         max-height: 85vh;
     }
-    
+
     .preview-header {
         padding: 0.75rem 1rem;
     }
-    
+
     .preview-content {
         padding: 1rem;
         max-height: calc(85vh - 60px);
     }
-    
+
     .notification-content {
         padding: 0.75rem 1rem;
         min-width: 200px;
         max-width: calc(100vw - 40px);
         margin: 0 20px;
     }
-    
+
     .comment-notification {
         top: 10px;
         right: 10px;

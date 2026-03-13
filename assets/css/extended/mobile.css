@@ -236,22 +236,56 @@
         padding: 0.75rem 16px;
     }
 
+    .post-footer {
+        margin-top: 1.4rem;
+    }
+
+    .share-buttons {
+        justify-content: flex-start !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+        padding: 0.25rem 0.1rem !important;
+        gap: 0.45rem !important;
+    }
+
+    .share-buttons li,
+    .share-buttons a {
+        flex: 0 0 auto;
+    }
+
+    .share-buttons a {
+        min-height: 38px;
+        padding: 0.45rem 0.7rem !important;
+        border-radius: 999px !important;
+        border: 1px solid var(--border);
+        background: var(--entry);
+        font-size: 0.86rem !important;
+        line-height: 1.2 !important;
+    }
+
     .paginav {
-        margin-top: 2rem;
+        margin-top: 1.5rem;
         flex-direction: column !important;
         display: flex !important;
-        gap: 12px !important;
+        gap: 9px !important;
     }
 
     .paginav a {
         width: 100% !important;
         margin: 0 !important;
         border: 1px solid var(--border);
-        padding: 1rem;
+        padding: 0.82rem 0.9rem;
         box-sizing: border-box;
-        border-radius: 8px !important;
+        border-radius: 10px !important;
         text-align: left !important;
-        line-height: 1.4;
+        line-height: 1.42;
+        background: var(--entry);
+    }
+
+    .paginav .title {
+        font-size: 0.68rem;
+        letter-spacing: 0.04em;
     }
 
     .paginav .next {
@@ -277,7 +311,7 @@
 
     .share-buttons {
         justify-content: flex-start !important;
-        flex-wrap: wrap !important;
+        flex-wrap: nowrap !important;
     }
 }
 
