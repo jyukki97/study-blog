@@ -899,3 +899,82 @@
         letter-spacing: -0.01em;
     }
 }
+
+/* ========================================
+   18. 모바일 구조/터치 UX 통일 레이어
+   ======================================== */
+@media (max-width: 768px) {
+    :root {
+        --mobile-page-padding: 0.75rem;
+        --mobile-section-gap: 1rem;
+    }
+
+    .main,
+    .list-page,
+    .post-layout-container,
+    .project-single-container,
+    .projects-container {
+        padding-left: var(--mobile-page-padding) !important;
+        padding-right: var(--mobile-page-padding) !important;
+        box-sizing: border-box;
+    }
+
+    .list-page,
+    .project-content,
+    .related-posts,
+    .recent-project-posts,
+    .project-categories {
+        margin-top: var(--mobile-section-gap) !important;
+        margin-bottom: var(--mobile-section-gap) !important;
+    }
+
+    .post-header,
+    .section-header,
+    .tags-header {
+        margin-bottom: 0.75rem !important;
+    }
+
+    .post-meta,
+    .post-entry .post-meta {
+        row-gap: 0.28rem !important;
+    }
+
+    .section-badge,
+    .reading-time-chip,
+    .post-project-badge,
+    .project-status {
+        min-height: 28px;
+        align-items: center;
+        display: inline-flex;
+    }
+
+    .view-project-btn,
+    .view-all-btn,
+    .view-all-project-posts,
+    .nav-back,
+    .show-more-tags,
+    #post-search-clear {
+        min-height: 42px !important;
+    }
+
+    #top-link {
+        width: 44px;
+        height: 44px;
+        right: 12px;
+        bottom: 16px;
+    }
+}
+
+@media (max-width: 430px) {
+    :root {
+        --mobile-page-padding: 0.6rem;
+    }
+
+    .post-entry .post-content,
+    .related-post-content,
+    .recent-post-card,
+    .content-body {
+        padding-left: 0.72rem !important;
+        padding-right: 0.72rem !important;
+    }
+}
