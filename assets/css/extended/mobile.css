@@ -685,3 +685,83 @@
         box-shadow: none;
     }
 }
+
+/* ========================================
+   15. 모바일 가독성 강화 v2
+   - 실제 읽기 경험(폰 한손 스크롤) 최적화
+   ======================================== */
+@media (max-width: 768px) {
+
+    html {
+        -webkit-text-size-adjust: 100%;
+        text-size-adjust: 100%;
+    }
+
+    /* 상세 페이지 본문 가독성 강화 */
+    .post-single .post-content,
+    .post-content {
+        font-size: clamp(1.02rem, 4.3vw, 1.1rem) !important;
+        line-height: 1.9 !important;
+        letter-spacing: -0.005em;
+    }
+
+    .post-single .post-content p,
+    .post-content p {
+        margin-bottom: 1.1rem !important;
+    }
+
+    .post-single .post-content h2,
+    .post-content h2 {
+        font-size: clamp(1.25rem, 5.2vw, 1.45rem) !important;
+        line-height: 1.45 !important;
+    }
+
+    .post-single .post-content h3,
+    .post-content h3 {
+        font-size: clamp(1.12rem, 4.8vw, 1.28rem) !important;
+        line-height: 1.45 !important;
+    }
+
+    .post-content ul,
+    .post-content ol {
+        line-height: 1.85 !important;
+    }
+
+    .post-content blockquote {
+        font-size: 0.98em;
+        line-height: 1.8;
+    }
+
+    /* 코드/표 가로 스크롤 체감 개선 */
+    .post-content pre,
+    .post-single .post-content pre {
+        font-size: 13.5px !important;
+        line-height: 1.62 !important;
+        border-radius: 10px !important;
+    }
+
+    .post-content table,
+    .post-single .post-content table {
+        font-size: 0.92rem !important;
+    }
+
+    /* 목록 카드 읽기성 강화 */
+    .post-entry .post-title,
+    .post-entry .post-title a {
+        line-height: 1.42 !important;
+        word-break: keep-all;
+        overflow-wrap: break-word;
+    }
+
+    .post-entry .post-summary {
+        line-height: 1.72 !important;
+        -webkit-line-clamp: 5 !important;
+    }
+
+    /* 모바일 메뉴 터치 타겟(최소 44px) */
+    #menu li a {
+        min-height: 44px;
+        display: flex !important;
+        align-items: center;
+    }
+}
