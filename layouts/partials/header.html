@@ -213,7 +213,12 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 0.5rem 1rem;
+        padding: 0.4rem 0.9rem;
+    }
+
+    .logo,
+    #menu {
+        margin: 0;
     }
 
     /* 햄버거 메뉴 버튼은 기본적으로 숨김 */
@@ -528,6 +533,16 @@
 
     /* 모바일 반응형 처리 */
     @media (max-width: 768px) {
+        .header {
+            padding: 0;
+        }
+
+        .logo .logo-link {
+            padding: 0;
+            margin: 0;
+            line-height: 0;
+        }
+
         .dropdown-content {
             position: static;
             left: auto;
@@ -582,21 +597,21 @@
             flex-wrap: nowrap;
             justify-content: space-between;
             align-items: center;
-            padding: 0.22rem 0.65rem;
-            min-height: 48px;
+            padding: 0.12rem 0.55rem;
+            min-height: 44px;
         }
 
         .logo {
             flex-shrink: 0;
-            font-size: 1rem;
+            font-size: 0.96rem;
             display: flex;
             align-items: center;
-            gap: 0.45rem;
+            gap: 0.3rem;
             margin: 0;
         }
 
         .logo a {
-            font-size: 1rem;
+            font-size: 0.96rem;
             font-weight: 600;
         }
 
@@ -941,10 +956,12 @@
         display: flex;
         align-items: center;
         text-decoration: none;
+        line-height: 0;
     }
 
     .main-logo {
-        max-height: 50px;
+        display: block;
+        max-height: 44px;
         width: auto;
         transition: transform 0.2s ease;
     }
@@ -962,11 +979,11 @@
     /* 반응형 디자인 */
     @media (max-width: 768px) {
         .main-logo {
-            max-height: 32px;
+            max-height: 26px;
         }
 
         .logo {
-            margin-right: 8px;
+            margin-right: 6px;
         }
     }
 </style>
