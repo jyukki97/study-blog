@@ -212,8 +212,9 @@
 }
 
 body.focus-mode .post-layout-container {
-  max-width: 900px;
-  padding-right: 1rem;
+  max-width: min(1240px, calc(100vw - 2.2rem));
+  gap: 0;
+  padding: 1.4rem 1.1rem;
 }
 
 body.focus-mode .toc-sidebar {
@@ -221,7 +222,15 @@ body.focus-mode .toc-sidebar {
 }
 
 body.focus-mode .post-single {
-  max-width: 100%;
+  max-width: 980px;
+  margin: 0 auto;
+  padding-left: 2.3rem;
+  padding-right: 2.3rem;
+}
+
+body.focus-mode .post-content {
+  font-size: 1.04rem;
+  line-height: 1.88;
 }
 
 body.focus-mode .focus-mode-toggle {
