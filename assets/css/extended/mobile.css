@@ -804,3 +804,73 @@
         align-items: center;
     }
 }
+
+/* ========================================
+   16. 모바일 읽기 마감 품질 (코드/표/이미지/캡션)
+   ======================================== */
+@media (max-width: 768px) {
+    .post-single .post-content pre,
+    .post-content pre {
+        margin: 1.1rem 0 !important;
+        padding: 0.9rem 0.95rem !important;
+        border-radius: 10px !important;
+        border: 1px solid var(--border) !important;
+    }
+
+    .post-single .post-content pre code,
+    .post-content pre code {
+        font-size: 13px !important;
+        line-height: 1.62 !important;
+    }
+
+    .post-single .post-content code,
+    .post-content code {
+        font-size: 0.9em !important;
+        padding: 0.16em 0.38em !important;
+    }
+
+    .post-single .post-content figure,
+    .post-content figure {
+        margin: 1.25rem 0 !important;
+    }
+
+    .post-single .post-content figcaption,
+    .post-content figcaption {
+        margin-top: 0.45rem;
+        font-size: 0.82rem;
+        line-height: 1.5;
+        text-align: center;
+        color: var(--secondary);
+    }
+
+    .post-single .post-content table,
+    .post-content table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        white-space: nowrap;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        background: var(--entry);
+    }
+
+    .post-single .post-content table th,
+    .post-content table th {
+        font-size: 0.88rem !important;
+        line-height: 1.45 !important;
+        min-width: 100px;
+    }
+
+    .post-single .post-content table td,
+    .post-content table td {
+        font-size: 0.9rem !important;
+        line-height: 1.55 !important;
+        min-width: 96px;
+    }
+
+    .post-single .post-content blockquote,
+    .post-content blockquote {
+        padding: 0.95rem 1rem !important;
+        border-left-width: 3px !important;
+    }
+}
