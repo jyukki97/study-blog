@@ -2,7 +2,7 @@
 title: "pgmux"
 date: 2026-03-11
 draft: false
-description: "PostgreSQL 프록시 직접 구현하기 - 커넥션 풀링, R/W 분산, 쿼리 캐싱, TLS, Circuit Breaker, 무중단 리로드, LSN Causal Consistency, AST 파서, 쿼리 방화벽, Audit Logging, Helm Chart, Serverless Data API, OpenTelemetry, fsnotify, Prepared Statement Multiplexing, Query Mirroring, GitHub Actions CI/CD, Multi-Database Routing"
+description: "PostgreSQL 프록시 직접 구현하기 - 커넥션 풀링, R/W 분산, 쿼리 캐싱, TLS, Circuit Breaker, 무중단 리로드, LSN Causal Consistency, AST 파서, 쿼리 방화벽, Audit Logging, Helm Chart, Serverless Data API, OpenTelemetry, fsnotify, Prepared Statement Multiplexing, Query Mirroring, GitHub Actions CI/CD, Multi-Database Routing, Query Digest, Grafana Dashboard, Per-User Connection Limits, Query Timeout, Idle Client Timeout, SQL Redaction"
 icon: "🗄️"
 status: "진행중"
 tech: ["Go", "PostgreSQL", "Wire Protocol", "Prometheus", "Redis", "TLS", "Circuit Breaker", "pg_query_go", "AST", "Helm", "Kubernetes", "OpenTelemetry", "fsnotify"]
@@ -148,6 +148,27 @@ duration: "2026.03.11"
 - Data API: `?database=` 쿼리 파라미터 지원
 - 기존 single-DB config 완전 하위호환
 
+**Query Digest & Top-N 분석**
+- 쿼리 정규화(리터럴 치환) 기반 패턴 그룹핑
+- 순환 버퍼로 메모리 효율적 P50/P99 레이턴시 수집
+- `GET /admin/digest/top` Admin API
+- `pg_stat_statements`의 프록시 버전
+
+**Grafana Dashboard 템플릿**
+- 21개 패널, `__inputs` 변수로 데이터소스 자동 연결
+- Helm sidecar ConfigMap으로 자동 프로비저닝
+
+**Per-User/Per-DB 커넥션 제한**
+- ConnTracker: 사용자/데이터베이스별 동시 커넥션 카운팅
+- SQLSTATE `53300` (too_many_connections) 표준 에러 반환
+- Hot-reload 시 기존 카운터 유지
+
+**Query Timeout**
+- `time.AfterFunc` + CancelRequest 프로토콜로 프록시 레벨 타임아웃
+- 쿼리별 힌트 오버라이드 (`/* timeout:5s */`)
+- 커넥션 재사용 가능 (PgBouncer와 차별점)
+- Prometheus `pgmux_query_timeout_total` 메트릭
+
 **Admin API**
 - `/admin/health` — DB별 백엔드 헬스 상태 조회
 - `/admin/stats` — DB별 풀, 캐시 통계 JSON
@@ -155,6 +176,12 @@ duration: "2026.03.11"
 - `/admin/cache/flush[/{table}]` — 전체/테이블별 캐시 비우기
 - `/admin/reload` — 무중단 설정 리로드
 - `/admin/mirror/stats` — 쿼리 미러링 통계
+
+**SQL Redaction / Safe Observability**
+- Audit log, OTel span, slog, webhook에서 SQL 리터럴 자동 마스킹
+- 세 가지 정책: `none`(원본), `literals`(`$1`, `$2` 치환), `full`(fingerprint)
+- `pg_query.Normalize` 기반 정확한 리터럴 제거 + regex fallback
+- Hot-reload로 정책 즉시 변경 가능
 
 **멀티 인스턴스 스케일링**
 - Redis Pub/Sub 기반 캐시 무효화 브로드캐스트
@@ -298,6 +325,30 @@ Go testing              # 단위 테스트 + 통합 테스트 + 벤치마크
 32. [Query Mirroring과 레이턴시 비교](/posts/2026-03-12-pgmux-32-query-mirroring/)
 33. [GitHub Actions CI/CD와 Docker 자동 배포](/posts/2026-03-13-pgmux-33-github-actions-cicd/)
 34. [Multi-Database Routing](/posts/2026-03-13-pgmux-34-multi-database-routing/)
+35. [Query Digest와 Top-N 쿼리 분석](/posts/2026-03-13-pgmux-35-query-digest/)
+36. [Grafana Dashboard 템플릿](/posts/2026-03-13-pgmux-36-grafana-dashboard/)
+37. [벤치마크 Suite와 PgBouncer 비교](/posts/2026-03-13-pgmux-37-benchmark-suite/)
+38. [pprof 기반 최적화와 투명 프록시의 경계](/posts/2026-03-14-pgmux-38-pprof-optimization/)
+39. [DISCARD ALL 최적화와 벤치마크 신뢰성](/posts/2026-03-14-pgmux-39-discard-all-optimization/)
+40. [sync.Pool로 할당 줄이기와 최적화의 한계](/posts/2026-03-14-pgmux-40-sync-pool-optimization/)
+41. [Per-User/Per-DB 커넥션 제한](/posts/2026-03-14-pgmux-41-per-user-connection-limits/)
+42. [Query Timeout과 CancelRequest](/posts/2026-03-14-pgmux-42-query-timeout/)
+43. [Idle Client Timeout](/posts/2026-03-15-pgmux-43-idle-client-timeout/)
+44. [Admin API 인증과 RBAC](/posts/2026-03-15-pgmux-44-admin-api-auth-rbac/)
+45. [Health Check Endpoint와 LB/K8s Probe](/posts/2026-03-15-pgmux-45-health-check-endpoint/)
+46. [QA 소견 6건과 운영 안전성 수정](/posts/2026-03-15-pgmux-46-qa-round1-operational-safety/)
+47. [QA 2차: Cross-Pool 오염과 캐시 정확성](/posts/2026-03-15-pgmux-47-qa-round2-cross-pool-cache/)
+48. [QA 3차: 풀 안전성의 마지막 구멍들](/posts/2026-03-15-pgmux-48-qa-round3-pool-safety/)
+49. [Online Maintenance Mode](/posts/2026-03-16-pgmux-49-online-maintenance-mode/)
+50. [Read-Only Mode](/posts/2026-03-16-pgmux-50-read-only-mode/)
+51. [설정 이중 구조 청산](/posts/2026-03-16-pgmux-51-config-unification/)
+52. [Session Compatibility Guard](/posts/2026-03-16-pgmux-52-session-compatibility-guard/)
+53. [QA 4차: 라우팅 우회와 운영 안전성](/posts/2026-03-17-pgmux-53-qa-round4-routing-safety/)
+54. [QA 5차: 릴리즈 위생과 CI 안정성](/posts/2026-03-17-pgmux-54-qa-round5-release-hygiene/)
+55. [QA 6차: 파서 우회와 분류 사각지대](/posts/2026-03-17-pgmux-55-qa-round6-parser-bypass/)
+56. [QA 7차: 릴리즈 전 최종 코드 리뷰](/posts/2026-03-17-pgmux-56-qa-round7-pre-release/)
+57. [v1.0.0 릴리즈 준비](/posts/2026-03-17-pgmux-57-v1-release-prep/)
+58. [SQL Redaction과 Safe Observability](/posts/2026-03-17-pgmux-58-sql-redaction/)
 
 ## 🔗 관련 링크
 
