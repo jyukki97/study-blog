@@ -101,8 +101,117 @@ for word in ["a", "b", "a"] {
 - 커스텀 키 타입을 만들 때 `Hash`/`Eq`가 일관되지 않으면(동등한데 해시가 다름) 조회가 깨집니다
 - 순회 순서가 안정적일 거라고 기대하기(해시맵의 순서는 보장되지 않습니다)
 
+## 7) SwissTable를 조금 더 깊게: 그룹 스캔 + 프로빙
+
+Rust `HashMap`의 핵심 구현체인 `hashbrown`은 버킷을 “한 칸씩” 보는 대신, **컨트롤 바이트 그룹**을 먼저 검사해 후보를 좁힙니다.
+
+흐름을 단순화하면 대략 이렇습니다.
+
+1. 키를 해시해서 상위/하위 비트를 나눠 사용
+2. 하위 비트로 시작 버킷(그룹)을 정함
+3. 해당 그룹의 컨트롤 바이트를 한 번에 스캔해 “같을 가능성이 있는 슬롯”만 추림
+4. 후보 슬롯에서 실제 키 비교
+5. 실패 시 다음 그룹으로 프로빙
+
+이 방식의 장점은 **불필요한 키 비교를 줄이는 것**입니다.
+키가 길거나(문자열) 비교 비용이 클수록 차이가 커집니다.
+
+## 8) 삭제가 잦을 때 성능이 흔들리는 이유
+
+Open addressing 계열 해시맵은 삭제 시 내부적으로 “빈 칸”과 구분되는 삭제 마커(개념적으로 tombstone)를 다룹니다.
+삭제가 매우 잦은 워크로드에서는 이 흔적이 쌓이며 프로빙 길이가 늘 수 있습니다.
+
+실무에서 체감되는 신호:
+
+- 엔트리 수는 비슷한데 조회 지연이 서서히 증가
+- CPU 프로파일에서 해시맵 조회 비중이 비정상적으로 커짐
+- 특정 구간 이후 p95/p99가 갑자기 튐
+
+대응 패턴:
+
+- 장시간 누적 캐시라면 주기적 재구성(rebuild) 고려
+- 삭제·삽입이 매우 잦다면 자료구조 선택 재검토(BTreeMap, sharded map 등)
+- 단순히 해시 함수 교체 전에 워크로드 특성(삽입/조회/삭제 비율)부터 계측
+
+## 9) `HashMap` vs `BTreeMap`: 선택 기준
+
+둘 다 표준 컬렉션이지만 용도가 다릅니다.
+
+- `HashMap`: 평균 O(1), 빠른 단건 조회/삽입에 강함
+- `BTreeMap`: O(log n), **정렬 순회/범위 조회**(`range`)가 필요할 때 유리
+
+백엔드에서 자주 헷갈리는 포인트:
+
+- “조회가 많다”만으로 HashMap 고정 아님
+- `top N`, `기간 범위`, `정렬된 키 순회`가 중요하면 BTreeMap이 전체 파이프라인 비용을 낮출 수 있음
+
+## 10) 간단 벤치마크 템플릿(criterion)
+
+감으로 결정하지 말고, 최소한 아래 3개를 같은 데이터셋으로 비교해보면 좋습니다.
+
+- `HashMap::new()`
+- `HashMap::with_capacity(n)`
+- 빠른 해시 빌더(`ahash`) 적용 버전
+
+```rust
+// Cargo.toml
+// [dev-dependencies]
+// criterion = "0.5"
+
+use criterion::{criterion_group, criterion_main, Criterion};
+use std::collections::HashMap;
+
+fn bench_insert(c: &mut Criterion) {
+    let keys: Vec<String> = (0..100_000).map(|i| format!("key-{i}")).collect();
+
+    c.bench_function("hashmap_new_insert", |b| {
+        b.iter(|| {
+            let mut m: HashMap<String, usize> = HashMap::new();
+            for k in &keys {
+                m.insert(k.clone(), 1);
+            }
+            m.len()
+        })
+    });
+
+    c.bench_function("hashmap_with_capacity_insert", |b| {
+        b.iter(|| {
+            let mut m: HashMap<String, usize> = HashMap::with_capacity(keys.len());
+            for k in &keys {
+                m.insert(k.clone(), 1);
+            }
+            m.len()
+        })
+    });
+}
+
+criterion_group!(benches, bench_insert);
+criterion_main!(benches);
+```
+
+측정 시 체크:
+
+- 평균만 보지 말고 p95/p99(지연 스파이크) 확인
+- 키 생성 비용(문자열 clone)과 맵 연산 비용을 분리
+- 운영 입력 분포와 비슷한 데이터셋으로 재검증
+
+## 11) 운영 체크리스트(실전용)
+
+- 예상 키 개수가 있으면 `with_capacity`/`reserve` 적용
+- 핫패스 집계는 `entry`로 중복 조회 제거
+- 커스텀 키 타입은 `Eq`/`Hash` 일관성 테스트 추가
+- 외부 입력 키가 크거나 악의적일 수 있으면 기본 해시 유지
+- 삭제가 잦은 캐시는 재구성 시점(예: 엔트리 churn 임계치) 정의
+- 맵 교체 전/후 벤치 결과를 PR에 남겨 회귀 추적 가능하게 유지
+
+## 함께 보면 좋은 글
+
+- [Spring 예외 처리 구조 깊이 보기](/learning/deep-dive/deep-dive-spring-exception-handling/)
+- [Docker Compose 네트워크 깊이 보기](/learning/deep-dive/deep-dive-docker-compose-network/)
+- [HTTP/3와 QUIC 깊이 보기](/learning/deep-dive/deep-dive-http3-quic/)
+
 ## 연습(추천)
 
-- `with_capacity`를 넣었을 때/안 넣었을 때 대량 삽입의 지연 스파이크를 비교해보기
-- `entry`로 집계를 작성하고, `get+insert`와 비교해서 코드/성능이 어떻게 달라지는지 정리해보기
-- “충돌이 많아지는 입력”을 일부러 만들어서, 해시맵 성능이 어떻게 변하는지 관찰해보기(학습용으로만)
+- `with_capacity` 유무 + 삭제 비율(0%, 10%, 30%)을 바꿔 p95 지연 비교
+- `HashMap`과 `BTreeMap`으로 같은 요구사항(단건 조회 vs 범위 조회)을 구현해 총 처리시간 비교
+- 키 분포를 균등/편향 2종으로 나눠 충돌 증가 시 처리량 변화를 관찰
