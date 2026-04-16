@@ -10,199 +10,113 @@ description: "릴리스 전 하위호환 부채를 청산한다. top-level write
 
 ## 들어가며
 
-pgmux는 원래 단일 DB만 지원했다. 설정 파일의 top-level에 `writer`/`readers`/`backend`를 두는 단순한 구조였다:
+pgmux는 원래 단일 DB만 지원했다. 그래서 설정 파일의 top-level에 `writer`/`readers`/`backend`를 두는 단순한 구조였다. 이후 [Multi-Database Routing](/posts/2026-03-13-pgmux-34-multi-database-routing/)을 추가하면서 `databases` 맵이 도입됐고, 기존 사용자 호환을 위해 두 방식을 동시에 지원했다.
 
-```yaml
-writer:
-  host: "primary.db.internal"
-  port: 5432
-readers:
-  - host: "replica-1.db.internal"
-    port: 5432
-backend:
-  user: "postgres"
-  password: "postgres"
-  database: "mydb"
-```
+문제는 여기서 시작됐다. 제품이 커질수록 "호환 레이어"는 안정장치가 아니라 **지속적인 복잡도 발생기**가 된다. 같은 의미를 표현하는 경로가 두 개 있으면 검증, 리로드, Admin API, 테스트 픽스처까지 전부 이중 관리가 된다. 릴리스 전 단계라면 과감하게 단일 포맷으로 접는 게 맞다.
 
-[Multi-Database Routing](/posts/2026-03-14-pgmux-34-multi-database-routing/)을 추가하면서 `databases` 맵이 도입됐다. 기존 사용자의 설정이 깨지지 않도록 두 방식을 공존시켰는데, 그 결과 코드 곳곳에 이중 경로가 생겼다.
-
-아직 릴리스 전이니 하위호환 부채를 깔끔하게 청산한다.
+이번 글은 단순히 필드를 지운 기록이 아니라, **설정 모델을 단일화할 때 어떤 위험이 생기고 어떤 순서로 줄여야 하는지**를 운영 관점에서 정리한 내용이다.
 
 ---
 
-## 문제: 이중 경로가 만든 복잡도
+## 문제: 이중 경로가 만든 운영 리스크
 
-### 1. ResolvedDatabases() — 합성 shim
+### 1) ResolvedDatabases() shim이 만든 인지 부하
 
-```go
-func (c *Config) ResolvedDatabases() map[string]DatabaseConfig {
-    if len(c.Databases) > 0 {
-        return c.Databases
-    }
-    // old format → new format 합성
-    return map[string]DatabaseConfig{
-        c.Backend.Database: {
-            Writer:  c.Writer,
-            Readers: c.Readers,
-            Backend: c.Backend,
-            Pool:    c.Pool,
-        },
-    }
-}
-```
+초기에는 old format을 new format으로 합성해 주는 어댑터가 편했다. 하지만 호출처가 늘어나면서 코드 리뷰 시점마다 "여기서 보는 데이터가 원본인지 합성본인지"를 계속 해석해야 했다. 이 비용이 누적되면 신규 기능보다 유지보수 피로가 먼저 온다.
 
-단일 DB 설정을 `databases` 맵으로 변환하는 어댑터다. 이 함수를 `server.go`, `connlimit.go`, `Reload()` 등 5곳에서 호출하고 있었다. 직접 `cfg.Databases`를 쓰면 되는데 중간에 변환 계층이 끼어있으니 코드를 읽을 때 혼란스럽다.
+특히 hot reload처럼 경계가 많은 코드에서는 합성 경로와 원본 경로가 미묘하게 다르게 동작하기 쉽다. 실제로 장애가 나면 재현이 어려워진다. 요청 타이밍과 리로드 타이밍이 겹칠 때만 재현되는 버그는, 경로가 둘일 때 디버깅 난도가 기하급수로 올라간다.
 
-### 2. validate() — 두 갈래 검증
+### 2) validate()의 이중 분기로 인한 규칙 드리프트
 
-```go
-if len(c.Databases) > 0 {
-    // Multi-DB 검증 경로
-    for name, db := range c.Databases { ... }
-} else {
-    // Single-DB 검증 경로
-    if c.Writer.Host == "" { return error }
-    for i, r := range c.Readers { ... }
-}
-```
+검증 로직이 두 갈래면 처음에는 같아 보여도 시간이 지나면 차이가 난다. 어떤 경로는 포트 범위를 엄격히 보고, 다른 경로는 누락을 통과시키는 식이다. 운영자가 보기에는 "같은 설정인데 환경마다 다르게 터지는" 이상한 증상이 된다.
 
-같은 로직이 두 번 작성돼 있다. writer host 필수, port 범위 검증 등 동일한 규칙을 두 경로에서 각각 구현한다.
+설정 검증은 비즈니스 로직보다 더 보수적으로 관리해야 한다. 예외 메시지, 필수값, 기본값 적용 순서가 일관되지 않으면 배포 자동화가 불안정해진다.
 
-### 3. Admin API — 응답에 두 포맷 노출
+### 3) Admin API 응답 포맷의 모호함
 
-`/admin/config`가 `writer`/`readers` + `databases`를 모두 JSON에 포함했다. 클라이언트 입장에서 어떤 필드를 봐야 하는지 모호했다.
+`/admin/config`가 old/new 포맷을 같이 노출하면, 운영 문서도 둘로 갈라지고 대시보드 파서도 분기된다. 결국 팀 내에서 "어느 필드가 진짜 source of truth인지"를 매번 합의해야 한다. 이건 기술 문제가 아니라 운영 커뮤니케이션 비용 문제다.
 
-### 4. Mirror — 애매한 fallback
+### 4) fallback 로직의 의미 붕괴
 
-```go
-mirrorUser := cfg.Mirror.User
-if mirrorUser == "" {
-    mirrorUser = cfg.Backend.User  // 어떤 DB의 user?
-}
-```
-
-Multi-DB 환경에서 `cfg.Backend.User`가 어떤 데이터베이스의 credentials인지 불분명하다.
+Multi-DB에서 top-level `backend`를 fallback으로 쓰면 "어느 DB의 자격증명인가"가 애매해진다. 애매함은 보통 보안 사고로 돌아온다. 잘못된 DB로 인증을 시도하거나, rotation 직후 일부 요청만 실패하는 식의 문제로 나타난다.
 
 ---
 
 ## 해결: databases 단일 포맷으로 통합
 
-### Config struct 정리
+핵심 원칙은 단순하다.
 
-```go
-type Config struct {
-    Proxy   ProxyConfig   `yaml:"proxy"`
-    // Writer, Readers 제거
-    Pool    PoolConfig    `yaml:"pool"`     // 공유 기본값
-    Backend BackendConfig `yaml:"backend"`  // 공유 기본값 (user/password)
-    Databases map[string]DatabaseConfig `yaml:"databases"` // 유일한 DB 설정
-    // ...
-}
-```
+- DB별 설정은 반드시 `databases` 아래에만 존재한다.
+- `backend`, `pool`은 공유 기본값이지만 DB별 값이 우선한다.
+- "합성 함수"를 없애고 원본 데이터를 직접 순회한다.
+- 검증은 단일 경로로 통일한다.
 
-`Writer`와 `Readers` 필드를 struct에서 완전히 제거했다. `Backend`과 `Pool`은 공유 기본값으로 유지한다 — `databases` 항목에서 미지정 시 상속받는 구조다.
+이 원칙에 맞춰 `Writer`, `Readers` 필드를 제거하고, `ResolvedDatabases()`를 삭제했다. 호출처는 전부 `cfg.Databases` 직접 참조로 교체했다. `validate()`는 `databases`가 비어 있으면 즉시 에러를 반환하고, DB별 필수값 검증을 같은 루틴으로 처리하게 정리했다.
 
-### ResolvedDatabases() 제거
-
-모든 호출처를 `cfg.Databases`로 직접 변경:
-
-```go
-// Before
-for name, dbCfg := range cfg.ResolvedDatabases() {
-
-// After
-for name, dbCfg := range cfg.Databases {
-```
-
-`server.go`의 `NewServer()`, `Reload()`, `connlimit.go`의 `NewConnTracker()`, `UpdateLimits()` — 총 4곳.
-
-### validate() 단순화
-
-```go
-func (c *Config) validate() error {
-    if len(c.Databases) == 0 {
-        return fmt.Errorf("databases: at least one database must be configured")
-    }
-    for name, db := range c.Databases {
-        // 단일 경로로 검증
-    }
-    // ...
-}
-```
-
-이중 분기가 사라지고, `databases`가 비어있으면 명확한 에러 메시지를 반환한다.
-
-### Mirror fallback 수정
-
-```go
-defaultDB := cfg.Databases[cfg.DefaultDatabaseName()]
-mirrorUser := cfg.Mirror.User
-if mirrorUser == "" {
-    mirrorUser = defaultDB.Backend.User  // 명확: default DB의 credentials
-}
-```
-
-"어떤 DB?"라는 모호함이 사라졌다.
-
-### Admin API 응답 정리
-
-```go
-safe := struct {
-    Proxy     config.ProxyConfig              `json:"proxy"`
-    // Writer, Readers, Backend 제거
-    Databases map[string]safeDBConfig         `json:"databases"`
-    // ...
-}{}
-```
+이렇게 하면 코드는 조금 더 엄격해지지만, 장애 분석은 훨씬 쉬워진다. "입력-검증-적용" 흐름이 한 줄로 이어지기 때문이다.
 
 ---
 
-## 새 설정 포맷
+## 마이그레이션 절차(운영 기준)
 
-```yaml
-proxy:
-  listen: "0.0.0.0:5432"
+설정 통합은 코드 변경보다 **배포 순서**가 더 중요하다. 이번에 적용한 절차는 아래와 같다.
 
-backend:                    # 공유 기본값
-  user: "postgres"
-  password: "postgres"
+1. 기존 배포 설정을 전수 스캔해서 old format 사용 환경을 목록화한다.
+2. `databases` 포맷으로 기계 변환 가능한 항목과 수동 확인이 필요한 항목을 분리한다.
+3. 스테이징에서 변환본으로 부팅/리로드/쿼리 라우팅/모니터링 지표를 먼저 검증한다.
+4. 프로덕션은 작은 트래픽 그룹부터 점진 전개한다.
+5. 전개 중에는 설정 파싱 실패율, reload 성공률, 인증 실패율을 5분 단위로 본다.
 
-pool:                       # 공유 기본값
-  max_connections: 50
-
-databases:
-  mydb:
-    writer:
-      host: "primary.db.internal"
-      port: 5432
-    readers:
-      - host: "replica-1.db.internal"
-        port: 5432
-    backend:
-      database: "mydb"     # user/password는 top-level에서 상속
-```
-
-단일 DB라도 `databases` 아래 1개 엔트리를 작성한다. 기존보다 들여쓰기가 한 레벨 깊어지지만, Multi-DB 확장 시 설정 마이그레이션이 필요 없다.
+중요한 점은 "코드 배포"와 "설정 전환"을 같은 시간에 몰아치지 않는 것이다. 둘을 분리하면 실패 원인이 명확해진다.
 
 ---
 
-## 변경 범위
+## 롤백 전략
 
-| 영역 | 변경 |
-|------|------|
-| `config.go` | `Writer`/`Readers` 필드 제거, `ResolvedDatabases()` 삭제, `validate()` 단일 경로 |
-| `server.go` | `cfg.Databases` 직접 사용, Mirror fallback을 default DB에서 해결 |
-| `connlimit.go` | `cfg.Databases` 직접 사용 |
-| `admin.go` | `handleConfig` 응답에서 old format 제거 |
-| 테스트 8개 | 모든 config literal을 databases 포맷으로 전환 |
-| config.yaml 등 | databases 포맷으로 전환 |
-| README 2개 | 설정 예시 업데이트, 하위호환 문구 제거 |
+단일 포맷 전환은 되돌릴 수 있어야 안전하다. 이번 작업에서는 다음 원칙을 사용했다.
+
+- 롤백 단위는 바이너리가 아니라 **설정 번들**로 잡는다.
+- 마지막 정상 설정 스냅샷을 버전 태그로 보관한다.
+- 리로드 실패 시 이전 번들을 즉시 재적용하고 health probe가 회복되는지 확인한다.
+- 롤백 후 10~15분은 에러율과 인증 실패율을 집중 관찰한다.
+
+실무에서 자주 놓치는 부분은 "롤백 성공 기준"을 사전에 정하지 않는 것이다. 단순히 프로세스가 떠 있다고 끝내지 말고, 최소한 연결 성공률/평균 응답시간/오류 패턴까지 정상 범위로 복귀했는지 확인해야 한다.
+
+---
+
+## 검증 체크리스트(재발 방지용)
+
+이번 리팩토링에서 추가로 강조한 점검 항목은 다음과 같다.
+
+- 설정 파일에 `databases` 엔트리가 1개 이상 존재하는가?
+- DB별 writer/readers/backend 필수값 누락이 없는가?
+- default database 선택 로직이 예측 가능하게 동작하는가?
+- hot reload 후 신규 credential로 실제 재연결이 일어나는가?
+- `/admin/config` 응답이 단일 포맷으로만 노출되는가?
+- 문서(README, 운영 runbook, 샘플 config)가 코드와 동일한 포맷을 설명하는가?
+
+여기서 핵심은 테스트보다 문서 동기화다. 운영자가 옛 문서를 보고 old format을 넣는 순간, 코드가 깔끔해져도 장애는 반복된다.
+
+---
+
+## 이번 정리의 실질 효과
+
+첫째, 코드 가독성이 올라갔다. "이 값이 어디서 왔는지" 추적하는 시간이 줄어들었다. 둘째, 장애 대응 속도가 빨라졌다. 경로가 하나라서 재현 시나리오를 만들기 쉽다. 셋째, 온보딩 비용이 줄었다. 신규 팀원이 설정 모델을 한 번만 이해하면 된다.
+
+이건 성능 벤치마크처럼 눈에 띄는 숫자로 보이진 않지만, 릴리스 직전 안정성에는 훨씬 큰 영향을 준다. 구조적 복잡도를 줄이면 QA 효율이 좋아지고, 운영 중 예상치 못한 분기 버그가 줄어든다.
+
+---
+
+## 관련 글
+
+- [Multi-Database Routing](/posts/2026-03-13-pgmux-34-multi-database-routing/)
+- [Session Compatibility Guard](/posts/2026-03-16-pgmux-52-session-compatibility-guard/)
+- [QA 4차: 라우팅 우회와 운영 안전성](/posts/2026-03-17-pgmux-53-qa-round4-routing-safety/)
 
 ---
 
 ## 마무리
 
-릴리스 전이라서 가능한 정리였다. 하위호환이 필요했다면 deprecation warning → migration period → removal의 3단계를 거쳐야 했을 것이다.
+릴리스 전 리팩토링은 늘 "지금 건드려도 되나"라는 심리적 저항이 있다. 하지만 의미가 같은 설정 경로를 둘로 유지하는 비용은 시간이 갈수록 커진다. 특히 프록시처럼 설정 주도형 소프트웨어에서는 더 치명적이다.
 
-이번 리팩토링의 핵심은 **같은 의미의 코드가 두 경로로 존재하면 버그도 두 배**라는 것이다. `ResolvedDatabases()` 같은 어댑터는 도입 시점에는 편리하지만, 호출처가 늘어날수록 "이게 원본이야 변환이야?"라는 혼란을 키운다. 릴리스 전에 청산할 수 있어서 다행이다.
+이번 변경의 교훈은 단순하다. **호환성은 일정 기간의 전략이지 영구 구조가 아니다.** 제거 시점을 놓치면 기술 부채가 아니라 운영 리스크가 된다. 이번에는 그 시점을 놓치지 않았고, 그래서 다음 단계(릴리스 안정화)로 갈 수 있었다.

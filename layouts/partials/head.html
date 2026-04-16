@@ -11,18 +11,56 @@
 <title>{{ if .IsHome }}{{ else }}{{ if .Title }}{{ .Title }} | {{ end }}{{ end }}{{ site.Title }}</title>
 
 {{- /* Meta */}}
-{{- if .IsHome }}
-{{ with site.Params.keywords -}}<meta name="keywords" content="{{- range $i, $e := . }}{{ if $i }}, {{ end }}{{ $e }}{{ end }}">{{ end }}
-{{- else }}
-<meta name="keywords" content="{{ if .Params.keywords -}}
-    {{- range $i, $e := .Params.keywords }}{{ if $i }}, {{ end }}{{ $e }}{{ end }} {{- else }}
-    {{- range $i, $e := .Params.tags }}{{ if $i }}, {{ end }}{{ $e }}{{ end }} {{- end -}}">
+{{- $keywords := slice -}}
+{{- if .IsHome -}}
+  {{- with site.Params.keywords }}
+    {{- range . }}{{- $keywords = $keywords | append . -}}{{- end -}}
+  {{- end -}}
+{{- else -}}
+  {{- with .Params.keywords -}}
+    {{- range . }}{{- $keywords = $keywords | append . -}}{{- end -}}
+  {{- end -}}
+  {{- with .Params.tags -}}
+    {{- range . }}{{- $keywords = $keywords | append . -}}{{- end -}}
+  {{- end -}}
+  {{- with .Params.categories -}}
+    {{- range . }}{{- $keywords = $keywords | append . -}}{{- end -}}
+  {{- end -}}
+  {{- with .Params.series -}}
+    {{- $keywords = $keywords | append . -}}
+  {{- end -}}
+  {{- with .Params.project -}}
+    {{- $keywords = $keywords | append . -}}
+  {{- end -}}
+{{- end -}}
+{{- $keywords = uniq $keywords -}}
+{{- if gt (len $keywords) 0 }}
+<meta name="keywords" content="{{ delimit $keywords ", " }}">
 {{- end }}
-<meta name="description" content="{{- with .Description }}{{ . }}{{- else }}{{- if or .IsPage .IsSection}}
-    {{- .Summary | default (printf "%s - %s" .Title  site.Title) }}{{- else }}
-    {{- with site.Params.description }}{{ . }}{{- end }}{{- end }}{{- end -}}">
+
+{{- $metaDescription := site.Params.description | default site.Title -}}
+{{- with .Description -}}
+  {{- $metaDescription = . -}}
+{{- else -}}
+  {{- if or .IsPage .IsSection -}}
+    {{- $metaDescription = (.Summary | default (printf "%s - %s" .Title site.Title)) -}}
+  {{- end -}}
+{{- end -}}
+<meta name="description" content="{{ $metaDescription | plainify | htmlUnescape | chomp | truncate 160 }}">
 <meta name="author" content="{{ (partial "author.html" . ) }}">
-<link rel="canonical" href="{{ if .Params.canonicalURL -}} {{ trim .Params.canonicalURL " " }} {{- else -}} {{ .Permalink }} {{- end }}">
+{{- $canonical := .Permalink -}}
+{{- with .Params.canonicalURL }}{{- $canonical = trim . " " -}}{{- end -}}
+<link rel="canonical" href="{{ $canonical }}">
+{{- if .IsPage }}
+<meta property="article:published_time" content="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}">
+<meta property="article:modified_time" content="{{ .Lastmod.Format "2006-01-02T15:04:05Z07:00" }}">
+{{- with .Section }}
+<meta property="article:section" content="{{ . }}">
+{{- end }}
+{{- range first 10 $keywords }}
+<meta property="article:tag" content="{{ . }}">
+{{- end }}
+{{- end }}
 {{- if site.Params.analytics.google.SiteVerificationTag }}
 <meta name="google-site-verification" content="{{ site.Params.analytics.google.SiteVerificationTag }}">
 {{- end }}
@@ -34,11 +72,6 @@
 {{- end }}
 {{- if site.Params.analytics.naver.SiteVerificationTag }}
 <meta name="naver-site-verification" content="{{ site.Params.analytics.naver.SiteVerificationTag }}">
-{{- end }}
-
-{{- /* Google Analytics 4 설정 (Phase 3.3) */ -}}
-{{- if site.Params.analytics.google }}
-<meta name="google-analytics" content="{{ site.Params.analytics.google }}">
 {{- end }}
 
 {{- /* Google AdSense 설정 (Phase 3.3) */ -}}

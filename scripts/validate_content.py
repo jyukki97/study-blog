@@ -5,13 +5,14 @@
 1) front matter 존재 여부
 2) posts 글의 필수 필드(title/date/description/tags)
 3) posts 글의 제목 중복
-4) 마크다운 내부 링크(/...) 경로 유효성
+4) 마크다운 내부 링크(/... + 상대경로) 유효성
 5) posts 글 최소 본문 길이(실질 내용) 확인
 6) 라우트 충돌(동일 URL 경로를 여러 문서가 점유) 확인
 """
 
 from __future__ import annotations
 
+import posixpath
 import re
 import sys
 from pathlib import Path
@@ -21,7 +22,8 @@ CONTENT_DIR = REPO / "content"
 STATIC_DIR = REPO / "static"
 
 FRONT_MATTER_RE = re.compile(r"^---\n(.*?)\n---\n", re.DOTALL)
-LINK_RE = re.compile(r"\[[^\]]+\]\((/[^)\s]+)\)")
+LINK_RE = re.compile(r"(?<!\!)\[[^\]]+\]\(([^)\s]+)\)")
+LEGACY_BASEURL_RE = re.compile(r"\{\{\s*site\.baseurl\s*\}\}", re.IGNORECASE)
 
 MIN_POST_BODY_CHARS = 1500
 
@@ -30,10 +32,29 @@ def normalize_route(path: str) -> str:
     path = path.strip()
     if not path.startswith("/"):
         path = "/" + path
+
+    # /a/../b 같은 경로 정규화
+    normalized = posixpath.normpath(path.lstrip("/"))
+    if normalized in {"", "."}:
+        path = "/"
+    else:
+        path = "/" + normalized
+
     # Hugo 콘텐츠 페이지는 trailing slash 기준으로 비교
-    if "." not in Path(path).name and not path.endswith("/"):
+    if path != "/" and "." not in Path(path).name and not path.endswith("/"):
         path += "/"
     return path
+
+
+def route_from_content_rel(rel: Path) -> str:
+    if rel.name == "_index.md":
+        route = "/" + rel.parent.as_posix().strip("/") + "/"
+    elif rel.name == "index.md":
+        route = "/" + rel.parent.as_posix().strip("/") + "/"
+    else:
+        route = "/" + rel.with_suffix("").as_posix().strip("/") + "/"
+
+    return normalize_route(route)
 
 
 def build_content_routes() -> tuple[set[str], dict[str, set[Path]]]:
@@ -55,14 +76,7 @@ def build_content_routes() -> tuple[set[str], dict[str, set[Path]]]:
                 continue
             routes.add(normalize_route("/" + parent.as_posix() + "/"))
 
-        if rel.name == "_index.md":
-            route = "/" + rel.parent.as_posix().strip("/") + "/"
-        elif rel.name == "index.md":
-            route = "/" + rel.parent.as_posix().strip("/") + "/"
-        else:
-            route = "/" + rel.with_suffix("").as_posix().strip("/") + "/"
-
-        route = normalize_route(route)
+        route = route_from_content_rel(rel)
         routes.add(route)
         route_to_files.setdefault(route, set()).add(md)
 
@@ -167,24 +181,73 @@ def main() -> int:
                         f"[content] 본문 길이 점검 필요({body_chars}자 < {MIN_POST_BODY_CHARS}자): {rel}"
                     )
 
+        if LEGACY_BASEURL_RE.search(text):
+            warnings.append(f"[content] '{{{{site.baseurl}}}}' 사용 감지(절대 경로 또는 absURL 권장): {rel}")
+
         # 내부 링크 점검
         for m in LINK_RE.finditer(text):
-            raw_link = m.group(1)
-            link_no_frag = raw_link.split("#", 1)[0].split("?", 1)[0]
-            normalized = normalize_route(link_no_frag)
+            raw_link = m.group(1).strip()
+            link_no_frag = raw_link.split("#", 1)[0].split("?", 1)[0].strip()
 
-            if link_no_frag.endswith(".md"):
-                warnings.append(f"[link] .md 직접 링크 사용(권장X): {rel} -> {raw_link}")
-
-            # 정적 리소스 링크(확장자 포함)는 static 기준
-            has_ext = "." in Path(link_no_frag).name
-            if has_ext:
-                if link_no_frag not in static_routes:
-                    errors.append(f"[link] 정적 파일 경로 없음: {rel} -> {raw_link}")
+            if not link_no_frag:
                 continue
 
-            if normalized not in routes:
-                errors.append(f"[link] 콘텐츠 경로 없음: {rel} -> {raw_link}")
+            # 외부/특수 스킴은 점검 대상 제외
+            if link_no_frag.startswith("#") or re.match(r"^[a-zA-Z][a-zA-Z0-9+.-]*:", link_no_frag):
+                continue
+
+            # 절대 경로(/...) 내부 링크
+            if link_no_frag.startswith("/"):
+                normalized = normalize_route(link_no_frag)
+
+                if link_no_frag.endswith(".md"):
+                    warnings.append(f"[link] .md 직접 링크 사용(권장X): {rel} -> {raw_link}")
+
+                # 정적 리소스 링크(확장자 포함)는 static 기준
+                has_ext = "." in Path(link_no_frag).name
+                if has_ext:
+                    if link_no_frag not in static_routes:
+                        errors.append(f"[link] 정적 파일 경로 없음: {rel} -> {raw_link}")
+                    continue
+
+                if normalized not in routes:
+                    errors.append(f"[link] 콘텐츠 경로 없음: {rel} -> {raw_link}")
+                continue
+
+            # 상대 경로 링크 점검
+            current_rel_dir = md.relative_to(CONTENT_DIR).parent
+            resolved_rel = Path(posixpath.normpath((current_rel_dir / link_no_frag).as_posix()))
+
+            if str(resolved_rel).startswith(".."):
+                errors.append(f"[link] 콘텐츠 루트 바깥 상대경로: {rel} -> {raw_link}")
+                continue
+
+            has_ext = "." in Path(link_no_frag).name
+
+            # 상대 .md 링크 점검
+            if has_ext and resolved_rel.suffix.lower() == ".md":
+                target_md = CONTENT_DIR / resolved_rel
+                if not target_md.exists():
+                    errors.append(f"[link] 상대 .md 대상 없음: {rel} -> {raw_link}")
+                    continue
+
+                warnings.append(f"[link] .md 직접 링크 사용(권장X): {rel} -> {raw_link}")
+                normalized = route_from_content_rel(target_md.relative_to(CONTENT_DIR))
+                if normalized not in routes:
+                    errors.append(f"[link] 콘텐츠 경로 없음: {rel} -> {raw_link}")
+                continue
+
+            # 상대경로 + 확장자 없음: 콘텐츠 라우트로 간주
+            if not has_ext:
+                normalized = normalize_route("/" + resolved_rel.as_posix())
+                if normalized not in routes:
+                    errors.append(f"[link] 콘텐츠 경로 없음: {rel} -> {raw_link}")
+                continue
+
+            # 상대경로 정적 리소스 링크는 실제 파일 존재 여부만 점검
+            target_file = (md.parent / link_no_frag).resolve()
+            if not target_file.exists():
+                warnings.append(f"[link] 상대 정적 리소스 대상 없음(확인 권장): {rel} -> {raw_link}")
 
     # 라우트 충돌 검사
     for route, files in route_to_files.items():

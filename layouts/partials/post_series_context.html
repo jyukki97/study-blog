@@ -1,0 +1,46 @@
+{{- $seriesName := .Params.series -}}
+{{- $projectName := .Params.project -}}
+{{- $hasContext := or $seriesName $projectName -}}
+{{- if $hasContext -}}
+  {{- $relatedInSeries := slice -}}
+  {{- if $seriesName -}}
+    {{- $relatedInSeries = where .Site.RegularPages "Params.series" $seriesName -}}
+  {{- else if $projectName -}}
+    {{- $relatedInSeries = where .Site.RegularPages "Params.project" $projectName -}}
+  {{- end -}}
+  {{- $relatedInSeries = where $relatedInSeries "Section" .Section -}}
+  {{- $relatedInSeries = sort $relatedInSeries "Date" "asc" -}}
+  {{- $currentIndex := -1 -}}
+  {{- range $idx, $page := $relatedInSeries -}}
+    {{- if eq $page.RelPermalink $.RelPermalink -}}
+      {{- $currentIndex = $idx -}}
+    {{- end -}}
+  {{- end -}}
+<section class="post-series-context" aria-label="시리즈 맥락">
+  <div class="post-series-context-header">
+    <div>
+      <p class="post-series-context-eyebrow">시리즈 읽기 맥락</p>
+      <h2>{{ $seriesName | default $projectName }}</h2>
+    </div>
+    <div class="post-series-context-badges">
+      {{- with $projectName }}<span>프로젝트: {{ . }}</span>{{- end }}
+      {{- with $seriesName }}<span>시리즈: {{ . }}</span>{{- end }}
+      {{- if ge $currentIndex 0 }}<span>{{ add $currentIndex 1 }}/{{ len $relatedInSeries }}편</span>{{- end }}
+    </div>
+  </div>
+  <p class="post-series-context-copy">같은 흐름의 글을 순서대로 보면 문제 발견, 설계 수정, 운영 관점이 더 또렷하게 이어집니다. 지금 글과 연결된 편들을 바로 이어서 볼 수 있게 묶었습니다.</p>
+  {{- if gt (len $relatedInSeries) 1 }}
+  <ol class="post-series-context-list">
+    {{- range $relatedInSeries }}
+    <li class="{{ if eq .RelPermalink $.RelPermalink }}is-current{{ end }}">
+      {{- if eq .RelPermalink $.RelPermalink }}
+      <span>{{ .Title }}</span>
+      {{- else }}
+      <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+      {{- end }}
+    </li>
+    {{- end }}
+  </ol>
+  {{- end }}
+</section>
+{{- end -}}

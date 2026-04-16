@@ -1,8 +1,10 @@
-{{- $module := .Params.module }}
+{{- $module := .Params.module -}}
+{{- $project := .Params.project -}}
+
 {{- if $module }}
 {{- /* Custom Module Logic */ -}}
 {{- $pages := where site.RegularPages "Params.module" $module }}
-{{- $pages := sort $pages "Params.study_order" "asc" }}
+{{- $pages = sort $pages "Params.study_order" "asc" }}
 
 {{- $current := . }}
 {{- $prevPage := "" }}
@@ -20,19 +22,106 @@
 {{- end }}
 
 {{- if or $prevPage $nextPage }}
-<nav class="paginav">
+<nav class="paginav" aria-label="학습 모듈 이전/다음 글">
     {{- with $prevPage }}
-    <a class="prev" href="{{ .Permalink }}">
-        <span class="title">« {{ i18n "prev_page" | default "Prev" }}</span>
+    <a class="prev" rel="prev" href="{{ .RelPermalink }}" aria-label="이전 글: {{ .Title }}">
+        <span class="title">« {{ i18n "prev_page" | default "이전 글" }}</span>
         <br>
         <span>{{- .Name -}}</span>
     </a>
     {{- end }}
     {{- with $nextPage }}
-    <a class="next" href="{{ .Permalink }}">
-        <span class="title">{{ i18n "next_page" | default "Next" }} »</span>
+    <a class="next" rel="next" href="{{ .RelPermalink }}" aria-label="다음 글: {{ .Title }}">
+        <span class="title">{{ i18n "next_page" | default "다음 글" }} »</span>
         <br>
         <span>{{- .Name -}}</span>
+    </a>
+    {{- end }}
+</nav>
+{{- end }}
+
+{{- else if $project }}
+{{- /* Project series navigation */ -}}
+{{- $pages := where site.RegularPages "Section" "posts" }}
+{{- $pages = where $pages "Params.project" $project }}
+{{- $pages = sort $pages "Date" "asc" }}
+
+{{- $current := . }}
+{{- $prevPage := "" }}
+{{- $nextPage := "" }}
+{{- $currentOrder := 0 }}
+
+{{- range $index, $page := $pages }}
+{{- if eq $page $current }}
+{{- $currentOrder = add $index 1 }}
+{{- if gt $index 0 }}
+{{- $prevPage = index $pages (sub $index 1) }}
+{{- end }}
+{{- if lt $index (sub (len $pages) 1) }}
+{{- $nextPage = index $pages (add $index 1) }}
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{- if and (gt $currentOrder 0) (or $prevPage $nextPage) }}
+<p class="project-series-progress"><strong>{{ $project }}</strong> 시리즈 {{ $currentOrder }}/{{ len $pages }} · <a href="{{ printf "/projects/%s/" ($project | urlize) | relURL }}">시리즈 허브</a></p>
+<nav class="paginav" aria-label="프로젝트 시리즈 이전/다음 글">
+    {{- with $prevPage }}
+    <a class="prev" rel="prev" href="{{ .RelPermalink }}" aria-label="이전 시리즈 글: {{ .Title }}">
+        <span class="title">« 이전 시리즈</span>
+        <br>
+        <span>{{- .Title -}}</span>
+    </a>
+    {{- end }}
+    {{- with $nextPage }}
+    <a class="next" rel="next" href="{{ .RelPermalink }}" aria-label="다음 시리즈 글: {{ .Title }}">
+        <span class="title">다음 시리즈 »</span>
+        <br>
+        <span>{{- .Title -}}</span>
+    </a>
+    {{- end }}
+</nav>
+{{- end }}
+
+{{- else if .Params.series }}
+{{- /* Named series navigation for trend and essay posts */ -}}
+{{- $series := .Params.series }}
+{{- $pages := where site.RegularPages "Params.series" $series }}
+{{- $pages = where $pages "Section" .Section }}
+{{- $pages = sort $pages "Date" "asc" }}
+
+{{- $current := . }}
+{{- $prevPage := "" }}
+{{- $nextPage := "" }}
+{{- $currentOrder := 0 }}
+
+{{- range $index, $page := $pages }}
+{{- if eq $page $current }}
+{{- $currentOrder = add $index 1 }}
+{{- if gt $index 0 }}
+{{- $prevPage = index $pages (sub $index 1) }}
+{{- end }}
+{{- if lt $index (sub (len $pages) 1) }}
+{{- $nextPage = index $pages (add $index 1) }}
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{- if and (gt $currentOrder 0) (or $prevPage $nextPage) }}
+<p class="project-series-progress"><strong>{{ $series }}</strong> 시리즈 {{ $currentOrder }}/{{ len $pages }}</p>
+<nav class="paginav" aria-label="시리즈 이전/다음 글">
+    {{- with $prevPage }}
+    <a class="prev" rel="prev" href="{{ .RelPermalink }}" aria-label="이전 시리즈 글: {{ .Title }}">
+        <span class="title">« 이전 시리즈</span>
+        <br>
+        <span>{{- .Title -}}</span>
+    </a>
+    {{- end }}
+    {{- with $nextPage }}
+    <a class="next" rel="next" href="{{ .RelPermalink }}" aria-label="다음 시리즈 글: {{ .Title }}">
+        <span class="title">다음 시리즈 »</span>
+        <br>
+        <span>{{- .Title -}}</span>
     </a>
     {{- end }}
 </nav>
@@ -42,17 +131,17 @@
 {{- /* Default Theme Logic for regular posts */ -}}
 {{- $pages := where site.RegularPages "Type" "in" site.Params.mainSections }}
 {{- if and (gt (len $pages) 1) (in $pages . ) }}
-<nav class="paginav">
+<nav class="paginav" aria-label="이전/다음 글">
     {{- with $pages.Next . }}
-    <a class="prev" href="{{ .Permalink }}">
-        <span class="title">« {{ i18n "prev_page" }}</span>
+    <a class="prev" rel="prev" href="{{ .RelPermalink }}" aria-label="이전 글: {{ .Title }}">
+        <span class="title">« {{ i18n "prev_page" | default "이전 글" }}</span>
         <br>
         <span>{{- .Name -}}</span>
     </a>
     {{- end }}
     {{- with $pages.Prev . }}
-    <a class="next" href="{{ .Permalink }}">
-        <span class="title">{{ i18n "next_page" }} »</span>
+    <a class="next" rel="next" href="{{ .RelPermalink }}" aria-label="다음 글: {{ .Title }}">
+        <span class="title">{{ i18n "next_page" | default "다음 글" }} »</span>
         <br>
         <span>{{- .Name -}}</span>
     </a>

@@ -5,7 +5,12 @@ draft: false
 tags: ["Go", "PostgreSQL", "Database", "Proxy", "COPY Protocol", "Deadlock", "Memory Leak", "Bug Fix"]
 categories: ["Database"]
 project: "pgmux"
-description: "pgmux에서 발견된 두 가지 CRITICAL 버그 — COPY 프로토콜 교착(Deadlock)과 Audit Logger의 무한 Map 메모리 누수 — 를 분석하고 수정한다."
+description: "pgmux에서 발견된 두 가지 CRITICAL 버그, COPY 프로토콜 교착과 Audit Logger의 무한 Map 메모리 누수를 분석하고 수정한다."
+keywords: ["postgres copy deadlock", "go map memory leak", "pgmux copy protocol", "audit logger dedup cleanup"]
+key_takeaways:
+  - "COPY 프로토콜은 ReadyForQuery만 기다리는 일반 릴레이 루프로 처리하면 방향 전환 지점에서 영구 교착이 생긴다."
+  - "Dedup용 map은 추가 로직만큼이나 eviction 전략이 중요하며, 없으면 저빈도 쿼리에서도 장기 누수가 난다."
+  - "프로토콜 상태 전환과 메모리 수명 주기를 테스트 코드로 고정해야 재발을 막을 수 있다."
 ---
 
 ## 들어가며
@@ -247,6 +252,23 @@ func TestAuditLogger_WebhookDedupCleanup(t *testing.T) {
 
 ---
 
+## 실무에서 재발을 막는 포인트
+
+이번 두 버그는 각각 다른 층위의 문제처럼 보여도, 실제로는 공통점이 있다. 둘 다 **상태가 바뀌는 순간을 코드가 명시적으로 모델링하지 않았다**는 점이다.
+
+COPY 교착은 "응답을 하나 받았으니 다음 응답도 백엔드에서 오겠지"라는 암묵적 가정이 깨진 사례다. PostgreSQL wire protocol에는 메시지 타입뿐 아니라, 특정 응답 이후 **누가 다음 메시지를 보내는지**가 중요하다. 이 전환을 함수 경계나 switch 문으로 고정하지 않으면, 평소에는 잘 돌다가 특정 프로토콜에서만 영구 대기 상태가 생긴다.
+
+Map 누수 역시 비슷하다. dedup 로직을 넣는 순간 데이터 구조는 더 이상 단순 저장소가 아니라 **시간 축을 가진 캐시**가 된다. 그런데 추가 경로만 구현하고 수명 종료 시점을 정의하지 않으면, 기능은 맞아 보여도 운영에서는 천천히 메모리를 갉아먹는다. 이런 누수는 부하 테스트보다 장시간 실서비스에서 먼저 드러나기 쉬워서 더 위험하다.
+
+그래서 비슷한 종류의 버그를 막으려면 아래 체크리스트를 강하게 가져가는 편이 좋다.
+
+- 프로토콜 구현은 `메시지 타입`뿐 아니라 `다음 발화자`까지 상태로 표현했는가?
+- 캐시, dedup, 세션 맵처럼 축적되는 자료구조에는 eviction 또는 TTL 경로가 있는가?
+- 정상 경로 테스트 외에 `방향 전환`, `장시간 실행`, `timeout` 시나리오가 있는가?
+- 버그 수정 후 로그와 메트릭으로 재발 조짐을 운영에서 잡을 수 있는가?
+
+특히 pgmux 같은 프록시는 [Prepared Statement Multiplexing](/posts/2026-03-12-pgmux-21-prepared-statement-multiplexing/)이나 [Connection Pooling](/posts/2026-03-11-pgmux-2-connection-pooling/)처럼 상태를 공유하는 기능이 많아서, 작은 누락도 쉽게 복합 장애로 번진다. 그래서 저는 이런 글을 단순 버그 회고보다, **앞으로 어떤 종류의 상태 전환을 더 엄격하게 다뤄야 하는지 남기는 설계 기록**으로 보는 편이다.
+
 ## 마무리
 
 두 버그 모두 코드 리뷰에서 놓치기 쉬운 패턴이다:
@@ -255,5 +277,7 @@ func TestAuditLogger_WebhookDedupCleanup(t *testing.T) {
 |------|------|------|
 | COPY 교착 | **프로토콜 상태 전환 누락** | PostgreSQL wire protocol에는 "누가 다음에 말하는가"가 바뀌는 지점이 있다. 모든 응답 타입을 switch로 처리해야 한다 |
 | Map 누수 | **추가만 하고 삭제 안 하는 map** | Go에서 map을 캐시/dedup으로 쓸 때는 반드시 eviction 로직을 함께 구현해야 한다 |
+
+이런 류의 문제는 기능 개발이 빨라질수록 더 자주 나온다. 그래서 기능 설명 글만 쌓는 것보다, 어떤 버그가 왜 생겼고 어떤 안전장치를 붙였는지를 함께 남겨 두는 편이 프로젝트 신뢰도에 훨씬 도움이 된다. 이후 Phase 20+에서도 새로운 기능을 넣을 때는 "정상 동작"만이 아니라 "상태 전환과 수명 종료를 어떻게 검증할 것인가"를 기본 질문으로 가져가야 한다.
 
 다음 글에서는 Phase 20+의 새로운 기능을 다룰 예정이다.

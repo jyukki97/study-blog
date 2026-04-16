@@ -1,8 +1,26 @@
 {{- define "main" }}
-{{- $curriculumOverview := site.GetPage "/learning/career/backend-curriculum-overview" }}
+{{- $curriculumOverview := site.GetPage "/learning/modules/backend-curriculum-overview" }}
 {{- $curriculumPages := where site.RegularPages "Params.topic" "Backend Roadmap" }}
 {{- $curriculumPages = where $curriculumPages "Params.module_key" "!=" "overview" }}
 {{- $curriculumPages = sort $curriculumPages "Weight" }}
+{{- $learningPosts := where site.RegularPages "Section" "learning" }}
+{{- $learningPosts = where $learningPosts "Params.topic" "!=" nil }}
+{{- $topicGroups := dict }}
+{{- range $learningPosts }}
+    {{- $topic := .Params.topic }}
+    {{- $existing := index $topicGroups $topic }}
+    {{- if $existing }}
+        {{- $topicGroups = merge $topicGroups (dict $topic ($existing | append .)) }}
+    {{- else }}
+        {{- $topicGroups = merge $topicGroups (dict $topic (slice .)) }}
+    {{- end }}
+{{- end }}
+{{- $topicNames := slice }}
+{{- range $topic, $_ := $topicGroups }}
+    {{- $topicNames = $topicNames | append $topic }}
+{{- end }}
+{{- $topicNames = sort $topicNames }}
+{{- $latestLearningPost := index ($learningPosts.ByDate.Reverse) 0 }}
 <div class="learning-container">
     <!-- 학습 히어로 섹션 -->
     <header class="learning-hero">
@@ -39,6 +57,29 @@
             <div class="floating-element"></div>
         </div>
     </header>
+
+    <section class="learning-stats" aria-label="Learning 현황 요약">
+        <article class="stats-card">
+            <span class="stats-label">모듈</span>
+            <strong class="stats-value">{{ len $curriculumPages }}개</strong>
+            <p class="stats-desc">기초부터 실전 Q&A까지 순서형 로드맵</p>
+        </article>
+        <article class="stats-card">
+            <span class="stats-label">학습 노트</span>
+            <strong class="stats-value">{{ len $learningPosts }}개</strong>
+            <p class="stats-desc">토픽별로 탐색하고 최신 글을 바로 확인</p>
+        </article>
+        <article class="stats-card">
+            <span class="stats-label">주제</span>
+            <strong class="stats-value">{{ len $topicNames }}개</strong>
+            <p class="stats-desc">Spring, Database, Kafka, DevOps 등으로 정리</p>
+        </article>
+        <article class="stats-card">
+            <span class="stats-label">최근 업데이트</span>
+            <strong class="stats-value">{{ $latestLearningPost.Date | time.Format "2006.01.02" }}</strong>
+            <p class="stats-desc">{{ $latestLearningPost.Title | truncate 42 }}</p>
+        </article>
+    </section>
 
     <!-- 백엔드 커리큘럼 섹션 -->
     <section class="learning-curriculum">
@@ -93,24 +134,10 @@
             <div class="section-line"></div>
         </div>
 
-        {{- /* 모든 learning 포스트를 topic별로 그룹화 */ -}}
-        {{- $learningPosts := where site.RegularPages "Section" "learning" }}
-        {{- $learningPosts = where $learningPosts "Params.topic" "!=" nil }}
-
-        {{- /* 수동으로 topic별 그룹화 */ -}}
-        {{- $topicGroups := dict }}
-        {{- range $learningPosts }}
-            {{- $topic := .Params.topic }}
-            {{- $existing := index $topicGroups $topic }}
-            {{- if $existing }}
-                {{- $topicGroups = merge $topicGroups (dict $topic ($existing | append .)) }}
-            {{- else }}
-                {{- $topicGroups = merge $topicGroups (dict $topic (slice .)) }}
-            {{- end }}
-        {{- end }}
-
         <div class="topics-list">
-            {{- range $topic, $posts := $topicGroups }}
+            {{- range $topicNames }}
+                {{- $topic := . }}
+                {{- $posts := index $topicGroups $topic }}
                 {{- $firstPost := index $posts 0 }}
                 {{- $latestPost := index (sort $posts "Date" "desc") 0 }}
                 <div class="topic-card" onclick="filterByTopic('{{ $topic }}')">
@@ -359,6 +386,42 @@
     50% {
         transform: translateY(-8px) translateZ(0);
     }
+}
+
+.learning-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    margin: -1rem 0 3rem;
+}
+
+.stats-card {
+    background: var(--entry);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 1.2rem 1.25rem;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.04);
+}
+
+.stats-label {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--secondary);
+    margin-bottom: 0.35rem;
+}
+
+.stats-value {
+    display: block;
+    font-size: 1.45rem;
+    color: var(--primary);
+    margin-bottom: 0.45rem;
+}
+
+.stats-desc {
+    margin: 0;
+    color: var(--secondary);
+    line-height: 1.55;
+    font-size: 0.92rem;
 }
 
 /* 커리큘럼 섹션 */
@@ -934,6 +997,11 @@
     .learning-hero {
         padding: 3rem 1.5rem;
         margin-bottom: 3rem;
+    }
+
+    .learning-stats {
+        margin-top: -0.5rem;
+        margin-bottom: 2.2rem;
     }
 
     .hero-title {

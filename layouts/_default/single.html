@@ -31,6 +31,17 @@
         {{ .Description }}
       </div>
       {{- end }}
+      {{- with .Params.key_takeaways }}
+      <section class="post-key-takeaways" aria-label="핵심 요약">
+        <h2>핵심 요약</h2>
+        <ul>
+          {{- range . }}
+          <li>{{ . }}</li>
+          {{- end }}
+        </ul>
+      </section>
+      {{- end }}
+      {{- partial "post_series_context.html" . }}
       {{- if not (.Param "hideMeta") }}
       <div class="post-meta">
         {{- partial "post_meta.html" . -}}
@@ -49,25 +60,13 @@
       {{- $tags := .Language.Params.Taxonomies.tag | default "tags" }}
       {{- $terms := ($.GetTerms $tags) }}
       {{- if gt (len $terms) 0 }}
-      <style>
-        #tag-list {
-          display: flex;
-          flex-wrap: wrap;
-          max-height: 3.2em;
-          overflow: hidden;
-          gap: 0.5em;
-          margin-bottom: 0.5em;
-        }
-
-        #show-more-tags {
-          background: none;
-          border: none;
-          color: #007aff;
-          cursor: pointer;
-          font-size: 1em;
-          margin-left: 0.5em;
-        }
-      </style>
+      <div class="post-tags-container" aria-label="태그 목록">
+        <ul class="post-tags" id="tag-list">
+          {{- range $terms }}
+          <li><a href="{{ .Permalink }}">{{ .LinkTitle }}</a></li>
+          {{- end }}
+        </ul>
+      </div>
       {{- end }}
     </header>
     {{- $isHidden := (.Param "cover.hiddenInSingle") | default (.Param "cover.hidden") | default false }}
@@ -139,12 +138,50 @@
       {{- end }}
     </footer>
 
-    {{- $related := .Site.RegularPages.Related . | first 3 }}
+    {{- if eq .Section "posts" }}
+    <section class="post-reading-path" aria-label="추천 읽기 경로">
+      <h3>다음 추천 경로</h3>
+      <p>이 글을 다 읽었다면 아카이브, 심화 학습, 프로젝트 시리즈로 이어서 탐색해 보세요.</p>
+      <div class="post-reading-path-links">
+        <a href="{{ "/posts/" | relURL }}">전체 아카이브 보기</a>
+        <a href="{{ "/learning/deep-dive/" | relURL }}">심화 학습 글 보기</a>
+        <a href="{{ "/projects/" | relURL }}">프로젝트 글 보기</a>
+      </div>
+    </section>
+    {{- end }}
+
+    {{- $related := slice -}}
+    {{- $relatedPermalinks := slice -}}
+
+    {{- /* 프로젝트 시리즈 글은 동일 project 글을 우선 노출해 내부 탐색성을 높인다. */ -}}
+    {{- with .Params.project -}}
+      {{- $projectPages := where $.Site.RegularPages "Params.project" . -}}
+      {{- $projectPages = where $projectPages "RelPermalink" "ne" $.RelPermalink -}}
+      {{- $projectPages = sort $projectPages "Date" "desc" -}}
+      {{- range first 3 $projectPages -}}
+        {{- $related = $related | append . -}}
+        {{- $relatedPermalinks = $relatedPermalinks | append .RelPermalink -}}
+      {{- end -}}
+    {{- end -}}
+
+    {{- if lt (len $related) 3 -}}
+      {{- $fallbackRelated := .Site.RegularPages.Related . -}}
+      {{- range $fallbackRelated -}}
+        {{- if and (ne .RelPermalink $.RelPermalink) (not (in $relatedPermalinks .RelPermalink)) -}}
+          {{- $related = $related | append . -}}
+          {{- $relatedPermalinks = $relatedPermalinks | append .RelPermalink -}}
+        {{- end -}}
+        {{- if ge (len $related) 3 -}}
+          {{- break -}}
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
+
     {{- if gt (len $related) 0 }}
     <nav class="related-posts" aria-label="관련 글">
       <h3>관련 글</h3>
       <div class="related-posts-grid">
-        {{- range $related }}
+        {{- range first 3 $related }}
         {{- $cover := .Param "cover.image" }}
         <article class="related-post {{ if $cover }}has-image{{ else }}no-image{{ end }}">
           {{- if $cover }}

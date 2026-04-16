@@ -1,28 +1,55 @@
 ---
 title: "Go로 PostgreSQL 프록시 만들기 (2) - 커넥션 풀링 직접 구현"
 date: 2026-03-11
+lastmod: 2026-04-02
 draft: false
 tags: ["Go", "PostgreSQL", "Database", "Proxy", "Connection Pool", "Concurrency"]
+keywords: ["PostgreSQL 커넥션 풀", "Go 커넥션 풀 구현", "acquire release", "idle timeout", "max lifetime"]
 categories: ["Database"]
 project: "pgmux"
-description: "Go의 mutex와 channel을 활용해 커넥션 풀을 직접 구현한다. idle timeout, max lifetime, 헬스체크까지."
+description: "Go의 mutex와 channel을 조합해 PostgreSQL 프록시용 커넥션 풀을 설계·구현한다. acquire/release 흐름, timeout, 헬스체크, 운영 체크리스트까지 실전 관점으로 정리했다."
 ---
 
 ## 들어가며
 
-> DB 커넥션 하나 만드는 데 TCP 핸드셰이크 + PG 인증까지 수십 ms가 걸린다.
-> 요청마다 새 커넥션을 만드는 건 낭비다. 풀링으로 재사용하자.
+> DB 커넥션 하나 만드는 데 TCP 핸드셰이크 + PG 인증까지 수 ms~수십 ms가 걸린다.
+> 요청마다 새 커넥션을 만드는 건 결국 지연시간과 DB 부하를 동시에 키우는 선택이다.
 
-이전 글에서 PG wire protocol로 기본 프록시를 만들었다. 지금은 클라이언트가 접속할 때마다 백엔드에 새 TCP 연결을 맺는다. 이번에는 **커넥션 풀**을 만들어서 미리 생성해둔 연결을 돌려쓰도록 한다.
+[이전 글](/posts/2026-03-11-pgmux-1-pg-wire-protocol/)에서 PG wire protocol로 기본 프록시를 만들었다. 하지만 그 상태에선 클라이언트 요청마다 백엔드 연결을 새로 맺는다. 트래픽이 조금만 올라가도 응답시간 꼬리가 길어지고, 피크 구간에서 DB 인증 부하가 급격히 튄다.
+
+이번 글의 목표는 단순히 "풀을 만들었다"가 아니다.
+
+- **지연시간 절감**: 연결 생성 비용을 요청 경로에서 제거
+- **안정성 확보**: 오래되거나 오염된 커넥션을 자동 폐기
+- **운영 가능성 강화**: timeout/메트릭/헬스체크로 장애를 관측 가능하게 만들기
+
+즉, 성능 최적화이면서 동시에 운영 안정화 작업이다.
 
 ## 왜 풀링이 필요한가
 
-```
+```text
 커넥션 없이: 요청 → TCP 연결(~1ms) → PG 인증(~5ms) → 쿼리(~1ms) → 연결 종료
 커넥션 풀링: 요청 → 풀에서 꺼냄(~0.01ms) → 쿼리(~1ms) → 풀에 반환
 ```
 
-매번 5ms 이상 절약된다. 동시 요청이 많아질수록 효과가 커진다.
+요청당 5ms만 줄어도 트래픽이 쌓이면 체감 차이는 매우 크다. 특히 p95/p99 구간은 연결 생성 지연과 인증 지연이 겹치면서 급격히 나빠진다. 풀링은 평균 성능보다 **꼬리 지연(tail latency)** 방어에 더 큰 효과가 있다.
+
+그리고 중요한 점 하나: 풀링은 단순 캐시가 아니라 **동시성 제어 장치**다. DB에 동시에 열 수 있는 연결 수를 상한으로 고정함으로써, 트래픽 급증 시에도 시스템이 무너지는 대신 대기/타임아웃으로 "예측 가능한 실패"를 하게 만든다.
+
+## 설계 원칙
+
+커넥션 풀을 구현할 때 아래 4가지를 먼저 고정했다.
+
+1. **빠른 경로(Fast Path)는 단순하게**
+   - idle 커넥션이 있으면 즉시 반환
+2. **느린 경로(Slow Path)는 안전하게**
+   - 새 연결 생성 실패, 대기 타임아웃, 컨텍스트 취소를 분리 처리
+3. **수명 관리 명시화**
+   - `idle_timeout`, `max_lifetime`를 강제해 썩은 커넥션 제거
+4. **관측 가능성 내장**
+   - `open`, `idle`, `acquire_wait`, `acquire_timeout` 메트릭 추적
+
+이 원칙을 잡고 구현하면, 기능이 늘어나도 풀 자체가 점점 불안정해지는 걸 막을 수 있다.
 
 ## 자료구조 설계
 
@@ -42,7 +69,7 @@ type Conn struct {
 }
 ```
 
-`idle`을 슬라이스로 쓰고 LIFO(Last In, First Out) 방식으로 꺼낸다. 최근에 사용한 커넥션을 먼저 재사용하면 오래된 커넥션이 자연스럽게 idle timeout에 걸려 정리된다.
+`idle`을 LIFO로 사용한 이유는 단순하다. 최근에 성공적으로 쓰인 커넥션을 먼저 재사용하면, 오래 방치된 연결은 뒤로 밀리면서 자연스럽게 timeout 대상이 된다. 구현은 단순해지는데 안정성은 올라간다.
 
 ## Acquire 흐름
 
@@ -89,9 +116,9 @@ func (p *Pool) Acquire(ctx context.Context) (*Conn, error) {
 ```
 
 핵심 포인트:
-- **1단계**에서 꺼낼 때 `idle_timeout`과 `max_lifetime`을 체크한다. 만료된 커넥션은 닫고 다음 걸 시도한다.
-- **2단계**에서 `numOpen`을 먼저 증가시킨 후 lock을 풀고 커넥션을 생성한다. 생성에 실패하면 `numOpen`을 다시 감소시킨다.
-- **3단계**에서 채널 기반 대기를 한다. Release 시 채널에 시그널을 보내면 깨어난다.
+- **만료 커넥션은 즉시 폐기**해서 오염/유휴 누적을 막는다.
+- `numOpen` 증감은 lock 경계에서 일관되게 관리해야 한다.
+- 대기 루프는 무한 재시도가 아니라 **timeout + ctx cancellation**을 같이 둬야 서비스가 멈추지 않는다.
 
 ## Release
 
@@ -111,9 +138,11 @@ func (p *Pool) Release(conn *Conn) {
 }
 ```
 
+`default`를 둔 non-blocking send가 중요하다. 대기자가 없는데 시그널 전송에서 막히면 Release가 병목이 된다.
+
 ## 헬스체크 고루틴
 
-주기적으로 idle 커넥션을 점검하고, 만료된 것은 제거하고, `min_connections` 미만이면 보충한다:
+주기적으로 idle 커넥션을 점검하고, 만료된 것은 제거하고, `min_connections` 미만이면 보충한다.
 
 ```go
 func (p *Pool) healthCheck() {
@@ -141,22 +170,40 @@ func (p *Pool) healthCheck() {
 }
 ```
 
-`alive := p.idle[:0]`은 기존 슬라이스의 backing array를 재사용하면서 길이만 0으로 만드는 Go 관용구다. 새 메모리 할당 없이 필터링할 수 있다.
+`alive := p.idle[:0]` 패턴은 메모리 재할당 없이 필터링해서 GC 압력을 줄인다. 작은 최적화지만 장기 운영에서 차이가 난다.
+
+## 운영에서 반드시 넣어야 할 방어장치
+
+코드가 돌아가는 것과 운영에서 버티는 것은 다르다. 풀링에서 특히 자주 터지는 지점을 체크리스트로 정리하면 아래와 같다.
+
+### 1) 커넥션 오염 방지
+- 트랜잭션 열린 상태로 반환되지 않게 강제 (`ROLLBACK` 또는 세션 초기화)
+- fatal error를 만난 커넥션은 재사용 금지
+
+### 2) 대기열 폭주 방지
+- `connection_timeout` 상한을 명확히 둔다
+- API 레이어 timeout과 풀 timeout의 우선순위를 맞춘다
+
+### 3) 설정 변경 안전성
+- `max_connections` 축소 시 즉시 강제 종료보다 점진적 감소 전략을 택한다
+- 리로드 중에도 in-flight 요청은 보존한다
+
+### 4) 관측 지표
+- `pool_open`, `pool_idle`, `acquire_wait_ms`, `acquire_timeout_total` 최소 4개는 기본
+- 타임아웃이 늘면 DB 느림이 원인인지, 풀 사이즈 부족인지 구분 가능해야 한다
 
 ## Mutex vs Channel
-
-커넥션 풀 구현에서 가장 고민한 부분이다.
 
 | 방식 | 장점 | 단점 |
 |------|------|------|
 | `sync.Mutex` | 직관적, idle 슬라이스 직접 조작 가능 | 대기 로직이 별도 필요 |
-| `chan *Conn` | select로 대기/타임아웃 자연스럽게 처리 | idle 만료 체크가 까다로움 |
+| `chan *Conn` | select로 대기/타임아웃 자연스럽게 처리 | idle 만료 체크/상태 추적이 복잡 |
 
-최종적으로 **Mutex + 시그널 Channel 조합**을 택했다. idle 관리는 mutex로, 대기는 channel로 각자 장점을 살렸다.
+최종 선택은 **Mutex + 시그널 Channel 조합**이었다. 상태 관리는 mutex로 단단하게, 대기는 channel로 단순하게 가져가면 구현 복잡도와 디버깅 난이도 둘 다 낮출 수 있다.
 
 ## 테스트 결과
 
-```
+```text
 TestPool_NewCreatesMinConnections   ✅ min=3으로 설정 → 3개 사전 생성
 TestPool_AcquireRelease             ✅ 같은 포인터 반환 (재사용 확인)
 TestPool_AcquireTimeout             ✅ max=1, 2번째 Acquire → 타임아웃 에러
@@ -165,8 +212,16 @@ TestPool_MaxLifetime                ✅ 50ms 후 → 새 커넥션 생성됨
 TestPool_HealthCheck                ✅ 만료 제거 후 min까지 보충됨
 ```
 
+여기서 끝내지 않고, 실제로는 "오염된 커넥션 반환", "Acquire 대기 중 context cancel", "연속 리로드 중 동시 Acquire" 같은 운영 시나리오 테스트를 추가하는 게 좋다. 단위 테스트보다 느리지만 장애 예방 효과가 훨씬 크다.
+
+## 관련 글
+
+- 1편: [PG Wire Protocol 이해](/posts/2026-03-11-pgmux-1-pg-wire-protocol/)
+- 3편: [읽기/쓰기 자동 분산](/posts/2026-03-11-pgmux-3-rw-routing/)
+- 장애 복구 관점 확장: [커넥션 풀 오염과 Panic 격리](/posts/2026-03-12-pgmux-23-pool-poisoning-and-panic-recovery/)
+
 ## 마무리
 
-커넥션 풀은 결국 **공유 자원(커넥션들)의 동시성 관리** 문제다. Go의 mutex와 channel을 적절히 조합하면 꽤 깔끔하게 구현할 수 있다.
+커넥션 풀은 "속도" 기능처럼 보이지만 실은 **자원 상한 제어와 장애 완충 장치**에 가깝다. 제대로 만든 풀은 트래픽이 급증해도 시스템을 깨뜨리지 않고, 문제를 관측 가능한 형태로 드러내 준다.
 
-다음 글에서는 이 풀을 Writer/Reader로 나누고, 쿼리를 파싱해서 **읽기/쓰기를 자동으로 분산**하는 라우팅 로직을 추가한다.
+다음 글에서는 이 풀을 Writer/Reader로 나누고, 쿼리를 파싱해 **읽기/쓰기를 자동 분산**하는 라우팅 로직을 붙인다. 풀링이 기초 체력이라면, 라우팅은 실제 성능과 일관성을 결정하는 경기 운영이다.

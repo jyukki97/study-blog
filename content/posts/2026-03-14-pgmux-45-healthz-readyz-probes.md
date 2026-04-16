@@ -6,6 +6,8 @@ tags: ["Go", "PostgreSQL", "Database", "Proxy", "Kubernetes", "Health Check", "L
 categories: ["Database"]
 project: "pgmux"
 description: "LB/K8s 연동을 위한 /healthz(liveness)와 /readyz(readiness) 경량 헬스체크 엔드포인트를 구현한다. 기존 /admin/health와의 역할 분리, 인증 없는 probe 설계를 다룬다."
+lastmod: 2026-04-01T11:30:00+09:00
+keywords: ["kubernetes readiness probe", "liveness probe", "go health check", "pgmux 운영", "db proxy health endpoint"]
 ---
 
 ## 들어가며
@@ -143,6 +145,28 @@ readinessProbe:
 
 - Liveness는 10초 간격으로 느슨하게 체크
 - Readiness는 5초 간격으로 빠르게 체크하여 Writer 장애 시 빠른 트래픽 차단
+
+### 운영 체크리스트: 장애 전파를 막는 Probe 튜닝
+
+실무에서 가장 자주 터지는 문제는 코드 버그보다 **probe 파라미터 불일치**다. 로컬/스테이징에서 잘 동작해도 프로덕션에서 장애가 커지는 이유가 여기에 있다. 아래 5가지는 배포 전에 반드시 확인하는 편이 좋다.
+
+1. `timeoutSeconds`는 네트워크 RTT의 2~3배 이상으로 둔다. 너무 짧으면 일시 지연을 장애로 오인한다.
+2. `failureThreshold`는 liveness와 readiness를 다르게 둔다. liveness가 너무 민감하면 불필요 재시작 폭풍이 난다.
+3. `initialDelaySeconds`는 실제 부팅 시간(설정 로드 + 첫 연결 준비)을 기준으로 잡는다.
+4. `/readyz`가 실패할 때 응답 본문에 최소한의 원인(어떤 그룹 writer 실패인지)을 남긴다.
+5. 배포 직후 10~15분은 `kubectl describe pod` 이벤트와 `/admin/health` 결과를 함께 본다.
+
+특히 4번은 운영자 체감이 크다. readiness 실패가 발생했는데 로그만으로 원인이 안 보이면, 장애 대응 시간이 즉시 늘어난다. 이미 [QA 발견 6개 버그 정리](/posts/2026-03-14-pgmux-46-qa-findings-six-bugs/)에서 확인했듯이, 작은 가시성 결핍이 실제 복구 시간을 크게 늘린다.
+
+### 롤백 전략: probe 분리 배포는 반드시 단계적으로
+
+`/healthz`/`/readyz` 분리는 안전해 보이지만, 기존 인프라가 `/admin/health`를 전제로 작성되어 있으면 예상치 못한 장애가 생길 수 있다. 따라서 아래 순서를 권장한다.
+
+- **1단계(호환 배포)**: 새 엔드포인트를 먼저 추가하고, 기존 경로는 유지한다.
+- **2단계(관측 배포)**: readiness만 새 경로로 전환해 1~2일 관찰한다.
+- **3단계(완전 전환)**: liveness도 전환하고, LB 설정과 대시보드 알람 임계값을 맞춘다.
+
+롤백은 간단해야 한다. 배포 파이프라인에서 probe path를 즉시 되돌릴 수 있게 values 파일(또는 Helm override)을 분리해 두면 된다. 이 방식은 이후 [Online Maintenance Mode](/posts/2026-03-16-pgmux-49-online-maintenance-mode/)나 [Read-Only Mode](/posts/2026-03-16-pgmux-50-read-only-mode/)를 도입할 때도 동일하게 재사용할 수 있다.
 
 ---
 

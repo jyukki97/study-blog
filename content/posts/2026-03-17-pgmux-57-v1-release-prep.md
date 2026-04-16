@@ -131,6 +131,16 @@ config:
   watch: false  # true: fsnotify로 설정 파일 변경 감시 (hot-reload)
 ```
 
+## 출시 직전 최종 확인 포인트
+
+문서 정리는 종종 "출시 직전에 시간 남으면 하는 일"로 밀리지만, 실제로는 운영 리스크를 줄이는 마지막 방어선이다. README와 CHANGELOG가 코드와 어긋나 있으면 사용자 온보딩이 틀어지고, 장애가 났을 때도 어떤 기능이 어느 시점에 들어갔는지 추적이 어려워진다. 그래서 저는 릴리즈 직전 확인을 코드, 문서, 배포 산출물 세 축으로 본다.
+
+- 코드 축: [QA Round 6](/posts/2026-03-17-pgmux-55-qa-round6-parser-bypass/)와 [QA Round 7](/posts/2026-03-17-pgmux-56-qa-round7-pre-release/)에서 막은 이슈가 릴리즈 브랜치에 모두 반영됐는지 확인
+- 문서 축: README, Helm values, Admin API 예제, TLS 설정 예시가 현재 바이너리 동작과 일치하는지 확인
+- 산출물 축: 태그, Docker 이미지, GitHub Release note, 이후 포스트인 [SQL Redaction](/posts/2026-03-17-pgmux-58-sql-redaction/)처럼 즉시 이어질 후속 계획까지 연결
+
+이 과정을 해두면 v1.0.0은 단순히 "태그를 찍었다"가 아니라, 외부 사용자가 실제로 설치하고 운영할 수 있는 첫 버전이 된다. 릴리즈 준비 글이 별도 편으로 존재하는 이유도 바로 이 전환점을 분명히 남기기 위해서다.
+
 ---
 
 ## 릴리즈 절차

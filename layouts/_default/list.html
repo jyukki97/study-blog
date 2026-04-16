@@ -43,10 +43,33 @@
             <h2>Posts</h2>
         </div>
 
+        {{ if and (not .IsHome) .Content }}
+            <section class="list-intro" aria-label="페이지 소개">
+                <div class="list-intro-content">
+                    {{ .Content }}
+                </div>
+                <div class="list-intro-stats" aria-label="아카이브 현황">
+                    <div class="intro-stat-card">
+                        <span class="intro-stat-label">전체 포스트</span>
+                        <strong>{{ len (where .Site.RegularPages "Section" "posts") }}</strong>
+                    </div>
+                    <div class="intro-stat-card">
+                        <span class="intro-stat-label">심화 학습</span>
+                        <strong>{{ len (where .Site.RegularPages "Section" "learning") }}</strong>
+                    </div>
+                    <div class="intro-stat-card">
+                        <span class="intro-stat-label">태그 수</span>
+                        <strong>{{ len .Site.Taxonomies.tags }}</strong>
+                    </div>
+                </div>
+            </section>
+        {{ end }}
+
         <div class="post-toolbar" role="search" aria-label="포스트 빠른 검색">
             <input id="post-search-input" type="search" placeholder="제목/설명/태그로 검색" autocomplete="off" />
             <button id="post-search-clear" type="button" aria-label="검색어 지우기">초기화</button>
         </div>
+        <p class="post-toolbar-status" id="post-toolbar-status" aria-live="polite"></p>
 
         <div class="post-grid">
             {{ $pages := .Pages }}
@@ -68,7 +91,7 @@
                          data-topic="{{ if .Params.topic }}{{ .Params.topic }}{{ end }}"
                          data-section="{{ .Section }}"
                          data-title="{{ .Title | lower }}"
-                         data-summary="{{ with .Description }}{{ . | plainify | lower }}{{ end }}">
+                         data-summary="{{ with .Description }}{{ . | plainify | lower }}{{ else }}{{ .Summary | plainify | lower }}{{ end }}">
                     {{ if .Params.cover.image }}
                         <a class="post-cover" href="{{ .Permalink }}">
                             <img src="{{ .Params.cover.image | absURL }}" alt="{{ .Title }}">
@@ -150,10 +173,63 @@
 }
 
 .post-toolbar {
-    display: none;
+    display: flex;
     gap: 0.6rem;
     align-items: center;
-    padding: 0 1rem 1.2rem;
+    padding: 0 1rem 0.5rem;
+}
+
+.post-toolbar-status {
+    margin: 0 1rem 1.2rem;
+    color: var(--secondary);
+    font-size: 0.92rem;
+}
+
+.list-intro {
+    margin: 0 1rem 1.4rem;
+    padding: 1.2rem;
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-radius: 16px;
+    background: linear-gradient(180deg, rgba(177, 156, 217, 0.08), rgba(177, 156, 217, 0.02));
+}
+
+.list-intro-content {
+    color: var(--secondary);
+    line-height: 1.8;
+}
+
+.list-intro-content > *:first-child {
+    margin-top: 0;
+}
+
+.list-intro-content > *:last-child {
+    margin-bottom: 0;
+}
+
+.list-intro-stats {
+    margin-top: 1rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+}
+
+.intro-stat-card {
+    padding: 0.9rem 1rem;
+    border-radius: 14px;
+    background: var(--entry);
+    border: 1px solid rgba(177, 156, 217, 0.16);
+}
+
+.intro-stat-card strong {
+    display: block;
+    margin-top: 0.25rem;
+    font-size: 1.35rem;
+    color: var(--primary);
+}
+
+.intro-stat-label {
+    font-size: 0.85rem;
+    color: var(--secondary);
 }
 
 .post-toolbar input[type="search"] {
@@ -671,6 +747,16 @@
     color: #e5e7eb;
 }
 
+[data-theme="dark"] .list-intro {
+    border-color: #4a5568;
+    background: linear-gradient(180deg, rgba(177, 156, 217, 0.16), rgba(177, 156, 217, 0.05));
+}
+
+[data-theme="dark"] .intro-stat-card {
+    background: rgba(45, 55, 72, 0.9);
+    border-color: rgba(177, 156, 217, 0.22);
+}
+
 [data-theme="dark"] #post-search-clear {
     background: var(--bg-tertiary, #4a5568);
     border-color: #64748b;
@@ -754,10 +840,23 @@
     }
 
     .post-toolbar {
-        display: none;
+        display: flex;
         padding: 0 1rem 1rem;
         flex-direction: column;
         align-items: stretch;
+    }
+
+    .post-toolbar-status {
+        margin: 0 1rem 1rem;
+    }
+
+    .list-intro {
+        margin: 0 1rem 1.1rem;
+        padding: 1rem;
+    }
+
+    .list-intro-stats {
+        grid-template-columns: 1fr;
     }
 
     #post-search-clear {
@@ -967,6 +1066,17 @@ function applyCombinedFilters() {
     if (currentSearchQuery) label = `검색: ${currentSearchQuery}`;
 
     updatePostHeader(label, visibleCount, totalCount);
+
+    const toolbarStatus = document.getElementById('post-toolbar-status');
+    if (toolbarStatus) {
+        if (visibleCount === 0) {
+            toolbarStatus.textContent = '조건에 맞는 글이 없어요. 검색어나 태그를 조금 넓혀보세요.';
+        } else if (label) {
+            toolbarStatus.textContent = `${visibleCount}개의 글을 찾았어요.`;
+        } else {
+            toolbarStatus.textContent = `전체 ${visibleCount}개의 글을 보고 있어요.`;
+        }
+    }
 }
 
 function filterPostsByTag(tagName, clickedElement) {
