@@ -1,0 +1,356 @@
+{{- if and (not .IsHome) (eq .Section "posts") -}}
+  {{- $allPostPages := where .Site.RegularPages "Section" "posts" -}}
+  {{- $recentPosts := first 3 ($allPostPages.ByDate.Reverse) -}}
+  {{- $latestPost := "" -}}
+  {{- if gt (len $recentPosts) 0 -}}
+    {{- $latestPost = index $recentPosts 0 -}}
+  {{- end -}}
+  {{- $deepDivePages := where .Site.RegularPages "Section" "learning" -}}
+  {{- $deepDiveCount := len $deepDivePages -}}
+  {{- $latestDeepDive := "" -}}
+  {{- $recentDeepDives := first 1 ($deepDivePages.ByDate.Reverse) -}}
+  {{- if gt (len $recentDeepDives) 0 -}}
+    {{- $latestDeepDive = index $recentDeepDives 0 -}}
+  {{- end -}}
+  {{- $projectPosts := where $allPostPages "Params.project" "!=" nil -}}
+  {{- $latestProjectPost := "" -}}
+  {{- $recentProjectPosts := first 1 ($projectPosts.ByDate.Reverse) -}}
+  {{- if gt (len $recentProjectPosts) 0 -}}
+    {{- $latestProjectPost = index $recentProjectPosts 0 -}}
+  {{- end -}}
+  {{- $projectSeries := slice -}}
+  {{- range $projectName, $projectPages := $projectPosts.GroupByParam "project" -}}
+    {{- $projectSeries = $projectSeries | append (dict "name" $projectName "count" (len $projectPages.Pages)) -}}
+  {{- end -}}
+  {{- $projectSeries = sort $projectSeries "count" "desc" -}}
+  {{- $projectCount := len $projectSeries -}}
+  {{- $projectPostCount := len $projectPosts -}}
+  <section class="archive-hub" aria-label="추천 탐색 허브">
+    <div class="archive-hub-header">
+      <div>
+        <p class="archive-hub-eyebrow">추천 탐색 허브</p>
+        <h2>어디서부터 읽어야 할지 바로 고를 수 있게 정리했습니다.</h2>
+      </div>
+      <p class="archive-hub-copy">최신 글만 훑기보다, 지금 필요한 목적에 맞는 경로로 들어가면 중복 읽기와 맥락 손실이 훨씬 줄어듭니다.</p>
+    </div>
+
+    <div class="archive-hub-grid">
+      <article class="archive-hub-card archive-hub-card-primary">
+        <span class="archive-hub-badge">오늘 시작점</span>
+        {{- with $latestPost }}
+          <h3><a href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
+          <p>{{ .Description | default (.Summary | plainify | truncate 120) }}</p>
+          <ul>
+            <li>최신 운영 이슈와 실무 해석을 가장 빠르게 파악</li>
+            <li>관련 글, FAQ, 체크리스트까지 한 번에 연결</li>
+          </ul>
+        {{- end }}
+      </article>
+
+      <article class="archive-hub-card">
+        <span class="archive-hub-badge">깊게 공부할 때</span>
+        <h3><a href="{{ "/learning/deep-dive/" | relURL }}">심화 학습 글로 바로 이동</a></h3>
+        <p>개념, 예시, 운영 관점까지 더 깊게 보강하고 싶다면 심화 학습 영역으로 이어서 보는 편이 훨씬 효율적입니다.</p>
+        <ul>
+          <li>심화 학습 글 {{ $deepDiveCount }}개 연결</li>
+          <li>트렌드 글과 개념 글을 자연스럽게 왕복 가능</li>
+        </ul>
+      </article>
+
+      <article class="archive-hub-card">
+        <span class="archive-hub-badge">구현 맥락 보기</span>
+        <h3><a href="{{ "/projects/" | relURL }}">프로젝트 글로 이어 보기</a></h3>
+        <p>개념과 트렌드가 실제 구현 선택으로 어떻게 이어졌는지 보고 싶다면 프로젝트 문맥으로 이동하는 흐름이 잘 맞습니다.</p>
+        <ul>
+          <li>프로젝트 시리즈 {{ $projectCount }}개, 관련 글 {{ $projectPostCount }}편 탐색</li>
+          <li>설계 변경 이유와 trade-off를 함께 확인</li>
+        </ul>
+        {{- if gt $projectCount 0 }}
+        <div class="archive-hub-project-links" aria-label="대표 프로젝트 시리즈">
+          {{- range first 3 $projectSeries }}
+          <a href="{{ (printf "/posts/?project=%s" (.name | urlquery)) | relURL }}">{{ .name }} <span>{{ .count }}편</span></a>
+          {{- end }}
+        </div>
+        {{- end }}
+      </article>
+    </div>
+
+    <div class="archive-hub-guides" aria-label="목적별 빠른 읽기">
+      <div class="archive-hub-guides-header">
+        <h3>목적별 15분 읽기</h3>
+        <p>지금 필요한 목적이 분명하면, 아래 3개 경로 중 하나로 바로 시작하는 편이 훨씬 덜 헤맵니다.</p>
+      </div>
+      <div class="archive-hub-guides-grid">
+        {{- with $latestPost }}
+        <article class="archive-guide-card">
+          <span class="archive-hub-badge">운영 트렌드</span>
+          <h4><a href="{{ .RelPermalink }}">{{ .Title }}</a></h4>
+          <p>{{ .Description | default (.Summary | plainify | truncate 110) }}</p>
+          <ul>
+            <li>최근 운영 패턴 변화와 실무 해석을 빠르게 파악</li>
+            <li>관련 글, FAQ, 체크리스트로 바로 확장</li>
+          </ul>
+        </article>
+        {{- end }}
+        {{- with $latestDeepDive }}
+        <article class="archive-guide-card">
+          <span class="archive-hub-badge">심화 학습</span>
+          <h4><a href="{{ .RelPermalink }}">{{ .Title }}</a></h4>
+          <p>{{ .Description | default (.Summary | plainify | truncate 110) }}</p>
+          <ul>
+            <li>개념, 선택 기준, 운영 체크포인트를 한 번에 보강</li>
+            <li>트렌드 글에서 부족한 배경지식을 채우기 좋음</li>
+          </ul>
+        </article>
+        {{- end }}
+        {{- with $latestProjectPost }}
+        <article class="archive-guide-card">
+          <span class="archive-hub-badge">구현 기록</span>
+          <h4><a href="{{ .RelPermalink }}">{{ .Title }}</a></h4>
+          <p>{{ .Description | default (.Summary | plainify | truncate 110) }}</p>
+          <ul>
+            <li>실제 구현 선택과 수정 이유를 흐름으로 확인</li>
+            <li>개념이 코드와 운영 판단으로 바뀌는 지점을 보기 좋음</li>
+          </ul>
+        </article>
+        {{- end }}
+      </div>
+    </div>
+
+    {{- if gt (len $recentPosts) 0 }}
+    <div class="archive-hub-recent">
+      <div class="archive-hub-recent-header">
+        <h3>최신 글 빠르게 훑기</h3>
+        <p>지금 블로그에서 이어지는 주제를 최신순으로 먼저 확인할 수 있게 묶었습니다.</p>
+      </div>
+      <div class="archive-hub-recent-grid">
+        {{- range $recentPosts }}
+        <article class="archive-recent-card">
+          <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "2006.01.02" }}</time>
+          <h4><a href="{{ .RelPermalink }}">{{ .Title }}</a></h4>
+          <p>{{ .Description | default (.Summary | plainify | truncate 110) }}</p>
+        </article>
+        {{- end }}
+      </div>
+    </div>
+    {{- end }}
+  </section>
+
+  <style>
+    .archive-hub {
+      margin: 0 1rem 1.5rem;
+      padding: 1.35rem;
+      border: 1px solid var(--border-color, #e2e8f0);
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(177, 156, 217, 0.1), rgba(177, 156, 217, 0.03));
+    }
+
+    .archive-hub-header {
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(260px, 0.9fr);
+      gap: 1rem;
+      margin-bottom: 1.1rem;
+      align-items: start;
+    }
+
+    .archive-hub-eyebrow {
+      margin: 0 0 0.35rem;
+      color: #8a67b8;
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .archive-hub-header h2 {
+      margin: 0;
+      font-size: 1.35rem;
+      line-height: 1.45;
+    }
+
+    .archive-hub-copy {
+      margin: 0;
+      color: var(--secondary);
+      line-height: 1.7;
+    }
+
+    .archive-hub-grid,
+    .archive-hub-guides-grid,
+    .archive-hub-recent-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 0.9rem;
+    }
+
+    .archive-hub-card,
+    .archive-guide-card,
+    .archive-recent-card {
+      padding: 1.1rem;
+      border-radius: 16px;
+      border: 1px solid rgba(177, 156, 217, 0.16);
+      background: var(--entry);
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.03);
+    }
+
+    .archive-hub-card-primary {
+      background: linear-gradient(180deg, rgba(177, 156, 217, 0.16), var(--entry));
+    }
+
+    .archive-hub-badge {
+      display: inline-flex;
+      margin-bottom: 0.65rem;
+      padding: 0.28rem 0.65rem;
+      border-radius: 999px;
+      background: rgba(177, 156, 217, 0.14);
+      color: #7f67a3;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .archive-hub-card h3,
+    .archive-guide-card h4,
+    .archive-recent-card h4 {
+      margin: 0 0 0.55rem;
+      line-height: 1.5;
+    }
+
+    .archive-hub-card p,
+    .archive-guide-card p,
+    .archive-recent-card p,
+    .archive-hub-recent-header p,
+    .archive-hub-guides-header p {
+      margin: 0;
+      color: var(--secondary);
+      line-height: 1.7;
+    }
+
+    .archive-hub-card ul,
+    .archive-guide-card ul {
+      margin: 0.85rem 0 0;
+      padding-left: 1.1rem;
+      color: var(--secondary);
+      display: grid;
+      gap: 0.42rem;
+    }
+
+    .archive-hub-guides {
+      margin-top: 1.2rem;
+    }
+
+    .archive-hub-guides-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 0.75rem;
+      align-items: end;
+      margin-bottom: 0.85rem;
+    }
+
+    .archive-hub-guides-header h3 {
+      margin: 0;
+      font-size: 1.02rem;
+    }
+
+    .archive-hub-project-links {
+      margin-top: 0.9rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+    }
+
+    .archive-hub-project-links a {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.42rem 0.72rem;
+      border-radius: 999px;
+      background: rgba(177, 156, 217, 0.1);
+      color: #7f67a3;
+      font-size: 0.84rem;
+      font-weight: 600;
+    }
+
+    .archive-hub-project-links span {
+      color: var(--secondary);
+      font-weight: 500;
+    }
+
+    .archive-hub-recent {
+      margin-top: 1.2rem;
+    }
+
+    .archive-hub-recent-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 0.75rem;
+      align-items: end;
+      margin-bottom: 0.85rem;
+    }
+
+    .archive-hub-recent-header h3 {
+      margin: 0;
+      font-size: 1.02rem;
+    }
+
+    .archive-recent-card time {
+      display: inline-flex;
+      margin-bottom: 0.45rem;
+      color: var(--secondary);
+      font-size: 0.82rem;
+    }
+
+    .archive-hub a,
+    .archive-guide-card a,
+    .archive-recent-card a {
+      text-decoration: none;
+    }
+
+    .archive-hub a:hover,
+    .archive-guide-card a:hover,
+    .archive-recent-card a:hover {
+      text-decoration: underline;
+      text-underline-offset: 4px;
+    }
+
+    @media (max-width: 768px) {
+      .archive-hub {
+        margin: 0 1rem 1.15rem;
+        padding: 1rem;
+      }
+
+      .archive-hub-header {
+        grid-template-columns: 1fr;
+      }
+
+      .archive-hub-header h2 {
+        font-size: 1.18rem;
+      }
+
+      .archive-hub-recent-header,
+      .archive-hub-guides-header {
+        flex-direction: column;
+        align-items: start;
+      }
+    }
+
+    [data-theme="dark"] .archive-hub {
+      border-color: #4a5568;
+      background: linear-gradient(180deg, rgba(177, 156, 217, 0.18), rgba(177, 156, 217, 0.05));
+    }
+
+    [data-theme="dark"] .archive-hub-card,
+    [data-theme="dark"] .archive-guide-card,
+    [data-theme="dark"] .archive-recent-card {
+      border-color: rgba(177, 156, 217, 0.2);
+      background: rgba(45, 55, 72, 0.92);
+    }
+
+    [data-theme="dark"] .archive-hub-project-links a {
+      background: rgba(177, 156, 217, 0.16);
+      color: #e9ddff;
+    }
+
+    [data-theme="dark"] .archive-hub-project-links span {
+      color: #d2d8e2;
+    }
+  </style>
+{{- end -}}

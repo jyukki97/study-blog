@@ -1,0 +1,42 @@
+{{- if and (not .IsHome) .IsSection -}}
+  {{- $pages := where .Pages "Kind" "page" -}}
+  {{- $elements := slice -}}
+  {{- range $index, $page := first 12 ($pages.ByDate.Reverse) -}}
+    {{- $elements = $elements | append (dict
+      "@type" "ListItem"
+      "position" (add $index 1)
+      "url" $page.Permalink
+      "name" $page.Title
+      "description" ($page.Description | default ($page.Summary | plainify | truncate 110))
+    ) -}}
+  {{- end -}}
+  {{- $collection := dict
+    "@context" "https://schema.org"
+    "@type" "CollectionPage"
+    "name" .Title
+    "description" (.Description | default (.Summary | plainify) | default .Site.Title)
+    "url" .Permalink
+    "inLanguage" (.Site.Language.Lang | default "ko-kr")
+    "isPartOf" (dict "@type" "WebSite" "name" .Site.Title "url" .Site.BaseURL)
+    "about" (dict "@type" "Thing" "name" .Title)
+  -}}
+  {{- if gt (len $pages) 0 -}}
+    {{- $collection = merge $collection (dict "numberOfItems" (len $pages)) -}}
+  {{- end -}}
+  {{- if gt (len $elements) 0 -}}
+    {{- $collection = merge $collection (dict "mainEntity" (dict "@type" "ItemList" "itemListElement" $elements)) -}}
+  {{- end -}}
+  <script type="application/ld+json">
+    {{- $collection | jsonify | safeJS }}
+  </script>
+
+  <script type="application/ld+json">
+    {{- $sectionName := .Title -}}
+    {{- $sectionPath := .Permalink -}}
+    {{- $breadcrumbs := slice
+      (dict "@type" "ListItem" "position" 1 "name" "홈" "item" .Site.BaseURL)
+      (dict "@type" "ListItem" "position" 2 "name" $sectionName "item" $sectionPath)
+    -}}
+    {{- dict "@context" "https://schema.org" "@type" "BreadcrumbList" "itemListElement" $breadcrumbs | jsonify | safeJS }}
+  </script>
+{{- end -}}

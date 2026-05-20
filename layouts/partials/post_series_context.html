@@ -16,6 +16,14 @@
       {{- $currentIndex = $idx -}}
     {{- end -}}
   {{- end -}}
+  {{- $prevPage := "" -}}
+  {{- $nextPage := "" -}}
+  {{- if ge $currentIndex 1 -}}
+    {{- $prevPage = index $relatedInSeries (sub $currentIndex 1) -}}
+  {{- end -}}
+  {{- if and (ge $currentIndex 0) (lt (add $currentIndex 1) (len $relatedInSeries)) -}}
+    {{- $nextPage = index $relatedInSeries (add $currentIndex 1) -}}
+  {{- end -}}
 <section class="post-series-context" aria-label="시리즈 맥락">
   <div class="post-series-context-header">
     <div>
@@ -29,6 +37,22 @@
     </div>
   </div>
   <p class="post-series-context-copy">같은 흐름의 글을 순서대로 보면 문제 발견, 설계 수정, 운영 관점이 더 또렷하게 이어집니다. 지금 글과 연결된 편들을 바로 이어서 볼 수 있게 묶었습니다.</p>
+  {{- if or $prevPage $nextPage }}
+  <div class="post-series-context-nav" aria-label="시리즈 이전 다음 글">
+    {{- with $prevPage }}
+    <a class="post-series-context-card is-prev" href="{{ .RelPermalink }}">
+      <span class="post-series-context-card-label">이전 글</span>
+      <strong>{{ .Title }}</strong>
+    </a>
+    {{- end }}
+    {{- with $nextPage }}
+    <a class="post-series-context-card is-next" href="{{ .RelPermalink }}">
+      <span class="post-series-context-card-label">다음 글</span>
+      <strong>{{ .Title }}</strong>
+    </a>
+    {{- end }}
+  </div>
+  {{- end }}
   {{- if gt (len $relatedInSeries) 1 }}
   <ol class="post-series-context-list">
     {{- range $relatedInSeries }}

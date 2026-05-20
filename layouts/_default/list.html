@@ -8,6 +8,7 @@
     {{ end }}
 
     <section class="list-page">
+        {{ partial "list_schema.html" . }}
         {{ if and .IsHome .Site.Params.showTagsOnHome }}
             <div class="tags-section">
                 <div class="tags-header">
@@ -40,7 +41,7 @@
         {{ end }}
 
         <div class="post-header">
-            <h2>Posts</h2>
+            <h2>아카이브 글</h2>
         </div>
 
         {{ if and (not .IsHome) .Content }}
@@ -65,9 +66,32 @@
             </section>
         {{ end }}
 
+        {{ partial "list_archive_hub.html" . }}
+
+        <section class="archive-quick-paths" aria-label="빠른 탐색 경로">
+            <a class="archive-quick-path" href="{{ "/posts/?section=posts" | relURL }}" data-section-link="posts">
+                <strong>트렌드 먼저</strong>
+                <span>최근 운영 이슈와 시니어 해석만 빠르게 보기</span>
+            </a>
+            <a class="archive-quick-path" href="{{ "/posts/?section=learning" | relURL }}" data-section-link="learning">
+                <strong>개념부터 보강</strong>
+                <span>심화 학습 글만 모아 체계적으로 따라가기</span>
+            </a>
+            <a class="archive-quick-path" href="{{ "/posts/?section=project-series" | relURL }}" data-section-link="project-series">
+                <strong>구현 문맥 보기</strong>
+                <span>프로젝트 시리즈와 설계 변화만 이어서 보기</span>
+            </a>
+        </section>
+
         <div class="post-toolbar" role="search" aria-label="포스트 빠른 검색">
-            <input id="post-search-input" type="search" placeholder="제목/설명/태그로 검색" autocomplete="off" />
+            <input id="post-search-input" type="search" placeholder="제목/설명/키워드/태그로 검색" autocomplete="off" />
             <button id="post-search-clear" type="button" aria-label="검색어 지우기">초기화</button>
+        </div>
+        <div class="post-toolbar-filters" role="tablist" aria-label="아카이브 분류 필터">
+            <button type="button" class="post-filter-chip active" data-filter="all" aria-pressed="true">전체</button>
+            <button type="button" class="post-filter-chip" data-filter="posts" aria-pressed="false">트렌드/아카이브</button>
+            <button type="button" class="post-filter-chip" data-filter="learning" aria-pressed="false">심화 학습</button>
+            <button type="button" class="post-filter-chip" data-filter="project-series" aria-pressed="false">프로젝트 시리즈</button>
         </div>
         <p class="post-toolbar-status" id="post-toolbar-status" aria-live="polite"></p>
 
@@ -89,6 +113,8 @@
                          data-tags="{{ if .Params.tags }}{{ delimit .Params.tags "," }}{{ end }}"
                          data-project="{{ if .Params.project }}{{ .Params.project }}{{ end }}"
                          data-topic="{{ if .Params.topic }}{{ .Params.topic }}{{ end }}"
+                         data-series="{{ if .Params.series }}{{ .Params.series }}{{ end }}"
+                         data-keywords="{{ if .Params.keywords }}{{ delimit .Params.keywords "," }}{{ end }}"
                          data-section="{{ .Section }}"
                          data-title="{{ .Title | lower }}"
                          data-summary="{{ with .Description }}{{ . | plainify | lower }}{{ else }}{{ .Summary | plainify | lower }}{{ end }}">
@@ -179,10 +205,101 @@
     padding: 0 1rem 0.5rem;
 }
 
+.post-toolbar-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    padding: 0 1rem 0.55rem;
+}
+
+.post-filter-chip {
+    border: 1px solid rgba(177, 156, 217, 0.28);
+    background: var(--entry);
+    color: var(--secondary);
+    border-radius: 999px;
+    padding: 0.45rem 0.85rem;
+    cursor: pointer;
+    font-size: 0.84rem;
+    transition: all 0.2s ease;
+}
+
+.post-filter-chip:hover,
+.post-filter-chip.active {
+    color: #7f67a3;
+    border-color: rgba(177, 156, 217, 0.8);
+    background: rgba(177, 156, 217, 0.12);
+}
+
 .post-toolbar-status {
     margin: 0 1rem 1.2rem;
     color: var(--secondary);
     font-size: 0.92rem;
+}
+
+.archive-quick-paths {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 0.8rem;
+    padding: 0 1rem 1rem;
+}
+
+.archive-quick-path {
+    display: block;
+    text-align: left;
+    text-decoration: none;
+    border: 1px solid rgba(177, 156, 217, 0.22);
+    border-radius: 16px;
+    padding: 1rem;
+    background: linear-gradient(180deg, rgba(177, 156, 217, 0.08), rgba(177, 156, 217, 0.02));
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.archive-quick-path:focus-visible {
+    outline: 3px solid rgba(177, 156, 217, 0.28);
+    outline-offset: 2px;
+}
+
+.archive-quick-path.is-active {
+    border-color: rgba(177, 156, 217, 0.8);
+    box-shadow: 0 10px 22px rgba(177, 156, 217, 0.16);
+}
+
+.archive-quick-path.is-active strong {
+    color: #7f67a3;
+}
+
+.archive-quick-path.is-active span {
+    color: var(--primary);
+}
+
+.archive-quick-path:visited {
+    color: inherit;
+}
+
+.archive-quick-path:visited strong,
+.archive-quick-path:visited span {
+    color: inherit;
+}
+
+.archive-quick-path strong {
+    display: block;
+    font-size: 0.98rem;
+    color: var(--primary);
+    margin-bottom: 0.35rem;
+}
+
+.archive-quick-path span {
+    display: block;
+    color: var(--secondary);
+    line-height: 1.6;
+    font-size: 0.9rem;
+}
+
+.archive-quick-path:hover {
+    transform: translateY(-2px);
+    border-color: rgba(177, 156, 217, 0.65);
+    box-shadow: 0 8px 18px rgba(177, 156, 217, 0.12);
 }
 
 .list-intro {
@@ -763,6 +880,31 @@
     color: #e5e7eb;
 }
 
+[data-theme="dark"] .post-filter-chip {
+    background: rgba(45, 55, 72, 0.92);
+    color: #d2d8e2;
+    border-color: rgba(177, 156, 217, 0.28);
+}
+
+[data-theme="dark"] .post-filter-chip:hover,
+[data-theme="dark"] .post-filter-chip.active {
+    background: rgba(177, 156, 217, 0.2);
+    color: #f3ecff;
+}
+
+[data-theme="dark"] .archive-quick-path {
+    background: linear-gradient(180deg, rgba(177, 156, 217, 0.16), rgba(177, 156, 217, 0.05));
+    border-color: rgba(177, 156, 217, 0.24);
+}
+
+[data-theme="dark"] .archive-quick-path strong {
+    color: #f3ecff;
+}
+
+[data-theme="dark"] .archive-quick-path span {
+    color: #d2d8e2;
+}
+
 [data-theme="dark"] .reading-time-chip {
     background: rgba(177, 156, 217, 0.22);
     color: #e9ddff;
@@ -846,8 +988,21 @@
         align-items: stretch;
     }
 
+    .post-toolbar-filters {
+        padding: 0 1rem 0.9rem;
+    }
+
+    .post-filter-chip {
+        width: fit-content;
+    }
+
     .post-toolbar-status {
         margin: 0 1rem 1rem;
+    }
+
+    .archive-quick-paths {
+        grid-template-columns: 1fr;
+        padding: 0 1rem 0.9rem;
     }
 
     .list-intro {
@@ -960,6 +1115,7 @@ projectTotals[{{ . | lower | jsonify }}] = (projectTotals[{{ . | lower | jsonify
 
 let currentTagFilter = null;
 let currentProjectFilter = null;
+let currentSectionFilter = 'all';
 let currentSearchQuery = '';
 
 function toggleTags(postId) {
@@ -1017,18 +1173,84 @@ function adjustTagDisplay() {
     }
 }
 
-function updatePostHeader(label, count, totalCount = null) {
+function updatePostHeader(label, count) {
     const postHeader = document.querySelector('.post-header h2');
     if (!postHeader) return;
 
     if (label) {
-        const countText = (totalCount && totalCount >= count)
-            ? `${count} / 전체 ${totalCount}`
-            : `${count}`;
-        postHeader.innerHTML = `Posts <span style="color: var(--primary-color, #b19cd9); font-size: 0.8em;">${label} (${countText})</span>`;
+        postHeader.innerHTML = `아카이브 글 <span style="color: var(--primary-color, #b19cd9); font-size: 0.8em;">${label} (${count})</span>`;
     } else {
-        postHeader.textContent = 'Posts';
+        postHeader.textContent = '아카이브 글';
     }
+}
+
+function syncSectionFilterButtons() {
+    document.querySelectorAll('.post-filter-chip').forEach(button => {
+        const isActive = button.dataset.filter === currentSectionFilter;
+        button.classList.toggle('active', isActive);
+        button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+    });
+
+    document.querySelectorAll('[data-section-link]').forEach(link => {
+        const isActive = link.dataset.sectionLink === currentSectionFilter;
+        link.classList.toggle('is-active', isActive);
+        if (isActive) {
+            link.setAttribute('aria-current', 'page');
+        } else {
+            link.removeAttribute('aria-current');
+        }
+    });
+}
+
+function sectionFilterLabel() {
+    if (currentProjectFilter) return `🚀${currentProjectFilter}`;
+    if (currentSectionFilter === 'posts') return '트렌드/아카이브';
+    if (currentSectionFilter === 'learning') return '심화 학습';
+    if (currentSectionFilter === 'project-series') return '프로젝트 시리즈';
+    return null;
+}
+
+function setSectionFilter(filterName) {
+    currentSectionFilter = filterName;
+    if (filterName !== 'project-series') {
+        currentProjectFilter = null;
+    }
+    applyCombinedFilters();
+
+    const postHeader = document.querySelector('.post-header');
+    if (postHeader) {
+        postHeader.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+}
+
+function updateArchiveUrlState() {
+    const url = new URL(window.location.href);
+
+    if (currentSectionFilter && currentSectionFilter !== 'all') {
+        url.searchParams.set('section', currentSectionFilter);
+    } else {
+        url.searchParams.delete('section');
+    }
+
+    if (currentProjectFilter) {
+        url.searchParams.set('project', currentProjectFilter);
+    } else {
+        url.searchParams.delete('project');
+    }
+
+    if (currentTagFilter) {
+        url.searchParams.set('tag', currentTagFilter);
+    } else {
+        url.searchParams.delete('tag');
+    }
+
+    if (currentSearchQuery) {
+        url.searchParams.set('q', currentSearchQuery);
+    } else {
+        url.searchParams.delete('q');
+    }
+
+    window.history.replaceState({}, '', `${url.pathname}${url.search}${url.hash}`);
 }
 
 function applyCombinedFilters() {
@@ -1038,45 +1260,52 @@ function applyCombinedFilters() {
     allPosts.forEach(post => {
         const postTags = (post.getAttribute('data-tags') || '').toLowerCase();
         const postProject = (post.getAttribute('data-project') || '').toLowerCase();
+        const postSection = (post.getAttribute('data-section') || '').toLowerCase();
+        const postSeries = (post.getAttribute('data-series') || '').toLowerCase();
+        const postKeywords = (post.getAttribute('data-keywords') || '').toLowerCase();
         const postTitle = (post.getAttribute('data-title') || '').toLowerCase();
         const postSummary = (post.getAttribute('data-summary') || '').toLowerCase();
+        const hasProject = postProject.length > 0;
 
         const matchTag = !currentTagFilter || postTags.includes(currentTagFilter.toLowerCase());
         const matchProject = !currentProjectFilter || postProject === currentProjectFilter.toLowerCase();
+        const matchSection = currentSectionFilter === 'all'
+            || (currentSectionFilter === 'project-series' ? hasProject : postSection === currentSectionFilter);
         const matchSearch = !currentSearchQuery ||
             postTitle.includes(currentSearchQuery) ||
             postSummary.includes(currentSearchQuery) ||
             postTags.includes(currentSearchQuery) ||
-            postProject.includes(currentSearchQuery);
+            postSeries.includes(currentSearchQuery) ||
+            postKeywords.includes(currentSearchQuery) ||
+            postProject.includes(currentSearchQuery) ||
+            postSection.includes(currentSearchQuery);
 
-        const visible = matchTag && matchProject && matchSearch;
+        const visible = matchTag && matchProject && matchSection && matchSearch;
         post.style.display = visible ? 'block' : 'none';
         if (visible) visibleCount += 1;
     });
 
-    let label = null;
-    let totalCount = null;
+    const labelParts = [];
+    const sectionLabel = sectionFilterLabel();
+    if (sectionLabel) labelParts.push(sectionLabel);
+    if (currentTagFilter) labelParts.push(`#${currentTagFilter}`);
+    if (currentSearchQuery) labelParts.push(`검색: ${currentSearchQuery}`);
 
-    if (currentProjectFilter) {
-        const projectKey = currentProjectFilter.toLowerCase();
-        totalCount = projectTotals[projectKey] || null;
-        label = `🚀${currentProjectFilter}`;
-    }
-    if (currentTagFilter) label = `#${currentTagFilter}`;
-    if (currentSearchQuery) label = `검색: ${currentSearchQuery}`;
-
-    updatePostHeader(label, visibleCount, totalCount);
+    updatePostHeader(labelParts.length > 0 ? labelParts.join(' · ') : null, visibleCount);
+    syncSectionFilterButtons();
 
     const toolbarStatus = document.getElementById('post-toolbar-status');
     if (toolbarStatus) {
         if (visibleCount === 0) {
             toolbarStatus.textContent = '조건에 맞는 글이 없어요. 검색어나 태그를 조금 넓혀보세요.';
-        } else if (label) {
-            toolbarStatus.textContent = `${visibleCount}개의 글을 찾았어요.`;
+        } else if (labelParts.length > 0) {
+            toolbarStatus.textContent = `${labelParts.join(' · ')} 기준으로 ${visibleCount}개의 글을 보고 있어요.`;
         } else {
             toolbarStatus.textContent = `전체 ${visibleCount}개의 글을 보고 있어요.`;
         }
     }
+
+    updateArchiveUrlState();
 }
 
 function filterPostsByTag(tagName, clickedElement) {
@@ -1110,6 +1339,7 @@ function showAllPosts() {
 
     currentTagFilter = null;
     currentProjectFilter = null;
+    currentSectionFilter = 'all';
 
     if (showAllButton) {
         showAllButton.style.display = 'none';
@@ -1127,6 +1357,7 @@ function filterPostsByProject(projectName) {
 
     currentProjectFilter = projectName;
     currentTagFilter = null;
+    currentSectionFilter = 'project-series';
 
     if (showAllButton) {
         showAllButton.style.display = 'inline-flex';
@@ -1160,12 +1391,65 @@ function bindSearchUI() {
     });
 }
 
+function bindSectionFilters() {
+    document.querySelectorAll('.post-filter-chip').forEach(button => {
+        button.addEventListener('click', function () {
+            const nextFilter = this.dataset.filter || 'all';
+            currentSectionFilter = nextFilter;
+            if (nextFilter !== 'project-series') {
+                currentProjectFilter = null;
+            }
+            applyCombinedFilters();
+        });
+    });
+
+    document.querySelectorAll('[data-section-link]').forEach(link => {
+        link.addEventListener('click', function (event) {
+            const nextFilter = this.dataset.sectionLink || 'all';
+            if (new URL(this.href, window.location.origin).pathname === window.location.pathname) {
+                event.preventDefault();
+                setSectionFilter(nextFilter);
+            }
+        });
+    });
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     adjustTagDisplay();
     bindSearchUI();
+    bindSectionFilters();
 
     const urlParams = new URLSearchParams(window.location.search);
     const projectParam = urlParams.get('project');
+    const sectionParam = urlParams.get('section');
+    const tagParam = urlParams.get('tag');
+    const searchParam = urlParams.get('q');
+
+    if (sectionParam && ['all', 'posts', 'learning', 'project-series'].includes(sectionParam)) {
+        currentSectionFilter = sectionParam;
+    }
+
+    if (searchParam) {
+        currentSearchQuery = searchParam.trim().toLowerCase();
+        const searchInput = document.getElementById('post-search-input');
+        if (searchInput) {
+            searchInput.value = searchParam;
+        }
+    }
+
+    if (tagParam) {
+        currentTagFilter = decodeURIComponent(tagParam);
+        const matchedTagLink = Array.from(document.querySelectorAll('.tag-link:not(.more-tags):not(.show-all-posts)'))
+            .find(link => (link.dataset.tag || '').toLowerCase() === currentTagFilter.toLowerCase());
+        if (matchedTagLink) {
+            matchedTagLink.classList.add('active');
+            const showAllButton = document.querySelector('.show-all-posts');
+            if (showAllButton) {
+                showAllButton.style.display = 'inline-flex';
+            }
+        }
+    }
+
     if (projectParam) {
         const projectName = decodeURIComponent(projectParam).replace(/-/g, ' ');
         filterPostsByProject(projectName);

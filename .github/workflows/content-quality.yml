@@ -1,0 +1,64 @@
+name: Content Quality Check
+
+on:
+  pull_request:
+    paths:
+      - 'content/**'
+      - 'layouts/**'
+      - 'assets/**'
+      - 'scripts/validate_content.py'
+      - 'config/**'
+      - 'hugo.yaml'
+      - 'hugo.toml'
+      - 'hugo.json'
+  push:
+    branches:
+      - main
+    paths:
+      - 'content/**'
+      - 'layouts/**'
+      - 'assets/**'
+      - 'scripts/validate_content.py'
+      - 'config/**'
+      - 'hugo.yaml'
+      - 'hugo.toml'
+      - 'hugo.json'
+  workflow_dispatch:
+
+concurrency:
+  group: content-quality-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    env:
+      HUGO_VERSION: 0.155.3
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Setup Hugo
+        uses: peaceiris/actions-hugo@v3
+        with:
+          hugo-version: "${{ env.HUGO_VERSION }}"
+          extended: true
+
+      - name: Validate content links and front matter
+        run: python3 scripts/validate_content.py
+
+      - name: Build Hugo site
+        env:
+          HUGO_ENVIRONMENT: production
+          HUGO_CACHEDIR: ${{ runner.temp }}/hugo_cache
+        run: hugo --gc --minify --panicOnWarning --baseURL "https://jyukki.com/"

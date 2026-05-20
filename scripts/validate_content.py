@@ -80,13 +80,18 @@ def build_content_routes() -> tuple[set[str], dict[str, set[Path]]]:
         routes.add(route)
         route_to_files.setdefault(route, set()).add(md)
 
-        # front matter custom url 지원
+        # front matter custom url, aliases 지원
         if fm:
             custom_url = extract_custom_url(fm)
             if custom_url:
                 normalized_custom = normalize_route(custom_url)
                 routes.add(normalized_custom)
                 route_to_files.setdefault(normalized_custom, set()).add(md)
+
+            for alias in extract_aliases(fm):
+                normalized_alias = normalize_route(alias)
+                routes.add(normalized_alias)
+                route_to_files.setdefault(normalized_alias, set()).add(md)
 
     return routes, route_to_files
 
@@ -114,6 +119,28 @@ def extract_custom_url(front_matter: str) -> str | None:
     if not m:
         return None
     return m.group(1).strip()
+
+
+def extract_aliases(front_matter: str) -> list[str]:
+    aliases: list[str] = []
+    m = re.search(r"(?ms)^\s*aliases\s*:\s*\n((?:\s*-\s*.+\n?)*)", front_matter)
+    if not m:
+        return aliases
+
+    for raw in re.findall(r'(?m)^\s*-\s*"?([^"\n]+)"?\s*$', m.group(1)):
+        alias = raw.strip()
+        if alias:
+            aliases.append(alias)
+    return aliases
+
+
+def extract_front_matter_internal_links(front_matter: str) -> list[str]:
+    links: list[str] = []
+    for _, raw in re.findall(r'(?m)^\s+(href|url)\s*:\s*"?([^"\n]+)"?\s*$', front_matter):
+        value = raw.strip()
+        if value.startswith("/"):
+            links.append(value)
+    return links
 
 
 def required_fields_missing(front_matter: str, fields: list[str]) -> list[str]:
@@ -183,6 +210,19 @@ def main() -> int:
 
         if LEGACY_BASEURL_RE.search(text):
             warnings.append(f"[content] '{{{{site.baseurl}}}}' 사용 감지(절대 경로 또는 absURL 권장): {rel}")
+
+        for raw_link in extract_front_matter_internal_links(front_matter):
+            link_no_frag = raw_link.split("#", 1)[0].split("?", 1)[0].strip()
+            normalized = normalize_route(link_no_frag)
+            has_ext = "." in Path(link_no_frag).name
+
+            if has_ext:
+                if link_no_frag not in static_routes:
+                    errors.append(f"[frontmatter-link] 정적 파일 경로 없음: {rel} -> {raw_link}")
+                continue
+
+            if normalized not in routes:
+                errors.append(f"[frontmatter-link] 콘텐츠 경로 없음: {rel} -> {raw_link}")
 
         # 내부 링크 점검
         for m in LINK_RE.finditer(text):

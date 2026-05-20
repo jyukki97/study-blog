@@ -11,8 +11,6 @@ study_order: 400
 layout: "learning-module"
 module_key: "distributed-system"
 url: "/learning/modules/backend-distributed-phase/"
-aliases:
-  - "/learning/modules/backend-architecture-mastery/"
 ---
 
 ## 이 단계에서 얻는 것

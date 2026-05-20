@@ -1,0 +1,63 @@
+{{- $title := cond .IsHome site.Title (printf "%s | %s" .Title site.Title) -}}
+{{- $description := site.Params.description | default site.Title -}}
+{{- with .Description -}}
+  {{- $description = . -}}
+{{- else -}}
+  {{- if or .IsPage .IsSection -}}
+    {{- $description = (.Summary | default (printf "%s - %s" .Title site.Title)) -}}
+  {{- end -}}
+{{- end -}}
+{{- $description = $description | plainify | htmlUnescape | chomp | truncate 160 -}}
+{{- $canonical := .Permalink -}}
+{{- with .Params.canonicalURL }}{{- $canonical = trim . " " -}}{{- end -}}
+{{- $image := "" -}}
+{{- with .Params.cover.image -}}
+  {{- $image = . | absURL -}}
+{{- else -}}
+  {{- with site.Params.label.icon -}}
+    {{- $image = . | absURL -}}
+  {{- end -}}
+{{- end -}}
+{{- $imageAlt := .Title -}}
+{{- with .Params.cover.alt -}}
+  {{- $imageAlt = . -}}
+{{- end -}}
+{{- $lang := .Site.Language.Lang | default "ko-kr" -}}
+{{- $locale := replace $lang "-" "_" -}}
+{{- $authorName := site.Params.author | default site.Title -}}
+<meta property="og:site_name" content="{{ site.Title }}">
+<meta property="og:title" content="{{ $title }}">
+<meta property="og:description" content="{{ $description }}">
+<meta property="og:url" content="{{ $canonical }}">
+<meta property="og:locale" content="{{ $locale }}">
+<meta property="og:type" content="{{ if .IsPage }}article{{ else }}website{{ end }}">
+{{- with $image }}
+<meta property="og:image" content="{{ . }}">
+<meta property="og:image:alt" content="{{ $imageAlt }}">
+{{- end }}
+
+<meta name="twitter:card" content="{{ if $image }}summary_large_image{{ else }}summary{{ end }}">
+<meta name="twitter:title" content="{{ $title }}">
+<meta name="twitter:description" content="{{ $description }}">
+<meta name="twitter:url" content="{{ $canonical }}">
+{{- with $image }}
+<meta name="twitter:image" content="{{ . }}">
+<meta name="twitter:image:alt" content="{{ $imageAlt }}">
+{{- end }}
+
+{{- if .IsPage }}
+<meta property="article:author" content="{{ $authorName }}">
+  {{- with .Section }}
+<meta property="article:section" content="{{ . }}">
+  {{- end }}
+  {{- range first 10 (.Params.tags | default slice) }}
+<meta property="article:tag" content="{{ . }}">
+  {{- end }}
+  {{- with .Date }}
+<meta property="article:published_time" content="{{ .Format "2006-01-02T15:04:05Z07:00" }}">
+  {{- end }}
+  {{- with .Lastmod }}
+<meta property="article:modified_time" content="{{ .Format "2006-01-02T15:04:05Z07:00" }}">
+<meta property="og:updated_time" content="{{ .Format "2006-01-02T15:04:05Z07:00" }}">
+  {{- end }}
+{{- end }}

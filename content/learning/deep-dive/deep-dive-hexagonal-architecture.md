@@ -5,8 +5,33 @@ draft: false
 topic: "Architecture"
 tags: ["Hexagonal", "Ports and Adapters", "Clean Architecture", "Architecture"]
 categories: ["Backend Deep Dive"]
-description: "스프링조차도 도메인 로직에 침범하지 못하게 하라. Ports & Adapters 패턴의 구현."
+description: "도메인 모델이 스프링, JPA, 외부 API에 잠식되지 않도록 Ports & Adapters 구조를 실무 예시로 정리합니다."
+summary: "헥사고날 아키텍처의 핵심은 계층을 늘리는 것이 아니라 의존성 방향을 바로잡는 데 있습니다. 도메인이 인터페이스를 정의하고, 외부 기술은 어댑터로 밀어내는 구조를 실제 코드 기준으로 설명합니다."
+key_takeaways:
+  - "도메인 코어는 외부 기술을 몰라야 한다."
+  - "In Port는 유스케이스 진입점, Out Port는 외부 의존의 추상화다."
+  - "테스트와 기술 교체 비용은 구조가 결정한다."
+operator_checklist:
+  - "도메인/애플리케이션 계층이 Spring, JPA, Web 어노테이션을 직접 import하는지 확인한다."
+  - "UseCase 인터페이스와 구현 책임이 섞여 있지 않은지 점검한다."
+  - "외부 API, 메시지 큐, 영속성 접근이 Adapter 레이어로 분리돼 있는지 본다."
+series: "DDD와 헥사고날 아키텍처"
 module: "architecture-mastery"
+learning_refs:
+  - title: "DDD 전술적 설계: Entity, VO, 그리고 Aggregate"
+    href: "/learning/deep-dive/deep-dive-ddd-tactical/"
+    description: "헥사고날 구조의 중심이 되는 도메인 객체를 먼저 정리한 글입니다."
+  - title: "Aggregate Root와 트랜잭션 경계"
+    href: "/learning/deep-dive/deep-dive-ddd-aggregates/"
+    description: "구조만 나누는 것이 아니라, 어떤 경계를 보호해야 하는지 함께 이해할 수 있습니다."
+  - title: "마이크로서비스 패턴"
+    href: "/learning/deep-dive/deep-dive-microservices-patterns/"
+    description: "서비스 경계가 커졌을 때 헥사고날 구조가 어떤 식으로 확장되는지 이어서 보기 좋습니다."
+faqs:
+  - question: "레이어드 아키텍처와 완전히 다른 건가요?"
+    answer: "완전히 반대라기보다, 기존 레이어 구조에서 의존성 방향을 더 엄격하게 통제하는 방식에 가깝습니다. Controller, Service, Repository라는 이름을 그대로 써도 도메인이 외부 기술을 모르면 헥사고날 원칙에 더 가깝게 갈 수 있습니다."
+  - question: "작은 프로젝트에도 필요한가요?"
+    answer: "처음부터 모든 포트와 어댑터를 거창하게 만들 필요는 없습니다. 다만 핵심 도메인 규칙이 있는 프로젝트라면 최소한 도메인 계층이 프레임워크 어노테이션과 영속성 구현에 직접 묶이지 않도록 시작하는 것이 장기적으로 훨씬 낫습니다."
 quizzes:
   - question: "헥사고날(육각형) 아키텍처의 핵심 원칙은?"
     options:
@@ -57,18 +82,29 @@ study_order: 1102
 
 ## 이 글에서 얻는 것
 
-- **Layered Architecture** (Controller -> Service -> Repository)의 한계와 의존성 문제를 이해합니다.
-- **의존성 역전 원칙(DIP)**이 아키텍처 레벨에서 어떻게 적용되는지 봅니다.
-- **Port** (인터페이스)와 **Adapter** (구현체)를 통한 완벽한 격리 방법을 배웁니다.
+- 전통적인 계층형 구조가 왜 시간이 갈수록 프레임워크 중심으로 기울어지는지 이해합니다.
+- **Port**와 **Adapter**를 어디에 두고, 무엇을 의존해야 하는지 코드 수준으로 정리합니다.
+- DDD의 Entity, Aggregate를 실제 애플리케이션 구조로 보호하는 방법을 연결합니다.
 
-## 1) 계층형 아키텍처의 배신
+## 1) 계층형 아키텍처는 왜 자꾸 DB 중심이 될까
 
-전통적인 계층형 아키텍처는 데이터베이스 주도 설계(Database Driven Design)로 빠지기 쉽습니다.
-`Service`가 `Repository` 구현체(JPA 등)에 의존하게 되고, 결국 비즈니스 로직이 영속성 프레임워크에 오염됩니다.
+처음 프로젝트를 만들 때는 `Controller -> Service -> Repository` 구조가 가장 익숙합니다. 문제는 시간이 지나면 Service가 점점 JPA, 외부 API 응답 형식, 메시지 큐 포맷까지 모두 알아야 하는 위치가 된다는 점입니다.
 
-## 2) 육각형 아키텍처 (Ports & Adapters)
+그 결과,
 
-핵심 아이디어는 **"애플리케이션 코어(도메인)는 바깥 세상(Web, DB)을 모르게 하라"** 입니다.
+- 비즈니스 로직이 프레임워크 어노테이션과 섞이고,
+- 테스트가 스프링 컨텍스트 없이는 어려워지고,
+- 저장 방식이 바뀔 때 도메인 코드까지 흔들립니다.
+
+즉, 레이어는 있어도 **의존성 방향이 잘못된 상태**가 됩니다. 헥사고날 아키텍처는 이 문제를 "레이어를 더 늘려서"가 아니라 "도메인이 무엇을 알아야 하는지 다시 제한해서" 풀어냅니다.
+
+## 2) 핵심 아이디어: 도메인 코어는 바깥 세상을 몰라야 한다
+
+헥사고날 아키텍처의 핵심 문장은 아주 단순합니다.
+
+> **애플리케이션 코어는 Web, DB, 외부 API를 몰라야 한다.**
+
+이를 위해 도메인 내부에서 인터페이스를 정의하고, 바깥쪽에서 그것을 구현합니다.
 
 ```mermaid
 graph TD
@@ -77,81 +113,135 @@ graph TD
         DB[Persistence Adapter<br/>(JPA)]
         Ext[External System Adapter<br/>(Feign)]
     end
-    
+
     subgraph Port [Ports (Interfaces)]
         InPort[In Port<br/>(UseCase)]
         OutPort[Out Port<br/>(Load/Save Port)]
     end
-    
+
     subgraph Domain [Domain Core]
         Service[Service]
         Entity[Entity / Aggregates]
     end
-    
+
     Web --> InPort
     Service -.->|implements| InPort
-    
+
     Service --> OutPort
     DB -.->|implements| OutPort
     Ext -.->|implements| OutPort
-    
+
     style Domain fill:#e8f5e9,stroke:#2e7d32
     style Port fill:#fff9c4,stroke:#fbc02d
     style Adapter fill:#e1f5fe,stroke:#0277bd
 ```
 
-### The Dependency Rule (의존성 규칙)
-화살표를 보세요. **모든 화살표가 도메인(가운데)을 향해 들어옵니다.**
-- **Web Adapter**는 `In Port`를 호출합니다. (Inbound)
-- **Domain Service**는 `Out Port`를 호출합니다. (Outbound)
-- **DB Adapter**는 `Out Port`를 구현(Implements)합니다. (Dependency Inversion)
+이 그림에서 중요한 건 모양이 아니라 화살표 방향입니다. 모든 의존은 도메인 쪽을 향해야 합니다.
 
-도메인 코드는 `JPA Repository`를 import하지 않습니다. 오직 순수한 자바 인터페이스(`OutPort`)만 바라봅니다.
+## 3) In Port와 Out Port를 실무 언어로 이해하기
 
-## 3) 구현 예시 (Spring Boot)
+헷갈리지 않게 아주 실무적으로 보면,
 
-### Port (Interface in Domain Layer)
+- **In Port**: "우리 시스템이 외부로부터 받는 유스케이스 계약"
+- **Out Port**: "도메인이 외부 도움을 받을 때 기대하는 계약"
+
+예를 들어 송금 기능이 있다면,
+
+- `SendMoneyUseCase`는 In Port입니다.
+- `LoadAccountPort`, `SaveTransferPort`, `SendNotificationPort`는 Out Port가 될 수 있습니다.
+
+이 구분이 좋은 이유는 도메인 서비스가 "무엇을 해야 하는지"만 알고 "어떻게 저장하고 어디로 보낼지"는 모르게 만들기 때문입니다.
+
+### Port 예시
+
 ```java
-// domain/port/out/LoadAccountPort.java
 public interface LoadAccountPort {
     Account loadAccount(Long accountId);
 }
 ```
 
-### Domain Service (Business Logic)
+### Domain Service 예시
+
 ```java
-// domain/service/SendMoneyService.java
 @RequiredArgsConstructor
 public class SendMoneyService implements SendMoneyUseCase {
-    private final LoadAccountPort loadAccountPort; // 인터페이스에만 의존!
-    
-    // ...
+    private final LoadAccountPort loadAccountPort;
+
+    // 핵심 로직은 인터페이스만 안다
 }
 ```
 
-### Adapter (Infrastructure Layer)
+### Adapter 예시
+
 ```java
-// adapter/out/persistence/AccountPersistenceAdapter.java
 @Component
 @RequiredArgsConstructor
 class AccountPersistenceAdapter implements LoadAccountPort {
-    private final SpringDataAccountRepository accountRepository; // JPA는 여기 숨음
-    
+    private final SpringDataAccountRepository accountRepository;
+
     @Override
     public Account loadAccount(Long accountId) {
-        // JPA Entity -> Domain Entity 변환
         return accountMapper.mapToDomain(accountRepository.findById(accountId));
     }
 }
 ```
 
+여기서 JPA, QueryDSL, Feign, Kafka는 모두 Adapter 쪽 디테일입니다. 도메인 로직이 여기를 import하기 시작하면 헥사고날 구조는 사실상 무너진 겁니다.
+
+## 4) DDD와 헥사고날은 왜 같이 가야 할까
+
+[DDD 전술적 설계](/learning/deep-dive/deep-dive-ddd-tactical/)에서 Entity, VO, Aggregate를 아무리 잘 나눠도, 그 객체들이 결국 JPA Entity와 HTTP DTO 사이에 끼여 흔들리면 효과가 반감됩니다.
+
+헥사고날 아키텍처는 DDD의 결과물을 보호하는 외곽 성벽 역할을 합니다.
+
+- DDD가 **무엇이 핵심 도메인인지**를 정해주고,
+- Aggregate 설계가 **어디까지 같이 바뀌어야 하는지**를 정해주며,
+- 헥사고날 구조가 **그 규칙이 외부 기술에 오염되지 않게 막아줍니다.**
+
+즉, 개념 설계와 구조 설계가 따로가 아니라 한 줄로 이어져 있습니다.
+
+## 5) 흔한 오해: 포트가 많을수록 좋은 게 아니다
+
+헥사고날을 처음 적용할 때 모든 CRUD마다 포트를 만들고, 클래스 수만 급격히 늘리는 경우가 있습니다. 이건 오히려 구조를 부담스럽게 만듭니다.
+
+좋은 기준은 이렇습니다.
+
+- **핵심 유스케이스**는 In Port로 드러낸다.
+- **외부 의존성이 바뀔 가능성이 있거나 테스트 격리가 필요한 지점**만 Out Port로 추상화한다.
+- 단순한 내부 헬퍼까지 전부 포트로 만들 필요는 없다.
+
+즉, 헥사고날은 "인터페이스 남발"이 아니라 **변화 방향이 다른 것들을 분리하는 기술**입니다.
+
+## 6) 도입 순서도 작게 가는 편이 좋다
+
+기존 프로젝트에 한 번에 전부 적용하려 하면 반발이 큽니다. 보통은 아래 순서가 무난합니다.
+
+1. 새 기능 하나를 선택한다.
+2. UseCase 인터페이스를 먼저 만든다.
+3. 도메인 서비스가 JPA나 외부 API를 직접 모르도록 Out Port를 뺀다.
+4. 기존 Repository/Client를 Adapter로 감싼다.
+5. 테스트를 도메인 단위로 붙인다.
+
+이렇게 작은 성공 경험을 만든 뒤 넓히는 편이 훨씬 현실적입니다.
+
+## 7) 리뷰 때 바로 보는 체크포인트
+
+- 도메인 패키지에서 `org.springframework`, `jakarta.persistence`를 직접 import하는가?
+- 애플리케이션 서비스가 Feign DTO, JPA Entity, API 응답 모델을 그대로 다루는가?
+- UseCase 인터페이스 없이 Controller가 구현체를 직접 붙들고 있는가?
+- 테스트가 전부 통합 테스트뿐이고, 순수 도메인 테스트가 없는가?
+
+이 중 둘 이상 해당하면 구조가 이미 외부 기술 중심으로 기울었을 가능성이 큽니다.
+
 ## 요약
 
-- **Hexagonal Architecture**는 도메인을 프레임워크로부터 보호합니다.
-- **Port**는 도메인이 외부와 소통하는 문(Interface)이고, **Adapter**는 그 문을 통과하는 변환기(Implementation)입니다.
-- 이렇게 하면 나중에 **JPA를 MyBatis로 바꾸거나, RDBMS를 Mongo로 바꿔도** 도메인 로직은 1줄도 수정할 필요가 없습니다.
+- **Hexagonal Architecture**의 핵심은 도메인을 중심에 두고 의존성 방향을 바로잡는 것입니다.
+- **In Port**는 유스케이스 진입점, **Out Port**는 외부 의존의 계약입니다.
+- 외부 기술은 모두 **Adapter**로 밀어내면 테스트성과 교체 가능성이 크게 좋아집니다.
+- DDD의 Entity, Aggregate를 실제 코드에서 지키려면 구조적 보호막이 필요합니다.
 
-## 마무리
+## 다음 단계
 
-축하합니다! **Backend Developer Deep Dive Roadmap**의 모든 여정을 마쳤습니다.
-이제 당신은 단순한 코더가 아니라, 시스템의 깊이를 이해하고 설계할 수 있는 **엔지니어**입니다.
+- [DDD 전술적 설계: Entity, VO, 그리고 Aggregate](/learning/deep-dive/deep-dive-ddd-tactical/)
+- [Aggregate Root와 트랜잭션 경계](/learning/deep-dive/deep-dive-ddd-aggregates/)
+- [마이크로서비스 패턴](/learning/deep-dive/deep-dive-microservices-patterns/)

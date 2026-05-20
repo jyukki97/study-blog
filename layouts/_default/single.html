@@ -31,6 +31,13 @@
         {{ .Description }}
       </div>
       {{- end }}
+      {{- partial "seo_schema.html" . }}
+      {{- with .Params.summary }}
+      <section class="post-summary-spotlight" aria-label="한눈에 보기">
+        <h2>한눈에 보기</h2>
+        <p>{{ . }}</p>
+      </section>
+      {{- end }}
       {{- with .Params.key_takeaways }}
       <section class="post-key-takeaways" aria-label="핵심 요약">
         <h2>핵심 요약</h2>
@@ -41,6 +48,49 @@
         </ul>
       </section>
       {{- end }}
+      {{- with .Params.operator_checklist }}
+      <section class="post-operator-checklist" aria-label="바로 점검할 것">
+        <h2>바로 점검할 것</h2>
+        <p>읽고 끝내지 않도록, 운영자가 바로 확인할 항목만 짧게 묶었습니다.</p>
+        <ul>
+          {{- range . }}
+          <li>{{ . }}</li>
+          {{- end }}
+        </ul>
+      </section>
+      {{- end }}
+      {{- with .Params.decision_guide }}
+      <section class="post-decision-guide" aria-label="도입 판단 가이드">
+        <div class="post-decision-guide-header">
+          <div>
+            <p class="post-decision-guide-eyebrow">도입 판단 가이드</p>
+            <h2>{{ .title | default "어떤 경우에 바로 적용할까" }}</h2>
+          </div>
+          {{- with .intro }}
+          <p>{{ . }}</p>
+          {{- end }}
+        </div>
+        {{- with .cases }}
+        <div class="post-decision-guide-grid">
+          {{- range . }}
+          <article class="post-decision-guide-card">
+            {{- with .badge }}<span class="post-decision-guide-badge">{{ . }}</span>{{- end }}
+            <h3>{{ .title }}</h3>
+            {{- with .fit }}
+            <p class="post-decision-guide-fit"><strong>추천 상황</strong>: {{ . }}</p>
+            {{- end }}
+            {{- with .watchouts }}
+            <p class="post-decision-guide-watchouts"><strong>주의할 점</strong>: {{ . }}</p>
+            {{- end }}
+            {{- with .next_step }}
+            <p class="post-decision-guide-next"><strong>바로 할 일</strong>: {{ . }}</p>
+            {{- end }}
+          </article>
+          {{- end }}
+        </div>
+        {{- end }}
+      </section>
+      {{- end }}
       {{- partial "post_series_context.html" . }}
       {{- if not (.Param "hideMeta") }}
       <div class="post-meta">
@@ -48,7 +98,6 @@
         {{- partial "translation_list.html" . -}}
         {{- partial "edit_post.html" . -}}
         {{- partial "post_canonical.html" . -}}
-        <span class="reading-time">⏱ {{ .ReadingTime }}분 읽기</span>
       </div>
       <div class="post-actions">
         <button id="focus-mode-toggle" class="focus-mode-toggle" type="button" aria-pressed="false">
@@ -92,37 +141,30 @@
     </div>
     {{- partial "quiz_modal.html" . }}
 
-    <style>
-      .quiz-section {
-        margin: 3rem 0;
-        text-align: center;
-      }
+    {{- end }}
 
-      .open-quiz-btn {
-        background: linear-gradient(135deg, #a8c0ff, #9795f0);
-        color: white;
-        border: none;
-        padding: 1rem 2rem;
-        border-radius: 50px;
-        font-size: 1.1rem;
-        font-weight: 700;
-        cursor: pointer;
-        box-shadow: 0 4px 15px rgba(151, 149, 240, 0.4);
-        transition: transform 0.2s, box-shadow 0.2s;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-      }
-
-      .open-quiz-btn:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 25px rgba(151, 149, 240, 0.6);
-      }
-
-      .btn-icon {
-        font-size: 1.4rem;
-      }
-    </style>
+    {{- with .Params.faqs }}
+    <section class="post-faq" aria-label="자주 묻는 질문">
+      <h3>자주 묻는 질문</h3>
+      <div class="post-faq-list">
+        {{- range . }}
+        <details class="post-faq-item">
+          <summary>{{ .question }}</summary>
+          <div class="post-faq-answer">
+            <p>{{ .answer }}</p>
+          </div>
+        </details>
+        {{- end }}
+      </div>
+    </section>
+    <script type="application/ld+json">
+      {{- $faqEntities := slice -}}
+      {{- range . }}
+        {{- $item := dict "@type" "Question" "name" .question "acceptedAnswer" (dict "@type" "Answer" "text" .answer) -}}
+        {{- $faqEntities = $faqEntities | append $item -}}
+      {{- end }}
+      {{- dict "@context" "https://schema.org" "@type" "FAQPage" "mainEntity" $faqEntities | jsonify | safeJS }}
+    </script>
     {{- end }}
 
     {{- /* 포스트 내용 후 광고 */ -}}
@@ -146,6 +188,28 @@
         <a href="{{ "/posts/" | relURL }}">전체 아카이브 보기</a>
         <a href="{{ "/learning/deep-dive/" | relURL }}">심화 학습 글 보기</a>
         <a href="{{ "/projects/" | relURL }}">프로젝트 글 보기</a>
+      </div>
+    </section>
+    {{- end }}
+
+    {{- if eq .Section "learning" }}
+    {{- $moduleKey := .Params.module -}}
+    {{- $modulePage := false -}}
+    {{- if $moduleKey -}}
+      {{- $moduleCandidates := where site.RegularPages "Params.module_key" $moduleKey -}}
+      {{- with first 1 $moduleCandidates -}}
+        {{- $modulePage = index . 0 -}}
+      {{- end -}}
+    {{- end -}}
+    <section class="post-reading-path learning-reading-path" aria-label="학습 경로 안내">
+      <h3>다음 학습 경로</h3>
+      <p>지금 읽은 글을 개별 지식으로 끝내지 말고, 같은 모듈과 전체 타임라인으로 이어서 학습 흐름을 유지해 보세요.</p>
+      <div class="post-reading-path-links">
+        {{- with $modulePage }}
+        <a href="{{ .RelPermalink }}">이 모듈 전체 보기</a>
+        {{- end }}
+        <a href="{{ "/learning/timeline/" | relURL }}">학습 타임라인 보기</a>
+        <a href="{{ "/learning/deep-dive/" | relURL }}">심화 글 아카이브 보기</a>
       </div>
     </section>
     {{- end }}
@@ -204,6 +268,23 @@
         {{- end }}
       </div>
     </nav>
+    {{- end }}
+
+    {{- with .Params.learning_refs }}
+    <section class="post-learning-refs" aria-label="이어 읽기">
+      <h3>이어서 보면 좋은 글</h3>
+      <p>오늘 글의 맥락을 바로 확장할 수 있게, 개념과 운영 실무를 연결하는 내부 글만 추렸습니다.</p>
+      <div class="post-learning-refs-grid">
+        {{- range . }}
+        <article class="post-learning-ref-card">
+          <h4><a href="{{ .href | relURL }}">{{ .title }}</a></h4>
+          {{- with .description }}
+          <p>{{ . }}</p>
+          {{- end }}
+        </article>
+        {{- end }}
+      </div>
+    </section>
     {{- end }}
 
     {{- if (.Param "comments") }}

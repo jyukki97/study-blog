@@ -20,6 +20,18 @@
     </div>
   </header>
 
+  {{- if .Content }}
+  <section class="learning-overview" aria-label="타임라인 활용 가이드">
+    <div class="section-header">
+      <h2>🗺️ 타임라인 활용 가이드</h2>
+      <div class="section-line"></div>
+    </div>
+    <article class="learning-rich-content">
+      {{ .Content }}
+    </article>
+  </section>
+  {{- end }}
+
   <section class="learning-timeline">
     <div class="section-header">
       <h2>📑 학습 타임라인</h2>
@@ -374,6 +386,7 @@
     white-space: nowrap;
   }
 
+  .learning-overview,
   .learning-timeline {
     margin: 2rem 0 2rem;
   }

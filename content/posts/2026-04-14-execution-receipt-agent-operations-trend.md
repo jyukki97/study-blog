@@ -7,6 +7,19 @@ categories: ["Development", "Learning"]
 series: "2026 에이전트 운영 설계 트렌드"
 keywords: ["execution receipt", "agent governance", "agent audit trail", "approval evidence", "운영 영수증", "에이전트 실행 증적"]
 description: "에이전트가 실제 쓰기 작업과 운영 액션을 수행하기 시작하면서, 단순 로그만으로는 승인, 권한, 실행, 결과를 설명하기 어려워졌습니다. 최근 팀들이 execution receipt 계층을 두는 이유와 실무 기준을 정리합니다."
+summary: "Execution Receipt는 에이전트 자동화에서 남는 흩어진 로그를 하나의 행동 단위 증거로 재구성하는 운영 계층입니다. 핵심은 intent, approval, capability lease, actual effect, evidence를 같은 레코드에 묶어 설명 불가능한 실행을 줄이는 데 있습니다. 외부 전송, 코드 수정, 운영 변경처럼 복구가 어렵거나 감사 책임이 큰 액션부터 receipt coverage를 높이면 중복 실행 방지와 리뷰 속도를 동시에 개선할 수 있습니다."
+faqs:
+  - question: "Execution Receipt는 일반 감사 로그와 무엇이 다른가요?"
+    answer: "감사 로그가 시스템에서 발생한 이벤트를 시간순으로 남기는 데 가깝다면, Execution Receipt는 한 번의 논리적 행동이 어떤 의도와 승인, 권한, 증거 아래 실행됐는지를 하나의 레코드로 설명하는 데 초점을 둡니다. 즉 이벤트를 나열하는 것이 아니라 행동의 정당성과 실제 효과를 함께 묶습니다."
+  - question: "모든 액션에 receipt를 붙여야 하나요?"
+    answer: "처음부터 그럴 필요는 없습니다. 외부 전송, 운영 변경, 권한 변경, 코드 수정처럼 복구 난이도와 설명 책임이 큰 액션부터 100%에 가깝게 붙이고, 읽기 전용 조사 액션은 나중에 coverage를 넓히는 편이 현실적입니다."
+  - question: "Receipt를 추가하면 실행 경로가 너무 느려지지 않나요?"
+    answer: "핵심 필드만 동기식으로 남기고 evidence finalize를 짧은 비동기 후처리로 나누면 오버헤드를 제어할 수 있습니다. 중요한 것은 모든 세부 로그를 실시간으로 저장하는 것이 아니라 승인 범위와 실제 결과를 연결하는 최소 단위를 빠르게 확보하는 것입니다."
+operator_checklist:
+  - "외부 전송, 운영 변경, 권한 변경 액션의 receipt coverage를 우선 100%에 가깝게 맞춘다."
+  - "expected_effect와 actual_effect를 분리 저장해 범위 초과를 자동 감지한다."
+  - "approval_ref, capability_lease_ref, evidence_refs가 함께 없는 액션은 미검증 실행으로 경고한다."
+  - "duplicate suppression key를 intent 단위로 두고 timeout 재시도 중복 실행을 막는다."
 key_takeaways:
   - "좋은 감사 체계는 로그를 더 많이 남기는 것이 아니라, 각 액션을 intent, approval, capability, evidence와 묶은 execution receipt로 설명 가능하게 만드는 것이다."
   - "receipt는 사후 포렌식 용도만이 아니라 중복 실행 방지, 승인 범위 초과 탐지, handoff 품질 개선까지 직접 영향을 준다."
@@ -203,6 +216,29 @@ receipt_id, intent_id, approval_ref, lease_ref, actual_effect, evidence_refs만 
 
 **4주차: 리뷰 화면과 경보 연결**  
 unverifiable action, expired lease execution, evidence 누락을 즉시 경고로 올리고 사람이 receipt 기반으로 검토할 수 있게 만듭니다.
+
+### 6) 리뷰 화면은 "실행 로그 뷰"보다 "승인 대비 결과 뷰"에 가까워야 한다
+
+receipt를 잘 쌓아도 리뷰 화면이 로그 뷰 그대로면 운영자는 다시 긴 이벤트 목록을 읽어야 합니다. 저는 고위험 액션 리뷰 화면에 최소 아래 6칸이 한 번에 보여야 한다고 봅니다.
+
+- 요청 의도와 승인 범위가 무엇이었는지
+- lease가 아직 유효한지
+- 실제 effect가 승인 범위를 넘었는지
+- 증거가 diff, test, message id, artifact hash까지 채워졌는지
+- 동일 intent의 과거 receipt가 이미 있는지
+- rollback 또는 후속 승인 필요 여부가 있는지
+
+특히 외부 전송과 코드 수정은 운영자가 "실행은 성공했지만 설명은 실패한 액션"을 빨리 찾아야 합니다. 예를 들어 메시지 발송은 성공했는데 approval snapshot이 비어 있거나, 문서 수정은 끝났는데 테스트 evidence가 비어 있으면 기술적으로는 success여도 운영적으로는 미완성입니다. 이 차이를 리뷰 화면에서 즉시 보이게 해야 receipt가 단순 저장소가 아니라 **실행 품질 게이트**로 작동합니다.
+
+작게 시작한다면 아래처럼 색을 나누는 것만으로도 효과가 큽니다.
+
+| 상태 | 의미 | 즉시 조치 |
+| --- | --- | --- |
+| 초록 | approval, lease, evidence가 모두 연결됨 | 일반 보관 |
+| 노랑 | 실행은 됐지만 evidence 일부 누락 | reviewer 확인 후 보완 |
+| 빨강 | 승인 연결 없음, lease 만료, 범위 초과 발생 | 후속 실행 중지, 롤백 검토 |
+
+이렇게 보면 receipt는 감사팀만 보는 문서가 아니라, 현업 운영자가 "이 액션을 신뢰해도 되는가"를 빠르게 판단하는 도구가 됩니다.
 
 ## 트레이드오프/주의점
 

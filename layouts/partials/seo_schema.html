@@ -1,0 +1,60 @@
+{{- if .IsPage -}}
+  {{- $schemaType := cond (eq .Section "posts") "BlogPosting" "Article" -}}
+  {{- $description := .Description | default .Summary | plainify -}}
+  {{- $keywords := .Params.keywords | default .Params.tags -}}
+  {{- $articleSection := "" -}}
+  {{- with .Params.categories }}{{- $articleSection = delimit . ", " -}}{{- end -}}
+  {{- $authorName := .Site.Params.author | default .Site.Title -}}
+  {{- $publisher := dict "@type" "Organization" "name" .Site.Title -}}
+  {{- with .Site.Params.label.icon -}}
+    {{- $publisher = merge $publisher (dict "logo" (dict "@type" "ImageObject" "url" (. | absURL))) -}}
+  {{- end -}}
+  {{- $schema := dict
+    "@context" "https://schema.org"
+    "@type" $schemaType
+    "headline" .Title
+    "description" $description
+    "mainEntityOfPage" (dict "@type" "WebPage" "@id" .Permalink)
+    "url" .Permalink
+    "datePublished" (.Date.Format "2006-01-02T15:04:05Z07:00")
+    "dateModified" (.Lastmod.Format "2006-01-02T15:04:05Z07:00")
+    "inLanguage" (.Site.Language.Lang | default "ko-kr")
+    "wordCount" .WordCount
+    "author" (dict "@type" "Person" "name" $authorName)
+    "publisher" $publisher
+  -}}
+  {{- if $keywords -}}
+    {{- $schema = merge $schema (dict "keywords" $keywords) -}}
+  {{- end -}}
+  {{- if $articleSection -}}
+    {{- $schema = merge $schema (dict "articleSection" $articleSection) -}}
+  {{- end -}}
+  {{- with .Params.tags -}}
+    {{- $about := slice -}}
+    {{- range . -}}
+      {{- $about = $about | append (dict "@type" "Thing" "name" .) -}}
+    {{- end -}}
+    {{- $schema = merge $schema (dict "about" $about) -}}
+  {{- end -}}
+  {{- with .Params.series -}}
+    {{- $schema = merge $schema (dict "isPartOf" (dict "@type" "CreativeWorkSeries" "name" .)) -}}
+  {{- end -}}
+  {{- with .Params.cover.image -}}
+    {{- $schema = merge $schema (dict "image" (slice (. | absURL))) -}}
+  {{- end -}}
+  <script type="application/ld+json">
+    {{- $schema | jsonify | safeJS }}
+  </script>
+
+  <script type="application/ld+json">
+    {{- $sectionName := .Section | title -}}
+    {{- if eq .Section "posts" }}{{- $sectionName = "Posts" -}}{{- end -}}
+    {{- if eq .Section "learning" }}{{- $sectionName = "Learning" -}}{{- end -}}
+    {{- $breadcrumbs := slice
+      (dict "@type" "ListItem" "position" 1 "name" "홈" "item" .Site.BaseURL)
+      (dict "@type" "ListItem" "position" 2 "name" $sectionName "item" (printf "%s%s/" .Site.BaseURL .Section))
+      (dict "@type" "ListItem" "position" 3 "name" .Title "item" .Permalink)
+    -}}
+    {{- dict "@context" "https://schema.org" "@type" "BreadcrumbList" "itemListElement" $breadcrumbs | jsonify | safeJS }}
+  </script>
+{{- end -}}

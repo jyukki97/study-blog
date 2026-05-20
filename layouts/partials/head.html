@@ -51,16 +51,7 @@
 {{- $canonical := .Permalink -}}
 {{- with .Params.canonicalURL }}{{- $canonical = trim . " " -}}{{- end -}}
 <link rel="canonical" href="{{ $canonical }}">
-{{- if .IsPage }}
-<meta property="article:published_time" content="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}">
-<meta property="article:modified_time" content="{{ .Lastmod.Format "2006-01-02T15:04:05Z07:00" }}">
-{{- with .Section }}
-<meta property="article:section" content="{{ . }}">
-{{- end }}
-{{- range first 10 $keywords }}
-<meta property="article:tag" content="{{ . }}">
-{{- end }}
-{{- end }}
+{{- partial "social_meta.html" . }}
 {{- if site.Params.analytics.google.SiteVerificationTag }}
 <meta name="google-site-verification" content="{{ site.Params.analytics.google.SiteVerificationTag }}">
 {{- end }}
