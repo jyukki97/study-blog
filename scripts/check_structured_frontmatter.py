@@ -2,7 +2,7 @@
 """Study Blog 구조화 front matter 품질 점검.
 
 점검 항목
-1) learning_refs 항목 필수 필드(title/href/description)
+1) posts와 learning 글의 learning_refs 항목 필수 필드(title/href/description)
 2) learning_refs href 중복 및 내부 경로 형식
 3) key_takeaways / operator_checklist 빈 목록 감지
 4) decision_guide.cases 필수 필드 점검
@@ -21,9 +21,15 @@ from typing import Any
 
 REPO = Path(__file__).resolve().parents[1]
 CONTENT_DIR = REPO / "content"
-POSTS_DIR = REPO / "content" / "posts"
 FRONT_MATTER_RE = re.compile(r"^---\n(.*?)\n---\n", re.DOTALL)
 MIN_FAQ_ANSWER_LEN = 30
+STRUCTURED_FIELDS = {
+    "key_takeaways",
+    "operator_checklist",
+    "learning_refs",
+    "decision_guide",
+    "faqs",
+}
 RUBY_PARSE_SCRIPT = r'''
 require "yaml"
 require "json"
@@ -67,8 +73,15 @@ def parse_yaml(front_matter: str, path: Path) -> dict[str, Any]:
     return json.loads(result.stdout or "{}")
 
 
-def iter_posts() -> list[Path]:
-    return sorted(p for p in POSTS_DIR.glob("*.md") if p.name != "_index.md")
+def iter_structured_pages() -> list[Path]:
+    pages: list[Path] = []
+    for path in sorted(CONTENT_DIR.rglob("*.md")):
+        if path.name in {"_index.md", "index.md"}:
+            continue
+        front_matter = load_front_matter(path)
+        if any(re.search(rf"(?m)^\s*{re.escape(field)}\s*:", front_matter) for field in STRUCTURED_FIELDS):
+            pages.append(path)
+    return pages
 
 
 def normalize_route(path: str) -> str:
@@ -110,7 +123,7 @@ def main() -> int:
     errors: list[str] = []
     content_routes = build_content_routes()
 
-    for post in iter_posts():
+    for post in iter_structured_pages():
         rel = post.relative_to(REPO)
         fm = load_front_matter(post)
         if not fm:
