@@ -3,7 +3,7 @@ title: "6단계: 클라우드 네이티브 & DevOps"
 date: 2025-12-16
 draft: false
 topic: "Backend Roadmap"
-tags: ["DevOps", "CI/CD", "모니터링", "AWS", "Docker", "K8s"]
+tags: ["DevOps", "CI/CD", "모니터링", "AWS", "Docker", "K8s", "Release Engineering"]
 categories: ["Learning"]
 description: "Docker, K8s, CI/CD, 모니터링, 트레이싱까지 운영 스택을 갖추는 모듈"
 weight: 6
@@ -13,6 +13,16 @@ module_key: "ops-observability"
 url: "/learning/modules/backend-ops-observability-phase/"
 aliases:
   - "/learning/modules/backend-ops-observability-phase/"
+learning_refs:
+  - title: "Feature Flag Lifecycle Cleanup"
+    href: "/learning/deep-dive/deep-dive-feature-flag-lifecycle-cleanup-playbook/"
+    description: "플래그를 생성할 때 owner, expiry, cleanup trigger를 함께 정의해 릴리스 부채를 줄이는 운영 절차입니다."
+  - title: "Traffic Cutover & Migration"
+    href: "/learning/deep-dive/deep-dive-traffic-cutover-migration/"
+    description: "새 경로로 트래픽을 옮길 때 전환 단위, 성공 기준, 롤백 윈도우를 숫자로 고정하는 방법입니다."
+  - title: "분산 트레이싱 도입 플레이북"
+    href: "/learning/deep-dive/deep-dive-distributed-tracing-adoption-playbook/"
+    description: "릴리스 중 문제가 생겼을 때 trace/span/log correlation으로 원인을 좁히는 관측성 기준입니다."
 ---
 
 ## 이 단계에서 얻는 것
@@ -51,6 +61,26 @@ aliases:
 - 배포 전략(롤링/블루그린/카나리)과 롤백
 - 관측성(Logs/Metrics/Tracing) 기본
 - 운영 보안(비밀 관리, 최소 권한)
+
+## 릴리스 운영 루프: 만들고, 노출하고, 지우기
+
+운영 모듈에서 자주 빠지는 부분은 "배포가 끝난 뒤 남는 것"입니다. Docker 이미지가 잘 빌드되고 CI가 초록색이며 카나리 배포가 성공해도, 릴리스 플래그·임시 우회 코드·대시보드 필터·알람 예외가 계속 남아 있으면 다음 변경의 비용이 올라갑니다. 그래서 이 단계에서는 배포 전략을 **release control loop**로 봐야 합니다.
+
+실무에서는 아래 순서로 연결하면 좋습니다.
+
+1. **릴리스 전 계약 작성**: 기능 플래그를 만든다면 owner, 기본값, 만료일, 성공 지표, rollback window를 같이 기록합니다.
+2. **제한 노출**: 카나리나 트래픽 전환 비율을 정하고, p95/p99 지연·error rate·timeout·queue lag 기준을 숫자로 둡니다.
+3. **관측성 연결**: trace id, request id, flag variant, rollout version이 로그와 메트릭에서 함께 보이게 합니다.
+4. **중단/확대 판단**: 성공 기준을 만족하면 노출 비율을 올리고, 실패하면 flag off, traffic shift back, rollback deploy 중 무엇을 먼저 할지 실행합니다.
+5. **부채 정리**: 100% 노출 후 안정 기간이 지나면 죽은 분기, 테스트 fixture, 문서, 대시보드 필터, 운영 콘솔 key까지 cleanup 범위에 넣습니다.
+
+이 루프를 넣으면 "무중단 배포를 할 줄 안다"에서 끝나지 않고, 변경이 반복되어도 운영 표면이 계속 정리됩니다. 특히 릴리스 플래그는 시간이 지나면 테스트 조합을 폭발시키기 때문에, 생성 시점부터 제거 조건을 같이 두는 편이 장기적으로 더 안전합니다.
+
+### 추천 연결 글
+
+- [Feature Flag Lifecycle Cleanup](/learning/deep-dive/deep-dive-feature-flag-lifecycle-cleanup-playbook/): 오래된 플래그가 운영 부채가 되지 않게 owner, expiry, cleanup trigger를 관리하는 방법
+- [Traffic Cutover & Migration](/learning/deep-dive/deep-dive-traffic-cutover-migration/): 트래픽 전환 단위와 롤백 윈도우를 설계하는 방법
+- [분산 트레이싱 도입 플레이북](/learning/deep-dive/deep-dive-distributed-tracing-adoption-playbook/): 릴리스 중 장애 원인을 추적하기 위한 trace/span/log 기준
 
 ## 미니 실습
 
