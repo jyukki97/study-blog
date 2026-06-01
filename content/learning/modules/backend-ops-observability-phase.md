@@ -23,6 +23,9 @@ learning_refs:
   - title: "분산 트레이싱 도입 플레이북"
     href: "/learning/deep-dive/deep-dive-distributed-tracing-adoption-playbook/"
     description: "릴리스 중 문제가 생겼을 때 trace/span/log correlation으로 원인을 좁히는 관측성 기준입니다."
+  - title: "인시던트 커맨드와 Severity 운영 플레이북"
+    href: "/learning/deep-dive/deep-dive-incident-command-severity-playbook/"
+    description: "장애가 실제로 발생했을 때 IC, Tech Lead, 커뮤니케이션, 종료 기준을 역할과 숫자로 고정하는 절차입니다."
 ---
 
 ## 이 단계에서 얻는 것
@@ -81,6 +84,7 @@ learning_refs:
 - [Feature Flag Lifecycle Cleanup](/learning/deep-dive/deep-dive-feature-flag-lifecycle-cleanup-playbook/): 오래된 플래그가 운영 부채가 되지 않게 owner, expiry, cleanup trigger를 관리하는 방법
 - [Traffic Cutover & Migration](/learning/deep-dive/deep-dive-traffic-cutover-migration/): 트래픽 전환 단위와 롤백 윈도우를 설계하는 방법
 - [분산 트레이싱 도입 플레이북](/learning/deep-dive/deep-dive-distributed-tracing-adoption-playbook/): 릴리스 중 장애 원인을 추적하기 위한 trace/span/log 기준
+- [인시던트 커맨드와 Severity 운영 플레이북](/learning/deep-dive/deep-dive-incident-command-severity-playbook/): 실제 장애가 선언된 뒤 역할, 15분 업데이트, 종료 기준을 운영하는 방법
 
 ## 미니 실습
 
