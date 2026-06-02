@@ -50,9 +50,10 @@
     {{- $sectionName := .Section | title -}}
     {{- if eq .Section "posts" }}{{- $sectionName = "Posts" -}}{{- end -}}
     {{- if eq .Section "learning" }}{{- $sectionName = "Learning" -}}{{- end -}}
+    {{- $sectionURL := printf "/%s/" .Section | absURL -}}
     {{- $breadcrumbs := slice
-      (dict "@type" "ListItem" "position" 1 "name" "홈" "item" .Site.BaseURL)
-      (dict "@type" "ListItem" "position" 2 "name" $sectionName "item" (printf "%s%s/" .Site.BaseURL .Section))
+      (dict "@type" "ListItem" "position" 1 "name" "홈" "item" ("/" | absURL))
+      (dict "@type" "ListItem" "position" 2 "name" $sectionName "item" $sectionURL)
       (dict "@type" "ListItem" "position" 3 "name" .Title "item" .Permalink)
     -}}
     {{- dict "@context" "https://schema.org" "@type" "BreadcrumbList" "itemListElement" $breadcrumbs | jsonify | safeJS }}
