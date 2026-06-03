@@ -5,6 +5,34 @@ draft: false
 tags: ["dev-news", "ai", "sre", "security", "frontend", "rust"]
 categories: ["Development", "Senior Insight"]
 description: "2026년 6월 2일 기준 Hacker News, GeekNews, Lobsters의 최근 인기 개발 이슈를 병합해 실무 영향과 도입 기준을 정리합니다."
+summary: "2026-06-02 개발 뉴스의 핵심은 AI 모델 경쟁, AI-SRE, 계정 보안, 운영 도구 기본기, 성능 라이브러리, 프론트엔드 최적화를 모두 검증 가능한 운영 체계로 묶어 보는 것이다."
+key_takeaways:
+  - "모델 경쟁이 빨라질수록 팀의 차이는 모델 선택보다 업무별 라우팅, 비용 관측, 실패 기준에서 난다."
+  - "AI-SRE와 계정 보안은 자동 조치보다 상태 전이, 진단 근거, 롤백 경로를 먼저 설계해야 안정적으로 확장된다."
+  - "systemd timer, Rust 기반 성능 라이브러리, CSS 네이티브 효과처럼 기본기에 가까운 선택도 장기 운영 비용을 낮추는 전략이 될 수 있다."
+operator_checklist:
+  - "AI 모델 후보를 업무별 허용 데이터, 실패 비용, 평가셋, 사람 반려율 기준으로 비교한다."
+  - "AI-SRE 도입 범위를 자동 수정이 아니라 알림 요약, 원인 후보 수집, 최근 배포 연결 같은 자동 진단부터 시작한다."
+  - "계정 복구, 이메일 변경, 2FA, 세션 무효화를 하나의 상태 전이표로 묶고 원자적 차단 조건을 테스트한다."
+  - "작은 운영 자동화에는 재시도, 타임아웃, 로그 보존, 실패 알림, 수동 재실행 명령을 함께 문서화한다."
+  - "기반 라이브러리와 프론트엔드 효과는 평균 성능보다 tail latency, 접근성, fallback, 롤백 가능성을 먼저 확인한다."
+learning_refs:
+  - title: "저가 코딩 에이전트와 인프라 비용"
+    href: "/posts/2026-05-25-dev-news-senior-insights/"
+    description: "AI 모델 비용과 코딩 에이전트 제약을 업무 단위 운영 비용으로 해석한 전날 흐름입니다."
+  - title: "Rollback Budget"
+    href: "/posts/2026-04-21-rollback-budget-ai-runtime-changes-trend/"
+    description: "AI 런타임 변경에서 성공 기준보다 중단 기준과 되돌리기 비용을 먼저 정하는 운영 패턴입니다."
+  - title: "Embedded Durable Queue"
+    href: "/posts/2026-05-01-embedded-durable-queue-sqlite-postgres-trend/"
+    description: "인프라 선택을 기능 목록보다 복구 가능성, 저장 수명, 운영 단순성으로 판단하는 관점입니다."
+faqs:
+  - question: "AI 모델 경쟁이 심해질 때 팀은 무엇부터 준비해야 하나요?"
+    answer: "모델별 성능표보다 업무별 라우팅 기준을 먼저 준비해야 합니다. 어떤 데이터가 허용되는지, 실패하면 사람이 얼마나 되돌려야 하는지, 비용과 반려율을 어떻게 기록할지 정해야 벤더를 바꿔도 운영 품질을 유지할 수 있습니다."
+  - question: "AI-SRE를 바로 자동 복구까지 연결해도 되나요?"
+    answer: "초기에는 자동 복구보다 자동 진단이 더 안전합니다. 알림 해석, 최근 배포와 지표 변화 연결, runbook 후보 제시처럼 blast radius가 없는 작업에서 근거 품질을 확인한 뒤 제한된 권한으로 확장하는 편이 좋습니다."
+  - question: "계정 보안 리뷰에서 가장 놓치기 쉬운 부분은 무엇인가요?"
+    answer: "개별 API 취약점보다 상태 전이의 어긋남을 놓치기 쉽습니다. 이메일 변경, 복구 링크, 2FA, 기존 세션, 위험 신호 차단을 하나의 상태 머신으로 보고 테스트해야 실제 탈취 경로를 줄일 수 있습니다."
 ---
 
 오늘의 개발 뉴스는 "AI가 더 싸지고 강해진다"는 표면보다, 그 변화가 팀의 운영 책임을 어디로 이동시키는지에 초점을 맞춰 봐야 한다. 모델은 다양해지고, SRE는 더 많은 자동화를 받아들여야 하며, 브라우저와 계정 보안은 여전히 작은 UX 허점 하나로 무너진다. 지난 글인 [저가 코딩 에이전트와 인프라 비용](/posts/2026-05-25-dev-news-senior-insights/), [AI 에이전트 산출물과 비용 관측](/posts/2026-05-10-dev-news-senior-insights/), [에이전트형 웹과 로컬 AI](/posts/2026-05-20-dev-news-senior-insights/)와 이어서 보면, 지금의 핵심은 "도입 여부"가 아니라 "검증 가능한 운영 체계"다.
