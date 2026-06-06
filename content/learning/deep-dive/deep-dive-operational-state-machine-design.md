@@ -6,8 +6,55 @@ topic: "Backend Architecture"
 tags: ["State Machine", "Domain Modeling", "Idempotency", "Concurrency", "Backend Reliability"]
 categories: ["Backend Deep Dive"]
 description: "주문, 결제, 업로드, 배치, 이벤트 소비처럼 상태가 있는 백엔드 흐름을 단순 status 컬럼이 아니라 전이표·불변식·감사 로그·재처리 기준으로 설계하는 방법을 정리합니다."
+summary: "운영용 상태 머신은 status 값을 예쁘게 나누는 일이 아니라 허용 전이, 금지 전이, 멱등 키, 감사 이력, 재처리 기준을 한 계약으로 묶는 설계입니다. 결제·업로드·배치처럼 실패와 중복이 자연스러운 흐름에서는 조건부 업데이트와 전이 이력이 사고 방지 장치가 됩니다."
 module: "backend-architecture"
 study_order: 1435
+keywords: ["state machine", "status column", "상태 머신", "상태 전이", "멱등성", "운영 설계"]
+key_takeaways:
+  - "status 컬럼은 현재값이고, 운영용 상태 머신은 어떤 명령이 어떤 조건에서 다음 상태로 갈 수 있는지 정의한 계약이다."
+  - "상태 전이는 애플리케이션 if문만 믿지 말고 current_state 조건을 포함한 원자적 update로 닫아야 한다."
+  - "금전·권한·삭제·공개처럼 위험한 상태는 전이 이력, 멱등 키, forbidden transition metric을 함께 남겨야 재처리 사고를 줄일 수 있다."
+operator_checklist:
+  - "상태값이 4개 이상이면 허용 전이표와 금지 전이를 PR 또는 설계 문서에 붙인다."
+  - "중복 명령, 오래된 이벤트, 금지 전이를 서로 다른 처리 결과와 metric으로 분리한다."
+  - "terminal state 재오픈은 DB 직접 수정이 아니라 별도 명령과 감사 이력으로만 허용한다."
+  - "재처리 스크립트, 관리자 도구, batch worker가 같은 전이 함수를 우회하지 않는지 확인한다."
+  - "상태 이력 metadata에는 원문 개인정보나 토큰을 넣지 않고 식별자와 판단 근거만 남긴다."
+learning_refs:
+  - title: "멱등성 API 설계"
+    href: "/learning/deep-dive/deep-dive-idempotency/"
+    description: "같은 요청이 반복돼도 같은 업무 효과만 발생하게 만드는 API 계약입니다."
+  - title: "UPSERT·UNIQUE·멱등 키 쓰기 경로"
+    href: "/learning/deep-dive/deep-dive-upsert-unique-idempotency-write-path-playbook/"
+    description: "DB unique constraint와 멱등 ledger를 함께 쓰는 쓰기 경로 설계입니다."
+  - title: "Transactional Inbox와 멱등 Consumer"
+    href: "/learning/deep-dive/deep-dive-transactional-inbox-idempotent-consumer-playbook/"
+    description: "중복·역전 이벤트를 상태 전이와 함께 다루는 소비자 패턴입니다."
+decision_guide:
+  intro: "상태 머신은 모든 enum에 붙이는 장식이 아니라 운영 위험이 있는 흐름부터 적용하는 안전장치입니다."
+  cases:
+    - badge: "간단한 enum"
+      title: "상태가 3개 이하이고 한 요청 안에서 끝난다"
+      fit: "화면 표시나 내부 처리 단계처럼 실패 후 재처리와 외부 이벤트가 없는 흐름에 적합합니다."
+      watchouts: "나중에 webhook, worker, 승인 단계가 붙으면 전이표로 승격할 준비가 필요합니다."
+      next_step: "상태값 이름과 terminal state만 명확히 두고 과한 이력 테이블은 미룹니다."
+    - badge: "전이표 필수"
+      title: "worker, webhook, 재시도, 사용자 취소가 섞인다"
+      fit: "주문, 결제, 파일 스캔, import job처럼 중복·역전 이벤트가 정상적으로 발생하는 흐름입니다."
+      watchouts: "읽고 판단한 뒤 update하는 코드만 있으면 동시 요청에서 최신 상태를 되돌릴 수 있습니다."
+      next_step: "허용 전이표, 조건부 update, 멱등 키, transition metric을 함께 추가합니다."
+    - badge: "감사/승인 강화"
+      title: "금전, 권한, 삭제, 공개 상태를 바꾼다"
+      fit: "상태 하나가 보안 사고나 금전 불일치로 이어질 수 있는 고위험 도메인입니다."
+      watchouts: "관리자 수동 수정이나 DB 패치가 전이 이력을 우회하면 원인 분석과 보정이 어려워집니다."
+      next_step: "전이 history, manual review queue, compensation 경로를 설계에 포함합니다."
+faqs:
+  - question: "상태 머신을 쓰면 workflow engine도 꼭 필요할까요?"
+    answer: "아닙니다. workflow engine은 장기 실행과 재시도 실행을 도와주지만, 어떤 전이가 허용되는지는 도메인 규칙입니다. 작은 기능은 전이표와 조건부 update만으로도 충분합니다."
+  - question: "상태 이력을 모두 영구 보관해야 하나요?"
+    answer: "위험도에 따라 다릅니다. 금전·권한·삭제·정산은 장기 보관이 필요할 수 있지만, 임시 화면 상태나 짧은 배치 단계는 7~90일 보관 또는 metric 요약으로 충분할 수 있습니다."
+  - question: "terminal state를 되돌려야 하는 예외는 어떻게 처리하나요?"
+    answer: "DB에서 status만 바꾸지 말고 별도 명령, 승인자, reason, compensation 계획을 가진 새 전이로 모델링해야 합니다. 그래야 재처리와 감사에서 같은 규칙을 적용할 수 있습니다."
 ---
 
 백엔드에서 `status` 컬럼은 처음에는 단순합니다. `PENDING`, `DONE`, `FAILED` 정도만 있으면 화면도 만들 수 있고 배치도 돌릴 수 있습니다. 하지만 서비스가 커지면 이 컬럼은 곧 운영 사고의 출발점이 됩니다. 결제는 이미 승인됐는데 주문은 취소 상태가 되고, 파일은 스캔 전인데 공개 URL이 열리고, 재처리 배치가 예전 이벤트를 다시 반영해서 최신 상태를 되돌립니다.
@@ -183,6 +230,68 @@ Order transition(Order order, OrderCommand command) {
 - manual review queue: 1시간 이상 처리 지연이면 운영 알림
 
 숫자는 서비스마다 조정해야 하지만, 기준이 없으면 상태 머신은 코드 품질 장식으로 끝납니다.
+
+### 4) 주문 상태 예시로 전이 계약을 검증한다
+
+상태 머신은 추상적인 표로만 두면 리뷰 때는 좋아 보이지만 운영에서는 잘 쓰이지 않습니다. 실제 명령, 이벤트, 데이터 필드를 붙여 봐야 빈틈이 보입니다. 예를 들어 주문 흐름을 아래처럼 잡았다고 해보겠습니다.
+
+```text
+REQUESTED
+  -> PAYMENT_PENDING        command: start_payment
+PAYMENT_PENDING
+  -> PAID                   event: payment_approved
+  -> PAYMENT_FAILED         event: payment_failed
+  -> CANCELED               command: cancel_before_payment
+PAID
+  -> CANCEL_REQUESTED       command: cancel_after_payment
+CANCEL_REQUESTED
+  -> REFUND_PENDING         command: start_refund
+REFUND_PENDING
+  -> CANCELED               event: refund_approved
+```
+
+이 표에서 바로 드러나는 운영 질문이 있습니다. 결제 승인 webhook이 늦게 도착했는데 주문이 이미 `CANCELED`이면 어떻게 할까요? 같은 `payment_approved` 이벤트가 두 번 오면 두 번째는 성공 응답을 줘야 할까요, 무시해야 할까요? `PAID` 상태에서 결제 실패 이벤트가 오면 단순 stale event인지, 결제사 정정 이벤트인지, 데이터 불일치인지 어떻게 구분할까요?
+
+이 질문을 코드로 닫으려면 상태와 외부 식별자를 같이 봐야 합니다.
+
+```sql
+UPDATE orders
+SET status = 'PAID',
+    payment_id = :payment_id,
+    paid_at = :approved_at,
+    version = version + 1
+WHERE order_id = :order_id
+  AND status = 'PAYMENT_PENDING'
+  AND payment_id IS NULL;
+```
+
+이 update가 0건이면 즉시 실패로 던지지 않습니다. 먼저 같은 `payment_id`로 이미 `PAID`가 됐는지 확인합니다. 맞다면 멱등 중복이므로 기존 결과를 반환합니다. 주문이 `CANCELED`라면 stale approval인지, 취소와 승인 사이의 경합인지 분류하고 manual review queue로 보낼 수 있습니다. 주문이 `PAID`인데 다른 `payment_id`가 들어왔다면 중복 결제 후보이므로 자동 보정하지 않고 결제 reconciliation 흐름으로 넘기는 편이 안전합니다.
+
+관리자 도구도 같은 전이 계약을 써야 합니다. 장애 중 운영자가 "주문 상태만 PAID로 바꿔 주세요"라고 요청할 수 있지만, 이때 DB를 직접 수정하면 `payment_id`, outbox event, transition history, reconciliation target이 빠질 수 있습니다. 대신 `force_mark_paid` 같은 별도 명령을 만들고, 허용 조건을 좁힙니다.
+
+```text
+command: force_mark_paid
+allowed_from: PAYMENT_PENDING, PAYMENT_FAILED
+required: payment_id, approver_id, reason, evidence_url
+side_effect: transition_history 저장, reconciliation 대상 등록
+forbidden: CANCELED, REFUNDED, DELETED
+```
+
+이렇게 하면 예외 처리도 규칙 안으로 들어옵니다. 운영용 상태 머신의 목표는 예외를 없애는 것이 아니라, 예외가 생겨도 누가 어떤 근거로 어떤 상태를 만들었는지 추적 가능하게 하는 것입니다.
+
+### 5) 상태 전이 테스트는 happy path보다 역전 이벤트를 먼저 넣는다
+
+상태 머신 테스트는 정상 흐름만 확인하면 부족합니다. 실제 장애는 대부분 중복, 순서 역전, 재시도, 수동 보정에서 나옵니다. 최소 테스트 세트는 아래처럼 구성합니다.
+
+- 정상 전이: `REQUESTED -> PAYMENT_PENDING -> PAID`
+- 중복 이벤트: 같은 `payment_approved`를 두 번 처리해도 결제 효과는 한 번만 발생
+- 오래된 이벤트: `CANCELED` 이후 도착한 예전 `payment_failed`는 최신 상태를 덮지 않음
+- 금지 전이: `PAID -> PAYMENT_FAILED`는 forbidden metric을 남기고 거부
+- terminal state: `REFUNDED` 이후 재오픈 명령은 별도 승인 없이는 거부
+- 관리자 예외: `force_mark_paid`는 reason/evidence가 없으면 실패
+- 재처리 경로: inbox replay나 batch replay가 일반 API와 같은 전이 함수를 사용
+
+테스트 이름에도 전이 조건을 드러내면 좋습니다. `should_update_status`보다 `paid_order_rejects_late_payment_failed_event`가 리뷰와 회귀 분석에 훨씬 유용합니다. 상태 머신이 복잡해질수록 테스트는 구현 세부보다 전이표의 행을 검증하는 형태가 되어야 합니다.
 
 ## 트레이드오프/주의점
 
