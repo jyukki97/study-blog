@@ -26,6 +26,24 @@ learning_refs:
   - title: "Bounded Staleness와 Read-Your-Writes"
     href: "/learning/deep-dive/deep-dive-bounded-staleness-read-your-writes-playbook/"
     description: "목록 API에서 최신성, 지연 허용, 사용자 직후 쓰기 보장을 분리해 판단하는 기준입니다."
+decision_guide:
+  intro: "목록 API는 성능만 보고 cursor로 바꾸면 안 됩니다. 사용자가 기대하는 이동 방식, 데이터 변경 빈도, 결과 재현성, 권한 필터 위험을 같이 봐야 합니다."
+  cases:
+    - badge: "Offset 유지"
+      title: "내부 관리자 화면에서 임의 페이지 이동과 전체 count가 핵심이다"
+      fit: "row 수가 작거나 필터가 강하고, 변경 빈도가 낮으며, 운영자가 37페이지처럼 특정 위치로 이동해야 할 때 맞습니다."
+      watchouts: "큰 offset 접근이 반복되면 DB CPU와 응답 지연이 같이 튀므로 최대 페이지, 검색 조건, export 유도를 함께 둬야 합니다."
+      next_step: "큰 page 접근 로그와 count 쿼리 p95를 먼저 확인하고, 상한을 넘는 사용 패턴만 별도 job으로 분리합니다."
+    - badge: "Keyset 우선"
+      title: "사용자 피드, 알림, 주문 내역처럼 계속 변하는 목록이다"
+      fit: "다음 페이지 탐색이 중심이고, stable sort와 unique tie-breaker를 만들 수 있을 때 가장 현실적인 기본값입니다."
+      watchouts: "updated_at, score, 권한 필터처럼 값이 흔들리는 기준을 그대로 cursor에 쓰면 중복·누락이 남습니다."
+      next_step: "ORDER BY, cursor WHERE, 복합 인덱스, token filter_hash를 한 세트로 리뷰합니다."
+    - badge: "Snapshot/Job"
+      title: "정산, 감사, export처럼 결과 재현성이 업무 증거가 된다"
+      fit: "사용자가 페이지를 넘기는 동안 결과 집합이 고정되어야 하거나, 전체 다운로드와 사후 검증이 필요한 흐름에 맞습니다."
+      watchouts: "긴 DB transaction으로 snapshot을 유지하면 vacuum, undo, connection 비용이 커질 수 있습니다."
+      next_step: "operation resource, 임시 결과 저장, point-in-time 검색, export artifact 중 운영 비용이 낮은 방식을 고릅니다."
 faqs:
   - question: "cursor pagination을 쓰면 중복과 누락이 완전히 사라지나요?"
     answer: "아닙니다. stable sort, unique tie-breaker, 현재 필터에 묶인 cursor token이 같이 있어야 줄어듭니다. 정렬 기준이 자주 바뀌거나 권한 필터가 흔들리면 cursor 방식도 중복·누락을 만들 수 있습니다."
@@ -139,6 +157,32 @@ snapshot cursor는 `snapshot_at` 또는 `snapshot_version`을 기준으로 "이 
 목록에서 row가 삭제되거나 사용자의 권한이 바뀌면 커서가 가리키던 위치 주변이 사라질 수 있습니다. soft delete라면 필터 조건이 바뀐 것이고, hard delete라면 tie-breaker row가 아예 없어집니다. 이때 cursor에 row 존재를 의존하면 취약합니다. cursor는 "마지막 row를 다시 찾는 키"가 아니라 "정렬 공간의 위치"여야 합니다. 즉 `created_at`, `id` 값만 있으면 마지막 row가 삭제되어도 다음 범위를 조회할 수 있어야 합니다.
 
 권한 변경은 더 어렵습니다. 1페이지를 볼 때 접근 가능했던 프로젝트가 2페이지 조회 전에 권한 해제될 수 있습니다. 이 경우 보안이 우선입니다. 누락 없는 탐색보다 현재 권한 기준 필터가 먼저입니다. 단, 감사·정산 export처럼 결과 고정이 필요한 작업은 시작 시점 권한과 결과 생성 권한을 별도 receipt로 남기는 편이 맞습니다. 이 관점은 [Tamper-Evident Audit Log](/learning/deep-dive/deep-dive-tamper-evident-audit-log-playbook/)와도 연결됩니다.
+
+### 6) 선택 기준은 화면 기능이 아니라 실패했을 때의 비용으로 잡는다
+
+페이지네이션 방식은 UI 모양으로만 고르면 자주 틀립니다. "더 보기" 버튼이면 cursor, 페이지 번호가 있으면 offset처럼 단순화하면 관리자 검색, 정산 목록, 사용자 피드가 같은 기준으로 묶입니다. 실제 선택 기준은 **실패했을 때 무엇이 비싼가**입니다. 중복 노출이 조금 불편한 정도인지, 누락이 금전 손실로 이어지는지, 특정 시점의 결과를 나중에 감사 증거로 재현해야 하는지에 따라 답이 달라집니다.
+
+예를 들어 상품 검색 관리자 화면은 임의 페이지 이동과 전체 count가 중요할 수 있습니다. 이 경우 offset을 무조건 버리기보다 검색 조건을 강하게 제한하고, 큰 offset은 export job으로 유도하는 편이 낫습니다. 반대로 모바일 알림 목록은 93페이지로 바로 가는 기능보다 "이미 본 알림이 계속 반복되지 않는 것"이 중요합니다. 이때는 `created_at DESC, id DESC` 같은 keyset이 더 자연스럽습니다. 정산 결과 화면은 둘 다 부족할 수 있습니다. 사용자가 1페이지를 본 뒤 2페이지를 보는 사이 결과가 바뀌면 업무 증거성이 깨지므로 snapshot 또는 operation resource가 필요합니다.
+
+간단한 선택표는 아래처럼 둘 수 있습니다.
+
+| 질문 | 예라고 답하면 | 우선 검토 |
+| --- | --- | --- |
+| 사용자가 특정 페이지 번호로 바로 가야 하는가? | 운영 검색, CS 조회 | offset + 제한된 필터 |
+| 목록이 초 단위로 계속 변하는가? | 피드, 알림, 활동 로그 | keyset cursor |
+| 정렬 기준이 수정될 때마다 바뀌는가? | updated_at, relevance score | snapshot 또는 append-only sort key |
+| 결과를 나중에 같은 순서로 재현해야 하는가? | 정산, 감사, export | snapshot/job |
+| 권한 필터가 자주 바뀌는가? | 협업 도구, 프로젝트 권한 | 현재 권한 우선 + cursor filter_hash |
+| 전체 count가 매 요청마다 필요한가? | 보고서, 대시보드 | 비동기 집계 또는 캐시 |
+
+이 표의 목적은 cursor를 더 많이 쓰자는 것이 아닙니다. 목록의 실패 모드를 먼저 드러내자는 것입니다. offset을 유지하더라도 큰 페이지 접근 상한, count 캐시, export 전환 기준을 명시하면 운영 리스크를 줄일 수 있습니다. keyset을 쓰더라도 토큰에 필터와 정렬 버전을 묶지 않으면 "빠르지만 믿기 어려운 목록"이 됩니다. snapshot을 쓰더라도 저장소 만료, 재생성 정책, 사용자 권한 변화 기준이 없으면 운영 비용이 숨습니다.
+
+PR 리뷰에서는 아래 질문 4개만 고정해도 품질이 크게 올라갑니다.
+
+- 이 목록에서 사용자가 가장 싫어할 실패는 중복, 누락, 느림, count 부정확, 권한 노출 중 무엇인가?
+- 정렬 키는 immutable인가, 동점이 생기면 어떤 unique key로 순서를 고정하는가?
+- cursor나 snapshot 기준이 필터, 권한, 정렬 버전 변화에 어떻게 반응하는가?
+- 결과 재현성이 필요한 경우 API 요청 안에서 해결할지, 별도 operation/job으로 분리할지 정했는가?
 
 ## 실무 적용
 
