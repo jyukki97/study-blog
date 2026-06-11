@@ -10,6 +10,45 @@ categories: ["Spring"]
 draft: false
 description: "URI/Header/Content Negotiation 방식의 API 버전 관리와 하위 호환성 전략"
 module: "spring-core"
+summary: "API 버전 관리는 URL에 v1을 붙이는 문법 문제가 아니라, 기존 클라이언트를 깨뜨리지 않으면서 새 계약으로 이동시키는 운영 전략입니다. 변경 유형을 분류하고, sunset window와 관측 지표를 함께 설계해야 실제 장애를 줄일 수 있습니다."
+key_takeaways:
+  - "외부 공개 API와 파트너 API는 URL Path 버전이 가장 단순하고 캐시·문서·디버깅 비용이 낮다."
+  - "Breaking Change는 새 버전, Non-Breaking Change는 기존 버전 확장으로 처리해 클라이언트 호환성을 유지한다."
+  - "Deprecation은 삭제가 아니라 종료 예고이므로 Sunset 헤더, 사용량 관측, 대체 API 안내가 같이 필요하다."
+operator_checklist:
+  - "최근 30~90일 기준으로 버전별 호출량, 고유 클라이언트, 앱 버전 분포를 확인한다."
+  - "필드 제거·타입 변경·필수 파라미터 추가를 breaking change로 분류하고 릴리스 노트에 분리한다."
+  - "deprecated API에는 Deprecation/Sunset/Link 헤더와 successor API 문서를 같이 제공한다."
+  - "구버전 차단은 feature flag나 gateway rule로 단계적으로 적용하고 즉시 되돌릴 수 있게 둔다."
+decision_guide:
+  title: "버전 전략을 고르는 기준"
+  intro: "API 버전 방식은 취향보다 클라이언트 종류, 캐시 요구, 배포 통제권으로 고르는 편이 안전합니다."
+  cases:
+    - badge: "Public API"
+      title: "외부 파트너나 공개 API"
+      fit: "URL Path 버전으로 문서, 로그, 테스트, CDN 캐시 키를 명확하게 분리한다."
+      watchouts: "버전이 늘어날수록 라우팅과 문서가 폭발하므로 sunset 정책을 처음부터 같이 둔다."
+      next_step: "/v1, /v2 경로별 owner, sunset date, 대체 API 링크를 API 카탈로그에 기록한다."
+    - badge: "Internal API"
+      title: "사내 서비스 간 API"
+      fit: "Header 또는 content negotiation 방식으로 URL을 안정적으로 유지하되 contract test를 강화한다."
+      watchouts: "프록시와 캐시가 버전 헤더를 누락하면 다른 버전 응답이 섞일 수 있다."
+      next_step: "gateway, CDN, observability 태그에 X-API-Version 또는 Accept 값을 반드시 포함한다."
+    - badge: "Prototype"
+      title: "작은 실험 API"
+      fit: "Query parameter는 빠르게 실험하기 좋지만 장기 공개 계약으로는 낮은 우선순위다."
+      watchouts: "기본값이 숨어 있으면 클라이언트가 어떤 계약을 쓰는지 로그만으로 알기 어렵다."
+      next_step: "실험이 제품 API로 승격되면 path/header 버전으로 전환할 마이그레이션 티켓을 만든다."
+learning_refs:
+  - title: "API Deprecation과 Sunset 운영 플레이북"
+    href: "/learning/deep-dive/deep-dive-api-deprecation-sunset-playbook/"
+    description: "버전 종료를 실제 운영 절차로 가져가기 위한 warning, sunset window, 차단 플래그 기준을 다룹니다."
+  - title: "Consumer-Driven Contract Testing"
+    href: "/learning/deep-dive/deep-dive-consumer-driven-contract-testing/"
+    description: "새 API 버전이 소비자 계약을 깨뜨리지 않는지 자동으로 검증하는 방법을 연결해서 볼 수 있습니다."
+  - title: "배포 런북: 안전한 배포와 롤백"
+    href: "/learning/deep-dive/deep-dive-deployment-runbook/"
+    description: "API 버전 전환을 배포·롤백·게이트 기준으로 운영할 때 필요한 절차를 보강합니다."
 quizzes:
   - question: "API 버전 관리가 필요한 가장 큰 이유는?"
     options:
@@ -324,6 +363,32 @@ public class DeprecatedResponse<T> {
 
 ---
 
+## 운영 관점에서 다시 보는 버전 전환
+
+버전 관리를 설계할 때 가장 먼저 정해야 할 것은 "어떤 방식이 예쁜가"가 아니라 **누가 언제 바꿀 수 있는가**입니다. 같은 회사 안의 웹 프론트엔드라면 배포를 맞춰서 빠르게 전환할 수 있지만, 모바일 앱·외부 파트너·배치 연동은 서버팀 일정만으로 움직이지 않습니다. 그래서 API 버전 정책에는 코드 구조뿐 아니라 클라이언트 배포 주기와 지원 기간이 들어가야 합니다.
+
+실무에서는 버전별 사용량을 최소 아래 단위로 나눠 봅니다.
+
+| 관측 단위 | 봐야 하는 이유 |
+| --- | --- |
+| `api_version` | v1, v2 중 어느 계약이 실제로 쓰이는지 확인 |
+| `client_id` | 남아 있는 핵심 파트너나 내부 서비스를 식별 |
+| `app_version` | 모바일 앱 업데이트 지연 여부 확인 |
+| `endpoint` | 특정 기능만 마이그레이션이 늦는지 확인 |
+| `status_code` | 새 버전 전환 후 4xx/5xx가 늘었는지 확인 |
+
+예를 들어 `/v1/orders`를 `/v2/order-cancellations`로 옮긴다면 단순히 v1 트래픽이 줄었는지만 보면 부족합니다. v1 트래픽이 전체의 0.5%로 작아도 정산 배치나 VIP 파트너가 남아 있으면 바로 제거하면 안 됩니다. 반대로 v1 트래픽이 30%여도 모두 같은 사내 웹 클라이언트라면 배포 계획을 맞춰 빠르게 줄일 수 있습니다.
+
+버전 전환 기준은 다음처럼 숫자로 둡니다.
+
+- v1 요청 비율이 전체 요청의 1% 미만으로 14일 유지
+- 고유 외부 파트너 클라이언트 0개 또는 승인된 예외만 남음
+- successor API의 4xx/5xx 비율이 기존 API 대비 0.2%p 이상 높지 않음
+- deprecated 요청에는 30일 이상 `Deprecation`, `Sunset`, `Link` 헤더가 노출됨
+- 롤백 시 10분 안에 legacy handler 또는 gateway route를 되살릴 수 있음
+
+이 기준을 만족하지 못했다면 코드 삭제보다 경고 강화가 먼저입니다. 문서 공지, 응답 헤더, 클라이언트 owner 알림, gateway shadow reject를 단계적으로 올리고, 실제 차단은 마지막에 해야 합니다.
+
 ## 실전 패턴
 
 ### Adapter 패턴으로 버전 변환
@@ -401,5 +466,7 @@ public class UserController {
 
 ## 🔗 Related Deep Dive
 
-- **API Gateway 설계** *(준비 중)*: 버전 라우팅과 트래픽 관리.
-- **[GraphQL 심화](/learning/deep-dive/deep-dive-graphql-advanced/)**: Schema Evolution으로 버전 없는 API.
+- **[API Gateway 설계](/learning/deep-dive/deep-dive-api-gateway-design/)**: 버전 라우팅, 인증, 트래픽 제어를 게이트웨이에서 다루는 기준.
+- **[API Deprecation과 Sunset 운영 플레이북](/learning/deep-dive/deep-dive-api-deprecation-sunset-playbook/)**: 구버전 API를 안전하게 종료하는 절차.
+- **[Consumer-Driven Contract Testing](/learning/deep-dive/deep-dive-consumer-driven-contract-testing/)**: 클라이언트 계약을 깨뜨리지 않는지 검증하는 테스트 전략.
+- **[GraphQL 심화](/learning/deep-dive/deep-dive-graphql-advanced/)**: Schema Evolution으로 버전 없는 API를 운영하는 접근.
