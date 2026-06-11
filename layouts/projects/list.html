@@ -819,5 +819,40 @@
     background: var(--primary-color, #b19cd9);
     color: white;
 }
+
+/* 프로젝트 목록 텍스트 대비 보강 */
+.projects-container .project-description,
+.projects-container .post-card-summary,
+.projects-container .post-card-header time {
+    color: var(--content);
+}
+
+.projects-container .tech-tag,
+.projects-container .post-tag {
+    background: rgba(177, 156, 217, 0.14);
+    border-color: rgba(123, 87, 181, 0.32);
+    color: var(--primary-ink, #7b57b5);
+}
+
+.projects-container .project-status.status-진행중,
+.projects-container .project-status.status-완료,
+.projects-container .project-status.status-보류,
+.projects-container .project-status.status-운영중 {
+    color: #102033;
+    text-shadow: none;
+}
+
+[data-theme="dark"] .projects-container .project-description,
+[data-theme="dark"] .projects-container .post-card-summary,
+[data-theme="dark"] .projects-container .post-card-header time {
+    color: var(--content, #dcdde1);
+}
+
+[data-theme="dark"] .projects-container .tech-tag,
+[data-theme="dark"] .projects-container .post-tag {
+    background: rgba(177, 156, 217, 0.18);
+    border-color: rgba(242, 236, 255, 0.32);
+    color: #f2ecff;
+}
 </style>
 {{- end }}

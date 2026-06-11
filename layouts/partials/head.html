@@ -202,6 +202,9 @@
 <script src="{{ $theme_js.RelPermalink | absURL }}" defer></script>
 {{- end }}
 
+<!-- 오래된 service worker/cache storage 정리 -->
+<script src="{{ "js/site-state-cleanup.js" | absURL }}" defer></script>
+
 <!-- Google AdSense -->
 {{- if and site.Params.adsense.enabled site.Params.adsense.client }}
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site.Params.adsense.client }}" crossorigin="anonymous"></script>

@@ -1399,5 +1399,76 @@
         font-size: 1rem;
     }
 }
+
+/* 프로젝트 상세 텍스트 대비 보강 */
+.project-single-container .project-hero .tech-tag,
+.project-single-container .project-hero .project-link,
+.project-single-container .project-hero .timeline-item {
+    background: rgba(0, 0, 0, 0.18);
+    border-color: rgba(255, 255, 255, 0.42);
+    color: #fff;
+}
+
+.project-single-container .project-hero .tech-tag:hover,
+.project-single-container .project-hero .project-link:hover,
+.project-single-container .project-hero .timeline-item:hover {
+    background: rgba(0, 0, 0, 0.25);
+}
+
+.project-single-container .project-hero .timeline-label,
+.project-single-container .project-hero .no-data {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.project-single-container .project-hero .timeline-value,
+.project-single-container .project-hero .link-text,
+.project-single-container .project-hero .link-arrow {
+    color: #fff;
+}
+
+.project-single-container .content-body p,
+.project-single-container .content-body li,
+.project-single-container .post-card-summary,
+.project-single-container .post-card-header time {
+    color: var(--content);
+}
+
+.project-single-container .content-body a {
+    color: var(--link-color);
+    font-weight: 600;
+}
+
+.project-single-container .content-body code {
+    color: var(--inline-code-text, #5b3aa6);
+}
+
+.project-single-container .post-tag,
+.project-single-container .post-series {
+    background: rgba(177, 156, 217, 0.14);
+    border-color: rgba(123, 87, 181, 0.32);
+    color: var(--primary-ink, #7b57b5);
+}
+
+.project-single-container .project-status.status-진행중,
+.project-single-container .project-status.status-완료,
+.project-single-container .project-status.status-보류,
+.project-single-container .project-status.status-운영중 {
+    color: #102033;
+    text-shadow: none;
+}
+
+[data-theme="dark"] .project-single-container .content-body p,
+[data-theme="dark"] .project-single-container .content-body li,
+[data-theme="dark"] .project-single-container .post-card-summary,
+[data-theme="dark"] .project-single-container .post-card-header time {
+    color: var(--content, #dcdde1);
+}
+
+[data-theme="dark"] .project-single-container .post-tag,
+[data-theme="dark"] .project-single-container .post-series {
+    background: rgba(177, 156, 217, 0.18);
+    border-color: rgba(242, 236, 255, 0.32);
+    color: #f2ecff;
+}
 </style>
 {{- end }}
