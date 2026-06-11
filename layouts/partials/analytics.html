@@ -19,8 +19,8 @@
       'custom_parameter_3': 'comment_interactions'
     },
     
-    // Enhanced Ecommerce 비활성화 (블로그용)
-    send_page_view: false,
+    // GA4 기본 페이지뷰를 사용해 데이터 스트림 감지를 단순하게 유지
+    send_page_view: true,
     
     // 디버깅 모드 (개발 환경에서만)
     debug_mode: {{ if eq .Site.Params.env "development" }}true{{ else }}false{{ end }}
@@ -28,19 +28,12 @@
 
   // 고급 이벤트 추적
   function trackEvent(action, category, label, value) {
-    gtag('event', action, {
-      event_category: category,
-      event_label: label,
-      value: value
-    });
+    // Keep custom tracking disabled; the site only needs the GA4 page_view.
   }
 
   // 페이지 뷰 추적 (SPA 대응)
   function trackPageView(page_title, page_location) {
-    gtag('config', '{{ .Site.Params.analytics.google.GA_MEASUREMENT_ID }}', {
-      page_title: page_title,
-      page_location: page_location
-    });
+    // Static Hugo pages use the initial GA4 config page_view.
   }
 
   // 스크롤 깊이 추적
@@ -184,14 +177,7 @@
     document.addEventListener(event, endEngagementTracking, true);
   });
 
-  // 브라우저 기능 지원 추적
-  gtag('event', 'browser_features', {
-    event_category: 'technology',
-    service_worker_support: 'serviceWorker' in navigator,
-    local_storage_support: typeof(Storage) !== 'undefined',
-    intersection_observer_support: 'IntersectionObserver' in window,
-    web_share_support: 'share' in navigator
-  });
+  // Custom telemetry intentionally disabled to keep GA collection minimal.
 </script>
 
 <!-- 실시간 방문자 표시 스크립트 -->

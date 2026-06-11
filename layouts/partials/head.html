@@ -202,9 +202,6 @@
 <script src="{{ $theme_js.RelPermalink | absURL }}" defer></script>
 {{- end }}
 
-<!-- Phase 3.3: 분석 시스템 -->
-<script src="{{ "js/blog-analytics.js" | absURL }}" defer></script>
-
 <!-- Google AdSense -->
 {{- if and site.Params.adsense.enabled site.Params.adsense.client }}
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ site.Params.adsense.client }}" crossorigin="anonymous"></script>

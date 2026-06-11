@@ -16,7 +16,6 @@ const STATIC_ASSETS = [
   "/js/enhanced-theme-toggle.js",
   "/js/post-view-enhancements.js",
   "/js/advanced-comments.js",
-  "/js/blog-analytics.js",
   "/css/common/search.css",
   "/css/common/image-optimization.css",
   "/css/advanced-search.css",
