@@ -8,6 +8,53 @@ categories: ["Backend Deep Dive"]
 description: "API를 없애거나 바꿀 때 클라이언트 장애를 만들지 않도록 deprecation notice, sunset window, 호환성 게이트, 관측 지표를 숫자 기준으로 운영하는 방법을 정리합니다."
 module: "backend-api"
 study_order: 1232
+key_takeaways:
+  - "API deprecation은 코드 삭제가 아니라 사용자와 시스템 계약을 단계적으로 종료하는 운영 절차다."
+  - "Sunset window는 트래픽 크기보다 클라이언트 배포 가능성, 계약 책임, 장애 비용을 먼저 보고 정해야 한다."
+  - "제거 전에는 client_id 기준 사용량, successor API contract test, 410/allowlist/route-back 롤백 경로를 함께 검증해야 한다."
+operator_checklist:
+  - "제거 대상 endpoint, owner, replacement, deprecated date, sunset date, removal target을 한 문서에 고정한다."
+  - "최근 30일/90일 사용량을 client_id, app_version, partner_id, auth principal 기준으로 확인한다."
+  - "응답 헤더와 로그/메트릭으로 실제 호출자에게 deprecation 경고가 도달하는지 검증한다."
+  - "대체 API의 contract test 또는 golden response fixture가 known consumer별로 통과하는지 확인한다."
+  - "차단은 gateway rule, feature flag, allowlist 중 하나로 단계 제어하고, removal 당일 410 응답률과 support ticket을 모니터링한다."
+learning_refs:
+  - title: "API 버전 관리"
+    href: "/learning/deep-dive/deep-dive-api-versioning/"
+    description: "버전 전략과 호환성 정책을 먼저 잡아야 deprecation 범위와 successor API 책임을 정할 수 있습니다."
+  - title: "Consumer-Driven Contract Testing"
+    href: "/learning/deep-dive/deep-dive-consumer-driven-contract-testing/"
+    description: "기존 consumer가 쓰던 의미를 대체 API가 보존하는지 검증하는 기준으로 함께 읽기 좋습니다."
+  - title: "Feature Flag"
+    href: "/learning/deep-dive/deep-dive-feature-flags/"
+    description: "코드 배포와 실제 차단 정책을 분리해 sunset rollout을 단계적으로 제어하는 방법을 연결합니다."
+  - title: "배포 런북"
+    href: "/learning/deep-dive/deep-dive-deployment-runbook/"
+    description: "Removal 당일의 관측, 롤백, 커뮤니케이션 절차를 런북 형태로 고정할 때 참고할 글입니다."
+decision_guide:
+  cases:
+    - badge: "빠른 종료"
+      title: "같은 팀이 관리하는 내부 API"
+      fit: "consumer와 producer가 같은 릴리스 캘린더를 쓰고, 30일 사용량과 owner가 모두 확인된 경우"
+      watchouts: "배치나 테스트 환경 호출이 access log에서 빠지지 않았는지 확인해야 합니다."
+      next_step: "1~2주 sunset window와 route-back flag를 두고 shadow reject부터 켭니다."
+    - badge: "장기 전환"
+      title: "모바일 앱 또는 외부 파트너 API"
+      fit: "클라이언트 배포 주기가 느리거나 계약/문서/심사 절차가 필요한 경우"
+      watchouts: "트래픽이 낮아도 결제, 정산, 인증 흐름이면 제거 비용이 큽니다."
+      next_step: "3~12개월 window, owner별 readiness tracker, 임시 allowlist 정책을 함께 운영합니다."
+    - badge: "보류"
+      title: "대체 API의 의미가 아직 맞지 않는 경우"
+      fit: "successor API가 필드 의미, 정렬, pagination, 시간대, 에러 코드를 완전히 대체하지 못하는 경우"
+      watchouts: "버전만 올린 상태에서 제거하면 클라이언트 장애를 API 팀이 만든 셈이 됩니다."
+      next_step: "contract fixture와 migration guide를 먼저 보강하고 sunset date 대신 재검토 날짜를 둡니다."
+faqs:
+  - question: "Deprecated라고 표시했으면 바로 삭제해도 되나요?"
+    answer: "아니요. Deprecated는 새 사용을 막는 신호일 뿐이고, 실제 삭제는 사용량 확인, 대체 API 검증, sunset 공지, 롤백 경로가 준비된 뒤 진행해야 합니다."
+  - question: "사용량이 거의 0이면 sunset window를 생략해도 되나요?"
+    answer: "대부분은 생략하지 않는 편이 안전합니다. 월말 배치, 파트너 연동, 특정 앱 버전처럼 짧은 관측 기간에 보이지 않는 호출이 있을 수 있어 최소 30일/90일 기준으로 확인해야 합니다."
+  - question: "404와 410 중 어떤 응답이 더 적절한가요?"
+    answer: "의도적으로 종료한 API라면 410 Gone이 더 적절합니다. 클라이언트가 오타나 일시 장애가 아니라 종료된 계약임을 알 수 있고, replacement와 docs를 함께 안내할 수 있습니다."
 ---
 
 API를 설계할 때는 새 엔드포인트를 만드는 이야기보다 없애는 이야기가 더 어렵습니다. 새 API는 내부 팀이 준비되면 열 수 있지만, 기존 API는 이미 누군가의 배치, 모바일 앱, 파트너 연동, 오래된 백오피스 화면에 박혀 있을 수 있습니다. 그래서 API 제거는 단순한 코드 삭제가 아니라 **사용자와 시스템의 계약을 종료하는 운영 절차**입니다.
@@ -277,3 +324,29 @@ API Gateway에서 먼저 차단하면 애플리케이션 코드를 건드리지 
 6. v1 full removal은 deprecated traffic이 1% 미만이고 known client가 모두 전환된 뒤 실행한다.
 
 핵심은 코드 삭제 일정이 아니라 클라이언트 전환 가능성을 기준으로 계획을 나누는 것입니다. API deprecation을 잘하는 팀은 오래된 코드를 무작정 끌고 가지도, 사용자 계약을 무시하고 지우지도 않습니다. 숫자와 단계로 종료합니다.
+
+## 실전 점검 예시: removal 회의에서 바로 물어볼 질문
+
+API 제거 승인 회의에서는 "코드가 준비됐는가"보다 "실패해도 통제 가능한가"를 먼저 확인해야 합니다. 아래 질문에 답하지 못하면 removal은 아직 이릅니다.
+
+| 질문 | 좋은 답변의 형태 | 부족한 답변의 신호 |
+| --- | --- | --- |
+| 누가 아직 호출하는가? | client_id, app_version, partner_id별 30일/90일 표 | "로그상 거의 없습니다" |
+| 대체 API가 같은 업무를 처리하는가? | consumer별 contract test와 차이 목록 | "문서에 v2 쓰라고 적었습니다" |
+| 차단을 되돌릴 수 있는가? | gateway rule off, route-back flag, allowlist 절차 | "코드를 되돌리면 됩니다" |
+| 장애를 어떻게 볼 것인가? | 410 rate, deprecated traffic, ticket, error budget burn | "모니터링 보겠습니다" |
+| 커뮤니케이션은 끝났는가? | owner별 승인 또는 미전환 예외 승인 | "공지했습니다" |
+
+실무에서는 답변의 구체성이 곧 리스크 수준입니다. 숫자와 owner가 있는 답변은 운영 가능한 계획에 가깝고, 형용사만 있는 답변은 사고 가능성이 높습니다.
+
+### 제거 승인 기준 샘플
+
+다음 기준을 모두 만족하면 full removal 후보로 올릴 수 있습니다.
+
+- Deprecated traffic이 전체 successor 업무 흐름 대비 **1% 미만**이고, 핵심 client 미전환이 없다.
+- Known consumer의 contract test 또는 golden response 비교가 **100% 통과**한다.
+- 410 Gone 응답에 replacement, docs, requestId가 포함되어 있다.
+- Route-back 또는 allowlist가 최소 **24~72시간** 유지 가능하다.
+- Removal 당일 30분 단위로 볼 지표와 담당자가 정해져 있다.
+
+반대로 하나라도 불확실하면 removal date를 고집하기보다 restricted 단계에서 더 관측하는 편이 낫습니다. API 종료의 목표는 오래된 코드를 빨리 지우는 것이 아니라, 사용자 계약을 깨지 않고 플랫폼 부채를 줄이는 것입니다.
