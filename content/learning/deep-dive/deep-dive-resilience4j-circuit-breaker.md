@@ -124,7 +124,6 @@ resilience4j:
         slidingWindowSize: 100          # 최근 100개 요청 기준
         minimumNumberOfCalls: 10        # 최소 10개는 표본이 쌓여야 함
         waitDurationInOpenState: 10s    # 10초 동안 차단 유지 후 Half-Open
-        waitDurationInOpenState: 10s    # 10초 동안 차단 유지 후 Half-Open
         permittedNumberOfCallsInHalfOpenState: 3 # Half-Open 때 3개만 보내봄
 ```
 
