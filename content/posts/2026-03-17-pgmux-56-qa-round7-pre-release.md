@@ -2,7 +2,7 @@
 title: "Go로 PostgreSQL 프록시 만들기 (56) - QA 7차: 릴리즈 전 최종 코드 리뷰"
 date: 2026-03-17
 draft: false
-tags: ["Go", "PostgreSQL", "Database", "Proxy", "QA", "Race Condition", "Memory Leak", "Security"]
+tags: ["Go", "PostgreSQL", "Database", "Proxy", "Quality Assurance", "Race Condition", "Memory Leak", "Security"]
 categories: ["Database"]
 project: "pgmux"
 description: "v1.0.0 릴리즈 직전, 전체 코드베이스를 엣지케이스까지 훑어 CopyBoth 고루틴 race, 캐시 인덱스 정합성 파손, Synthesizer 메모리 고갈 등 14건을 수정한다."

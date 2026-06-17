@@ -2,7 +2,7 @@
 title: "Go로 PostgreSQL 프록시 만들기 (55) - QA 6차: 파서 우회와 분류 사각지대"
 date: 2026-03-17
 draft: false
-tags: ["Go", "PostgreSQL", "Database", "Proxy", "QA", "Security", "SQL Parser", "Routing"]
+tags: ["Go", "PostgreSQL", "Database", "Proxy", "Quality Assurance", "Security", "SQL Parser", "Routing"]
 categories: ["Database"]
 project: "pgmux"
 description: "앞쪽 주석(/*x*/ BEGIN)이 트랜잭션/세션 상태기를 통째로 우회하고, MERGE·COPY·CALL이 reader로 빠지며, 주석/리터럴 안의 키워드가 false positive를 내는 5건의 파서·라우터 버그를 수정한다."

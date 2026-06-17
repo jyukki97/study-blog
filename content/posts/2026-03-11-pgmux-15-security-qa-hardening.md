@@ -2,7 +2,7 @@
 title: "Go로 PostgreSQL 프록시 만들기 (15) - 보안 QA와 취약점 수정"
 date: 2026-03-11
 draft: false
-tags: ["Go", "PostgreSQL", "Database", "Proxy", "Security", "QA", "Cache", "Firewall"]
+tags: ["Go", "PostgreSQL", "Database", "Proxy", "Security", "Quality Assurance", "Cache", "Firewall"]
 categories: ["Database"]
 project: "pgmux"
 description: "QA 과정에서 발견된 4건의 보안 취약점 — 캐시 충돌로 인한 개인정보 유출, 무한 재귀, 방화벽 우회, 힌트 주입 — 을 분석하고 수정한다."

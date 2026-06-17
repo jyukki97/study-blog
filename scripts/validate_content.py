@@ -179,6 +179,7 @@ def main() -> int:
     warnings: list[str] = []
 
     title_to_files: dict[str, list[Path]] = {}
+    tag_variants: dict[str, dict[str, set[Path]]] = {}
 
     for md in CONTENT_DIR.rglob("*.md"):
         text = md.read_text(encoding="utf-8")
@@ -199,6 +200,12 @@ def main() -> int:
             if tm:
                 title = tm.group(1).strip()
                 title_to_files.setdefault(title, []).append(md)
+
+            tags_match = re.search(r"(?ms)^\s*tags\s*:\s*\[(.*?)\]\s*$", front_matter)
+            if tags_match:
+                for tag in re.findall(r'"([^"]+)"', tags_match.group(1)):
+                    normalized_tag = tag.casefold()
+                    tag_variants.setdefault(normalized_tag, {}).setdefault(tag, set()).add(md)
 
             # 품질 규칙: 본문 실질 내용 최소 길이
             if md.name not in {"_index.md", "index.md"}:
@@ -301,6 +308,15 @@ def main() -> int:
         if len(files) > 1:
             file_list = ", ".join(str(f.relative_to(REPO)) for f in files)
             warnings.append(f"[title] 중복 제목: '{title}' ({file_list})")
+
+    # Hugo taxonomy는 URL 생성 시 대소문자가 접히므로 같은 태그의 표기 흔들림을 조기 감지한다.
+    for _, variants in sorted(tag_variants.items()):
+        if len(variants) <= 1:
+            continue
+        variant_summary = ", ".join(
+            f"{tag}({len(files)})" for tag, files in sorted(variants.items(), key=lambda item: item[0].casefold())
+        )
+        warnings.append(f"[tags] 대소문자 표기 충돌 가능: {variant_summary}")
 
     for w in warnings:
         print("WARN ", w)

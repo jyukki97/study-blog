@@ -2,7 +2,7 @@
 title: "Go로 PostgreSQL 프록시 만들기 (46) - QA 소견 6건과 운영 안전성 수정"
 date: 2026-03-14
 draft: false
-tags: ["Go", "PostgreSQL", "Database", "Proxy", "QA", "Bug Fix", "Security", "Connection Pool", "Hot Reload"]
+tags: ["Go", "PostgreSQL", "Database", "Proxy", "Quality Assurance", "Bug Fix", "Security", "Connection Pool", "Hot Reload"]
 categories: ["Database"]
 project: "pgmux"
 description: "QA에서 올라온 6건의 소견 — Pool race, credential 미갱신, XFF spoofing, reader 격리 실패, 캐시 write-only, 설정 오류 — 을 분석하고 수정한다."

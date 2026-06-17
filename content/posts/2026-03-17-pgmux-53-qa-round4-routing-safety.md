@@ -2,7 +2,7 @@
 title: "Go로 PostgreSQL 프록시 만들기 (53) - QA 4차: 라우팅 우회와 운영 안전성"
 date: 2026-03-17
 draft: false
-tags: ["Go", "PostgreSQL", "Database", "Proxy", "QA", "Security", "Routing", "Prepared Statement"]
+tags: ["Go", "PostgreSQL", "Database", "Proxy", "Quality Assurance", "Security", "Routing", "Prepared Statement"]
 categories: ["Database"]
 project: "pgmux"
 description: "Prepared statement 재사용으로 read-only를 우회하는 버그, side-effectful SELECT의 잘못된 라우팅, extended query timeout 사각지대 등 QA 4차에서 발견된 5건의 버그를 분석하고 수정한다."

@@ -2,7 +2,7 @@
 title: "Go로 PostgreSQL 프록시 만들기 (7) - QA 버그 수정과 멀티 인스턴스 스케일링"
 date: 2026-03-11
 draft: false
-tags: ["Go", "PostgreSQL", "Database", "Proxy", "Redis", "Scaling", "QA"]
+tags: ["Go", "PostgreSQL", "Database", "Proxy", "Redis", "Scaling", "Quality Assurance"]
 categories: ["Database"]
 project: "pgmux"
 description: "QA 리뷰에서 발견된 Critical/Major 버그 4건을 수정하고, 프록시 수평 확장을 위한 Redis Pub/Sub 캐시 무효화를 구현한다."

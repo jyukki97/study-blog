@@ -2,7 +2,7 @@
 title: "Go로 PostgreSQL 프록시 만들기 (54) - QA 5차: 릴리즈 위생과 CI 안정성"
 date: 2026-03-17
 draft: false
-tags: ["Go", "PostgreSQL", "Database", "Proxy", "QA", "Testing", "CI", "Race Condition"]
+tags: ["Go", "PostgreSQL", "Database", "Proxy", "Quality Assurance", "Testing", "CI", "Race Condition"]
 categories: ["Database"]
 project: "pgmux"
 description: "QA 4차 수정으로 dataapi.New 시그니처가 바뀌었지만 테스트가 따라가지 못해 컴파일이 깨졌고, watcher 테스트는 time.Sleep 의존으로 race detector에서 간헐 실패했다. 릴리즈 파이프라인을 막는 2건의 테스트 블로커를 수정한다."

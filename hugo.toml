@@ -148,6 +148,9 @@ baseName = "searchindex"
 isPlainText = true
 notAlternative = true
 
+[pagination]
+  disableAliases = true
+
 # Google AdSense 설정 (Phase 3.3)
 [params.adsense]
 enabled = true  # 애드센스 활성화
@@ -169,4 +172,3 @@ footer = ""
     guessSyntax = true
     lineNos = false
     style = "dracula"
-

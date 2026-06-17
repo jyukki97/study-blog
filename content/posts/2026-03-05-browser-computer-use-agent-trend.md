@@ -2,7 +2,7 @@
 title: "2026 개발 트렌드: Browser/Computer-Use 에이전트, 데모를 넘어 실서비스 자동화가 되려면"
 date: 2026-03-05
 draft: false
-tags: ["Browser Agent", "Computer Use", "Automation", "Reliability", "QA"]
+tags: ["Browser Agent", "Computer Use", "Automation", "Reliability", "Quality Assurance"]
 categories: ["Development", "Learning"]
 description: "브라우저·컴퓨터 사용 에이전트를 실서비스에 붙일 때 필요한 성공 기준(성공률, 복구성, 보안 경계, 운영비)을 숫자 중심으로 정리합니다."
 ---

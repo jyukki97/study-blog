@@ -2,7 +2,7 @@
 title: "Go로 PostgreSQL 프록시 만들기 (48) - QA 3차: 풀 안전성의 마지막 구멍들"
 date: 2026-03-14
 draft: false
-tags: ["Go", "PostgreSQL", "Database", "Proxy", "QA", "Bug Fix", "Connection Pool", "Hot Reload", "Cache", "Circuit Breaker", "Extended Query"]
+tags: ["Go", "PostgreSQL", "Database", "Proxy", "Quality Assurance", "Bug Fix", "Connection Pool", "Hot Reload", "Cache", "Circuit Breaker", "Extended Query"]
 categories: ["Database"]
 project: "pgmux"
 description: "QA 3차 소견 6건 — fallback 경로 cross-pool 오염, extended cache 포맷 충돌, 깨진 연결 Release, Pool.Acquire close race, boundWriter discard 누락, circuit breaker 일관성 — 을 분석하고 수정한다."

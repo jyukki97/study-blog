@@ -2,7 +2,7 @@
 title: "Go로 PostgreSQL 프록시 만들기 (47) - QA 2차: Cross-Pool 오염과 캐시 정확성"
 date: 2026-03-14
 draft: false
-tags: ["Go", "PostgreSQL", "Database", "Proxy", "QA", "Bug Fix", "Connection Pool", "Hot Reload", "Cache", "Circuit Breaker"]
+tags: ["Go", "PostgreSQL", "Database", "Proxy", "Quality Assurance", "Bug Fix", "Connection Pool", "Hot Reload", "Cache", "Circuit Breaker"]
 categories: ["Database"]
 project: "pgmux"
 description: "QA 2차 소견 5건 — boundWriter cross-pool 오염, extended cache 파라미터 무시, Pool.Close outstanding borrow, writer CB reload 누락, watcher startup race — 을 분석하고 수정한다."

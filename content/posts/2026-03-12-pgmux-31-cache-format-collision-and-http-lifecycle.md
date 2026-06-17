@@ -2,7 +2,7 @@
 title: "Go로 PostgreSQL 프록시 만들기 (31) - 캐시 포맷 충돌과 HTTP 서버 수명주기"
 date: 2026-03-12
 draft: false
-tags: ["Go", "PostgreSQL", "Database", "Proxy", "Cache", "HTTP", "Graceful Shutdown", "QA"]
+tags: ["Go", "PostgreSQL", "Database", "Proxy", "Cache", "HTTP", "Graceful Shutdown", "Quality Assurance"]
 categories: ["Database"]
 project: "pgmux"
 description: "QA 4차 리포트 5건 — 캐시 키 네임스페이스 부재로 JSON/wire 응답 충돌, 읽기 캐시 무효화 실종, balancer 상태 초기화, HTTP 서버 lifecycle 미관리, AST 재파싱 — 의 원인과 수정 과정을 정리한다."
