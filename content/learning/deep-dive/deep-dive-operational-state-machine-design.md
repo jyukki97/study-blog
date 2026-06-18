@@ -30,6 +30,9 @@ learning_refs:
   - title: "Transactional Inbox와 멱등 Consumer"
     href: "/learning/deep-dive/deep-dive-transactional-inbox-idempotent-consumer-playbook/"
     description: "중복·역전 이벤트를 상태 전이와 함께 다루는 소비자 패턴입니다."
+  - title: "비동기 요청-응답 Operation Resource"
+    href: "/learning/deep-dive/deep-dive-async-request-reply-operation-resource-playbook/"
+    description: "긴 작업의 진행 상태, 재시도, 조회 API를 상태 머신 관점으로 모델링할 때 연결되는 글입니다."
 decision_guide:
   intro: "상태 머신은 모든 enum에 붙이는 장식이 아니라 운영 위험이 있는 흐름부터 적용하는 안전장치입니다."
   cases:
@@ -292,6 +295,39 @@ forbidden: CANCELED, REFUNDED, DELETED
 - 재처리 경로: inbox replay나 batch replay가 일반 API와 같은 전이 함수를 사용
 
 테스트 이름에도 전이 조건을 드러내면 좋습니다. `should_update_status`보다 `paid_order_rejects_late_payment_failed_event`가 리뷰와 회귀 분석에 훨씬 유용합니다. 상태 머신이 복잡해질수록 테스트는 구현 세부보다 전이표의 행을 검증하는 형태가 되어야 합니다.
+
+### 6) 실패 모드는 처리 결과가 아니라 운영 큐로 분류한다
+
+상태 머신을 도입했는데도 운영자가 힘들어지는 경우가 있습니다. 코드가 `success`, `duplicate`, `error` 정도로만 결과를 반환하고, 실제로 어떤 후속 조치가 필요한지 알려주지 않기 때문입니다. 운영용 상태 머신은 전이를 실행하는 코드만이 아니라 **전이가 실패했을 때 어느 큐로 보내야 하는지**까지 포함해야 합니다.
+
+아래처럼 실패 모드를 먼저 나누면 로그와 알림이 훨씬 선명해집니다.
+
+| 실패 모드 | 예시 | 자동 처리 | 운영 조치 |
+|---|---|---|---|
+| 멱등 중복 | 같은 `payment_id` 승인 이벤트가 재전송됨 | 기존 결과 반환, duplicate metric 증가 | 조치 없음 |
+| 순서 역전 | 취소 완료 뒤 늦게 도착한 결제 실패 이벤트 | stale event로 skip | 이벤트 지연률이 임계치 초과 시 consumer lag 점검 |
+| 금지 전이 | `PAID -> PAYMENT_FAILED` 시도 | 상태 변경 거부, forbidden metric 증가 | 1건부터 원인 확인 |
+| 판단 불가 | 다른 `payment_id`로 승인 성공 이벤트가 도착 | 자동 보정 금지 | reconciliation/manual review queue 적재 |
+| 터미널 재오픈 | `REFUNDED` 주문을 다시 `PAID`로 변경 요청 | 기본 거부 | 승인자, 사유, 보상 계획이 있는 별도 명령만 허용 |
+| 이력 누락 | 상태는 바뀌었지만 transition history가 없음 | 배치 탐지 | DB 직접 수정/우회 도구 조사 |
+
+핵심은 모든 0-row update를 같은 오류로 보지 않는 것입니다. 중복 이벤트는 정상적인 분산 시스템의 일부이고, 금지 전이는 설계 위반이며, 판단 불가는 사람이 봐야 하는 업무 사건입니다. 세 가지를 같은 예외 로그로 남기면 운영자는 무엇을 먼저 봐야 할지 모릅니다.
+
+실무에서는 상태 전이 결과를 아래처럼 enum으로 고정해 두면 좋습니다.
+
+```text
+transition_result:
+  APPLIED              # 전이 성공
+  DUPLICATE_NOOP       # 같은 멱등 키의 반복 요청
+  STALE_EVENT_SKIPPED  # 오래된 이벤트가 최신 상태를 덮지 않도록 skip
+  FORBIDDEN_REJECTED   # 전이표에 없는 전이
+  MANUAL_REVIEW        # 자동 판단 금지, 운영 큐로 이동
+  INVARIANT_VIOLATION  # 데이터 불변식 깨짐, 즉시 알림
+```
+
+이 결과값은 API 응답, consumer ack/nack, metric, audit event에 같은 의미로 쓰여야 합니다. 예를 들어 consumer가 `DUPLICATE_NOOP`를 받으면 ack하고 끝내지만, `MANUAL_REVIEW`는 ack와 동시에 별도 큐에 ticket을 만들어야 합니다. `INVARIANT_VIOLATION`은 재시도한다고 해결되지 않는 경우가 많으므로 무한 재처리보다 격리와 알림이 우선입니다.
+
+상태 머신 리뷰에서는 "이 이벤트가 오면 다음 상태가 무엇인가?"만 묻지 말고, "전이하지 못했을 때 어떤 결과값으로 끝나는가?"를 같이 물어야 합니다. 이 질문이 있어야 재처리 배치, 관리자 도구, 고객센터 대응이 같은 언어를 씁니다.
 
 ## 트레이드오프/주의점
 

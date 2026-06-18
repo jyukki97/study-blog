@@ -11,6 +11,19 @@ study_order: 110
 layout: "learning-module"
 module_key: "architecture-mastery"
 url: "/learning/modules/backend-architecture-mastery/"
+learning_refs:
+  - title: "운영용 상태 머신 설계"
+    href: "/learning/deep-dive/deep-dive-operational-state-machine-design/"
+    description: "도메인 상태를 단순 enum이 아니라 전이표, 불변식, 감사 이력으로 설계하는 기준입니다."
+  - title: "DDD Aggregate"
+    href: "/learning/deep-dive/deep-dive-ddd-aggregates/"
+    description: "상태 전이와 일관성 경계를 aggregate 단위로 묶는 방법을 함께 봅니다."
+  - title: "Transactional Outbox + CDC"
+    href: "/learning/deep-dive/deep-dive-transactional-outbox-cdc/"
+    description: "상태 변경과 이벤트 발행을 같은 업무 사실로 다루는 패턴입니다."
+  - title: "분산 트랜잭션"
+    href: "/learning/deep-dive/deep-dive-distributed-transactions/"
+    description: "서비스 간 정합성을 맞출 때 2PC, Saga, 보상 트랜잭션의 선택 기준을 정리합니다."
 ---
 
 ## 이 단계에서 얻는 것
@@ -39,23 +52,31 @@ url: "/learning/modules/backend-architecture-mastery/"
 - **Bounded Context**: 언어와 모델의 의미가 통용되는 경계 설정.
 - **Domain Events**: 결과적 정합성(Eventual Consistency)을 달성하는 핵심 도구.
 
+### 4. 운영 가능한 도메인 상태
+- **상태 전이표**: 주문, 결제, 업로드, 배치처럼 실패와 재처리가 있는 흐름은 허용 전이와 금지 전이를 먼저 정의합니다.
+- **불변식과 감사 이력**: 금전, 권한, 삭제, 공개 상태는 현재값만 저장하지 말고 전이 근거와 actor를 함께 남깁니다.
+- **Outbox/이벤트 연계**: 상태 변경 뒤 필요한 메시지 발행은 같은 트랜잭션 경계에서 기록하고 비동기로 전달합니다.
+
 ## 이 단계의 핵심 주제
 
 - 분산 트랜잭션(2PC/Saga/TCC) 설계
 - 샤딩/라우팅/리밸런싱 전략
 - DDD 전술 패턴과 경계(Bounded Context)
+- 운영용 상태 머신과 도메인 불변식 설계
 
 ## 미니 실습
 
 - **SAGA 시퀀스 설계**: 성공/실패/보상 흐름 작성
 - **샤딩 재배치 시나리오**: 노드 추가 시 데이터 이동량 계산
 - **Aggregate 경계 설계**: 트랜잭션 경계 1개로 제한하는 모델 작성
+- **상태 전이표 작성**: 주문 또는 업로드 흐름의 허용 전이, 금지 전이, 수동 확인 큐를 표로 정리
 
 ## 완료 기준
 
 - 대규모 시스템의 핵심 난제를 구조적으로 설명할 수 있다
 - 데이터 정합성과 확장성의 균형점을 말로 정리할 수 있다
 - 도메인 경계가 어긋날 때 생기는 문제를 설명할 수 있다
+- 상태가 있는 업무 흐름에서 전이표, 불변식, 감사 이력을 설계할 수 있다
 
 ## 추천 학습 자료
 - **책**: *Microservices Patterns (마이크로서비스 패턴)* - 크리스 리처드슨
