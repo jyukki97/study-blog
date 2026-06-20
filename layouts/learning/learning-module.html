@@ -51,6 +51,25 @@
     </article>
   </section>
 
+  {{- with .Params.learning_refs }}
+  <section class="learning-ref-path" aria-label="추천 학습 경로">
+    <div class="section-header">
+      <h2>🔗 추천 학습 경로</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="learning-ref-grid">
+      {{- range . }}
+      <article class="learning-ref-card">
+        <h3><a href="{{ .href | relURL }}">{{ .title }}</a></h3>
+        {{- with .description }}
+        <p>{{ . }}</p>
+        {{- end }}
+      </article>
+      {{- end }}
+    </div>
+  </section>
+  {{- end }}
+
   <section class="learning-timeline">
     <div class="section-header">
       <h2>📑 이 모듈의 학습 노트</h2>
@@ -114,6 +133,13 @@
 .learning-rich-content ul, .learning-rich-content ol { padding-left:1.1rem; margin:0.6rem 0 1rem; }
 .learning-rich-content code { background: var(--code-bg); padding:0.1rem 0.35rem; border-radius:6px; }
 .learning-rich-content pre { background: var(--code-bg); padding:1rem; border-radius:12px; overflow-x:auto; }
+.learning-ref-path { margin: 2rem 0 2rem; }
+.learning-ref-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:1rem; }
+.learning-ref-card { background: var(--entry); border:1px solid var(--border); border-radius:14px; padding:1.25rem; box-shadow:0 4px 14px rgba(0,0,0,0.035); }
+.learning-ref-card h3 { margin:0 0 0.7rem; font-size:1.05rem; line-height:1.4; }
+.learning-ref-card h3 a { color: var(--primary); text-decoration:none; }
+.learning-ref-card h3 a:hover { color:#6b7cff; }
+.learning-ref-card p { margin:0; color:var(--secondary); line-height:1.6; font-size:0.95rem; }
 .learning-timeline { margin: 2rem 0 2rem; }
 .learning-notes-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:1.2rem; }
 .learning-note-card { background: var(--entry); border-radius: 16px; padding: 1.5rem; box-shadow: 0 2px 10px rgba(0,0,0,0.04); border: 1px solid var(--border); transition: transform 0.2s ease, box-shadow 0.2s ease; }
