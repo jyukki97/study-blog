@@ -6,6 +6,51 @@ topic: "Caching"
 tags: ["Caching", "Cache-Aside", "Read-Through", "Write-Through", "Write-Behind", "Redis", "Backend"]
 categories: ["Backend Deep Dive"]
 description: "캐시 패턴은 취향이 아니라 workload와 데이터 신뢰도 요구에 맞춰 골라야 합니다. Cache-Aside, Read-Through, Write-Through, Write-Behind를 실무 숫자와 조건으로 비교합니다."
+summary: "캐시 패턴 선택은 Redis 도입 여부가 아니라 데이터 클래스별 stale 허용 시간, read/write 비율, miss burst, 복구 가능성으로 결정해야 합니다."
+key_takeaways:
+  - "Cache-Aside는 기본값으로 좋지만 miss burst, TTL 동시 만료, 무효화 비용을 singleflight와 지터로 같이 다뤄야 한다."
+  - "Write-Through와 Write-Behind는 성능 패턴이 아니라 쓰기 경로와 복구 책임을 바꾸는 데이터 계약이다."
+  - "패턴은 서비스 단위가 아니라 상품 조회, 권한, 정산, 분석 이벤트처럼 데이터 클래스 단위로 섞어 쓰는 편이 안전하다."
+operator_checklist:
+  - "캐시 대상마다 stale 허용 시간, read/write 비율, 원본 조회 비용, 쓰기 유실 비용을 기록한다."
+  - "Cache-Aside 후보에는 TTL 지터, singleflight, soft TTL 중 최소 하나의 stampede 완화책을 붙인다."
+  - "Write-Through 후보는 write_latency_p95 증가 허용치와 cache update 실패 보정 경로를 먼저 정한다."
+  - "Write-Behind 후보는 durable queue, idempotency key, DLQ, reconciliation 지표 없이는 핵심 데이터에서 제외한다."
+learning_refs:
+  - title: "캐시 일관성 설계"
+    href: "/learning/deep-dive/deep-dive-cache-consistency-invalidation-playbook/"
+    description: "Write-Through, Invalidation, CDC를 조합해 stale read 사고를 줄이는 기준입니다."
+  - title: "Request Coalescing/Singleflight"
+    href: "/learning/deep-dive/deep-dive-request-coalescing-singleflight/"
+    description: "Cache-Aside에서 miss burst와 stampede를 줄이는 동시성 제어 패턴입니다."
+  - title: "Transactional Outbox + CDC"
+    href: "/learning/deep-dive/deep-dive-transactional-outbox-cdc/"
+    description: "쓰기 이벤트 유실을 줄이고 캐시 무효화/보정 파이프라인을 안정화하는 기반 패턴입니다."
+decision_guide:
+  intro: "캐시 패턴은 가장 빠른 방식을 고르는 문제가 아니라 어떤 데이터 오류를 허용할지 정하는 문제입니다. 읽기 폭증, 최신성, 쓰기 burst, 재처리 가능성을 나눠 판단하세요."
+  cases:
+    - badge: "Cache-Aside"
+      title: "읽기가 압도적이고 stale 허용 시간이 수 초 이상이다"
+      fit: "상품 상세, 게시글, 설정 조회처럼 원본 조회 비용을 줄이되 약간 늦은 값이 허용되는 데이터에 맞습니다."
+      watchouts: "TTL 동시 만료와 핫키 miss가 DB QPS를 폭발시킬 수 있으므로 singleflight, TTL 지터, soft TTL을 같이 봐야 합니다."
+      next_step: "상위 20개 키의 miss burst와 원본 조회 p95를 측정하고, burst가 3배 이상이면 stampede 완화책을 먼저 붙입니다."
+    - badge: "Write-Through"
+      title: "방금 쓴 값이 바로 읽혀야 하고 쓰기 QPS가 감당 가능하다"
+      fit: "권한, 가격, feature flag처럼 사용자 체감 stale 허용 시간이 1초 이하인 좁은 데이터 클래스에 적합합니다."
+      watchouts: "캐시 갱신이 쓰기 경로 p95를 키우고 다중 키 갱신에서는 write amplification이 빠르게 커집니다."
+      next_step: "적용 범위를 핵심 키로 제한하고 write_latency_p95 증가가 20%를 넘으면 동기 갱신 범위를 줄입니다."
+    - badge: "Write-Behind"
+      title: "쓰기 burst 흡수가 중요하고 eventual consistency를 설명할 수 있다"
+      fit: "분석 이벤트, 비핵심 카운터, 랭킹 집계처럼 지연 저장과 재처리를 업무적으로 받아들일 수 있는 데이터에 맞습니다."
+      watchouts: "queue, idempotency, DLQ, reconciliation이 없으면 유실과 순서 역전을 운영자가 설명하기 어렵습니다."
+      next_step: "backlog age p95, flush fail rate, replay SLA를 먼저 정의하고 핵심 원장성 데이터는 제외합니다."
+faqs:
+  - question: "Cache-Aside를 기본값으로 두면 충분한가요?"
+    answer: "읽기 비중이 높고 stale을 수 초 이상 허용할 수 있다면 좋은 출발점입니다. 다만 TTL 동시 만료, 핫키 miss, 무효화 지연을 방치하면 DB 보호가 깨지므로 singleflight, TTL 지터, soft TTL 같은 보호 장치를 함께 설계해야 합니다."
+  - question: "Write-Through를 쓰면 캐시 일관성 문제가 사라지나요?"
+    answer: "완전히 사라지지 않습니다. 쓰기 경로의 캐시 갱신 실패, 다중 인스턴스 무효화 지연, secondary key 갱신 누락은 여전히 남습니다. 즉시 최신성이 필요한 좁은 키에 적용하고 Outbox/CDC 같은 보정 경로를 같이 두는 편이 안전합니다."
+  - question: "Write-Behind는 어떤 데이터부터 적용해야 하나요?"
+    answer: "유실 비용이 낮고 재처리가 가능한 비핵심 이벤트성 데이터부터 시작하는 편이 맞습니다. 결제, 포인트, 재고처럼 원장성 성격이 강한 데이터는 durable queue와 reconciliation이 있어도 캐시 write-behind의 적용 범위를 매우 좁게 잡아야 합니다."
 module: "data-system"
 study_order: 1186
 ---
@@ -156,7 +201,34 @@ study_order: 1186
 
 패턴별로 보는 포인트도 다릅니다. Cache-Aside는 miss burst와 fill latency, Write-Through는 write latency와 cache update failure, Write-Behind는 backlog age와 replay success rate를 우선 봐야 합니다. 같은 대시보드라도 어디를 먼저 읽을지가 달라야 운영 판단이 빨라집니다.
 
-### 5) 2주 파일럿 권장 순서
+### 5) 데이터 클래스 카드로 의사결정을 남긴다
+
+캐시 패턴 결정이 회의록 한 줄로 끝나면 나중에 장애가 났을 때 왜 그 선택을 했는지 복원하기 어렵습니다. 최소한 아래 형식의 "데이터 클래스 카드"를 남기는 편이 좋습니다.
+
+| 항목 | 예시 |
+| --- | --- |
+| 데이터 클래스 | 상품 상세 조회 |
+| 최신성 요구 | stale 30초 허용, 가격 필드는 1초 이하 |
+| 트래픽 특성 | read/write 200:1, 상위 1% 상품이 조회 35% |
+| 원본 비용 | DB 조회 p95 80ms, 피크 miss 때 DB CPU +20%p |
+| 선택 패턴 | 본문은 Cache-Aside, 가격은 Write-Through + invalidate |
+| 보호 장치 | TTL 지터 20%, singleflight, 가격 key version guard |
+| 롤백 기준 | 5xx +0.2%p, write p95 +20%, stale report 0.5% 초과 |
+
+이 카드의 장점은 패턴을 "좋다/나쁘다"로 다투지 않게 만든다는 점입니다. 같은 상품 데이터라도 설명, 이미지, 가격, 재고는 서로 다른 최신성 요구를 가질 수 있습니다. 따라서 카드도 테이블 단위가 아니라 **업무적으로 틀리면 안 되는 필드 묶음**을 기준으로 만드는 편이 더 정확합니다.
+
+### 6) 롤백과 축소 적용 기준을 먼저 정한다
+
+캐시 패턴은 적용보다 축소가 어렵습니다. 이미 읽기 경로가 캐시에 의존하기 시작하면, 장애 시 캐시를 끄는 순간 원본 저장소가 더 큰 부하를 받을 수 있기 때문입니다. 그래서 출시 전에 아래 기준을 정해 두는 것이 안전합니다.
+
+- Cache-Aside: miss burst가 평시 대비 **3배 이상**이고 DB CPU가 **15%p 이상** 튀면 TTL 연장보다 singleflight/soft TTL을 우선 적용한다.
+- Read-Through: 공통 캐시 계층 오류가 여러 서비스 p95를 동시에 흔들면 서비스별 fallback을 열고 중앙 miss 처리를 일시 축소한다.
+- Write-Through: 쓰기 p95가 기준 대비 **20% 이상** 늘거나 cache update failure가 사용자 오류로 보이면 동기 갱신 범위를 핵심 키로 줄인다.
+- Write-Behind: backlog age p95가 목표의 **2배 이상**이거나 flush fail rate가 **0.1%**를 넘으면 신규 쓰기를 원본 직행 또는 제한 모드로 전환한다.
+
+롤백은 "캐시 삭제"가 아니라 **데이터 계약을 더 보수적으로 되돌리는 작업**입니다. 예를 들어 Write-Behind를 완전히 끄기보다 핵심 데이터만 원본 직행으로 돌리고, 분석성 데이터는 queue drain 후 보정하는 식으로 나누면 충격이 작습니다.
+
+### 7) 2주 파일럿 권장 순서
 
 **1주차**  
 현재 캐시 대상 10개를 골라 `stale 허용 시간`, `read/write 비율`, `원본 조회 비용`, `쓰기 유실 비용`을 표로 적습니다.
