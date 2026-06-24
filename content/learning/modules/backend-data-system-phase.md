@@ -17,6 +17,9 @@ learning_refs:
   - title: "Bulk Import Job, 대량 업로드 운영 설계"
     href: "/learning/deep-dive/deep-dive-bulk-import-job-row-error-playbook/"
     description: "CSV·엑셀·JSONL 업로드를 상태 있는 import job, row error, 멱등성, 부분 성공 정책으로 설계합니다."
+  - title: "대용량 데이터 Export 파이프라인"
+    href: "/learning/deep-dive/deep-dive-large-data-export-pipeline-playbook/"
+    description: "전체 다운로드를 snapshot, artifact, signed URL, 감사 로그가 있는 운영 파이프라인으로 설계합니다."
   - title: "Async Request-Reply Operation Resource"
     href: "/learning/deep-dive/deep-dive-async-request-reply-operation-resource-playbook/"
     description: "처리 시간이 긴 데이터 변경 작업을 202 Accepted와 상태 조회 API로 분리하는 계약입니다."
@@ -90,12 +93,38 @@ learning_refs:
 
 이 관점을 잡으면 데이터 시스템 학습이 "쿼리를 빠르게 만든다"에서 끝나지 않습니다. 느린 쿼리, 락, 캐시 미스, 큐 지연, 재처리, 데이터 불일치를 하나의 운영 흐름으로 연결할 수 있습니다. 특히 백오피스 import, 정산, 권한 변경, 파트너 동기화처럼 장애가 조용히 데이터 오염으로 번지는 기능에서는 이 흐름이 필수에 가깝습니다.
 
+## 조회 결과를 운영 산출물로 바꾸기
+
+데이터 시스템의 다른 축은 "많이 쓰는 것"이 아니라 "많이 읽어 내보내는 것"입니다. 관리자 화면의 전체 다운로드, 정산 파일 생성, 감사 로그 반출, 고객 데이터 export는 처음에는 단순 CSV 기능처럼 보이지만, 규모가 커지면 긴 쿼리, replica lag, 개인정보 노출, 재생성 불일치, 만료되지 않는 링크 문제가 한꺼번에 붙습니다.
+
+그래서 import와 마찬가지로 export도 상태가 있는 파이프라인으로 다뤄야 합니다. 화면 조회와 파일 생성은 목적이 다릅니다. 화면 조회는 현재 상태를 빠르게 보여주는 것이 목표지만, export는 나중에 "어떤 조건으로, 어느 시점의 데이터를, 누가, 어떤 권한으로 받았는지" 설명할 수 있어야 합니다.
+
+추천 흐름은 아래와 같습니다.
+
+1. [HTTP QUERY, 복잡한 읽기 API가 GET과 POST 사이의 빈칸을 메운다](/posts/2026-06-24-http-query-safe-body-read-api-trend/)로 즉시 응답 가능한 복잡한 조회와 긴 작업의 경계를 잡습니다.
+2. [Cursor Pagination Consistency](/learning/deep-dive/deep-dive-cursor-pagination-consistency-playbook/)로 정렬, snapshot, 중복/누락 없는 탐색 기준을 먼저 정리합니다.
+3. [대용량 데이터 Export 파이프라인](/learning/deep-dive/deep-dive-large-data-export-pipeline-playbook/)으로 전체 다운로드를 job, artifact metadata, signed URL, 감사 로그로 분리합니다.
+4. [Object Storage와 파일 관리](/learning/deep-dive/deep-dive-object-storage-s3/)로 파일 저장, 만료, 접근 제어, checksum 기준을 보강합니다.
+5. [Tamper-Evident Audit Log](/learning/deep-dive/deep-dive-tamper-evident-audit-log-playbook/)로 민감 export의 요청·생성·다운로드 기록을 나중에 검증 가능한 형태로 남깁니다.
+
+### Export 판단 체크리스트
+
+- 결과가 1만 행 또는 10MB를 넘을 수 있으면 동기 다운로드를 기본값으로 두지 않는가?
+- 화면 필터와 export 필터가 같은 계약을 쓰고, `filter_hash`와 `schema_version`을 남기는가?
+- 파일 생성 시점뿐 아니라 다운로드 시점에도 현재 권한을 다시 확인하는가?
+- signed URL TTL, 파일 보관 기간, 민감 컬럼 마스킹 기준이 숫자로 정해져 있는가?
+- heavy export worker가 primary DB와 온라인 트래픽을 밀어내지 않도록 replica, 큐, 동시성을 제한하는가?
+- CSV formula injection, timezone, locale, null 표현처럼 파일 소비자가 겪는 문제를 schema 문서에 적었는가?
+
+이 경로를 붙이면 데이터 시스템 모듈이 "입력 파이프라인"에만 치우치지 않습니다. import는 외부 데이터를 안전하게 들여오는 문제이고, export는 내부 데이터를 책임 있게 내보내는 문제입니다. 둘을 같이 보면 snapshot, 멱등성, 감사 로그, object storage, queue throttling 같은 운영 기준이 반복해서 등장한다는 점이 보입니다.
+
 ## 미니 실습
 
 - **EXPLAIN 읽기**: 느린 쿼리를 만들고 실행 계획으로 병목 찾기
 - **락/데드락 재현**: 트랜잭션 두 개로 락 대기 상황 만들기
 - **캐시 스탬피드 방지**: TTL 지터 또는 락으로 붐 방지 실험
 - **Import job 모델링**: 업로드/검증/apply/부분 실패 상태와 row error 코드를 표로 정의
+- **Export job 모델링**: 전체 다운로드를 accepted/running/uploading/available/expired 상태와 artifact metadata로 나누기
 - **재처리 안전성 점검**: 같은 파일을 두 번 실행해도 중복 효과가 나지 않는 멱등 키 설계
 
 ## 완료 기준 (다음 단계로 넘어가기 전)
@@ -104,4 +133,5 @@ learning_refs:
 - 격리 수준/락 때문에 생기는 현상(데드락/락 대기)을 로그/지표로 구분할 수 있다
 - 캐시를 “붙여서 빨라졌다”가 아니라, 키/TTL/무효화/스탬피드까지 포함해 설계할 수 있다
 - 대량 데이터 변경을 동기 API, 비동기 operation, 배치 job 중 어디에 둘지 판단할 수 있다
+- 대용량 export를 동기 다운로드, QUERY, 비동기 export job 중 어디에 둘지 판단할 수 있다
 - 재처리와 reconciliation 기준을 함께 설명할 수 있다
