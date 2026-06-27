@@ -6,6 +6,51 @@ topic: "Backend Architecture"
 tags: ["Distributed Tracing", "OpenTelemetry", "Latency", "Observability", "Backend Operations"]
 categories: ["Backend Deep Dive"]
 description: "로그와 메트릭만으로 놓치기 쉬운 지연 전파를 분산 트레이싱으로 추적하는 도입 기준과 운영 체크포인트를 정리합니다."
+summary: "분산 트레이싱은 모든 함수를 추적하는 도구가 아니라, 사용자 요청이 서비스 경계를 넘을 때 생기는 대기와 꼬리 지연을 복원하는 운영 장치입니다."
+key_takeaways:
+  - "트레이싱 도입 우선순위는 호출 체인 길이, p95 초과 빈도, 장애 분석 시간이 함께 높을 때 가장 빠르게 올라간다."
+  - "초기 span은 내부 함수가 아니라 HTTP/gRPC 진입점, 외부 호출, 스토리지, 큐/비동기 handoff 같은 경계에 집중해야 한다."
+  - "샘플링과 attribute 정책을 먼저 고정하지 않으면 도입 효과보다 저장 비용, 고카디널리티, 개인정보 리스크가 더 빨리 커진다."
+operator_checklist:
+  - "크리티컬 요청 경로 3개를 골라 trace coverage, root span missing rate, slow trace top path를 먼저 측정한다."
+  - "정상 요청, 5xx, p95 초과 요청, 배포 직후 요청의 샘플링 비율을 분리해 문서화한다."
+  - "email, raw token, full SQL, free-text input처럼 추적 속성에 넣지 않을 값을 금지 목록으로 둔다."
+  - "트레이스에서 발견한 병목을 SLO, 알람, 런북의 조치 기준과 연결해 분석 후 행동까지 닫는다."
+learning_refs:
+  - title: "Observability Baseline"
+    href: "/learning/deep-dive/deep-dive-observability-baseline/"
+    description: "로그, 메트릭, 트레이스를 어떤 순서로 묶어 운영 기본선을 만들지 정리한 글입니다."
+  - title: "구조적 로그 설계"
+    href: "/learning/deep-dive/deep-dive-structured-logging/"
+    description: "trace_id, request_id, tenant_tier 같은 상관관계 필드를 로그와 함께 쓰는 기준입니다."
+  - title: "API Composition/Aggregation 플레이북"
+    href: "/learning/deep-dive/deep-dive-api-composition-aggregation-playbook/"
+    description: "fan-out 호출에서 꼬리 지연과 부분 실패가 어떻게 생기는지 함께 볼 수 있는 배경 글입니다."
+decision_guide:
+  intro: "분산 트레이싱은 관측 스택을 화려하게 만드는 일이 아니라, 원인 분석 시간을 줄이는 투자입니다. 아래 조건을 기준으로 도입 범위를 좁혀 시작하세요."
+  cases:
+    - badge: "도입 우선"
+      title: "크리티컬 요청이 3개 이상 경계를 넘고 p95 분석이 느리다"
+      fit: "BFF, 인증, 캐시, DB, 외부 결제처럼 호출 체인이 길고 장애 회고에서 로그를 수동으로 이어 붙이는 시간이 15분 이상 걸리는 팀에 맞습니다."
+      watchouts: "처음부터 전체 서비스를 붙이면 span 이름, 샘플링, 속성 정책이 뒤섞여 비용만 커질 수 있습니다."
+      next_step: "상위 사용자 경로 3개만 골라 root span과 downstream span 연결률 80%를 1차 목표로 잡습니다."
+    - badge: "기초 보강"
+      title: "단일 애플리케이션 병목이 명확하고 로그 상관관계도 충분하다"
+      fit: "대부분의 장애가 단일 DB 쿼리, 락, CPU 포화로 귀결되고 10분 안에 원인을 찾는 팀은 로그/메트릭 고도화가 먼저입니다."
+      watchouts: "트레이싱을 먼저 붙이면 문제 해결보다 비싼 로그 저장소를 하나 더 운영하는 모양이 될 수 있습니다."
+      next_step: "구조적 로그, SLI 대시보드, 알람 런북을 먼저 정리한 뒤 fan-out 경로가 늘어나는 시점에 다시 판단합니다."
+    - badge: "확대 보류"
+      title: "트레이스 수집은 되지만 분석 시간이 줄지 않는다"
+      fit: "span은 많지만 이름이 제각각이거나 attribute가 과해 slow path를 바로 읽기 어려운 상태입니다."
+      watchouts: "span 개수를 더 늘리기보다 경계 정의, naming convention, 금지 attribute 정책을 먼저 고쳐야 합니다."
+      next_step: "최근 p95 초과 trace 20개를 샘플링해 사람이 5분 안에 병목 서비스를 말할 수 있는지 점검합니다."
+faqs:
+  - question: "분산 트레이싱은 몇 퍼센트 샘플링부터 시작하는 게 좋나요?"
+    answer: "정상 요청은 1~5%부터 시작하고, 5xx와 p95 초과 요청은 훨씬 높게 잡는 편이 안전합니다. 핵심은 전체를 균등하게 줄이는 것이 아니라 에러와 느린 경로를 더 진하게 남기는 것입니다."
+  - question: "모든 내부 함수에 span을 붙이면 더 잘 보이지 않나요?"
+    answer: "대부분은 반대입니다. 초기에는 HTTP/gRPC 진입점, 외부 호출, DB/Redis, 큐와 비동기 handoff처럼 대기와 네트워크가 생기는 경계를 먼저 잡아야 화면이 읽힙니다."
+  - question: "로그와 트레이스는 어떻게 같이 써야 하나요?"
+    answer: "로그에는 사건의 세부 맥락을 남기고, 트레이스에는 요청 경로와 대기 시간을 남기는 식으로 역할을 나누는 게 좋습니다. trace_id나 request_id를 로그에 함께 넣어 양쪽을 왕복할 수 있게 만드는 것이 기본입니다."
 module: "backend-observability"
 study_order: 1168
 ---
@@ -87,7 +132,26 @@ OpenTelemetry 자동 계측으로 HTTP, DB, Redis 경계부터 붙이고, 서비
 **4주차, 대시보드와 알람 연결**  
 `trace coverage`, `root span missing rate`, `slow trace top path`, `error trace exemplar`를 [알람 설계](/learning/deep-dive/deep-dive-observability-alarms/)와 연결합니다.
 
-### 2) 의사결정 기준(숫자·조건·우선순위)
+### 2) 현장 적용 예시: 검색 API p95가 900ms까지 튈 때
+
+예를 들어 검색 화면의 상위 API 목표 p95가 700ms인데 실제 p95가 900ms까지 반복해서 튄다고 해보겠습니다. 로그만 보면 `search-api`는 정상 응답을 남기고, DB CPU도 평균 50%라서 뚜렷한 원인이 보이지 않을 수 있습니다. 이때 트레이싱이 있어야 "사용자 요청 하나"의 경로를 펼쳐서 볼 수 있습니다.
+
+먼저 root span은 `GET /api/search`처럼 low-cardinality 이름으로 잡습니다. `GET /api/search?q=...`처럼 검색어를 span 이름에 넣으면 쿼리 비용과 개인정보 리스크가 커집니다. 그 아래에는 인증 확인, 캐시 조회, 검색엔진 호출, 상품 요약 fan-out, 추천 보강 호출 정도만 span으로 둡니다. 내부 함수의 `parseFilter()`, `mapResponse()`까지 전부 span으로 쪼개는 대신, 네트워크와 대기가 생기는 지점을 남기는 쪽이 운영 화면에서 훨씬 읽기 쉽습니다.
+
+분석 흐름은 보통 이렇습니다.
+
+1. p95 초과 trace만 필터링해서 가장 긴 span 유형을 봅니다.
+2. 같은 요청에서 cache miss가 있었는지, miss 뒤 검색엔진 호출이 길어졌는지 확인합니다.
+3. 추천 보강처럼 optional downstream이 전체 응답을 붙잡는지 봅니다.
+4. root span의 remaining deadline보다 downstream timeout이 길게 잡힌 곳이 있는지 찾습니다.
+
+여기서 자주 나오는 결론은 "검색엔진이 항상 느리다"가 아니라 더 구체적입니다. 예를 들어 평시 검색엔진 호출은 180ms인데, `cache_miss=true`이면서 추천 보강 호출이 붙은 trace에서만 650ms가 나온다면 조치는 검색엔진 증설이 아닐 수 있습니다. optional 추천 호출 timeout을 120ms로 줄이고, 추천 결과는 stale cache를 1~3분 허용하며, 캐시 miss burst를 줄이기 위해 singleflight를 붙이는 쪽이 먼저일 수 있습니다. 이 판단은 [API Composition/Aggregation](/learning/deep-dive/deep-dive-api-composition-aggregation-playbook/)과 [Request Coalescing/SingleFlight](/learning/deep-dive/deep-dive-request-coalescing-singleflight/) 관점과도 이어집니다.
+
+이 예시에서 트레이싱의 성공 기준은 span 수가 늘어난 것이 아닙니다. 장애 회고에서 "왜 느렸는가"를 15분 안에 말하던 팀이 5분 안에 말할 수 있게 되는지, 그리고 다음 조치가 timeout 조정인지 캐시 보강인지 downstream owner 호출인지 분리되는지가 핵심입니다. 그래서 대시보드도 trace 저장량보다 `slow_trace_top_path`, `optional_downstream_blocking_ratio`, `root_span_missing_rate`, `trace_to_log_jump_success_rate` 같은 지표가 더 실용적입니다.
+
+운영에 붙일 때는 개인정보와 비용도 같이 닫아야 합니다. 검색어 원문, 사용자 이메일, 토큰, full SQL을 attribute로 남기지 말고, 필요한 경우 `query_class=short_text`, `tenant_tier=paid`, `result_bucket=0_10`처럼 버킷화한 값만 둡니다. 이렇게 해야 트레이스가 원인 분석 도구로 남지, 나중에 삭제와 접근통제 부담을 만드는 데이터 저장소가 되지 않습니다.
+
+### 3) 의사결정 기준(숫자·조건·우선순위)
 
 초기 2주 운영에서는 아래 순서를 권장합니다.
 
@@ -98,7 +162,7 @@ OpenTelemetry 자동 계측으로 HTTP, DB, Redis 경계부터 붙이고, 서비
 
 만약 수집량은 많은데 분석 시간이 줄지 않는다면, 계측 부족이 아니라 **span 이름/속성 체계가 나쁜 경우**가 많습니다. 이때는 span 개수를 더 늘리기보다 naming과 경계 정의를 먼저 정리해야 합니다.
 
-### 3) 어떤 팀은 아직 안 해도 된다
+### 4) 어떤 팀은 아직 안 해도 된다
 
 다음 조건이면 트레이싱보다 다른 투자가 먼저일 수 있습니다.
 
