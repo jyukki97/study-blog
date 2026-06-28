@@ -8,6 +8,41 @@ categories: ["Backend Deep Dive"]
 description: "API Gateway 레이트 리밋, 애플리케이션 레벨 백프레셔, 큐/서킷 브레이커 연계 — 알고리즘 선택부터 Redis 분산 구현, Spring Cloud Gateway 설정까지"
 module: "architecture"
 study_order: 470
+key_takeaways:
+  - "Rate limit은 사용자·테넌트별 공정성과 비용 통제, backpressure는 시스템 붕괴 방지를 위한 부하 제어다."
+  - "429는 요청 주체의 할당량 초과, 503은 시스템이 현재 처리할 수 없다는 신호로 분리해야 클라이언트 재시도 정책이 안정된다."
+  - "제한 정책은 gateway, app, downstream pool, retry budget이 함께 맞아야 하며 큐를 무제한으로 두면 장애가 지연될 뿐이다."
+operator_checklist:
+  - "엔드포인트별 비용 단위, 사용자/테넌트 키, burst 허용량, Retry-After 기준을 문서화한다."
+  - "큐 길이, active request, DB pool wait, 429/503 비율을 한 대시보드에서 같이 본다."
+  - "재시도는 retry budget, exponential backoff, jitter, 멱등성 조건을 만족할 때만 허용한다."
+learning_refs:
+  - title: "Timeout, Retry, Backoff"
+    href: "/learning/deep-dive/deep-dive-timeout-retry-backoff/"
+    description: "부하 제어가 재시도 정책과 결합될 때 retry storm을 막는 기본 원칙입니다."
+  - title: "Rate Limiter 설계"
+    href: "/learning/deep-dive/deep-dive-rate-limiter-design/"
+    description: "토큰 버킷, 슬라이딩 윈도우, 테넌트별 제한을 더 작게 분해한 설계 글입니다."
+  - title: "Admission Control과 Concurrency Limits"
+    href: "/learning/deep-dive/deep-dive-admission-control-concurrency-limits/"
+    description: "시스템이 받을 수 있는 요청 수를 동시성 기준으로 제한하는 운영 패턴입니다."
+decision_guide:
+  cases:
+    - badge: "429"
+      title: "사용자·테넌트 할당량 초과"
+      fit: "특정 API key, user, tenant가 약속된 QPS나 일일 quota를 넘긴 상황"
+      watchouts: "시스템 과부하까지 429로 숨기면 클라이언트가 자기 문제로 오해하고 재시도 정책을 잘못 잡는다."
+      next_step: "RateLimit headers와 Retry-After를 함께 내려 클라이언트 대기 시간을 명확히 한다."
+    - badge: "503"
+      title: "시스템 보호를 위한 부하 차단"
+      fit: "큐 길이, active request, DB pool wait, downstream error가 임계치를 넘은 상황"
+      watchouts: "대기열을 계속 늘리면 평균 응답은 유지되는 것처럼 보여도 p99와 timeout이 먼저 무너진다."
+      next_step: "Load shedding, bulkhead, circuit breaker를 결합하고 낮은 우선순위 요청부터 줄인다."
+faqs:
+  - question: "Rate limit만 있으면 backpressure는 필요 없나요?"
+    answer: "필요합니다. Rate limit은 주로 요청 주체별 공정성을 제어하고, backpressure는 현재 시스템 상태를 기준으로 수용량을 조절합니다. DB pool이나 downstream이 막히는 상황은 사용자 quota만으로 설명되지 않습니다."
+  - question: "429와 503 중 하나로 통일하면 안 되나요?"
+    answer: "운영은 단순해 보이지만 클라이언트 재시도와 장애 분석이 흐려집니다. 429는 호출자가 너무 많이 보낸 상황, 503은 서버가 지금 받을 수 없는 상황으로 나누는 편이 안전합니다."
 ---
 
 ## 이 글에서 얻는 것
@@ -17,6 +52,18 @@ study_order: 470
 - **Redis + Lua 기반 분산 Rate Limiter**를 직접 구현할 수 있습니다.
 - **Spring Cloud Gateway / Resilience4j** 설정으로 실무에 즉시 적용할 수 있습니다.
 - 리트라이/서킷 브레이커/큐/스레드풀과 결합될 때 생기는 함정(증폭, 대기열 폭발)을 피하는 기준이 생깁니다.
+
+이 글은 [Timeout, Retry, Backoff](/learning/deep-dive/deep-dive-timeout-retry-backoff/), [Admission Control과 Concurrency Limits](/learning/deep-dive/deep-dive-admission-control-concurrency-limits/), [Request Body Guardrail](/learning/deep-dive/deep-dive-request-body-guardrail-streaming-playbook/)와 같이 읽으면 좋습니다. 공통 질문은 하나입니다. **서버가 아직 건강할 때 어떤 요청을 받아들이고, 어떤 요청을 빠르게 거절할 것인가?**
+
+실무에서는 rate limit을 "초당 몇 건" 설정으로만 끝내기 쉽습니다. 하지만 장애는 보통 숫자 하나가 아니라 제한 정책, 큐, 재시도, timeout, downstream pool이 어긋날 때 발생합니다. 예를 들어 gateway는 초당 1,000건을 허용하는데 애플리케이션 검색 bulkhead는 20개만 처리할 수 있고, 클라이언트 SDK가 timeout마다 세 번 재시도한다면 실제 부하는 순식간에 설계치의 몇 배로 커집니다.
+
+따라서 오늘 바로 점검할 기준은 세 가지입니다.
+
+| 질문 | 봐야 할 신호 | 잘못된 상태 |
+|------|--------------|-------------|
+| 누가 너무 많이 보내는가? | user/API key/tenant별 QPS, 429 비율 | global QPS만 보고 특정 테넌트 독점을 놓침 |
+| 시스템이 얼마나 버티는가? | active request, queue depth, DB pool wait, p95/p99 | 평균 응답만 보고 saturation을 늦게 발견 |
+| 실패 후 다시 몰려오는가? | retry count, Retry-After 준수율, duplicate request | timeout 뒤 즉시 재시도로 retry storm 발생 |
 
 ---
 
