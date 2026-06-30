@@ -6,6 +6,54 @@ topic: "Caching"
 tags: ["Redis", "Cache Stampede", "Thundering Herd", "Distributed Lock", "Lua", "Spring Boot", "Caffeine"]
 categories: ["Backend Deep Dive"]
 description: "TTL 만료 폭발을 막는 락/조기만료/이중 캐시 전략과 Spring Boot 통합, 모니터링, 실전 트러블슈팅까지"
+summary: "Redis Cache Stampede는 핫 키 TTL 만료, 콜드 스타트, 대량 무효화가 DB 부하 폭발로 이어지는 문제입니다. 분산 락, TTL 지터, 조기 만료, 이중 캐시, stale-while-revalidate를 워크로드별로 조합하는 기준을 정리합니다."
+key_takeaways:
+  - "핫 키 1개가 만료되는 순간 DB QPS가 수십~수백 배 튈 수 있으므로 cache hit rate보다 miss burst와 rebuild latency를 같이 봐야 한다."
+  - "분산 락은 단일 재생성을 보장하지만 락 TTL, 소유자 토큰 검증, fallback 타임아웃이 없으면 장애를 더 키울 수 있다."
+  - "TTL 지터, 조기 만료, stale-while-revalidate, singleflight는 서로 대체재가 아니라 워크로드별로 조합하는 보호 장치다."
+operator_checklist:
+  - "상위 핫 키 20개의 RPS, TTL, 원본 조회 p95, 동시 miss 최대치를 먼저 측정한다."
+  - "모든 캐시 저장 경로에 TTL 지터 또는 soft TTL을 적용할 수 있는지 확인한다."
+  - "락 기반 재생성에는 lease time, wait time, owner token release, 최종 fallback 정책을 반드시 둔다."
+  - "배포 직후 콜드 스타트가 잦은 키는 cache warming 대상과 warmup 실패 시 degrade 정책을 문서화한다."
+learning_refs:
+  - title: "Redis 캐싱"
+    href: "/learning/deep-dive/deep-dive-redis-caching/"
+    description: "Cache-Aside, Write-through, 무효화, 핫 키 같은 Redis 캐싱 기본 운영 패턴입니다."
+  - title: "Cache Pattern Selection"
+    href: "/learning/deep-dive/deep-dive-cache-pattern-selection-workload-playbook/"
+    description: "Cache-Aside, Read-Through, Write-Through, Write-Behind를 워크로드 기준으로 고르는 기준입니다."
+  - title: "캐시 일관성 설계"
+    href: "/learning/deep-dive/deep-dive-cache-consistency-invalidation-playbook/"
+    description: "캐시 적중률보다 중요한 stale read, invalidation lag, 재처리 기준을 다룹니다."
+  - title: "Request Coalescing & Singleflight"
+    href: "/learning/deep-dive/deep-dive-request-coalescing-singleflight/"
+    description: "동일 키에 대한 중복 요청을 합쳐 원본 조회 폭증을 줄이는 패턴입니다."
+decision_guide:
+  intro: "Stampede 완화책은 하나만 고르는 문제가 아닙니다. 핫 키 규모, 원본 조회 비용, stale 허용 시간, 콜드 스타트 빈도를 나눠 조합하세요."
+  cases:
+    - badge: "Strict"
+      title: "정확성이 중요하고 stale 허용 시간이 짧다"
+      fit: "재고, 권한, 가격처럼 잘못된 값 노출 비용이 큰 키에 맞습니다."
+      watchouts: "락 대기열이 길어지면 사용자 응답이 같이 느려지므로 wait time과 fallback을 짧게 둬야 합니다."
+      next_step: "분산 락 + double-check + owner token release를 적용하고 miss p99와 lock wait p95를 먼저 알람으로 둡니다."
+    - badge: "Latency"
+      title: "응답 지연보다 약간 오래된 값이 낫다"
+      fit: "랭킹, 추천, 상품 상세처럼 수 초~수 분 stale을 설명할 수 있는 조회에 맞습니다."
+      watchouts: "stale 허용 범위가 문서화되지 않으면 장애 중 오래된 값 노출이 운영 리스크가 됩니다."
+      next_step: "Stale-While-Revalidate와 singleflight를 붙이고 fresh TTL/stale TTL을 데이터 클래스별로 분리합니다."
+    - badge: "Scale"
+      title: "키 수가 많고 동시 만료 또는 배포 직후 미스가 문제다"
+      fit: "카탈로그, 설정, 피드처럼 대량 키가 같은 시점에 비는 서비스에 맞습니다."
+      watchouts: "워밍이 실패하면 시작 직후 원본 시스템이 바로 맞을 수 있으므로 warmup 성공률과 실패 fallback이 필요합니다."
+      next_step: "TTL 지터와 cache warming을 먼저 적용하고, 상위 키부터 prefetch 우선순위를 둡니다."
+faqs:
+  - question: "Cache Stampede와 Hot Key 문제는 같은 건가요?"
+    answer: "겹치지만 완전히 같지는 않습니다. Hot Key는 특정 키에 트래픽이 몰리는 상태이고, Cache Stampede는 그 키가 만료되거나 비었을 때 동시 재생성 요청이 원본 시스템으로 몰리는 현상입니다."
+  - question: "분산 락만 넣으면 Stampede가 해결되나요?"
+    answer: "기본 폭발은 줄일 수 있지만 락 TTL, 대기 시간, 소유자 검증, fallback이 없으면 락 경합 자체가 장애가 됩니다. 트래픽이 높은 키는 조기 만료나 stale 반환 전략을 같이 쓰는 편이 안전합니다."
+  - question: "TTL 지터는 어느 정도가 적당한가요?"
+    answer: "정확한 만료가 중요하지 않은 일반 조회 캐시는 ±10~30%에서 시작하면 됩니다. 세션, 권한, 결제성 데이터처럼 만료 시각이 의미 있는 키에는 지터를 넣지 않거나 매우 좁게 제한해야 합니다."
 module: "data-system"
 quizzes:
   - question: "Cache Stampede(Thundering Herd)의 핵심 원인은?"
@@ -747,7 +795,92 @@ groups:
 
 ---
 
-## 11) Cache Warming — Cold Start 방지
+## 11) 적용 순서: 한 번에 다 넣지 말고 위험 키부터 줄이기
+
+Stampede 대응은 프레임워크 기능을 켜는 작업이라기보다 **원본 시스템을 보호하는 운영 정책**에 가깝습니다. 그래서 모든 캐시에 동시에 락을 넣기보다, 실제 장애를 만들 가능성이 높은 키부터 좁게 시작하는 편이 안전합니다.
+
+### 11-1. 1단계: 관측 기준부터 고정
+
+먼저 "캐시가 잘 돈다"를 hit rate 하나로 판단하지 않습니다. Stampede는 hit rate가 평소 99%여도 특정 10초 동안 DB가 터지는 문제이기 때문입니다. 최소한 아래 지표를 cache name 또는 key group 단위로 분리해 봅니다.
+
+| 지표 | 보는 이유 | 초기 경보 예시 |
+|:---|:---|:---|
+| `cache_miss_rate` | TTL 만료/무효화 직후 miss burst 감지 | 평시 대비 3배 이상 2분 지속 |
+| `cache_rebuild_latency_p95` | 원본 조회가 느릴수록 stampede 피해가 커짐 | 500ms 초과 5분 지속 |
+| `cache_rebuild_inflight` | 같은 키 재생성이 동시에 몇 개 도는지 확인 | key group별 1 초과 |
+| `lock_wait_p95` | 락이 보호 장치인지 병목인지 판단 | 100~300ms 초과 |
+| `stale_served_total` | stale 반환 전략의 사용자 영향 확인 | Class A 데이터에서 발생 시 즉시 점검 |
+
+이 기준은 [Observability Baseline](/learning/deep-dive/deep-dive-observability-baseline/)에서 정리한 지표 설계와 같이 맞추면 운영 언어가 깔끔해집니다.
+
+### 11-2. 2단계: 키를 세 등급으로 나눈다
+
+모든 키에 같은 정책을 적용하면 비용이 커지고, 정확성이 필요한 데이터에 stale 전략이 섞일 수 있습니다. 다음처럼 나누면 적용 순서가 명확해집니다.
+
+1. **Class A: 정합성 민감 키**  
+   재고, 권한, 가격처럼 잘못된 값 노출 비용이 큽니다. 분산 락과 짧은 wait time을 쓰되, stale 반환은 매우 제한합니다. 장애 중에는 캐시 우회 DB 조회나 기능 제한까지 고려합니다.
+
+2. **Class B: 핫 조회 키**  
+   상품 상세, 프로필, 피드 일부처럼 읽기가 많고 약간 오래된 값이 허용됩니다. TTL 지터, 조기 만료, stale-while-revalidate를 우선 적용하면 사용자 지연을 크게 늘리지 않고 DB를 보호할 수 있습니다.
+
+3. **Class C: 대량 키/집계 키**  
+   랭킹, 추천, 통계처럼 키 수가 많고 대량 만료가 문제입니다. 개별 락보다 TTL 지터, 워밍, 배치 재생성, 우선순위 큐가 더 효과적일 때가 많습니다.
+
+이 분류는 [Cache Pattern Selection](/learning/deep-dive/deep-dive-cache-pattern-selection-workload-playbook/)의 workload 기준과 연결해서 문서화해두면, 새 캐시를 추가할 때도 같은 판단을 재사용할 수 있습니다.
+
+### 11-3. 3단계: 완화책을 작은 조합으로 배포
+
+추천 배포 순서는 다음과 같습니다.
+
+| 순서 | 적용 | 이유 | 롤백 |
+|:---|:---|:---|:---|
+| 1 | TTL 지터 | 가장 단순하고 대량 동시 만료를 줄임 | 지터 비율을 0으로 되돌림 |
+| 2 | singleflight | 같은 인스턴스 안의 중복 DB 조회 제거 | in-flight map 사용 중지 |
+| 3 | 분산 락 | 멀티 인스턴스 중복 재생성 제어 | 락 경로 feature flag off |
+| 4 | stale-while-revalidate | 사용자 지연을 줄이고 백그라운드 갱신 | stale 반환 비활성화 |
+| 5 | cache warming | 배포/재시작 직후 cold start 완화 | warmup job skip |
+
+특히 분산 락은 효과가 크지만, 락 서버 장애나 네트워크 지연을 애플리케이션 응답 경로로 끌고 들어옵니다. 그래서 처음부터 모든 조회에 넣기보다 상위 핫 키에만 feature flag로 적용하고, `lock_wait_p95`, `lock_timeout_total`, `fallback_db_total`을 같이 봐야 합니다.
+
+---
+
+## 12) 장애 대응 런북: hit rate가 급락했을 때
+
+Cache Stampede 의심 상황에서는 "Redis가 느린가?"보다 먼저 **원본 시스템으로 miss가 얼마나 흘러갔는지**를 봐야 합니다.
+
+### 12-1. 5분 안에 볼 것
+
+1. 최근 배포/재시작/대량 무효화가 있었는지 확인합니다.
+2. `cache_miss_rate`와 `cache_rebuild_latency_p95`가 같은 시점에 튀었는지 봅니다.
+3. 상위 miss key group을 확인하고 Class A/B/C 중 어디인지 분류합니다.
+4. DB CPU, connection pool active/waiting, slow query를 같이 봅니다.
+5. 락을 쓰는 경로라면 `lock_timeout_total`과 `lock_wait_p95`를 확인합니다.
+
+이때 hit rate만 보면 늦습니다. 전체 hit rate가 95%여도, 특정 상품 키 하나가 30초 동안 DB를 수천 번 때리면 장애는 이미 시작됩니다.
+
+### 12-2. 즉시 완화 액션
+
+| 상황 | 우선 액션 | 주의점 |
+|:---|:---|:---|
+| 핫 키 1개 miss 폭증 | 해당 키 수동 warmup + 짧은 TTL로 임시 저장 | 잘못된 값이면 stale 사고가 되므로 출처 확인 |
+| 대량 키 동시 만료 | TTL 지터 비율 확대 + batch rebuild rate limit | 원본 DB 부하가 이미 높으면 재빌드 속도 제한 |
+| DB 연결 고갈 | 캐시 miss fallback timeout 축소 + low priority 요청 차단 | Class A 데이터는 기능 제한 공지 필요 |
+| 락 대기 폭증 | wait time 축소 + stale 반환 허용 범위 확대 | 정합성 민감 키에는 stale 금지 유지 |
+| 배포 직후 cold start | warmup job 재실행 + 상위 키 prefetch | warmup이 DB를 더 때리지 않게 동시성 제한 |
+
+### 12-3. 사후 점검 질문
+
+- TTL이 같은 시각에 몰리도록 설정되어 있지 않았나?
+- invalidation 이벤트가 특정 시간에 대량으로 발행되지 않았나?
+- cache rebuild가 원본 조회 p95보다 짧은 lock TTL을 사용하지 않았나?
+- fallback DB 조회에 timeout/circuit breaker가 있었나?
+- 운영자가 상위 miss key를 5분 안에 찾을 수 있었나?
+
+이 질문에 답하지 못하면 코드 수정만으로는 같은 장애가 반복됩니다. 캐시는 성능 최적화처럼 시작하지만, 운영에서는 [캐시 일관성 설계](/learning/deep-dive/deep-dive-cache-consistency-invalidation-playbook/)와 [장애 지휘/심각도 분류](/learning/deep-dive/deep-dive-incident-command-severity-playbook/)까지 연결되는 주제입니다.
+
+---
+
+## 13) Cache Warming — Cold Start 방지
 
 ```java
 @Component
@@ -785,9 +918,9 @@ public class CacheWarmer {
 
 ---
 
-## 12) 실전 트러블슈팅 & 안티패턴
+## 14) 실전 트러블슈팅 & 안티패턴
 
-### 12-1. 흔한 실수 체크리스트
+### 14-1. 흔한 실수 체크리스트
 
 ```text
 □ TTL을 모든 키에 동일하게 설정하지 않았는가? → Jitter 추가
@@ -800,7 +933,7 @@ public class CacheWarmer {
 □ 배포 시 캐시 warming을 하는가? → Cold Start 방지
 ```
 
-### 12-2. 안티패턴과 올바른 접근
+### 14-2. 안티패턴과 올바른 접근
 
 | 안티패턴 | 왜 위험한가 | 올바른 접근 |
 |:---|:---|:---|
