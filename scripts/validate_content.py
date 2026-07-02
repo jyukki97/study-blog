@@ -6,7 +6,7 @@
 2) posts 글의 필수 필드(title/date/description/tags)
 3) posts 글의 제목 중복
 4) 마크다운 내부 링크(/... + 상대경로) 유효성
-5) posts 글 최소 본문 길이(실질 내용) 확인
+5) posts 글과 이번 작업에서 변경된 learning 글의 최소 본문 길이(실질 내용) 확인
 6) 라우트 충돌(동일 URL 경로를 여러 문서가 점유) 확인
 """
 
@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import posixpath
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -26,6 +27,7 @@ LINK_RE = re.compile(r"(?<!\!)\[[^\]]+\]\(([^)\s]+)\)")
 LEGACY_BASEURL_RE = re.compile(r"\{\{\s*site\.baseurl\s*\}\}", re.IGNORECASE)
 
 MIN_POST_BODY_CHARS = 1500
+MIN_CHANGED_LEARNING_BODY_CHARS = 1500
 
 
 def normalize_route(path: str) -> str:
@@ -172,9 +174,38 @@ def substantive_char_count(markdown_body: str) -> int:
     return len(re.sub(r"\s+", "", body))
 
 
+def changed_content_markdown_files() -> set[Path]:
+    """현재 작업에서 건드린 content/*.md 파일만 반환한다.
+
+    learning 섹션에는 과거의 짧은 예제/파트2 글이 남아 있어 전체 적용은 경고를 과도하게 만든다.
+    대신 신규 또는 수정 중인 글에 품질 하한을 적용해 앞으로 들어오는 얇은 글을 막는다.
+    """
+
+    result = subprocess.run(
+        ["git", "status", "--short", "--", "content"],
+        cwd=REPO,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        return set()
+
+    changed: set[Path] = set()
+    for line in result.stdout.splitlines():
+        raw_path = line[3:].strip()
+        if " -> " in raw_path:
+            raw_path = raw_path.rsplit(" -> ", 1)[1].strip()
+        path = REPO / raw_path
+        if path.suffix.lower() == ".md" and path.exists() and path.is_relative_to(CONTENT_DIR):
+            changed.add(path)
+    return changed
+
+
 def main() -> int:
     routes, route_to_files = build_content_routes()
     static_routes = build_static_routes()
+    changed_md_files = changed_content_markdown_files()
     errors: list[str] = []
     warnings: list[str] = []
 
@@ -213,6 +244,15 @@ def main() -> int:
                 if body_chars < MIN_POST_BODY_CHARS:
                     warnings.append(
                         f"[content] 본문 길이 점검 필요({body_chars}자 < {MIN_POST_BODY_CHARS}자): {rel}"
+                    )
+
+        if md.is_relative_to(CONTENT_DIR / "learning") and md in changed_md_files:
+            if md.name not in {"_index.md", "index.md"}:
+                body_chars = substantive_char_count(extract_markdown_body(text))
+                if body_chars < MIN_CHANGED_LEARNING_BODY_CHARS:
+                    warnings.append(
+                        "[content] 변경된 learning 글 본문 길이 점검 필요"
+                        f"({body_chars}자 < {MIN_CHANGED_LEARNING_BODY_CHARS}자): {rel}"
                     )
 
         if LEGACY_BASEURL_RE.search(text):
