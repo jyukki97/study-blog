@@ -1,0 +1,169 @@
+{{ define "main" }}
+<style>
+  body.list .main > .about-page {
+    width: min(100%, 860px);
+    margin: clamp(1.75rem, 4vw, 3rem) auto 0;
+    padding: 0 1rem 4rem;
+    box-sizing: border-box;
+  }
+
+  body.list .main > .about-page .about-hero {
+    margin-bottom: 2.2rem;
+    padding-bottom: 1.35rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  body.list .main > .about-page .about-eyebrow {
+    margin: 0 0 0.35rem;
+    color: var(--secondary);
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 0;
+  }
+
+  body.list .main > .about-page .about-hero h1 {
+    margin: 0;
+    color: var(--primary);
+    font-size: clamp(2rem, 4vw, 2.55rem);
+    line-height: 1.2;
+    letter-spacing: 0;
+  }
+
+  body.list .main > .about-page .about-description {
+    max-width: 680px;
+    margin: 0.9rem 0 0;
+    color: var(--secondary);
+    font-size: 1.05rem;
+    line-height: 1.7;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+
+  body.list .main > .about-page .about-content.post-content {
+    color: var(--content);
+    font-size: 1.05rem;
+    line-height: 1.85;
+    letter-spacing: 0;
+    word-spacing: normal;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    max-width: 100%;
+  }
+
+  body.list .main > .about-page .about-content.post-content > *:first-child {
+    margin-top: 0;
+  }
+
+  body.list .main > .about-page .about-content.post-content h2 {
+    margin: 2.25rem 0 0.9rem;
+    padding-bottom: 0.45rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--primary);
+    font-size: 1.45rem;
+    line-height: 1.35;
+    letter-spacing: 0;
+  }
+
+  body.list .main > .about-page .about-content.post-content p {
+    margin: 0 0 1.25rem;
+    line-height: 1.85;
+  }
+
+  body.list .main > .about-page .about-content.post-content ul,
+  body.list .main > .about-page .about-content.post-content ol {
+    margin: 0 0 1.5rem;
+    padding-left: 1.35rem;
+    line-height: 1.85;
+  }
+
+  body.list .main > .about-page .about-content.post-content li {
+    margin: 0.45rem 0;
+    padding-left: 0.2rem;
+  }
+
+  body.list .main > .about-page .about-content.post-content li::marker {
+    color: var(--link-color, #3498db);
+  }
+
+  body.list .main > .about-page .about-content.post-content strong {
+    color: var(--primary);
+    font-weight: 700;
+  }
+
+  body.list .main > .about-page .about-content.post-content a {
+    color: var(--link-color, #3498db);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+    word-break: normal;
+    overflow-wrap: anywhere;
+  }
+
+  body.list .main > .about-page .about-content.post-content code {
+    white-space: normal;
+  }
+
+  body.list .main > .about-page .about-content.post-content hr {
+    margin: 2rem 0 1.25rem;
+  }
+
+  body.list .main > .about-page .about-content.post-content blockquote {
+    margin: 1.25rem 0 0;
+    padding: 1rem 1.1rem;
+    border-left: 4px solid #b19cd9;
+    border-radius: 0 8px 8px 0;
+    background: rgba(177, 156, 217, 0.1);
+    color: var(--secondary);
+    font-style: normal;
+  }
+
+  body.list .main > .about-page .about-content.post-content blockquote p {
+    margin: 0;
+  }
+
+  @media (max-width: 768px) {
+    body.list .main > .about-page {
+      width: auto;
+      max-width: 100%;
+      margin-top: 1.5rem;
+      padding: 0 16px 3rem;
+    }
+
+    body.list .main > .about-page .about-hero {
+      margin-bottom: 1.5rem;
+    }
+
+    body.list .main > .about-page .about-description,
+    body.list .main > .about-page .about-content.post-content {
+      font-size: 1rem;
+      max-width: 100%;
+      overflow-wrap: anywhere;
+    }
+
+    body.list .main > .about-page .about-content.post-content h2 {
+      margin-top: 1.8rem;
+      font-size: 1.35rem;
+    }
+
+    body.list .main > .about-page .about-content.post-content ul,
+    body.list .main > .about-page .about-content.post-content ol {
+      padding-left: 1.1rem;
+    }
+  }
+</style>
+
+<article class="about-page" itemscope itemtype="https://schema.org/AboutPage">
+  <header class="about-hero">
+    <p class="about-eyebrow">{{ site.Title }}</p>
+    <h1 itemprop="name">{{ .Title }}</h1>
+    {{- with .Description }}
+    <p class="about-description" itemprop="description">{{ . }}</p>
+    {{- end }}
+  </header>
+
+  {{- if .Content }}
+  <div class="about-content post-content" itemprop="mainContentOfPage">
+    {{ .Content }}
+  </div>
+  {{- end }}
+</article>
+{{ end }}
