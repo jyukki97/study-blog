@@ -176,6 +176,37 @@ Webhook은 단순한 HTTP callback처럼 보이지만, 실제 운영에서는 **
 
 이 경로를 다 읽고 나면 특정 배포 기법 이름을 아는 수준을 넘어, **릴리스 전 검증 → 제한 노출 → 관측 → 중단/확대 판단 → 롤백**까지 하나의 운영 루프로 설계할 수 있습니다. 블로그에 흩어진 심화 글도 이 흐름 안에서 다시 연결되므로, 최신 글을 읽은 뒤 관련 개념으로 자연스럽게 이동하기 좋아집니다.
 
+## 성능·비용 보호 학습 경로: 요청 하나의 리소스 예산 잡기
+
+장애는 항상 전체 트래픽이 폭증할 때만 오지 않습니다. QPS는 낮지만 DB aggregation, 외부 API fan-out, 큰 응답 payload, 재시도가 붙은 요청 하나가 pool을 오래 잡고 있으면 평범한 조회까지 같이 느려집니다. 그래서 성능 튜닝을 평균 latency 개선으로만 보면 부족하고, **요청 하나가 어떤 리소스를 얼마나 쓰는지**를 먼저 드러내야 합니다.
+
+아래 순서로 읽으면 capacity planning에서 시작해 admission control, API별 resource budget, tail latency, graceful degradation까지 한 흐름으로 이어집니다.
+
+1. [Capacity Planning과 Little's Law](/learning/deep-dive/deep-dive-capacity-planning-littles-law-saturation/)
+2. [Admission Control과 Concurrency Limits](/learning/deep-dive/deep-dive-admission-control-concurrency-limits/)
+3. [API Resource Budgeting, 요청 하나의 CPU·DB·외부 호출 비용을 설계하는 법](/learning/deep-dive/deep-dive-api-resource-budgeting/)
+4. [API 레이트 리밋과 백프레셔](/learning/deep-dive/deep-dive-api-rate-limit-backpressure/)
+5. [Tail Latency 엔지니어링 플레이북](/learning/deep-dive/deep-dive-tail-latency-engineering-playbook/)
+6. [Graceful Degradation과 Brownout](/learning/deep-dive/deep-dive-graceful-degradation-brownout-playbook/)
+
+### 이런 상황이면 이 경로부터 보세요
+
+- 트래픽은 많지 않은데 특정 리포트, 검색, export API가 DB pool wait을 키우는 경우
+- rate limit은 있지만 가벼운 요청과 무거운 요청을 같은 1건으로 취급하는 경우
+- tenant 한 곳의 batch나 관리자 조회가 interactive API의 p95/p99를 흔드는 경우
+- timeout, retry, pagination, cache fallback 기준이 API마다 제각각인 경우
+- 429와 503을 섞어 쓰고 있어 클라이언트 재시도 정책이 서버 부하를 더 키우는 경우
+
+### 읽으면서 남길 운영 산출물
+
+- 핵심 API 10개의 p95 latency, DB query count, external call count, response size, retry count
+- endpoint별 request cost unit과 interactive/admin/batch request class 구분
+- tenant budget, system-wide admission control, degraded path의 적용 순서
+- budget 초과 시 429, 시스템 포화 시 503, 큰 payload 제한 시 413/422를 나누는 응답 기준
+- budget decision 로그 필드: endpoint, request class, tenant hash, budget units, used units, decision
+
+이 경로의 목표는 서버를 무조건 아끼는 것이 아닙니다. 사용자가 바로 기다리는 요청, 데이터 정합성이 중요한 요청, 나중에 처리해도 되는 batch를 구분해서 **바쁠 때 무엇을 먼저 살릴지** 결정하는 기준을 만드는 것입니다. 평균 지표가 멀쩡한데 p99와 비용만 계속 튀는 서비스라면 이 경로가 특히 잘 맞습니다.
+
 ## 기존 설계 학습 경로: DDD와 헥사고날 아키텍처
 
 구조 설계 주제가 필요하다면 아래 경로를 이어서 보면 좋습니다. 운영 안정화가 "릴리스 후 시스템을 지키는 기술"이라면, DDD와 헥사고날 아키텍처는 "변경이 잦아도 도메인 규칙을 잃지 않는 구조"에 가깝습니다.
