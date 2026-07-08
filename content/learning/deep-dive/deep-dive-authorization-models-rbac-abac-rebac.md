@@ -31,6 +31,8 @@ study_order: 500
 
 실무에서 인가 체계는 “보안 기능”이면서 동시에 “제품 출시 속도”를 결정하는 아키텍처 요소입니다.
 
+다만 인가 모델을 잘 고르는 것만으로 끝나지는 않습니다. RBAC 역할, ABAC 예외, ReBAC 관계 edge는 시간이 지나며 남습니다. 팀 이동, 임시 장애 대응 권한, 외주 계약 종료, 프로젝트 종료가 반영되지 않으면 처음에는 정상이던 권한도 과도한 권한이 됩니다. 이 운영 문제는 [Permission Drift와 Access Review](/learning/deep-dive/deep-dive-permission-drift-access-review-playbook/)에서 별도로 다룹니다.
+
 ### 2) RBAC, ABAC, ReBAC를 어떻게 구분해야 하나
 
 #### RBAC (Role-Based Access Control)
@@ -176,6 +178,7 @@ study_order: 500
 
 - [Spring Security 아키텍처 딥다이브](/learning/deep-dive/deep-dive-spring-security-architecture/)
 - [JWT 인증/인가 실전](/learning/deep-dive/deep-dive-jwt-auth/)
+- [Permission Drift와 Access Review](/learning/deep-dive/deep-dive-permission-drift-access-review-playbook/)
 - [OWASP Top10 체크리스트](/learning/deep-dive/deep-dive-owasp-top10-checklist/)
 - [시크릿 관리 전략](/learning/deep-dive/deep-dive-secret-management/)
 - [Observability 알람 설계](/learning/deep-dive/deep-dive-observability-alarms/)
