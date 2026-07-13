@@ -163,7 +163,18 @@
   color: var(--secondary);
   font-size: 0.9rem;
   line-height: 1.5;
-  margin: 0 0 1rem 0;
+  margin: 0 0 0.85rem 0;
+}
+
+.related-post-reason {
+  margin: 0 0 1rem;
+  padding: 0.65rem 0.75rem;
+  border-left: 3px solid rgba(177, 156, 217, 0.72);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--entry) 88%, #b19cd9 12%);
+  color: var(--secondary);
+  font-size: 0.86rem;
+  line-height: 1.55;
 }
 
 .related-post-meta {
@@ -186,6 +197,11 @@
   border-radius: 12px;
   font-size: 0.75rem;
   border: 1px solid rgba(177, 156, 217, 0.3);
+}
+
+[data-theme="dark"] .related-post-reason {
+  background: rgba(177, 156, 217, 0.12);
+  border-left-color: rgba(177, 156, 217, 0.86);
 }
 
 /* 모바일 반응형 */
@@ -280,5 +296,4 @@
     padding: 0.76rem 0.78rem;
   }
 }
-
 
