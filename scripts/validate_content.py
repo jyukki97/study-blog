@@ -8,6 +8,7 @@
 4) 마크다운 내부 링크(/... + 상대경로) 유효성
 5) posts 글과 이번 작업에서 변경된 learning 글의 최소 본문 길이(실질 내용) 확인
 6) 라우트 충돌(동일 URL 경로를 여러 문서가 점유) 확인
+7) 이번 작업에서 변경된 섹션 허브(_index.md/index.md)의 최소 본문 길이 확인
 """
 
 from __future__ import annotations
@@ -28,6 +29,7 @@ LEGACY_BASEURL_RE = re.compile(r"\{\{\s*site\.baseurl\s*\}\}", re.IGNORECASE)
 
 MIN_POST_BODY_CHARS = 1500
 MIN_CHANGED_LEARNING_BODY_CHARS = 1500
+MIN_CHANGED_SECTION_INDEX_BODY_CHARS = 1500
 
 
 def normalize_route(path: str) -> str:
@@ -247,13 +249,18 @@ def main() -> int:
                     )
 
         if md.is_relative_to(CONTENT_DIR / "learning") and md in changed_md_files:
-            if md.name not in {"_index.md", "index.md"}:
-                body_chars = substantive_char_count(extract_markdown_body(text))
-                if body_chars < MIN_CHANGED_LEARNING_BODY_CHARS:
+            body_chars = substantive_char_count(extract_markdown_body(text))
+            if md.name in {"_index.md", "index.md"}:
+                if body_chars < MIN_CHANGED_SECTION_INDEX_BODY_CHARS:
                     warnings.append(
-                        "[content] 변경된 learning 글 본문 길이 점검 필요"
-                        f"({body_chars}자 < {MIN_CHANGED_LEARNING_BODY_CHARS}자): {rel}"
+                        "[content] 변경된 섹션 허브 본문 길이 점검 필요"
+                        f"({body_chars}자 < {MIN_CHANGED_SECTION_INDEX_BODY_CHARS}자): {rel}"
                     )
+            elif body_chars < MIN_CHANGED_LEARNING_BODY_CHARS:
+                warnings.append(
+                    "[content] 변경된 learning 글 본문 길이 점검 필요"
+                    f"({body_chars}자 < {MIN_CHANGED_LEARNING_BODY_CHARS}자): {rel}"
+                )
 
         if LEGACY_BASEURL_RE.search(text):
             warnings.append(f"[content] '{{{{site.baseurl}}}}' 사용 감지(절대 경로 또는 absURL 권장): {rel}")

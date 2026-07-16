@@ -21,7 +21,10 @@
     {{- $topicNames = $topicNames | append $topic }}
 {{- end }}
 {{- $topicNames = sort $topicNames }}
-{{- $latestLearningPost := index ($notePages.ByDate.Reverse) 0 }}
+{{- $latestLearningPost := false }}
+{{- with first 1 ($notePages.ByDate.Reverse) }}
+    {{- $latestLearningPost = index . 0 }}
+{{- end }}
 <div class="learning-container">
     <!-- 학습 히어로 섹션 -->
     <header class="learning-hero">
@@ -77,8 +80,13 @@
         </article>
         <article class="stats-card">
             <span class="stats-label">최근 업데이트</span>
+            {{- with $latestLearningPost }}
             <strong class="stats-value">{{ $latestLearningPost.Date | time.Format "2006.01.02" }}</strong>
             <p class="stats-desc">{{ $latestLearningPost.Title | truncate 42 }}</p>
+            {{- else }}
+            <strong class="stats-value">준비 중</strong>
+            <p class="stats-desc">첫 학습 노트가 추가되면 자동 갱신됩니다.</p>
+            {{- end }}
         </article>
     </section>
 
@@ -141,7 +149,7 @@
                 {{- $posts := index $topicGroups $topic }}
                 {{- $firstPost := index $posts 0 }}
                 {{- $latestPost := index (sort $posts "Date" "desc") 0 }}
-                <button type="button" class="topic-card" onclick="filterByTopic('{{ $topic }}')" aria-label="{{ $topic }} 학습 노트 보기">
+                <a class="topic-card" href="{{ $latestPost.RelPermalink }}" onclick="filterByTopic('{{ $topic }}', event)" aria-label="{{ $topic }} 학습 노트 보기">
                     <div class="topic-main">
                         <h3 class="topic-name">{{ $topic }}</h3>
                         <p class="topic-description">
@@ -156,7 +164,7 @@
                         <span class="note-count">{{ len $posts }}개</span>
                         <span class="last-update desktop-only">{{ $latestPost.Date | time.Format "01/02" }}</span>
                     </div>
-                </button>
+                </a>
             {{- end }}
 
             {{- /* 주제가 없는 경우 */ -}}
@@ -686,6 +694,8 @@
     text-align: left;
     appearance: none;
     font: inherit;
+    color: inherit;
+    text-decoration: none;
 }
 
 .topic-card::before {
@@ -1125,7 +1135,11 @@
 <script>
 let currentlyShowingAll = false;
 
-function filterByTopic(topic) {
+function filterByTopic(topic, event) {
+    if (event) {
+        event.preventDefault();
+    }
+
     const allNotes = document.querySelectorAll('.learning-note-card');
     const notesTitle = document.getElementById('notes-title');
     const showAllBtn = document.getElementById('show-all-btn');
