@@ -21,6 +21,9 @@ learning_refs:
   - title: "Transactional Outbox + CDC"
     href: "/learning/deep-dive/deep-dive-transactional-outbox-cdc/"
     description: "상태 변경과 이벤트 발행을 같은 업무 사실로 다루는 패턴입니다."
+  - title: "Tenant Lifecycle와 Offboarding"
+    href: "/learning/deep-dive/deep-dive-tenant-lifecycle-offboarding-playbook/"
+    description: "멀티테넌트 SaaS에서 생성, 정지, 종료, 보존, purge 검증을 운영 상태 기계로 설계하는 기준입니다."
   - title: "분산 트랜잭션"
     href: "/learning/deep-dive/deep-dive-distributed-transactions/"
     description: "서비스 간 정합성을 맞출 때 2PC, Saga, 보상 트랜잭션의 선택 기준을 정리합니다."
@@ -57,12 +60,18 @@ learning_refs:
 - **불변식과 감사 이력**: 금전, 권한, 삭제, 공개 상태는 현재값만 저장하지 말고 전이 근거와 actor를 함께 남깁니다.
 - **Outbox/이벤트 연계**: 상태 변경 뒤 필요한 메시지 발행은 같은 트랜잭션 경계에서 기록하고 비동기로 전달합니다.
 
+### 5. 멀티테넌트 운영 생명주기
+- **Tenant Lifecycle**: 테넌트를 단순 고객 row가 아니라 `provisioning`, `active`, `suspended`, `delete_requested`, `retained`, `purging`, `purged` 전이를 가진 운영 객체로 봅니다.
+- **Offboarding Manifest**: 종료 요청에는 승인자, 사유, export 여부, 보존 종료 시각, 삭제 대상 리소스 수, 검증 결과를 남겨야 합니다.
+- **Purge 검증**: RDB row만 지우지 않고 검색 인덱스, 오브젝트 스토리지, 캐시, 외부 SaaS 잔여 데이터까지 0인지 확인합니다.
+
 ## 이 단계의 핵심 주제
 
 - 분산 트랜잭션(2PC/Saga/TCC) 설계
 - 샤딩/라우팅/리밸런싱 전략
 - DDD 전술 패턴과 경계(Bounded Context)
 - 운영용 상태 머신과 도메인 불변식 설계
+- 멀티테넌트 온보딩, 정지, 오프보딩, purge 증명 설계
 
 ## 미니 실습
 
@@ -70,6 +79,7 @@ learning_refs:
 - **샤딩 재배치 시나리오**: 노드 추가 시 데이터 이동량 계산
 - **Aggregate 경계 설계**: 트랜잭션 경계 1개로 제한하는 모델 작성
 - **상태 전이표 작성**: 주문 또는 업로드 흐름의 허용 전이, 금지 전이, 수동 확인 큐를 표로 정리
+- **테넌트 종료 manifest 작성**: 고객사 하나를 종료한다고 가정하고 DB, object storage, search index, queue, cache, 외부 SaaS 삭제 대상을 목록화
 
 ## 완료 기준
 
@@ -77,6 +87,7 @@ learning_refs:
 - 데이터 정합성과 확장성의 균형점을 말로 정리할 수 있다
 - 도메인 경계가 어긋날 때 생기는 문제를 설명할 수 있다
 - 상태가 있는 업무 흐름에서 전이표, 불변식, 감사 이력을 설계할 수 있다
+- 테넌트 생성·정지·종료·삭제 검증을 상태 전이와 운영 증거로 설명할 수 있다
 
 ## 추천 학습 자료
 - **책**: *Microservices Patterns (마이크로서비스 패턴)* - 크리스 리처드슨
