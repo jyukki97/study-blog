@@ -40,7 +40,7 @@ url: "/learning/modules/backend-security-phase/"
 - **OAuth 2.0 & OIDC**: 프로토콜 흐름 심층 분석 (Grant Types)
 - **Session vs Token**: 보안 관점에서의 트레이드오프 (Replay Attack, Hijacking 방지)
 - **MFA (Multi-Factor Authentication)**: 다중 인증 구현 원리
-- **Authorization Lifecycle**: 권한 부여, 사용 이력, 만료, 회수, 캐시 무효화, access review
+- **Authorization Lifecycle**: 권한 부여, 정책 변경, shadow rollout, 사용 이력, 만료, 회수, 캐시 무효화, access review
 
 ### 4. 비밀·권한 운영 (Secrets & Access Operations)
 - **API Key Lifecycle**: 발급, scope, rate limit, rotation, revocation, revoked key 재사용 감지
@@ -59,6 +59,7 @@ url: "/learning/modules/backend-security-phase/"
 - **CORS/CSRF 재현**: 허용/차단 케이스를 분리해서 동작 확인
 - **토큰 탈취 시나리오**: 만료/갱신/리프레시 전략 비교
 - **보안 헤더 적용**: CSP/HSTS/Referrer-Policy 적용 테스트
+- **Authorization Shadow Rollout 설계**: 기존 정책과 새 정책의 `allow_to_deny`, `deny_to_allow`, `eval_error` diff를 분류하고 canary enforcement 기준을 정리
 - **Access Review 후보 생성**: 90일 미사용 admin 권한과 만료 없는 high-risk 권한을 찾아 owner, reason, revoke path를 표로 정리
 
 ## 완료 기준
@@ -73,6 +74,14 @@ url: "/learning/modules/backend-security-phase/"
 1. **[CORS/CSRF와 보안 헤더](/learning/deep-dive/deep-dive-security-cors-csrf-headers/)** 로 브라우저 기반 공격과 방어 헤더를 먼저 잡습니다.
 2. **[Spring Security 아키텍처](/learning/deep-dive/deep-dive-spring-security-architecture/)** 로 filter chain, 인증 객체, 인가 흐름을 연결합니다.
 3. **[인가 모델 실전 설계: RBAC·ABAC·ReBAC](/learning/deep-dive/deep-dive-authorization-models-rbac-abac-rebac/)** 로 권한 모델 선택 기준과 정책 엔진 운영을 정리합니다.
-4. **[API Key Lifecycle 발급·회전·폐기 플레이북](/learning/deep-dive/deep-dive-api-key-lifecycle-rotation-revocation-playbook/)** 으로 키를 운영 자산으로 다루는 기준을 붙입니다.
-5. **[Permission Drift와 Access Review](/learning/deep-dive/deep-dive-permission-drift-access-review-playbook/)** 로 오래된 권한을 찾고 회수하는 운영 파이프라인을 설계합니다.
-6. **[Tamper-Evident Audit Log](/learning/deep-dive/deep-dive-tamper-evident-audit-log-playbook/)** 로 권한 변경과 회수 이벤트를 나중에 검증 가능한 증거로 남기는 방식을 확인합니다.
+4. **[Authorization Policy Shadow Rollout](/learning/deep-dive/deep-dive-authorization-policy-shadow-rollout-playbook/)** 으로 기존 정책을 새 정책으로 바꿀 때 diff 분석, canary enforcement, rollback flag를 설계합니다.
+5. **[권한 판정 캐시 무효화](/learning/deep-dive/deep-dive-authorization-decision-cache-invalidation-playbook/)** 로 정책 변경 뒤 stale allow와 PDP 부하를 함께 줄이는 기준을 붙입니다.
+6. **[API Key Lifecycle 발급·회전·폐기 플레이북](/learning/deep-dive/deep-dive-api-key-lifecycle-rotation-revocation-playbook/)** 으로 키를 운영 자산으로 다루는 기준을 붙입니다.
+7. **[Permission Drift와 Access Review](/learning/deep-dive/deep-dive-permission-drift-access-review-playbook/)** 로 오래된 권한을 찾고 회수하는 운영 파이프라인을 설계합니다.
+8. **[Tamper-Evident Audit Log](/learning/deep-dive/deep-dive-tamper-evident-audit-log-playbook/)** 로 권한 변경과 회수 이벤트를 나중에 검증 가능한 증거로 남기는 방식을 확인합니다.
+
+## 인가 정책 변경을 공부할 때의 순서
+
+인가 글은 구현 문법보다 운영 순서가 중요합니다. 먼저 RBAC, ABAC, ReBAC로 "무엇을 허용할지"를 정하고, 그 다음 shadow rollout으로 "기존 사용자에게 어떤 차이가 생기는지"를 봅니다. 정책이 실제로 강제되기 전에는 캐시 무효화와 rollback flag를 같이 준비해야 합니다. 마지막에는 access review와 감사 로그로 시간이 지나며 넓어진 권한과 고위험 변경 이력을 다시 설명할 수 있어야 합니다.
+
+읽고 끝내지 않으려면 관리자 action 5개만 골라 `risk_class`, 예상 `allow_to_deny`, 예상 `deny_to_allow`, rollback owner를 표로 적어보세요. 이 작은 표가 없으면 정책 테스트가 통과해도 운영 전환 판단은 계속 감에 의존하게 됩니다.
