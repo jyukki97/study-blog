@@ -54,6 +54,26 @@ description: "백엔드 개발 학습 로드맵, 주제별 노트, 복습 Q&A를
 
 이 루프를 지키면 글을 추가할수록 단순 아카이브가 아니라 개인 지식 베이스에 가까워집니다. 특히 시스템 설계, 분산 처리, 데이터 일관성처럼 추상도가 높은 주제는 "개념 설명 → 선택 기준 → 장애 징후 → 되돌리는 방법"까지 이어질 때 다시 읽을 가치가 생깁니다.
 
+## 최근 보강된 운영 학습 경로
+
+실시간 기능을 다루는 팀이라면 장기 연결 운영 글을 따로 묶어 읽는 편이 좋습니다. WebSocket, SSE, gRPC streaming은 일반 HTTP API처럼 요청 단위로만 보면 배포와 장애 대응 기준이 자주 빗나갑니다. 연결 하나가 사용자 세션, 구독 상태, 마지막 이벤트 위치, heartbeat, backpressure 상태를 함께 들고 있기 때문입니다.
+
+추천 순서는 아래처럼 잡습니다.
+
+1. [Graceful Shutdown](/learning/deep-dive/deep-dive-graceful-shutdown/)에서 프로세스 종료와 readiness 전환의 기본 흐름을 먼저 봅니다.
+2. [Drain-aware 배포 플레이북](/learning/deep-dive/deep-dive-drain-aware-deployment-playbook/)으로 새 트래픽 차단, 기존 요청 대기, 강제 종료 조건을 운영 절차로 넓힙니다.
+3. [WebSocket/SSE 패턴](/learning/deep-dive/deep-dive-websocket-sse-patterns/)과 [gRPC 서비스 설계](/learning/deep-dive/deep-dive-grpc-service-design/)에서 프로토콜별 연결 유지 방식과 재연결 전제를 확인합니다.
+4. [WebSocket·SSE·gRPC 장기 연결 드레이닝 플레이북](/learning/deep-dive/deep-dive-long-lived-connection-draining-playbook/)에서 배포, 스케일다운, 장애 격리 중 실제로 어떤 close code, retry hint, drain timeout, replay buffer를 둘지 정리합니다.
+5. [로드밸런서 헬스체크](/learning/deep-dive/deep-dive-load-balancer-healthchecks/)와 [Session Affinity와 Stateful Routing](/learning/deep-dive/deep-dive-session-affinity-stateful-routing-playbook/)로 인프라 계층의 연결 유지, sticky session, 상태 복구 기준을 붙입니다.
+
+이 경로의 핵심 질문은 "연결을 얼마나 오래 살릴 것인가"가 아닙니다. **끊겨도 사용자가 예측 가능하게 복구되는가, 재연결이 인증/DB/메시징 계층의 두 번째 장애를 만들지 않는가, 마지막 이벤트 위치를 근거로 메시지 유실을 보정할 수 있는가**입니다. 그래서 실시간 서비스 글을 읽을 때는 항상 아래 체크포인트를 같이 남깁니다.
+
+- readiness false 이후에도 살아 있는 연결 수와 최대 drain 시간을 관측하는가?
+- 클라이언트 재연결에 jitter, backoff, 서버 제공 `retry_after`가 있는가?
+- `last_event_id`, offset, sequence처럼 누락분을 다시 받을 기준이 있는가?
+- sticky session에 기대는 상태와 durable store에 남겨야 하는 상태를 분리했는가?
+- 배포 drain과 보안 긴급 종료의 timeout을 다르게 가져갈 수 있는가?
+
 ## 학습 방법
 
 - **개념 → 실험 → 기록**: 읽고 끝내지 말고, 작은 코드/재현으로 확인한 뒤 내 말로 정리합니다.

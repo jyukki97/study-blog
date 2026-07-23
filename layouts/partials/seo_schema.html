@@ -42,6 +42,23 @@
   {{- with .Params.cover.image -}}
     {{- $schema = merge $schema (dict "image" (slice (. | absURL))) -}}
   {{- end -}}
+  {{- with .Params.learning_refs -}}
+    {{- $mentions := slice -}}
+    {{- range . -}}
+      {{- $refURL := "" -}}
+      {{- with .href -}}{{- $refURL = . | absURL -}}{{- end -}}
+      {{- if and .title $refURL -}}
+        {{- $mention := dict "@type" "CreativeWork" "name" .title "url" $refURL -}}
+        {{- with .description -}}
+          {{- $mention = merge $mention (dict "description" .) -}}
+        {{- end -}}
+        {{- $mentions = $mentions | append $mention -}}
+      {{- end -}}
+    {{- end -}}
+    {{- if gt (len $mentions) 0 -}}
+      {{- $schema = merge $schema (dict "mentions" $mentions) -}}
+    {{- end -}}
+  {{- end -}}
   <script type="application/ld+json">
     {{- $schema | jsonify | safeJS }}
   </script>
