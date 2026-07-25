@@ -11,7 +11,7 @@ links:
     url: "https://github.com/jyukki97/simple-queue-service"
     icon: "🔗"
   - name: "개발 블로그 시리즈"
-    url: "/posts?project=simple-queue-service"
+    url: "/posts/?project=simple-queue-service"
     icon: "📝"
 duration: "2025.06.17 ~ 진행중"
 ---
@@ -114,4 +114,4 @@ Grafana                 # 모니터링 대시보드 (예정)
 ## 🔗 관련 링크
 
 - **GitHub Repository**: [프로젝트 소스코드](https://github.com/jyukki/simple-queue-service)
-- **개발 블로그**: [개발 블로그 시리즈](/posts?project=simple-queue-service)
+- **개발 블로그**: [개발 블로그 시리즈](/posts/?project=simple-queue-service)

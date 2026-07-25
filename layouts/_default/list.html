@@ -112,6 +112,7 @@
                 <article class="post-entry"
                          data-tags="{{ if .Params.tags }}{{ delimit .Params.tags "," }}{{ end }}"
                          data-project="{{ if .Params.project }}{{ .Params.project }}{{ end }}"
+                         data-project-slug="{{ if .Params.project }}{{ .Params.project | urlize }}{{ end }}"
                          data-topic="{{ if .Params.topic }}{{ .Params.topic }}{{ end }}"
                          data-series="{{ if .Params.series }}{{ .Params.series }}{{ end }}"
                          data-keywords="{{ if .Params.keywords }}{{ delimit .Params.keywords "," }}{{ end }}"
@@ -1106,13 +1107,6 @@
 </style>
 
 <script>
-const projectTotals = {};
-{{- range where .Site.RegularPages "Section" "posts" }}
-  {{- with .Params.project }}
-projectTotals[{{ . | lower | jsonify }}] = (projectTotals[{{ . | lower | jsonify }}] || 0) + 1;
-  {{- end }}
-{{- end }}
-
 let currentTagFilter = null;
 let currentProjectFilter = null;
 let currentSectionFilter = 'all';
@@ -1260,6 +1254,7 @@ function applyCombinedFilters() {
     allPosts.forEach(post => {
         const postTags = (post.getAttribute('data-tags') || '').toLowerCase();
         const postProject = (post.getAttribute('data-project') || '').toLowerCase();
+        const postProjectSlug = (post.getAttribute('data-project-slug') || '').toLowerCase();
         const postSection = (post.getAttribute('data-section') || '').toLowerCase();
         const postSeries = (post.getAttribute('data-series') || '').toLowerCase();
         const postKeywords = (post.getAttribute('data-keywords') || '').toLowerCase();
@@ -1268,7 +1263,11 @@ function applyCombinedFilters() {
         const hasProject = postProject.length > 0;
 
         const matchTag = !currentTagFilter || postTags.includes(currentTagFilter.toLowerCase());
-        const matchProject = !currentProjectFilter || postProject === currentProjectFilter.toLowerCase();
+        const normalizedProjectFilter = normalizeArchiveParam(currentProjectFilter);
+        const matchProject = !currentProjectFilter ||
+            postProject === normalizedProjectFilter ||
+            postProjectSlug === normalizedProjectFilter ||
+            postProjectSlug === slugifyArchiveValue(normalizedProjectFilter);
         const matchSection = currentSectionFilter === 'all'
             || (currentSectionFilter === 'project-series' ? hasProject : postSection === currentSectionFilter);
         const matchSearch = !currentSearchQuery ||
@@ -1278,6 +1277,7 @@ function applyCombinedFilters() {
             postSeries.includes(currentSearchQuery) ||
             postKeywords.includes(currentSearchQuery) ||
             postProject.includes(currentSearchQuery) ||
+            postProjectSlug.includes(currentSearchQuery) ||
             postSection.includes(currentSearchQuery);
 
         const visible = matchTag && matchProject && matchSection && matchSearch;
@@ -1372,6 +1372,18 @@ function filterPostsByProject(projectName) {
     }
 }
 
+function normalizeArchiveParam(value) {
+    return (value || '').trim().toLowerCase();
+}
+
+function slugifyArchiveValue(value) {
+    return normalizeArchiveParam(value)
+        .normalize('NFKD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9가-힣]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+}
+
 function bindSearchUI() {
     const searchInput = document.getElementById('post-search-input');
     const clearButton = document.getElementById('post-search-clear');
@@ -1451,7 +1463,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     if (projectParam) {
-        const projectName = decodeURIComponent(projectParam).replace(/-/g, ' ');
+        const projectName = decodeURIComponent(projectParam);
         filterPostsByProject(projectName);
         return;
     }

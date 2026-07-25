@@ -68,7 +68,7 @@
         {{- if gt $projectCount 0 }}
         <div class="archive-hub-project-links" aria-label="대표 프로젝트 시리즈">
           {{- range first 3 $projectSeries }}
-          <a href="{{ (printf "/posts/?project=%s" (.name | urlquery)) | relURL }}">{{ .name }} <span>{{ .count }}편</span></a>
+          <a href="{{ (printf "/posts/?project=%s" (.name | urlize)) | relURL }}">{{ .name }} <span>{{ .count }}편</span></a>
           {{- end }}
         </div>
         {{- end }}

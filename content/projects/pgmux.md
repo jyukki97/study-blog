@@ -11,7 +11,7 @@ links:
     url: "https://github.com/jyukki97/pgmux"
     icon: "🔗"
   - name: "개발 블로그 시리즈"
-    url: "/posts?project=pgmux"
+    url: "/posts/?project=pgmux"
     icon: "📝"
 duration: "2026.03.11"
 ---
@@ -353,4 +353,4 @@ Go testing              # 단위 테스트 + 통합 테스트 + 벤치마크
 ## 🔗 관련 링크
 
 - **GitHub Repository**: [프로젝트 소스코드](https://github.com/jyukki97/pgmux)
-- **개발 블로그**: [개발 블로그 시리즈](/posts?project=pgmux)
+- **개발 블로그**: [개발 블로그 시리즈](/posts/?project=pgmux)
