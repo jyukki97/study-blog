@@ -35,6 +35,9 @@ learning_refs:
   - title: "인시던트 커맨드와 Severity 운영 플레이북"
     href: "/learning/deep-dive/deep-dive-incident-command-severity-playbook/"
     description: "장애가 실제로 발생했을 때 IC, Tech Lead, 커뮤니케이션, 종료 기준을 역할과 숫자로 고정하는 절차입니다."
+  - title: "Activity Timeline과 Event Feed"
+    href: "/learning/deep-dive/deep-dive-activity-timeline-event-feed-playbook/"
+    description: "로그와 감사 이벤트를 운영자가 판단할 수 있는 이력 화면과 event feed로 projection하는 설계 기준입니다."
 ---
 
 ## 이 단계에서 얻는 것
@@ -95,6 +98,18 @@ learning_refs:
 
 예를 들어 주문 생성 API가 느려졌다면 메트릭은 "p99가 2초에서 8초로 올랐다"를 알려주고, 트레이스는 "재고 서비스 호출에서 6초를 썼다"를 보여주며, 로그는 "특정 warehouse id에서 lock wait가 반복됐다"를 설명합니다. 이 셋이 연결되어야 운영자는 감으로 추측하지 않고 다음 조치를 정할 수 있습니다.
 
+여기에 하나를 더 붙이면 운영자의 판단 속도가 더 빨라집니다. 바로 **Activity Timeline**입니다. 로그와 트레이스가 개발자에게 원인을 좁혀 주는 도구라면, timeline은 CS·운영자·온콜이 "사용자에게 지금 무엇을 말해야 하는가"를 판단하는 읽기 모델입니다. 주문 생성 API가 느려진 사건도 고객 화면에는 "결제 확인 중", CS 화면에는 "PG 응답 지연으로 자동 재확인 예약", 운영 화면에는 `correlation_id`, retry count, provider code가 함께 보이는 식으로 나뉘어야 합니다.
+
+그래서 운영 모듈에서 관측성을 설계할 때는 로그 수집만 끝내지 말고 아래 질문도 같이 남겨두면 좋습니다.
+
+- 장애나 문의가 들어왔을 때 사용자가 직접 볼 수 있는 상태 이력은 무엇인가?
+- CS가 고객에게 설명해도 되는 문구와 운영자만 봐야 하는 reason code는 어떻게 분리하는가?
+- 결제, 권한, 환불, 개인정보 export처럼 고위험 이벤트는 감사 로그와 어떤 correlation id로 연결하는가?
+- projection lag가 30초 이상 벌어질 때 화면에 "확인 중" 또는 "이력 반영 지연"을 표시하는가?
+- timeline 목록 응답은 50개 안팎으로 제한하고, raw metadata는 권한 있는 상세 조회로 분리하는가?
+
+이 기준은 [Activity Timeline과 Event Feed](/learning/deep-dive/deep-dive-activity-timeline-event-feed-playbook/)에서 더 깊게 다룹니다. 핵심은 관측 데이터를 많이 모으는 것이 아니라, 역할별로 다르게 읽히는 운영 증거를 만드는 것입니다.
+
 ### 알람을 만들 때의 최소 기준
 
 알람은 많이 만들수록 안전해지는 것이 아닙니다. 운영자가 실제로 행동할 수 없는 알람은 곧 무시됩니다. 이 모듈에서는 알람을 추가할 때마다 아래 질문을 통과시키는 습관을 들이면 좋습니다.
@@ -141,6 +156,7 @@ learning_refs:
 - [Feature Flag Lifecycle Cleanup](/learning/deep-dive/deep-dive-feature-flag-lifecycle-cleanup-playbook/): 오래된 플래그가 운영 부채가 되지 않게 owner, expiry, cleanup trigger를 관리하는 방법
 - [Traffic Cutover & Migration](/learning/deep-dive/deep-dive-traffic-cutover-migration/): 트래픽 전환 단위와 롤백 윈도우를 설계하는 방법
 - [분산 트레이싱 도입 플레이북](/learning/deep-dive/deep-dive-distributed-tracing-adoption-playbook/): 릴리스 중 장애 원인을 추적하기 위한 trace/span/log 기준
+- [Activity Timeline과 Event Feed](/learning/deep-dive/deep-dive-activity-timeline-event-feed-playbook/): 고객·CS·운영자가 같은 사건을 서로 다른 visibility로 읽는 이력 화면 설계
 - [인시던트 커맨드와 Severity 운영 플레이북](/learning/deep-dive/deep-dive-incident-command-severity-playbook/): 실제 장애가 선언된 뒤 역할, 15분 업데이트, 종료 기준을 운영하는 방법
 
 ## 미니 실습

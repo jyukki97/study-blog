@@ -138,6 +138,7 @@ description: "백엔드 개발자가 알아야 할 핵심 개념을 운영 시�
 3. [권한 판정 캐시 무효화](/learning/deep-dive/deep-dive-authorization-decision-cache-invalidation-playbook/)
 4. [Permission Drift와 Access Review](/learning/deep-dive/deep-dive-permission-drift-access-review-playbook/)
 5. [Tamper-Evident Audit Log](/learning/deep-dive/deep-dive-tamper-evident-audit-log-playbook/)
+6. [Activity Timeline과 Event Feed](/learning/deep-dive/deep-dive-activity-timeline-event-feed-playbook/)
 
 ### 이런 상황이면 이 경로부터 보세요
 
@@ -146,6 +147,7 @@ description: "백엔드 개발자가 알아야 할 핵심 개념을 운영 시�
 - 테스트 fixture는 통과하지만 실제 테넌트, 파트너, 배치 계정, support override에서 어떤 차이가 생길지 모르는 경우
 - 권한 판정 캐시가 길게 남아 정책 변경 뒤에도 stale allow가 유지될 수 있는 경우
 - 권한 변경, 정책 버전 변경, access review 결과를 나중에 감사 로그로 설명하기 어려운 경우
+- 고객·CS·운영자 화면에서 같은 권한 변경 사건을 서로 다른 visibility와 문구로 보여줘야 하는 경우
 
 ### 읽으면서 남길 운영 산출물
 
@@ -154,6 +156,7 @@ description: "백엔드 개발자가 알아야 할 핵심 개념을 운영 시�
 - `allow_to_deny`, `deny_to_allow`, `eval_error`, `cache_stale_allow`의 rollout gate 기준
 - canary enforcement flag, rollback flag, policy version별 release note
 - 고위험 action의 audit event와 decision log를 연결하는 trace key
+- public/support/operator/security visibility별 timeline projection 필드와 마스킹 기준
 
 이 경로의 목표는 인가 정책을 더 복잡하게 만드는 것이 아닙니다. **권한 결과가 바뀌는 순간을 관측 가능하고 되돌릴 수 있게 만드는 것**입니다. 특히 고객 데이터, 관리자 도구, 정산, 계정 정지처럼 한 번 잘못 열리면 되돌리기 어려운 기능은 정책 코드보다 rollout 절차가 먼저 준비되어야 합니다.
 

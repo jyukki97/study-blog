@@ -33,6 +33,9 @@ learning_refs:
   - title: "비동기 요청-응답 Operation Resource"
     href: "/learning/deep-dive/deep-dive-async-request-reply-operation-resource-playbook/"
     description: "긴 작업의 진행 상태, 재시도, 조회 API를 상태 머신 관점으로 모델링할 때 연결되는 글입니다."
+  - title: "Activity Timeline과 Event Feed"
+    href: "/learning/deep-dive/deep-dive-activity-timeline-event-feed-playbook/"
+    description: "상태 전이 이력을 고객·CS·운영자가 읽을 수 있는 timeline projection으로 바꾸는 설계입니다."
 decision_guide:
   intro: "상태 머신은 모든 enum에 붙이는 장식이 아니라 운영 위험이 있는 흐름부터 적용하는 안전장치입니다."
   cases:
@@ -64,7 +67,7 @@ faqs:
 
 문제는 상태가 있다는 사실이 아니라, **상태 전이 규칙이 코드와 데이터 어디에도 선명하게 존재하지 않는 것**입니다. 상태 컬럼만 있고 전이표, 전이 조건, 멱등 키, 감사 로그, 재처리 기준이 없으면 시스템은 "현재값 저장소"일 뿐입니다. 운영 가능한 상태 머신은 현재값보다 **어떤 조건에서 다음 상태로 갈 수 있는가**를 먼저 설계합니다.
 
-이 글은 [멱등성 API 설계](/learning/deep-dive/deep-dive-idempotency/), [UPSERT·UNIQUE·멱등 키 쓰기 경로](/learning/deep-dive/deep-dive-upsert-unique-idempotency-write-path-playbook/), [비동기 요청-응답 Operation Resource](/learning/deep-dive/deep-dive-async-request-reply-operation-resource-playbook/), [Temporal 워크플로 오케스트레이션](/learning/deep-dive/deep-dive-temporal-workflow-orchestration/)과 이어지는 공통 기반입니다. 특정 도구보다 중요한 것은 상태 전이를 사고 방지 장치로 만드는 습관입니다.
+이 글은 [멱등성 API 설계](/learning/deep-dive/deep-dive-idempotency/), [UPSERT·UNIQUE·멱등 키 쓰기 경로](/learning/deep-dive/deep-dive-upsert-unique-idempotency-write-path-playbook/), [비동기 요청-응답 Operation Resource](/learning/deep-dive/deep-dive-async-request-reply-operation-resource-playbook/), [Activity Timeline과 Event Feed](/learning/deep-dive/deep-dive-activity-timeline-event-feed-playbook/), [Temporal 워크플로 오케스트레이션](/learning/deep-dive/deep-dive-temporal-workflow-orchestration/)과 이어지는 공통 기반입니다. 특정 도구보다 중요한 것은 상태 전이를 사고 방지 장치로 만드는 습관입니다.
 
 ## 이 글에서 얻는 것
 

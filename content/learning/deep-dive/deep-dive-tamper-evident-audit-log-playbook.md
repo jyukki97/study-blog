@@ -12,7 +12,7 @@ study_order: 1220
 
 감사 로그(audit log)는 애플리케이션 로그를 조금 더 오래 보관하는 기능이 아닙니다. 장애 분석을 위한 로그가 "무슨 일이 있었나"를 빠르게 찾는 도구라면, 감사 로그는 나중에 "누가, 언제, 어떤 권한으로, 무엇을 바꿨고, 그 기록을 믿을 수 있는가"를 설명하는 운영 증거입니다. 특히 관리자 권한 변경, 결제 취소, 정산 값 수정, 개인정보 조회, 고객 데이터 export 같은 액션은 성공 여부만 남기면 부족합니다. 왜 허용됐는지, 어떤 값이 바뀌었는지, 변경 당시 정책 버전이 무엇이었는지까지 추적 가능해야 합니다.
 
-문제는 감사 로그도 결국 데이터라는 점입니다. 같은 데이터베이스에 같은 권한으로 저장해 두면 운영자가 실수로 수정할 수 있고, 침해자가 애플리케이션 권한을 얻었을 때 흔적을 지울 수도 있습니다. 그래서 실무에서는 단순 audit table을 넘어 append-only 저장, 해시 체인, 별도 보존소, 조회 권한 분리, 삭제 불가능한 보관 정책을 함께 설계합니다. 이 글은 [구조화 로깅](/learning/deep-dive/deep-dive-structured-logging/), [권한 판정 캐시](/learning/deep-dive/deep-dive-authorization-decision-cache-invalidation-playbook/), [데이터 보존·삭제 아키텍처](/learning/deep-dive/deep-dive-data-retention-deletion-architecture/), [Execution Receipt 운영](/learning/deep-dive/deep-dive-execution-receipt-operations-playbook/)과 연결해서 감사 로그를 운영 증거로 만드는 기준을 정리합니다.
+문제는 감사 로그도 결국 데이터라는 점입니다. 같은 데이터베이스에 같은 권한으로 저장해 두면 운영자가 실수로 수정할 수 있고, 침해자가 애플리케이션 권한을 얻었을 때 흔적을 지울 수도 있습니다. 그래서 실무에서는 단순 audit table을 넘어 append-only 저장, 해시 체인, 별도 보존소, 조회 권한 분리, 삭제 불가능한 보관 정책을 함께 설계합니다. 이 글은 [구조화 로깅](/learning/deep-dive/deep-dive-structured-logging/), [권한 판정 캐시](/learning/deep-dive/deep-dive-authorization-decision-cache-invalidation-playbook/), [데이터 보존·삭제 아키텍처](/learning/deep-dive/deep-dive-data-retention-deletion-architecture/), [Execution Receipt 운영](/learning/deep-dive/deep-dive-execution-receipt-operations-playbook/), [Activity Timeline과 Event Feed](/learning/deep-dive/deep-dive-activity-timeline-event-feed-playbook/)와 연결해서 감사 로그를 운영 증거로 만드는 기준을 정리합니다.
 
 ## 이 글에서 얻는 것
 
@@ -93,6 +93,8 @@ event_hash: sha256:...
 - 대량 export는 기본 차단하고, 필요 시 만료 링크와 watermark를 둔다.
 
 감사 로그는 사고 조사 때 가장 먼저 열어보는 데이터입니다. 따라서 조회 체계가 느슨하면 침해자가 가장 먼저 지우거나 훔칠 대상도 감사 로그가 됩니다.
+
+감사 로그를 운영 화면에 그대로 붙이는 것도 피해야 합니다. CS나 온콜에게 필요한 것은 모든 원장 필드가 아니라, 마스킹된 사건 요약과 다음 조치입니다. 예를 들어 `user.role.update` 감사 이벤트가 있다면 보안 담당자는 before/after digest와 policy version을 봐야 하지만, 백오피스 운영자는 "Billing Admin 권한 부여, 승인 티켓 SEC-1234, 정책 v18" 정도만 보면 충분할 수 있습니다. 이 차이를 [Activity Timeline과 Event Feed](/learning/deep-dive/deep-dive-activity-timeline-event-feed-playbook/)처럼 projection으로 분리하면 감사 원장은 강하게 보존하면서도 운영 화면은 읽기 좋게 만들 수 있습니다.
 
 ## 실무 적용
 
