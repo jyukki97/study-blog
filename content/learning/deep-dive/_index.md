@@ -17,6 +17,7 @@ description: "백엔드 개발자가 알아야 할 핵심 개념을 운영 시�
 | 검색 조건이 커지고 전체 다운로드가 timeout이나 비용 문제를 만든다 | 복잡한 조회와 Export 운영 경로 | GET/QUERY/export 분기 기준, export artifact metadata, signed URL TTL |
 | 업로드 파일, 비공개 첨부, presigned URL 접근을 설명해야 한다 | 파일 접근 제어 운영 경로 | 파일 metadata schema, quarantine 상태 전이, 다운로드 감사 로그 |
 | 권한 정책 변경이 실제 고객 접근 결과를 바꿀 수 있다 | 인가 정책 운영 경로 | shadow decision log, rollout gate, rollback flag |
+| 관리자·지원 도구, export, 응답 계약처럼 되돌리기 어려운 변경을 리뷰해야 한다 | 고위험 접근과 API 계약 운영 경로 | risk matrix, contract diff, audit evidence, rollback gate |
 | 이벤트, CDC, read model, 검색 인덱스가 누락·중복·지연을 만든다 | 데이터 파이프라인 운영 경로 | event id, lag SLO, replay/backfill 기준 |
 | 알림, webhook, 외부 부작용이 중복되거나 유실된다 | 사용자 접점·외부 통합 운영 경로 | notification id, delivery evidence, inbound inbox schema |
 | 새 기능을 안전하게 노출하고 문제가 나면 되돌려야 한다 | 안전한 릴리스와 운영 검증 경로 | feature flag owner, canary 지표, rollback window |
@@ -159,6 +160,48 @@ description: "백엔드 개발자가 알아야 할 핵심 개념을 운영 시�
 - public/support/operator/security visibility별 timeline projection 필드와 마스킹 기준
 
 이 경로의 목표는 인가 정책을 더 복잡하게 만드는 것이 아닙니다. **권한 결과가 바뀌는 순간을 관측 가능하고 되돌릴 수 있게 만드는 것**입니다. 특히 고객 데이터, 관리자 도구, 정산, 계정 정지처럼 한 번 잘못 열리면 되돌리기 어려운 기능은 정책 코드보다 rollout 절차가 먼저 준비되어야 합니다.
+
+## 고위험 접근과 API 계약 운영 경로: 열기 전에 되돌릴 수 있는지 확인하기
+
+관리자 도구, 고객 지원 화면, 데이터 export, 권한 변경, 공개 API 응답 변경은 모두 공통점이 있습니다. 한 번 잘못 열리면 단순 rollback만으로 피해를 지우기 어렵습니다. 잘못된 사용자가 파일을 내려받았거나, 오래된 모바일 앱이 새 enum 값에서 크래시했거나, 지원 담당자의 임시 권한이 만료되지 않았다면 코드를 되돌린 뒤에도 감사, 고객 안내, 데이터 보정이 남습니다.
+
+그래서 이 경로는 "권한을 어떻게 구현할까"보다 **변경 전에 어떤 증거를 모으고, 배포 중 어떤 숫자로 멈추며, 문제가 생겼을 때 어떤 순서로 닫을까**에 초점을 둡니다. 아래 글을 함께 읽으면 객체 단위 인가, 권한 축소, 응답 계약, 에러 계약, 감사 로그를 하나의 리뷰 체크리스트로 묶을 수 있습니다.
+
+1. [Object-Level Authorization: IDOR/BOLA 방어](/learning/deep-dive/deep-dive-object-level-authorization-bola-playbook/)
+2. [Token Exchange와 Downscoped Token](/learning/deep-dive/deep-dive-token-exchange-downscoped-token-playbook/)
+3. [API Response Compatibility Contract](/learning/deep-dive/deep-dive-api-response-compatibility-contract-playbook/)
+4. [API Error Semantics와 Retryability Contract](/learning/deep-dive/deep-dive-api-error-semantics-retryability-contract/)
+5. [Permission Drift와 Access Review](/learning/deep-dive/deep-dive-permission-drift-access-review-playbook/)
+6. [Tamper-Evident Audit Log](/learning/deep-dive/deep-dive-tamper-evident-audit-log-playbook/)
+
+### 이런 상황이면 이 경로부터 보세요
+
+- 고객 지원 담당자가 사용자 계정, 주문, 파일, 정산 내역에 대신 접근하는 기능을 만들고 있는 경우
+- 관리자 export, bulk update, impersonation, break-glass처럼 강한 권한을 일시적으로 열어야 하는 경우
+- 응답 필드 삭제, enum 추가, nullable 변경, 에러 코드 변경이 모바일 앱이나 파트너 연동을 깨뜨릴 수 있는 경우
+- 권한 회수 뒤에도 cache, presigned URL, downscoped token, 배치 worker가 예전 권한을 들고 있을 수 있는 경우
+- 장애나 보안 리뷰 때 "누가 어떤 근거로 허용했고, 어떤 데이터가 나갔는가"를 audit log로 설명하기 어려운 경우
+
+### 읽으면서 남길 운영 산출물
+
+- 고위험 action inventory: `export`, `delete`, `impersonate`, `refund`, `permission.change`, `file.download`
+- action별 risk class, owner, approval 필요 여부, break-glass 만료 시간
+- actor와 subject를 분리한 접근 로그: 실제 수행자, 대리 대상, ticket/reason, policy version
+- API contract diff gate: response schema diff, error code diff, consumer usage, deprecation window
+- rollback gate: flag off, token revoke, URL invalidate, cache purge, partner notice 중 우선순위
+- 사후 증거: affected resource count, denied/allowed decision sample, audit chain hash, customer-facing incident note 필요 여부
+
+실무에서는 기능별 PR 템플릿에 아래 질문을 붙이는 것만으로도 사고 가능성이 꽤 줄어듭니다.
+
+| 질문 | 확인할 기준 |
+| --- | --- |
+| 이 변경은 누군가의 데이터 접근 범위를 넓히는가? | 새 action, 새 role, 새 relation, 새 token scope가 생기면 보안 리뷰 대상으로 둔다 |
+| 실패했을 때 사용자가 이미 본 데이터나 받은 파일을 회수할 수 있는가? | 회수가 어렵다면 배포 전 audit와 승인 gate를 강화한다 |
+| 오래된 클라이언트가 새 응답·에러·enum을 안전하게 무시하는가? | consumer contract test와 production usage telemetry를 확인한다 |
+| 권한 회수 후 stale allow가 남을 수 있는가? | cache TTL, token TTL, presigned URL TTL, worker queue age를 함께 본다 |
+| 운영자가 나중에 이유를 설명할 수 있는가? | reason code, approval id, request id, policy version을 같은 trace로 묶는다 |
+
+이 경로의 목표는 보안 검토를 느리게 만드는 것이 아닙니다. 위험한 접근과 계약 변경일수록 **허용 조건, 관측 지표, 중단 기준, 사후 증거**를 작게라도 먼저 고정해 두자는 것입니다. 그래야 빠르게 배포하더라도 문제가 생겼을 때 "일단 막고, 범위를 계산하고, 사용자에게 설명하는" 순서가 흔들리지 않습니다.
 
 ## 데이터 파이프라인 운영 경로: Outbox에서 CDC 복구까지
 
