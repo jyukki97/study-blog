@@ -77,8 +77,9 @@ url: "/learning/modules/backend-security-phase/"
 4. **[Authorization Policy Shadow Rollout](/learning/deep-dive/deep-dive-authorization-policy-shadow-rollout-playbook/)** 으로 기존 정책을 새 정책으로 바꿀 때 diff 분석, canary enforcement, rollback flag를 설계합니다.
 5. **[권한 판정 캐시 무효화](/learning/deep-dive/deep-dive-authorization-decision-cache-invalidation-playbook/)** 로 정책 변경 뒤 stale allow와 PDP 부하를 함께 줄이는 기준을 붙입니다.
 6. **[API Key Lifecycle 발급·회전·폐기 플레이북](/learning/deep-dive/deep-dive-api-key-lifecycle-rotation-revocation-playbook/)** 으로 키를 운영 자산으로 다루는 기준을 붙입니다.
-7. **[Permission Drift와 Access Review](/learning/deep-dive/deep-dive-permission-drift-access-review-playbook/)** 로 오래된 권한을 찾고 회수하는 운영 파이프라인을 설계합니다.
-8. **[Tamper-Evident Audit Log](/learning/deep-dive/deep-dive-tamper-evident-audit-log-playbook/)** 로 권한 변경과 회수 이벤트를 나중에 검증 가능한 증거로 남기는 방식을 확인합니다.
+7. **[Envelope Encryption과 PII Field Crypto 운영 플레이북](/learning/deep-dive/deep-dive-envelope-encryption-pii-field-crypto-playbook/)** 으로 민감 필드 암호화, blind index, key_version, 회전 절차를 데이터 모델에 붙입니다.
+8. **[Permission Drift와 Access Review](/learning/deep-dive/deep-dive-permission-drift-access-review-playbook/)** 로 오래된 권한을 찾고 회수하는 운영 파이프라인을 설계합니다.
+9. **[Tamper-Evident Audit Log](/learning/deep-dive/deep-dive-tamper-evident-audit-log-playbook/)** 로 권한 변경과 회수 이벤트를 나중에 검증 가능한 증거로 남기는 방식을 확인합니다.
 
 ## 인가 정책 변경을 공부할 때의 순서
 

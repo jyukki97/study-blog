@@ -18,6 +18,7 @@ description: "백엔드 개발자가 알아야 할 핵심 개념을 운영 시�
 | 업로드 파일, 비공개 첨부, presigned URL 접근을 설명해야 한다 | 파일 접근 제어 운영 경로 | 파일 metadata schema, quarantine 상태 전이, 다운로드 감사 로그 |
 | 권한 정책 변경이 실제 고객 접근 결과를 바꿀 수 있다 | 인가 정책 운영 경로 | shadow decision log, rollout gate, rollback flag |
 | 관리자·지원 도구, export, 응답 계약처럼 되돌리기 어려운 변경을 리뷰해야 한다 | 고위험 접근과 API 계약 운영 경로 | risk matrix, contract diff, audit evidence, rollback gate |
+| 개인정보, 토큰, 고위험 식별자가 DB·로그·백업에 퍼질 수 있다 | 민감 데이터 암호화 운영 경로 | field inventory, key_version, blind index, rotation backlog |
 | 이벤트, CDC, read model, 검색 인덱스가 누락·중복·지연을 만든다 | 데이터 파이프라인 운영 경로 | event id, lag SLO, replay/backfill 기준 |
 | 알림, webhook, 외부 부작용이 중복되거나 유실된다 | 사용자 접점·외부 통합 운영 경로 | notification id, delivery evidence, inbound inbox schema |
 | 새 기능을 안전하게 노출하고 문제가 나면 되돌려야 한다 | 안전한 릴리스와 운영 검증 경로 | feature flag owner, canary 지표, rollback window |
@@ -202,6 +203,38 @@ description: "백엔드 개발자가 알아야 할 핵심 개념을 운영 시�
 | 운영자가 나중에 이유를 설명할 수 있는가? | reason code, approval id, request id, policy version을 같은 trace로 묶는다 |
 
 이 경로의 목표는 보안 검토를 느리게 만드는 것이 아닙니다. 위험한 접근과 계약 변경일수록 **허용 조건, 관측 지표, 중단 기준, 사후 증거**를 작게라도 먼저 고정해 두자는 것입니다. 그래야 빠르게 배포하더라도 문제가 생겼을 때 "일단 막고, 범위를 계산하고, 사용자에게 설명하는" 순서가 흔들리지 않습니다.
+
+## 민감 데이터 암호화 운영 경로: 평문이 되는 순간을 줄이기
+
+개인정보, 외부 provider token, 계좌 식별자, 고객지원 원문처럼 유출 피해가 큰 데이터는 "DB가 암호화되어 있다"는 말만으로 충분하지 않습니다. 애플리케이션 계정이 정상 조회하면 원문이 나오고, 백업·로그·검색 인덱스·분석 이벤트로 값이 복제될 수 있기 때문입니다. 그래서 이 경로는 저장소 보안이 아니라 **어떤 필드가 언제 평문이 되고, 누가 왜 복호화했으며, 키를 어떻게 회전·폐기할지**를 운영 계약으로 정리하는 데 초점을 둡니다.
+
+아래 순서로 읽으면 비밀 관리에서 시작해 필드 암호화, 원문 조회 권한, 감사 증거, 삭제·보존까지 한 흐름으로 이어집니다.
+
+1. [비밀 관리: Vault/Secrets Manager와 Spring 연동](/learning/deep-dive/deep-dive-secret-management/)
+2. [Envelope Encryption과 PII Field Crypto 운영 플레이북](/learning/deep-dive/deep-dive-envelope-encryption-pii-field-crypto-playbook/)
+3. [Object-Level Authorization: IDOR/BOLA 방어](/learning/deep-dive/deep-dive-object-level-authorization-bola-playbook/)
+4. [API Key Lifecycle과 권한 회전](/learning/deep-dive/deep-dive-api-key-lifecycle-rotation-revocation-playbook/)
+5. [Tamper-Evident Audit Log](/learning/deep-dive/deep-dive-tamper-evident-audit-log-playbook/)
+6. [데이터 보존과 삭제 아키텍처](/learning/deep-dive/deep-dive-data-retention-deletion-architecture/)
+
+### 이런 상황이면 이 경로부터 보세요
+
+- 이메일, 전화번호, 계좌번호, 주민번호, OAuth token이 일반 read replica나 분석 계정에서 평문으로 보이는 경우
+- 고객지원 화면이 원문 PII를 기본 표시하고, 마스킹 조회와 원문 조회 권한이 분리되어 있지 않은 경우
+- 로그, trace, error report, 검색 인덱스, 데이터 웨어하우스에 원문 민감 값이 섞일 가능성이 있는 경우
+- key_version, nonce, algorithm, authentication tag 없이 암호문만 저장해 회전과 알고리즘 교체가 어려운 경우
+- "키 유출 의심" 상황에서 15분 안에 신규 write를 막고 영향 범위를 산정하는 절차가 없는 경우
+
+### 읽으면서 남길 운영 산출물
+
+- 민감 필드 inventory: field, sensitivity, owner, retention, search requirement, plaintext surface
+- 암호문 schema: `alg`, `key_version`, `dek_ref`, `nonce`, `ciphertext`, `tag`
+- 정확 검색용 blind index 설계와 pepper rotation 기준
+- 원문 복호화 capability, reason code, ticket id, audit event schema
+- key rotation 상태 전이와 dual-read/backfill/lazy rotation 중단 기준
+- 로그·검색·분석 이벤트에서 원문 유출을 막는 테스트 체크리스트
+
+이 경로의 목표는 모든 컬럼을 무리하게 암호화하는 것이 아닙니다. 유출 피해가 큰 필드부터 원문 노출 경로를 줄이고, 키를 잃거나 회전해야 하는 날에도 서비스와 감사 설명이 무너지지 않게 만드는 것입니다. 암호화는 마지막 방어선이 아니라 데이터 수명주기와 접근 권한을 다시 설계하게 만드는 계기입니다.
 
 ## 데이터 파이프라인 운영 경로: Outbox에서 CDC 복구까지
 
