@@ -21,6 +21,7 @@ description: "백엔드 개발자가 알아야 할 핵심 개념을 운영 시�
 | 개인정보, 토큰, 고위험 식별자가 DB·로그·백업에 퍼질 수 있다 | 민감 데이터 암호화 운영 경로 | field inventory, key_version, blind index, rotation backlog |
 | 이벤트, CDC, read model, 검색 인덱스가 누락·중복·지연을 만든다 | 데이터 파이프라인 운영 경로 | event id, lag SLO, replay/backfill 기준 |
 | 알림, webhook, 외부 부작용이 중복되거나 유실된다 | 사용자 접점·외부 통합 운영 경로 | notification id, delivery evidence, inbound inbox schema |
+| 결제 승인·매입·환불 상태가 꼬이거나 정산 차이가 난다 | 결제 상태 머신 운영 경로 | payment attempt, ledger, reconciliation, manual correction gate |
 | 새 기능을 안전하게 노출하고 문제가 나면 되돌려야 한다 | 안전한 릴리스와 운영 검증 경로 | feature flag owner, canary 지표, rollback window |
 | p99 지연, DB pool wait, retry storm, 과금 비용을 줄여야 한다 | 성능·비용 보호 학습 경로 | API cost unit, admission control 기준, 429/503 분리 규칙 |
 | 코드 구조가 도메인 규칙을 보호하지 못하고 자주 흔들린다 | DDD와 헥사고날 아키텍처 경로 | aggregate 경계, port/adapter 목록, 트랜잭션 경계 |
@@ -331,6 +332,38 @@ Webhook은 단순한 HTTP callback처럼 보이지만, 실제 운영에서는 **
 - 지표 분리: `delivered`, `accepted`, `processed`, `replayed`, `rejected`, `quarantined`
 
 이 경로의 목표는 webhook을 "비동기 알림"으로만 보는 관점에서 벗어나, **외부 이벤트를 검증 가능한 ingestion pipeline으로 운영하는 것**입니다. 특히 결제·권한·구독·정산처럼 되돌리기 어려운 도메인은 빠른 처리보다 위조 차단, 유실 방지, 중복 효과 방지, 상태 전이 정확성이 먼저입니다.
+
+## 결제 상태 머신 운영 경로: 돈이 빠져나간 상태를 설명할 수 있게 만들기
+
+결제 기능은 성공률만 높인다고 안전해지지 않습니다. 승인(authorize)은 됐지만 매입(capture)은 안 된 주문, provider 호출은 timeout이 났는데 카드사에는 승인된 결제, 웹훅은 늦게 왔지만 내부 주문은 이미 취소된 상태처럼 **돈과 주문 상태가 서로 다른 시점에 움직이는 문제**가 계속 생깁니다. 이때 `PAID`, `FAILED`, `CANCELED` 같은 단순 상태만 있으면 운영자는 장애 때 추측으로 복구하게 됩니다.
+
+아래 순서로 읽으면 결제 상태 전이에서 시작해 멱등 키, 외부 webhook, 원장 대사, 수동 보정까지 한 흐름으로 이어집니다.
+
+1. [백엔드 커리큘럼 심화: 결제 승인·캡처 상태 머신, 중복 차감과 유령 주문을 막는 법](/learning/deep-dive/deep-dive-payment-authorization-capture-state-machine-playbook/)
+2. [Operational State Machine 설계](/learning/deep-dive/deep-dive-operational-state-machine-design/)
+3. [멱등성 설계](/learning/deep-dive/deep-dive-idempotency/)
+4. [Inbound Webhook Receiver 플레이북](/learning/deep-dive/deep-dive-inbound-webhook-receiver-playbook/)
+5. [Reconciliation Ledger Pipeline](/learning/deep-dive/deep-dive-reconciliation-ledger-pipeline/)
+6. [Correction Job과 Audit Guardrail](/learning/deep-dive/deep-dive-correction-job-audit-guardrails-playbook/)
+
+### 이런 상황이면 이 경로부터 보세요
+
+- 결제 API timeout을 `FAILED`로 닫고 사용자가 다시 결제하게 만드는 흐름이 있는 경우
+- 주문은 성공으로 보이는데 provider settlement에는 매입이 없거나, provider에는 captured인데 내부 주문은 미확정인 경우
+- 같은 결제 버튼을 여러 번 눌렀을 때 authorize, capture, refund의 멱등 키가 모두 `order_id` 하나로 묶여 있는 경우
+- 웹훅이 늦게 도착했을 때 현재 상태를 되돌리거나, 금액·통화·merchant account 검증 없이 상태를 덮어쓰는 경우
+- 운영자가 결제 상태나 환불 상태를 수동으로 바꿀 수 있지만 승인자, reason code, correction event, 대사 결과가 남지 않는 경우
+
+### 읽으면서 남길 운영 산출물
+
+- 결제 상태 전이표: `INITIATED`, `AUTHORIZING`, `AUTHORIZED`, `CAPTURING`, `CAPTURED`, `CANCELING`, `CANCELED`, `REFUNDING`, `REFUNDED`, `UNKNOWN_REQUIRES_RECONCILIATION`
+- 액션별 멱등 키 표: authorize, capture, cancel, refund, webhook ingest를 서로 다른 중복 방지 단위로 분리
+- `payment_attempt`와 `payment_ledger`의 역할 구분: 현재 상태 조회와 불변 사실 기록을 분리
+- provider write timeout 처리 기준: 즉시 실패가 아니라 조회 예약, 사용자 중복 결제 차단, 확인 중 UX
+- reconciliation 대상 쿼리: 장시간 `AUTHORIZED`, 장시간 `CAPTURING`, 내부/provider 금액 차이, 환불 잔액 불일치
+- 수동 보정 gate: 2인 승인, step-up authorization, correction event, 사후 대사, affected order count
+
+이 경로의 목표는 결제 코드를 복잡하게 만드는 것이 아닙니다. 이미 복잡한 금전 상태를 상태 머신과 원장으로 드러내서, 장애가 났을 때 **사용자에게 무엇을 보여줄지, 무엇을 자동으로 재시도할지, 어떤 건은 사람 승인 없이는 건드리면 안 되는지**를 결정할 수 있게 만드는 것입니다.
 
 ## 오늘 추천 학습 경로: 안전한 릴리스와 운영 검증
 
