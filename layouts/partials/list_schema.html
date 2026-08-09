@@ -10,12 +10,13 @@
       "description" ($page.Description | default ($page.Summary | plainify | truncate 110))
     ) -}}
   {{- end -}}
+  {{- $canonical := partial "canonical_url.html" . -}}
   {{- $collection := dict
     "@context" "https://schema.org"
     "@type" "CollectionPage"
     "name" .Title
     "description" (.Description | default (.Summary | plainify) | default .Site.Title)
-    "url" .Permalink
+    "url" $canonical
     "inLanguage" (.Site.Language.Lang | default "ko-kr")
     "isPartOf" (dict "@type" "WebSite" "name" .Site.Title "url" .Site.BaseURL)
     "about" (dict "@type" "Thing" "name" .Title)
@@ -32,7 +33,7 @@
 
   <script type="application/ld+json">
     {{- $sectionName := .Title -}}
-    {{- $sectionPath := .Permalink -}}
+    {{- $sectionPath := $canonical -}}
     {{- $breadcrumbs := slice
       (dict "@type" "ListItem" "position" 1 "name" "홈" "item" .Site.BaseURL)
       (dict "@type" "ListItem" "position" 2 "name" $sectionName "item" $sectionPath)

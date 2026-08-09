@@ -8,8 +8,7 @@
   {{- end -}}
 {{- end -}}
 {{- $description = $description | plainify | htmlUnescape | chomp | truncate 160 -}}
-{{- $canonical := .Permalink -}}
-{{- with .Params.canonicalURL }}{{- $canonical = trim . " " -}}{{- end -}}
+{{- $canonical := partial "canonical_url.html" . -}}
 {{- $image := "" -}}
 {{- with .Params.cover.image -}}
   {{- $image = . | absURL -}}

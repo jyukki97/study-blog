@@ -48,8 +48,7 @@
 {{- end -}}
 <meta name="description" content="{{ $metaDescription | plainify | htmlUnescape | chomp | truncate 160 }}">
 <meta name="author" content="{{ (partial "author.html" . ) }}">
-{{- $canonical := .Permalink -}}
-{{- with .Params.canonicalURL }}{{- $canonical = trim . " " -}}{{- end -}}
+{{- $canonical := partial "canonical_url.html" . -}}
 <link rel="canonical" href="{{ $canonical }}">
 {{- partial "social_meta.html" . }}
 {{- if site.Params.analytics.google.SiteVerificationTag }}

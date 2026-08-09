@@ -1,0 +1,19 @@
+{{- $canonical := .Permalink -}}
+{{- with .Params.canonicalURL -}}
+  {{- $canonical = trim . " " -}}
+{{- else -}}
+  {{- if or (in (slice "home" "term") .Kind) (and (eq .Kind "section") (eq .Section "posts")) -}}
+    {{- $pages := .Pages -}}
+    {{- if .IsHome -}}
+      {{- $postPages := where .Site.RegularPages "Section" "posts" -}}
+      {{- $learningPages := where .Site.RegularPages "Section" "learning" -}}
+      {{- $learningPages = where $learningPages "Params.topic" "!=" nil -}}
+      {{- $pages = sort (union $postPages $learningPages) "Date" "desc" -}}
+    {{- end -}}
+    {{- $paginator := .Paginate $pages -}}
+    {{- if gt $paginator.PageNumber 1 -}}
+      {{- $canonical = $paginator.URL | absURL -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- return $canonical -}}

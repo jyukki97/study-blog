@@ -19,12 +19,13 @@
                     {{ $tagsList := slice }}
                     {{ range $tagName, $tagData := $tags }}
                         {{ if gt (len $tagData) 0 }}
-                            {{ $tagsList = $tagsList | append (dict "name" $tagName "data" $tagData "count" (len $tagData)) }}
+                            {{ $tagPage := site.GetPage (printf "/tags/%s" $tagName) }}
+                            {{ $tagsList = $tagsList | append (dict "name" $tagName "url" $tagPage.RelPermalink "count" (len $tagData)) }}
                         {{ end }}
                     {{ end }}
                     {{ $sortedTags := sort $tagsList "count" "desc" }}
                     {{ range $index, $tag := $sortedTags }}
-                        <a href="#" class="tag-link" data-index="{{ $index }}" data-tag="{{ .name }}" onclick="filterPostsByTag('{{ .name }}', this); return false;">
+                        <a href="{{ .url }}" class="tag-link" data-index="{{ $index }}" data-tag="{{ .name }}" onclick="filterPostsByTag('{{ .name }}', this); return false;">
                             {{ .name }} <span class="tag-count">({{ .count }})</span>
                         </a>
                     {{ end }}
@@ -69,15 +70,15 @@
         {{ partial "list_archive_hub.html" . }}
 
         <section class="archive-quick-paths" aria-label="빠른 탐색 경로">
-            <a class="archive-quick-path" href="{{ "/posts/?section=posts" | relURL }}" data-section-link="posts">
+            <a class="archive-quick-path" href="{{ "/posts/" | relURL }}">
                 <strong>트렌드 먼저</strong>
                 <span>최근 운영 이슈와 시니어 해석만 빠르게 보기</span>
             </a>
-            <a class="archive-quick-path" href="{{ "/posts/?section=learning" | relURL }}" data-section-link="learning">
+            <a class="archive-quick-path" href="{{ "/learning/deep-dive/" | relURL }}">
                 <strong>개념부터 보강</strong>
                 <span>심화 학습 글만 모아 체계적으로 따라가기</span>
             </a>
-            <a class="archive-quick-path" href="{{ "/posts/?section=project-series" | relURL }}" data-section-link="project-series">
+            <a class="archive-quick-path" href="{{ "/projects/" | relURL }}">
                 <strong>구현 문맥 보기</strong>
                 <span>프로젝트 시리즈와 설계 변화만 이어서 보기</span>
             </a>
@@ -131,11 +132,12 @@
                         </a>
                     {{ end }}
                     <div class="post-content">
-                        {{ if .Params.tags }}
+                        {{ $pageTerms := .GetTerms "tags" }}
+                        {{ if gt (len $pageTerms) 0 }}
                             <div class="post-tags-container">
                                 <div class="post-tags" id="post-tags-{{ .Permalink | urlize }}">
-                                    {{ range $index, $tag := .Params.tags }}
-                                        <a href="{{ "tags/" | absURL }}{{ . | urlize }}" class="post-tag">{{ . }}</a>
+                                    {{ range $pageTerms }}
+                                        <a href="{{ .RelPermalink }}" class="post-tag">{{ .LinkTitle }}</a>
                                     {{ end }}
                                 </div>
                             </div>
