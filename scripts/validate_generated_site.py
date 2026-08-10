@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Hugo 빌드 산출물의 내부 경로와 핵심 SEO 마크업을 점검한다."""
+"""Hugo 빌드 산출물의 내부 경로, SEO, 새 창 링크 안전성을 점검한다."""
 
 from __future__ import annotations
 
@@ -21,6 +21,7 @@ class PageParser(HTMLParser):
     def __init__(self) -> None:
         super().__init__(convert_charrefs=True)
         self.links: list[str] = []
+        self.unsafe_blank_links: list[str] = []
         self.canonicals: list[str] = []
         self.json_ld_blocks: list[str] = []
         self._in_json_ld = False
@@ -30,6 +31,10 @@ class PageParser(HTMLParser):
         values = dict(attrs)
         if tag in {"a", "link"} and values.get("href"):
             self.links.append(values["href"] or "")
+        if tag == "a" and values.get("target") == "_blank":
+            rel_tokens = set((values.get("rel") or "").split())
+            if not {"noopener", "noreferrer"}.issubset(rel_tokens):
+                self.unsafe_blank_links.append(values.get("href") or "(href 없음)")
         if tag in {"img", "script", "source", "iframe"} and values.get("src"):
             self.links.append(values["src"] or "")
         if tag == "link" and "canonical" in (values.get("rel") or "").split():
@@ -106,6 +111,11 @@ def validate(public_dir: Path) -> tuple[list[str], list[str]]:
             target = local_target(raw_url)
             if target is not None and not target_exists(public_dir, target):
                 errors.append(f"[link] 없는 경로 {raw_url!r}: {rel}")
+
+        for raw_url in parser.unsafe_blank_links:
+            errors.append(
+                f"[security] 새 창 링크에 rel=\"noopener noreferrer\" 누락: {rel} -> {raw_url}"
+            )
 
     for canonical, pages in canonical_to_pages.items():
         if len(pages) > 1:

@@ -56,7 +56,8 @@
                     <div class="project-links">
                         {{- if .Params.links }}
                             {{- range .Params.links }}
-                            <a href="{{ .url }}" target="_blank" rel="noopener" class="project-link">
+                            {{ $external := or (hasPrefix .url "http://") (hasPrefix .url "https://") }}
+                            <a href="{{ .url }}"{{ if $external }} target="_blank" rel="noopener noreferrer"{{ end }} class="project-link">
                                 <span class="link-icon">{{- if .icon }}{{ .icon | safeHTML }}{{- else }}🌐{{- end }}</span>
                                 <span class="link-text">{{ .name }}</span>
                                 <span class="link-arrow">→</span>

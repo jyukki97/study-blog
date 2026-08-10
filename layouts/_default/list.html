@@ -85,6 +85,7 @@
         </section>
 
         <div class="post-toolbar" role="search" aria-label="포스트 빠른 검색">
+            <label class="sr-only" for="post-search-input">포스트 검색</label>
             <input id="post-search-input" type="search" placeholder="제목/설명/키워드/태그로 검색" autocomplete="off" />
             <button id="post-search-clear" type="button" aria-label="검색어 지우기">초기화</button>
         </div>
@@ -122,7 +123,7 @@
                          data-summary="{{ with .Description }}{{ . | plainify | lower }}{{ else }}{{ .Summary | plainify | lower }}{{ end }}">
                     {{ if .Params.cover.image }}
                         <a class="post-cover" href="{{ .Permalink }}">
-                            <img src="{{ .Params.cover.image | absURL }}" alt="{{ .Title }}">
+                            <img src="{{ .Params.cover.image | absURL }}" alt="{{ .Title }}" loading="lazy" decoding="async">
                         </a>
                     {{ else }}
                         <a class="post-cover no-image no-image-{{ .Section }}" href="{{ .Permalink }}">

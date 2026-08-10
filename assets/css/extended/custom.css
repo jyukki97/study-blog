@@ -171,3 +171,15 @@ img, figure {
     max-width: var(--main-width); 
     margin: auto;
 }
+/* 스크린 리더에는 제공하되 화면 레이아웃에서는 숨기는 공용 유틸리티 */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

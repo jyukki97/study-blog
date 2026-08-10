@@ -193,7 +193,7 @@ class AdvertisementManager {
     const randomAd = customAds[Math.floor(Math.random() * customAds.length)];
     return `
             <div class="custom-ad" style="width:${width}px;height:${height}px;">
-                <a href="${randomAd.url}" target="_blank" rel="noopener sponsored">
+                <a href="${randomAd.url}" target="_blank" rel="noopener noreferrer sponsored">
                     <img src="${randomAd.image}" alt="${randomAd.title}" 
                          style="width:100%;height:100%;object-fit:cover;border-radius:8px;">
                 </a>
