@@ -207,7 +207,7 @@
                 {{- if .Params.description }}
                 <p class="note-card-summary">{{ .Params.description | truncate 100 }}</p>
                 {{- else if .Summary }}
-                <p class="note-card-summary">{{ .Summary | truncate 100 }}</p>
+                <p class="note-card-summary">{{ .Summary | plainify | truncate 100 }}</p>
                 {{- end }}
                 {{- if .Params.tags }}
                 <div class="note-card-tags">

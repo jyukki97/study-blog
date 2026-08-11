@@ -24,11 +24,17 @@ class PageParser(HTMLParser):
         self.unsafe_blank_links: list[str] = []
         self.canonicals: list[str] = []
         self.json_ld_blocks: list[str] = []
+        self.ids: list[str] = []
+        self.images_without_alt: list[str] = []
         self._in_json_ld = False
         self._json_ld_parts: list[str] = []
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         values = dict(attrs)
+        if values.get("id"):
+            self.ids.append(values["id"] or "")
+        if tag == "img" and "alt" not in values:
+            self.images_without_alt.append(values.get("src") or "(src 없음)")
         if tag in {"a", "link"} and values.get("href"):
             self.links.append(values["href"] or "")
         if tag == "a" and values.get("target") == "_blank":
@@ -116,6 +122,13 @@ def validate(public_dir: Path) -> tuple[list[str], list[str]]:
             errors.append(
                 f"[security] 새 창 링크에 rel=\"noopener noreferrer\" 누락: {rel} -> {raw_url}"
             )
+
+        duplicate_ids = sorted({element_id for element_id in parser.ids if parser.ids.count(element_id) > 1})
+        for element_id in duplicate_ids:
+            errors.append(f"[accessibility] 중복 id {element_id!r}: {rel}")
+
+        for image_src in parser.images_without_alt:
+            errors.append(f"[accessibility] 이미지 alt 속성 누락: {rel} -> {image_src}")
 
     for canonical, pages in canonical_to_pages.items():
         if len(pages) > 1:

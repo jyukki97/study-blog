@@ -50,6 +50,32 @@ body {
     overflow-x: hidden; /* Prevent horizontal scroll */
 }
 
+/* 키보드 사용자가 반복 내비게이션을 건너뛸 수 있는 본문 바로가기 */
+.skip-to-content {
+    position: fixed;
+    top: 0.75rem;
+    left: 0.75rem;
+    z-index: 10000;
+    padding: 0.7rem 1rem;
+    border-radius: 6px;
+    background: var(--primary);
+    color: var(--main-bg);
+    font-weight: 700;
+    transform: translateY(-160%);
+    transition: transform 0.15s ease;
+}
+
+.skip-to-content:focus {
+    color: var(--main-bg);
+    transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .skip-to-content {
+        transition: none;
+    }
+}
+
 a {
     word-break: break-all;
     overflow-wrap: break-word;

@@ -41,7 +41,7 @@
                     <h3 class="project-title">
                         <a href="{{ .Permalink }}">{{ .Title }}</a>
                     </h3>
-                    <p class="project-description">{{ .Params.description | default .Summary }}</p>
+                    <p class="project-description">{{ .Params.description | default (.Summary | plainify) }}</p>
                     {{- if .Params.tech }}
                     <div class="project-tech">
                         {{- range first 3 .Params.tech }}
@@ -84,7 +84,7 @@
                     <a href="{{ .Permalink }}">{{ .Title }}</a>
                 </h3>
                 {{- if .Summary }}
-                <p class="post-card-summary">{{ .Summary | truncate 100 }}</p>
+                <p class="post-card-summary">{{ .Summary | plainify | truncate 100 }}</p>
                 {{- end }}
                 {{- if .Params.tags }}
                 <div class="post-card-tags">

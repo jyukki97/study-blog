@@ -1,9 +1,10 @@
 // 단일 포스트 페이지 UX 보강
-// - TOC active sync
+// - 데스크톱 TOC active sync / 모바일 TOC 제공
 // - 읽기 진행률 바
 // - 집중 모드 토글
 
 document.addEventListener('DOMContentLoaded', function () {
+  const mobileBreakpoint = 768;
   const tocSidebar = document.querySelector('.toc-sidebar');
   const tocLinks = document.querySelectorAll('.toc a');
   const headings = document.querySelectorAll(
@@ -12,6 +13,47 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const progressBar = document.getElementById('reading-progress-bar');
   const focusButton = document.getElementById('focus-mode-toggle');
+
+  // --- 모바일 TOC ---
+  // 단일 글 번들 안에서만 실행해 목록·검색 페이지의 불필요한 인라인 JS를 없앤다.
+  function syncMobileTOC() {
+    const existingMobileTOC = document.querySelector('.mobile-toc');
+
+    if (window.innerWidth > mobileBreakpoint) {
+      existingMobileTOC?.remove();
+      return;
+    }
+
+    const tocElement = document.querySelector('.toc');
+    const tocInner = document.querySelector('.toc .inner');
+    const postContent = document.querySelector('.post-content');
+    if (existingMobileTOC || !postContent || (!tocInner && !tocElement)) return;
+
+    const details = document.createElement('details');
+    details.className = 'mobile-toc';
+
+    const summary = document.createElement('summary');
+    summary.textContent = '목차';
+    details.appendChild(summary);
+
+    if (tocInner) {
+      details.appendChild(tocInner.cloneNode(true));
+    } else {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'inner';
+      wrapper.appendChild(tocElement.cloneNode(true));
+      details.appendChild(wrapper);
+    }
+
+    postContent.before(details);
+  }
+
+  syncMobileTOC();
+  let mobileTOCResizeTimer;
+  window.addEventListener('resize', function () {
+    clearTimeout(mobileTOCResizeTimer);
+    mobileTOCResizeTimer = setTimeout(syncMobileTOC, 100);
+  }, { passive: true });
 
   // --- 집중 모드 ---
   const focusStorageKey = 'study-blog-focus-mode';

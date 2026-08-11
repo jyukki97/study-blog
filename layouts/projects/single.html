@@ -135,7 +135,7 @@
                     <a href="{{ .Permalink }}">{{ .Title }}</a>
                 </h3>
                 {{- if .Summary }}
-                <p class="post-card-summary">{{ .Summary | truncate 100 }}</p>
+                <p class="post-card-summary">{{ .Summary | plainify | truncate 100 }}</p>
                 {{- end }}
                 {{- if .Params.tags }}
                 <div class="post-card-tags">
