@@ -1,5 +1,6 @@
 baseURL = 'https://jyukki.com'
-languageCode = 'ko-kr'
+languageCode = 'ko-KR'
+defaultContentLanguage = 'ko'
 title = "jyukki's Blog"
 theme = 'PaperMod'
 
@@ -28,6 +29,8 @@ relativeURLs = false
   hint = "photo"
 
 [params]
+  author = "jyukki"
+  description = "백엔드 개발과 시스템 설계, 데이터베이스, 운영 경험을 실전 예제와 체크리스트로 정리하는 기술 블로그"
   defaultTheme = 'auto'
   disableThemeToggle = false
   ShowReadingTime = true

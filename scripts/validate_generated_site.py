@@ -26,11 +26,25 @@ class PageParser(HTMLParser):
         self.json_ld_blocks: list[str] = []
         self.ids: list[str] = []
         self.images_without_alt: list[str] = []
+        self.html_langs: list[str] = []
+        self.meta_values: dict[str, list[str]] = {}
+        self.titles: list[str] = []
+        self._in_title = False
+        self._title_parts: list[str] = []
         self._in_json_ld = False
         self._json_ld_parts: list[str] = []
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         values = dict(attrs)
+        if tag == "html":
+            self.html_langs.append(values.get("lang") or "")
+        if tag == "meta":
+            key = (values.get("name") or values.get("property") or "").lower()
+            if key:
+                self.meta_values.setdefault(key, []).append(values.get("content") or "")
+        if tag == "title":
+            self._in_title = True
+            self._title_parts = []
         if values.get("id"):
             self.ids.append(values["id"] or "")
         if tag == "img" and "alt" not in values:
@@ -50,10 +64,16 @@ class PageParser(HTMLParser):
             self._json_ld_parts = []
 
     def handle_data(self, data: str) -> None:
+        if self._in_title:
+            self._title_parts.append(data)
         if self._in_json_ld:
             self._json_ld_parts.append(data)
 
     def handle_endtag(self, tag: str) -> None:
+        if tag == "title" and self._in_title:
+            self.titles.append("".join(self._title_parts).strip())
+            self._in_title = False
+            self._title_parts = []
         if tag == "script" and self._in_json_ld:
             self.json_ld_blocks.append("".join(self._json_ld_parts).strip())
             self._in_json_ld = False
@@ -102,6 +122,20 @@ def validate(public_dir: Path) -> tuple[list[str], list[str]]:
             continue
 
         if rel != Path("offline.html"):
+            if parser.html_langs != ["ko"]:
+                errors.append(f"[seo] html lang은 'ko'여야 합니다: {rel} -> {parser.html_langs!r}")
+
+            if len(parser.titles) != 1 or not parser.titles[0]:
+                errors.append(f"[seo] 유효한 title이 1개여야 합니다: {rel} -> {parser.titles!r}")
+
+            required_meta = ("description", "author", "og:title", "og:description", "twitter:title")
+            for meta_name in required_meta:
+                values = parser.meta_values.get(meta_name, [])
+                if len(values) != 1 or not values[0].strip():
+                    errors.append(
+                        f"[seo] 유효한 {meta_name} 메타가 1개여야 합니다: {rel} -> {values!r}"
+                    )
+
             if len(parser.canonicals) != 1:
                 errors.append(f"[canonical] {len(parser.canonicals)}개 발견: {rel}")
             else:

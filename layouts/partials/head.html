@@ -218,7 +218,8 @@
 {{- /* Misc */}}
 {{- if hugo.IsProduction | or (eq site.Params.env "production") }}
 {{- partial "analytics.html" . }}
-{{- partial "templates/opengraph.html" . }}
-{{- partial "templates/twitter_cards.html" . }}
+{{- /* 소셜 메타는 social_meta.html을 단일 소스로 사용한다. */}}
+{{- if not .IsPage }}
 {{- partial "templates/schema_json.html" . }}
+{{- end }}
 {{- end -}}
