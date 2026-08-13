@@ -6,7 +6,7 @@ on:
       - 'content/**'
       - 'layouts/**'
       - 'assets/**'
-      - 'scripts/validate_content.py'
+      - 'scripts/**'
       - 'config/**'
       - 'hugo.yaml'
       - 'hugo.toml'
@@ -18,7 +18,7 @@ on:
       - 'content/**'
       - 'layouts/**'
       - 'assets/**'
-      - 'scripts/validate_content.py'
+      - 'scripts/**'
       - 'config/**'
       - 'hugo.yaml'
       - 'hugo.toml'
@@ -62,3 +62,6 @@ jobs:
           HUGO_ENVIRONMENT: production
           HUGO_CACHEDIR: ${{ runner.temp }}/hugo_cache
         run: hugo --gc --minify --panicOnWarning --baseURL "https://jyukki.com/"
+
+      - name: Validate generated HTML, links, anchors, and SEO
+        run: python3 scripts/validate_generated_site.py public

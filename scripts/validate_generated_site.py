@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Hugo 빌드 산출물의 내부 경로, SEO, 새 창 링크 안전성을 점검한다."""
+"""Hugo 빌드 산출물의 내부 경로·앵커, SEO, 새 창 링크 안전성을 점검한다."""
 
 from __future__ import annotations
 
@@ -95,13 +95,47 @@ def local_target(raw_url: str) -> str | None:
 
 
 def target_exists(public_dir: Path, path: str) -> bool:
+    return target_file(public_dir, path) is not None
+
+
+def target_file(public_dir: Path, path: str) -> Path | None:
+    """사이트 URL 경로가 가리키는 실제 산출물 파일을 반환한다."""
+
     relative = path.lstrip("/")
     candidates = [public_dir / relative]
     if path.endswith("/") or not Path(relative).suffix:
         candidates.append(public_dir / relative / "index.html")
     if relative.endswith(".html"):
         candidates.append(public_dir / relative.removesuffix(".html") / "index.html")
-    return any(candidate.is_file() for candidate in candidates)
+    return next((candidate for candidate in candidates if candidate.is_file()), None)
+
+
+def local_fragment_target(raw_url: str, current_file: Path, public_dir: Path) -> tuple[Path, str] | None:
+    """내부 링크의 대상 HTML과 fragment를 반환한다.
+
+    ``#section`` 같은 동일 페이지 링크도 포함한다. 외부 링크와 fragment가
+    없는 링크는 검사 대상이 아니다.
+    """
+
+    raw_url = raw_url.strip()
+    if not raw_url or raw_url.startswith("//"):
+        return None
+
+    parsed = urlsplit(raw_url)
+    if not parsed.fragment or parsed.scheme in IGNORED_SCHEMES:
+        return None
+    if parsed.scheme in {"http", "https"} and parsed.hostname not in {SITE_HOST, f"www.{SITE_HOST}"}:
+        return None
+    if parsed.scheme and parsed.scheme not in {"http", "https"}:
+        return None
+
+    fragment = unquote(parsed.fragment)
+    if not parsed.path:
+        return current_file, fragment
+
+    path = unquote(parsed.path)
+    target = target_file(public_dir, path)
+    return (target, fragment) if target is not None and target.suffix == ".html" else None
 
 
 def validate(public_dir: Path) -> tuple[list[str], list[str]]:
@@ -112,6 +146,7 @@ def validate(public_dir: Path) -> tuple[list[str], list[str]]:
         return [f"[build] HTML 산출물이 없습니다: {public_dir}"], warnings
 
     canonical_to_pages: dict[str, list[Path]] = {}
+    parsed_pages: dict[Path, PageParser] = {}
     for html_file in html_files:
         rel = html_file.relative_to(public_dir)
         parser = PageParser()
@@ -120,6 +155,7 @@ def validate(public_dir: Path) -> tuple[list[str], list[str]]:
         except (OSError, UnicodeError) as exc:
             errors.append(f"[html] 읽기 실패: {rel} ({exc})")
             continue
+        parsed_pages[html_file] = parser
 
         if rel != Path("offline.html"):
             if parser.html_langs != ["ko"]:
@@ -151,6 +187,21 @@ def validate(public_dir: Path) -> tuple[list[str], list[str]]:
             target = local_target(raw_url)
             if target is not None and not target_exists(public_dir, target):
                 errors.append(f"[link] 없는 경로 {raw_url!r}: {rel}")
+
+            fragment_target = local_fragment_target(raw_url, html_file, public_dir)
+            if fragment_target is not None:
+                target_html, fragment = fragment_target
+                target_parser = parsed_pages.get(target_html)
+                if target_parser is None:
+                    target_parser = PageParser()
+                    try:
+                        target_parser.feed(target_html.read_text(encoding="utf-8"))
+                    except (OSError, UnicodeError) as exc:
+                        errors.append(f"[html] 앵커 대상 읽기 실패: {rel} -> {raw_url!r} ({exc})")
+                        continue
+                    parsed_pages[target_html] = target_parser
+                if fragment not in target_parser.ids:
+                    errors.append(f"[anchor] 없는 앵커 {raw_url!r}: {rel}")
 
         for raw_url in parser.unsafe_blank_links:
             errors.append(
