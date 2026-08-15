@@ -1,7 +1,7 @@
 {{ if or .Params.mermaid .Site.Params.mermaid }}{{ partial "mermaid.html" . }}{{ end }}
 
 {{/* Mobile CSS Loading Fix: Use resources.Get for assets */}}
-{{ $mobile := resources.Get "css/extends/mobile.css" }}
+{{ $mobile := resources.Get "css/extended/mobile.css" }}
 {{ if $mobile }}
 <link rel="stylesheet" href="{{ $mobile.Permalink }}">
 {{ end }}
