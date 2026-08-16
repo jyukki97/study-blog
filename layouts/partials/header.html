@@ -76,7 +76,7 @@
         </div>
 
         <!-- 모바일 햄버거 메뉴 버튼 -->
-        <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
+        <button class="mobile-menu-toggle" type="button" onclick="toggleMobileMenu()" aria-label="메뉴 열기" aria-controls="menu" aria-expanded="false">
             <span></span>
             <span></span>
             <span></span>
@@ -174,8 +174,8 @@
         {{ if not .Site.Params.disableSearch }}
         <div class="search-container">
             <div class="search-input-wrapper">
-                <input type="text" id="search-input" placeholder="검색어를 입력하세요..." autocomplete="off">
-                <button class="search-button" onclick="toggleSearch()">
+                <input type="text" id="search-input" placeholder="검색어를 입력하세요..." autocomplete="off" aria-label="블로그 검색">
+                <button class="search-button" type="button" onclick="toggleSearch()" aria-label="검색 열기" aria-controls="search-results" aria-expanded="false">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="11" cy="11" r="8"></circle>
@@ -183,7 +183,7 @@
                     </svg>
                 </button>
             </div>
-            <div id="search-results" class="search-results"></div>
+            <div id="search-results" class="search-results" role="status" aria-live="polite" aria-label="검색 결과"></div>
         </div>
         {{ end }}
     </nav>
@@ -1010,7 +1010,11 @@
         const toggle = document.querySelector('.mobile-menu-toggle');
 
         if (menu) menu.classList.remove('active');
-        if (toggle) toggle.classList.remove('active');
+        if (toggle) {
+            toggle.classList.remove('active');
+            toggle.setAttribute('aria-expanded', 'false');
+            toggle.setAttribute('aria-label', '메뉴 열기');
+        }
         syncMobileBodyLock();
     }
 
@@ -1023,7 +1027,13 @@
         const isMobile = window.innerWidth <= 768;
 
         wrapper.classList.toggle('active');
-        if (wrapper.classList.contains('active')) {
+        const isOpen = wrapper.classList.contains('active');
+        const searchButton = document.querySelector('.search-button');
+        if (searchButton) {
+            searchButton.setAttribute('aria-expanded', String(isOpen));
+            searchButton.setAttribute('aria-label', isOpen ? '검색 닫기' : '검색 열기');
+        }
+        if (isOpen) {
             if (isMobile) {
                 // 모바일에서는 새로운 입력창 생성
                 createMobileSearchInput();
@@ -1062,6 +1072,7 @@
         mobileInput.type = 'text';
         mobileInput.placeholder = '검색어를 입력하세요...';
         mobileInput.autocomplete = 'off';
+        mobileInput.setAttribute('aria-label', '블로그 검색');
         mobileInput.style.cssText = `
         position: fixed !important;
         top: ${topInput} !important;
@@ -1084,6 +1095,9 @@
         const mobileResults = document.createElement('div');
         mobileResults.id = 'mobile-search-results';
         mobileResults.className = 'search-results';
+        mobileResults.setAttribute('role', 'status');
+        mobileResults.setAttribute('aria-live', 'polite');
+        mobileResults.setAttribute('aria-label', '검색 결과');
         mobileResults.style.cssText = `
         position: fixed !important;
         top: ${topResults} !important;
@@ -1205,6 +1219,8 @@
 
         menu.classList.toggle('active', willOpen);
         toggle.classList.toggle('active', willOpen);
+        toggle.setAttribute('aria-expanded', String(willOpen));
+        toggle.setAttribute('aria-label', willOpen ? '메뉴 닫기' : '메뉴 열기');
         syncMobileBodyLock();
     }
 
