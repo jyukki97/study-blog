@@ -5,7 +5,9 @@
   {{- if gt (len $recentPosts) 0 -}}
     {{- $latestPost = index $recentPosts 0 -}}
   {{- end -}}
-  {{- $deepDivePages := where .Site.RegularPages "Section" "learning" -}}
+  {{- /* Learning 전체에는 로드맵 모듈과 Q&A도 포함된다.
+        아카이브 카드의 "심화 학습" 수와 최신 추천은 deep-dive 디렉터리만 기준으로 맞춘다. */ -}}
+  {{- $deepDivePages := where .Site.RegularPages "File.Dir" "like" "^learning/deep-dive/" -}}
   {{- $deepDiveCount := len $deepDivePages -}}
   {{- $latestDeepDive := "" -}}
   {{- $recentDeepDives := first 1 ($deepDivePages.ByDate.Reverse) -}}
