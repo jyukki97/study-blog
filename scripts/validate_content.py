@@ -9,6 +9,7 @@
 5) posts 글과 이번 작업에서 변경된 learning 글의 최소 본문 길이(실질 내용) 확인
 6) 라우트 충돌(동일 URL 경로를 여러 문서가 점유) 확인
 7) 이번 작업에서 변경된 섹션 허브(_index.md/index.md)의 최소 본문 길이 확인
+8) 이번 작업에서 변경된 learning 글의 module 값이 모듈 키/별칭에 연결되는지 확인
 """
 
 from __future__ import annotations
@@ -138,6 +139,23 @@ def extract_aliases(front_matter: str) -> list[str]:
     return aliases
 
 
+def extract_inline_string_list(front_matter: str, field: str) -> list[str]:
+    """YAML 인라인 문자열 배열을 가볍게 추출한다.
+
+    Hugo front matter에서 module_aliases처럼 작은 식별자 목록을 검사할 때만 사용한다.
+    """
+
+    m = re.search(rf"(?m)^\s*{re.escape(field)}\s*:\s*\[(.*?)\]\s*$", front_matter)
+    if not m:
+        return []
+    return [value.strip() for value in re.findall(r'"([^"]+)"', m.group(1)) if value.strip()]
+
+
+def extract_scalar(front_matter: str, field: str) -> str | None:
+    m = re.search(rf'(?m)^\s*{re.escape(field)}\s*:\s*"?([^"\n]+?)"?\s*$', front_matter)
+    return m.group(1).strip() if m else None
+
+
 def extract_front_matter_internal_links(front_matter: str) -> list[str]:
     links: list[str] = []
     for _, raw in re.findall(r'(?m)^\s+(href|url)\s*:\s*"?([^"\n]+)"?\s*$', front_matter):
@@ -213,6 +231,17 @@ def main() -> int:
 
     title_to_files: dict[str, list[Path]] = {}
     tag_variants: dict[str, dict[str, set[Path]]] = {}
+    module_keys: set[str] = set()
+    module_aliases: set[str] = set()
+
+    for md in CONTENT_DIR.glob("learning/modules/*.md"):
+        front_matter = parse_front_matter(md.read_text(encoding="utf-8"))
+        if not front_matter:
+            continue
+        module_key = extract_scalar(front_matter, "module_key")
+        if module_key:
+            module_keys.add(module_key)
+        module_aliases.update(extract_inline_string_list(front_matter, "module_aliases"))
 
     for md in CONTENT_DIR.rglob("*.md"):
         text = md.read_text(encoding="utf-8")
@@ -260,6 +289,13 @@ def main() -> int:
                 warnings.append(
                     "[content] 변경된 learning 글 본문 길이 점검 필요"
                     f"({body_chars}자 < {MIN_CHANGED_LEARNING_BODY_CHARS}자): {rel}"
+                )
+
+            module = extract_scalar(front_matter, "module")
+            if module and module not in module_keys and module not in module_aliases:
+                warnings.append(
+                    "[module] 변경된 learning 글의 module이 모듈 허브와 연결되지 않음: "
+                    f"{rel} -> {module}"
                 )
 
         if LEGACY_BASEURL_RE.search(text):

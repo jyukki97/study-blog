@@ -200,6 +200,17 @@
       {{- with first 1 $moduleCandidates -}}
         {{- $modulePage = index . 0 -}}
       {{- end -}}
+      {{- /* 과거 module 값과 현재 module_key가 달라도, 모듈이 선언한 별칭으로 학습 허브를 찾는다. */ -}}
+      {{- if not $modulePage -}}
+        {{- range where site.RegularPages "Params.module_key" "ne" nil -}}
+          {{- $candidatePage := . -}}
+          {{- with .Params.module_aliases -}}
+            {{- if in . $moduleKey -}}
+              {{- $modulePage = $candidatePage -}}
+            {{- end -}}
+          {{- end -}}
+        {{- end -}}
+      {{- end -}}
     {{- end -}}
     <section class="post-reading-path learning-reading-path" aria-label="학습 경로 안내">
       <h3>다음 학습 경로</h3>
