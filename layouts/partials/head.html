@@ -51,6 +51,8 @@
 {{- $canonical := partial "canonical_url.html" . -}}
 <link rel="canonical" href="{{ $canonical }}">
 {{- partial "social_meta.html" . }}
+{{- /* 페이지 구조화 데이터는 본문이 아니라 head에 둬서 crawler가 일관되게 발견한다. */ -}}
+{{- partial "seo_schema.html" . }}
 {{- if site.Params.analytics.google.SiteVerificationTag }}
 <meta name="google-site-verification" content="{{ site.Params.analytics.google.SiteVerificationTag }}">
 {{- end }}

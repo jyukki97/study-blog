@@ -138,6 +138,42 @@ def local_fragment_target(raw_url: str, current_file: Path, public_dir: Path) ->
     return (target, fragment) if target is not None and target.suffix == ".html" else None
 
 
+def json_ld_items(blocks: list[str], rel: Path, errors: list[str]) -> list[dict]:
+    """JSON-LD 블록을 파싱하고 객체 목록으로 평탄화한다."""
+
+    items: list[dict] = []
+    for index, block in enumerate(blocks, start=1):
+        try:
+            value = json.loads(block)
+        except json.JSONDecodeError as exc:
+            errors.append(f"[json-ld] 파싱 실패 #{index}: {rel} ({exc.msg})")
+            continue
+        if isinstance(value, dict):
+            items.append(value)
+        elif isinstance(value, list):
+            items.extend(item for item in value if isinstance(item, dict))
+    return items
+
+
+def validate_article_schema(items: list[dict], rel: Path, canonical: str, errors: list[str]) -> None:
+    """article OG 페이지가 검색 결과에 필요한 Article JSON-LD를 갖는지 확인한다."""
+
+    article_types = {"Article", "BlogPosting"}
+    articles = [item for item in items if item.get("@type") in article_types]
+    if not articles:
+        errors.append(f"[json-ld] Article 또는 BlogPosting 없음: {rel}")
+        return
+
+    article = articles[0]
+    for field in ("headline", "description", "datePublished", "dateModified", "mainEntityOfPage", "author"):
+        if not article.get(field):
+            errors.append(f"[json-ld] Article 필수 필드 누락 {field}: {rel}")
+
+    entity = article.get("mainEntityOfPage")
+    if isinstance(entity, dict) and entity.get("@id") and entity["@id"] != canonical:
+        errors.append(f"[json-ld] mainEntityOfPage canonical 불일치: {rel}")
+
+
 def validate(public_dir: Path) -> tuple[list[str], list[str]]:
     errors: list[str] = []
     warnings: list[str] = []
@@ -177,11 +213,9 @@ def validate(public_dir: Path) -> tuple[list[str], list[str]]:
             else:
                 canonical_to_pages.setdefault(parser.canonicals[0], []).append(rel)
 
-        for index, block in enumerate(parser.json_ld_blocks, start=1):
-            try:
-                json.loads(block)
-            except json.JSONDecodeError as exc:
-                errors.append(f"[json-ld] 파싱 실패 #{index}: {rel} ({exc.msg})")
+        schema_items = json_ld_items(parser.json_ld_blocks, rel, errors)
+        if parser.meta_values.get("og:type") == ["article"] and len(parser.canonicals) == 1:
+            validate_article_schema(schema_items, rel, parser.canonicals[0], errors)
 
         for raw_url in parser.links:
             target = local_target(raw_url)
