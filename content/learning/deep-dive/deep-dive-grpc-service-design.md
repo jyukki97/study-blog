@@ -8,6 +8,24 @@ categories: ["Backend Deep Dive"]
 description: "프로토 정의, 일방향/양방향 스트리밍, gRPC-Gateway 연계 등 gRPC 설계 핵심"
 module: "ops-observability"
 study_order: 606
+key_takeaways:
+  - "gRPC의 핵심은 바이너리 직렬화 자체보다 proto를 제품 간 계약으로 관리하는 데 있다."
+  - "모든 RPC에 호출자 기준 deadline을 전달하고, 서버·하위 호출도 취소 신호를 따라야 포화가 전파되지 않는다."
+  - "재시도는 status code가 아니라 멱등성, 남은 시간, retry budget을 함께 만족할 때만 허용한다."
+operator_checklist:
+  - "신규 RPC마다 owner, default deadline, 멱등성, 허용 status code, 대시보드 지표를 계약에 기록한다."
+  - "proto에서 삭제한 필드 번호와 이름을 reserved로 남기고, CI에서 breaking change를 검사한다."
+  - "streaming RPC는 최대 연결 시간, 메시지 크기, 느린 소비자 정책, drain 시 재연결 힌트를 명시한다."
+learning_refs:
+  - title: "End-to-End Deadline과 Cancellation"
+    href: "/learning/deep-dive/deep-dive-end-to-end-deadline-cancellation-playbook/"
+    description: "HTTP·gRPC·비동기 작업 경계를 넘는 deadline 예산과 취소 전파 규칙을 다룹니다."
+  - title: "Timeout / Retry / Backoff 설계"
+    href: "/learning/deep-dive/deep-dive-timeout-retry-backoff/"
+    description: "재시도 증폭을 막는 retry budget, jitter, 관측 지표를 함께 정리합니다."
+  - title: "장기 연결 드레이닝 플레이북"
+    href: "/learning/deep-dive/deep-dive-long-lived-connection-draining-playbook/"
+    description: "gRPC streaming 연결을 배포와 스케일다운 중 안전하게 종료·복구하는 기준입니다."
 quizzes:
   - question: "gRPC가 REST보다 성능이 좋은 주요 이유는?"
     options:
@@ -178,6 +196,29 @@ gRPC는 데드라인(deadline)이 문화입니다.
 - 이미 클라이언트는 포기했는데 서버는 계속 일한다(낭비)
 - 부하가 누적돼 장애로 이어질 수 있습니다
 
+### 3.1 호출 예산을 코드로 보존하기
+
+`timeout=3초`를 모든 계층에 각각 설정하면 전체 요청은 3초보다 훨씬 오래 살아날 수 있습니다. 진입 요청의 남은 시간을 **예산**으로 보고, 각 하위 RPC에는 그보다 짧은 deadline을 전달해야 합니다. 또한 `DEADLINE_EXCEEDED`가 난 뒤에도 DB 조회나 외부 호출을 계속하지 않도록 cancellation을 확인해야 합니다.
+
+```java
+// OrderFacade가 받은 전체 예산이 800ms라면,
+// inventory 호출에 800ms를 새로 주지 말고 남은 시간 안에서 250ms만 배정합니다.
+InventoryReply reply = inventoryStub
+    .withDeadlineAfter(250, TimeUnit.MILLISECONDS)
+    .getInventory(request);
+```
+
+운영 계약에는 RPC별 기본값만이 아니라 다음을 함께 적습니다.
+
+| 항목 | 예시 | 이유 |
+|---|---:|---|
+| 진입 deadline | 800ms | 사용자 응답의 상한 |
+| 하위 inventory 예산 | 250ms | fan-out이 전체 시간을 소진하지 않게 함 |
+| 재시도 가능 시간 | 120ms 이상 남을 때만 | 이미 늦은 재시도가 꼬리를 늘리는 것을 방지 |
+| 취소 후 작업 | DB/HTTP 호출 중단, span 종료 | 포기한 요청의 자원 점유 방지 |
+
+deadline은 오류를 숨기는 값이 아닙니다. `DEADLINE_EXCEEDED` 비율, 남은 예산 분포, 하위 호출별 timeout을 함께 보면 어느 경계가 사용자 시간을 소비했는지 찾을 수 있습니다. 자세한 전파 규칙은 [End-to-End Deadline과 Cancellation](/learning/deep-dive/deep-dive-end-to-end-deadline-cancellation-playbook/)에서 이어서 확인하세요.
+
 ## 4) 재시도/멱등성: 자동 재시도는 항상 위험하다
 
 gRPC/클라이언트 SDK는 재시도 기능이 있지만, 무턱대고 켜면 사고가 납니다.
@@ -185,6 +226,19 @@ gRPC/클라이언트 SDK는 재시도 기능이 있지만, 무턱대고 켜면 �
 - 멱등한 요청만 재시도(조회/상태 확인 등)
 - 쓰기 요청은 idempotency key를 도입하거나, 재시도 정책을 더 보수적으로
 - 백오프 + jitter, retry budget 같은 “증폭 방지”가 필요
+
+### 4.1 재시도 허용표를 먼저 만든다
+
+클라이언트가 `UNAVAILABLE`만 보고 모든 RPC를 재시도하면, 장애 중인 쓰기 요청을 중복 실행할 수 있습니다. 메서드마다 멱등성을 문서화하고, retryable status와 최대 횟수를 제한하세요.
+
+| RPC 유형 | 예시 | 기본 정책 |
+|---|---|---|
+| 읽기 | `GetOrder` | `UNAVAILABLE`에 한해 짧은 backoff로 1회, 남은 deadline이 있을 때만 |
+| 멱등 쓰기 | `CreateOrder(idempotency_key)` | 키 저장 기간 안에서 제한 재시도 가능 |
+| 비멱등 쓰기 | `CapturePayment` | 자동 재시도 금지, 결과 조회/보상 흐름으로 확인 |
+| streaming | `WatchOrder` | 새 stream을 열기 전 마지막 event offset과 구독 권한을 재검증 |
+
+재시도 횟수보다 중요한 것은 **retry budget**입니다. 예를 들어 1분 동안 정상 요청 1,000건이면 재시도는 50건까지만 허용하는 식으로 제한합니다. 예산이 소진되면 빠르게 실패시키고 원래 원인을 관측해야 복구 중인 의존성을 두 번째 장애로 몰아넣지 않습니다.
 
 ## 5) 인증/메타데이터/관측성
 
@@ -200,6 +254,19 @@ gRPC/클라이언트 SDK는 재시도 기능이 있지만, 무턱대고 켜면 �
 포인트:
 
 - 외부에서 들어오는 rate limit/인증은 게이트웨이에서 1차로 처리하는 편이 안전합니다.
+- HTTP 상태 코드와 gRPC status를 기계적으로 1:1 대응시키기보다, 외부 소비자에게 노출할 오류 코드·재시도 가능 여부·사용자 메시지를 별도 계약으로 둡니다.
+
+## 7) 배포 전 계약 검증 체크리스트
+
+새 RPC 또는 proto 변경을 배포하기 전에는 아래 항목을 PR에서 확인합니다.
+
+- [ ] 새 필드는 새 번호를 사용했고, 삭제한 번호·이름은 `reserved`로 남겼는가?
+- [ ] 메서드별 deadline, 멱등성, 허용 재시도 status를 문서와 클라이언트 설정에 동시에 반영했는가?
+- [ ] 요청·응답 최대 크기와 streaming의 느린 소비자/최대 연결 시간을 정했는가?
+- [ ] `grpc.status`, `grpc.method`, deadline 초과, retry 횟수, stream 활성 수를 대시보드에서 분리했는가?
+- [ ] Gateway 또는 외부 API의 오류 응답이 내부 구현·민감한 metadata를 그대로 노출하지 않는가?
+
+이 체크리스트는 proto 문법 검증을 통과한 뒤에야 의미가 있습니다. 호환성 검사는 CI에 넣고, 실제 배포에서는 신규 서버 → 신규 클라이언트와 구버전 클라이언트 → 신규 서버 조합을 모두 작은 트래픽에서 확인하세요.
 
 ## 연습(추천)
 

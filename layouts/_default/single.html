@@ -106,15 +106,32 @@
       {{- end }}
 
       {{- $tags := .Language.Params.Taxonomies.tag | default "tags" }}
-      {{- $terms := ($.GetTerms $tags) }}
-      {{- if gt (len $terms) 0 }}
-      <div class="post-tags-container" aria-label="태그 목록">
-        <ul class="post-tags" id="tag-list">
-          {{- range $terms }}
-          <li><a href="{{ .Permalink }}">{{ .LinkTitle }}</a></li>
-          {{- end }}
-        </ul>
-      </div>
+      {{- $tagTerms := ($.GetTerms $tags) }}
+      {{- $categories := .Language.Params.Taxonomies.category | default "categories" }}
+      {{- $categoryTerms := ($.GetTerms $categories) }}
+      {{- if or (gt (len $categoryTerms) 0) (gt (len $tagTerms) 0) }}
+      <nav class="post-taxonomy" aria-label="글 주제 탐색">
+        {{- with $categoryTerms }}
+        <div class="post-taxonomy-group">
+          <span class="post-taxonomy-label">분류</span>
+          <ul class="post-taxonomy-list">
+            {{- range . }}
+            <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>
+            {{- end }}
+          </ul>
+        </div>
+        {{- end }}
+        {{- with $tagTerms }}
+        <div class="post-taxonomy-group">
+          <span class="post-taxonomy-label">태그</span>
+          <ul class="post-taxonomy-list" id="tag-list">
+            {{- range . }}
+            <li><a href="{{ .RelPermalink }}">#{{ .LinkTitle }}</a></li>
+            {{- end }}
+          </ul>
+        </div>
+        {{- end }}
+      </nav>
       {{- end }}
     </header>
     {{- $isHidden := (.Param "cover.hiddenInSingle") | default (.Param "cover.hidden") | default false }}

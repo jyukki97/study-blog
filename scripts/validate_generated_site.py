@@ -182,6 +182,7 @@ def validate(public_dir: Path) -> tuple[list[str], list[str]]:
         return [f"[build] HTML 산출물이 없습니다: {public_dir}"], warnings
 
     canonical_to_pages: dict[str, list[Path]] = {}
+    article_description_to_pages: dict[str, list[Path]] = {}
     parsed_pages: dict[Path, PageParser] = {}
     for html_file in html_files:
         rel = html_file.relative_to(public_dir)
@@ -216,6 +217,13 @@ def validate(public_dir: Path) -> tuple[list[str], list[str]]:
         schema_items = json_ld_items(parser.json_ld_blocks, rel, errors)
         if parser.meta_values.get("og:type") == ["article"] and len(parser.canonicals) == 1:
             validate_article_schema(schema_items, rel, parser.canonicals[0], errors)
+            # 제목이 달라도 description이 재사용되면 검색 결과와 소셜 카드가
+            # 서로 다른 글을 구분하지 못할 수 있다. 목록/섹션 페이지의 공통
+            # 안내문은 제외하고, 독립 article 페이지만 비교한다.
+            descriptions = parser.meta_values.get("description", [])
+            if len(descriptions) == 1 and descriptions[0].strip():
+                normalized_description = " ".join(descriptions[0].split()).casefold()
+                article_description_to_pages.setdefault(normalized_description, []).append(rel)
 
         for raw_url in parser.links:
             target = local_target(raw_url)
@@ -253,6 +261,13 @@ def validate(public_dir: Path) -> tuple[list[str], list[str]]:
         if len(pages) > 1:
             sample = ", ".join(str(page) for page in pages[:3])
             warnings.append(f"[canonical] 중복 {canonical}: {sample}")
+
+    for description, pages in article_description_to_pages.items():
+        if len(pages) > 1:
+            sample = ", ".join(str(page) for page in pages[:3])
+            warnings.append(
+                f"[seo] article description 중복 ({len(description)}자): {sample}"
+            )
 
     return sorted(set(errors)), sorted(set(warnings))
 

@@ -121,9 +121,9 @@ relativeURLs = false
     weight = 25
 
 [[menu.main]]
-    identifier = "etc"
-    name = "etc"
-    url = "#"
+    identifier = "posts"
+    name = "Archive"
+    url = "/posts/"
     weight = 30
 
 [outputs]

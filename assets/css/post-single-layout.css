@@ -41,6 +41,61 @@
   margin-top: 0.9rem;
 }
 
+.post-taxonomy {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 1rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid rgba(177, 156, 217, 0.24);
+  border-radius: 12px;
+  background: rgba(177, 156, 217, 0.05);
+}
+
+.post-taxonomy-group {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+}
+
+.post-taxonomy-label {
+  flex: 0 0 2.2rem;
+  padding-top: 0.28rem;
+  color: var(--secondary);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.post-taxonomy-list {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.post-taxonomy-list a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 0.22rem 0.65rem;
+  border: 1px solid rgba(177, 156, 217, 0.32);
+  border-radius: 999px;
+  background: var(--theme);
+  color: var(--secondary);
+  font-size: 0.82rem;
+  line-height: 1.35;
+  text-decoration: none;
+  transition: border-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
+}
+
+.post-taxonomy-list a:hover {
+  border-color: #b19cd9;
+  color: #b19cd9;
+  transform: translateY(-1px);
+}
+
 .post-key-takeaways {
   margin-top: 1.1rem;
   padding: 1rem 1.1rem;
