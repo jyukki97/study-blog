@@ -2,6 +2,8 @@
   {{- $schemaType := cond (eq .Section "posts") "BlogPosting" "Article" -}}
   {{- $description := .Description | default .Summary | plainify -}}
   {{- $keywords := .Params.keywords | default .Params.tags -}}
+  {{- /* canonical 태그와 JSON-LD가 서로 다른 URL을 가리키면 검색 엔진의 대표 URL 신호가 분산될 수 있다. */ -}}
+  {{- $canonical := partial "canonical_url.html" . -}}
   {{- $articleSection := "" -}}
   {{- with .Params.categories }}{{- $articleSection = delimit . ", " -}}{{- end -}}
   {{- $authorName := .Site.Params.author | default .Site.Title -}}
@@ -14,8 +16,8 @@
     "@type" $schemaType
     "headline" .Title
     "description" $description
-    "mainEntityOfPage" (dict "@type" "WebPage" "@id" .Permalink)
-    "url" .Permalink
+    "mainEntityOfPage" (dict "@type" "WebPage" "@id" $canonical)
+    "url" $canonical
     "datePublished" (.Date.Format "2006-01-02T15:04:05Z07:00")
     "dateModified" (.Lastmod.Format "2006-01-02T15:04:05Z07:00")
     "inLanguage" (.Site.Language.Lang | default "ko-kr")
@@ -71,7 +73,7 @@
     {{- $breadcrumbs := slice
       (dict "@type" "ListItem" "position" 1 "name" "홈" "item" ("/" | absURL))
       (dict "@type" "ListItem" "position" 2 "name" $sectionName "item" $sectionURL)
-      (dict "@type" "ListItem" "position" 3 "name" .Title "item" .Permalink)
+      (dict "@type" "ListItem" "position" 3 "name" .Title "item" $canonical)
     -}}
     {{- dict "@context" "https://schema.org" "@type" "BreadcrumbList" "itemListElement" $breadcrumbs | jsonify | safeJS }}
   </script>
