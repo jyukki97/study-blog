@@ -5,7 +5,7 @@ draft: false
 topic: "Spring"
 tags: ["Spring", "AOP", "Proxy", "Pointcut", "Advice"]
 categories: ["Backend Deep Dive"]
-description: "Spring AOP의 동작(프록시)과 포인트컷/어드바이스를 이해하고, self-invocation 같은 실전 함정을 피하는 방법"
+description: "JDK·CGLIB 프록시 차이와 포인트컷 조합을 바탕으로 트랜잭션·로깅 AOP를 안전하게 적용하는 실무 패턴"
 module: "spring-core"
 quizzes:
   - question: "Spring AOP가 주로 해결하고자 하는 문제 영역인 '횡단 관심사(Cross-Cutting Concerns)'의 대표적인 예시가 아닌 것은?"

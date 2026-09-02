@@ -5,7 +5,7 @@ draft: false
 topic: "JVM"
 tags: ["Java", "JVM", "Memory", "Metaspace", "JIT"]
 categories: ["Backend Deep Dive"]
-description: "JVM 메모리 영역과 GC Root, OOM/Metaspace/StackOverflow 같은 장애를 빠르게 진단하는 기본기"
+description: "Runtime Data Areas와 PC Register·Native Method Stack의 역할을 바이트코드 관점에서 연결해 보는 JVM 메모리 심화"
 module: "foundation"
 quizzes:
   - question: "다음 중 JVM의 Runtime Data Area 중 '스레드(Thread) 별로 독립적으로 생성'되는 영역이 아닌 것은?"

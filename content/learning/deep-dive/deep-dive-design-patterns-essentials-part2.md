@@ -5,7 +5,7 @@ draft: false
 topic: "Design Patterns"
 tags: ["Design Patterns", "Factory", "Strategy", "Template Method", "OOP"]
 categories: ["Backend Deep Dive"]
-description: "백엔드 개발에서 가장 많이 쓰이는 3가지 패턴을 실전 예제로 마스터"
+description: "조건문이 늘어난 알림 기능을 Strategy 패턴으로 분리하고 Spring 빈 조합으로 확장하는 실무 적용 가이드"
 module: "foundation"
 quizzes:
   - question: "객체 생성 로직을 캡슐화하여, 클라이언트가 구체적인 클래스에 의존하지 않게 만드는 생성 패턴은?"

@@ -5,7 +5,7 @@ draft: false
 topic: "DevOps"
 tags: ["APM", "Monitoring", "Spring Boot Actuator", "Metrics", "Performance", "Micrometer", "Golden Signals"]
 categories: ["Backend Deep Dive"]
-description: "APM 핵심 개념과 Spring Boot Actuator로 애플리케이션 성능 모니터링 구현"
+description: "Golden Signals와 P95·P99를 기준으로 APM 지표를 읽고 Spring Boot 서비스의 성능 이상을 진단하는 기초"
 module: "ops-observability"
 study_order: 342
 quizzes:

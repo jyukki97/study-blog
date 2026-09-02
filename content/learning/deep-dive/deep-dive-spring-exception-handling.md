@@ -5,7 +5,7 @@ draft: false
 topic: "Spring"
 tags: ["Spring", "Exception Handling", "ControllerAdvice", "Error Response", "REST API"]
 categories: ["Backend Deep Dive"]
-description: "@ControllerAdvice와 @ExceptionHandler로 전역 예외를 처리하고 일관된 에러 응답 설계"
+description: "DispatcherServlet 예외 처리 체인과 @ControllerAdvice의 범위를 이해해 Spring API 오류가 처리되는 흐름을 해설"
 module: "spring-core"
 study_order: 120
 ---

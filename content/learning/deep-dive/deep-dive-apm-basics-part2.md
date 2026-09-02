@@ -5,7 +5,7 @@ draft: false
 topic: "DevOps"
 tags: ["APM", "Monitoring", "Spring Boot Actuator", "Metrics", "Performance"]
 categories: ["Backend Deep Dive"]
-description: "APM 핵심 개념과 Spring Boot Actuator로 애플리케이션 성능 모니터링 구현"
+description: "Spring Boot Actuator와 Prometheus를 연결해 카디널리티를 통제하고 조치 가능한 Grafana 알림을 설계하는 방법"
 summary: "Actuator를 켜는 방법에서 끝나지 않고, Prometheus가 실제로 수집할 지표 이름·태그·알림 기준을 어떻게 설계해야 운영 가능한 APM이 되는지 정리합니다."
 key_takeaways:
   - "Actuator 엔드포인트는 health/readiness와 prometheus를 분리해 노출 범위와 보안 경계를 먼저 정해야 한다."

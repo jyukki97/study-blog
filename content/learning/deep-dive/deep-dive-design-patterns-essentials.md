@@ -5,7 +5,7 @@ draft: false
 topic: "Design Patterns"
 tags: ["Design Patterns", "Factory", "Strategy", "Template Method", "OOP"]
 categories: ["Backend Deep Dive"]
-description: "백엔드 개발에서 가장 많이 쓰이는 3가지 패턴을 실전 예제로 마스터"
+description: "Factory·Strategy·Template Method의 역할과 선택 기준을 Java 예제로 익히는 백엔드 디자인 패턴 입문"
 module: "foundation"
 quizzes:
   - question: "객체 생성 로직을 캡슐화하여, 클라이언트가 구체적인 클래스에 의존하지 않게 만드는 생성 패턴은?"

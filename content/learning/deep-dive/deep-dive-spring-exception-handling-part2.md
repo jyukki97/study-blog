@@ -5,7 +5,7 @@ draft: false
 topic: "Spring"
 tags: ["Spring", "Exception Handling", "ControllerAdvice", "Error Response", "REST API"]
 categories: ["Backend Deep Dive"]
-description: "@ControllerAdvice와 @ExceptionHandler로 전역 예외를 처리하고 일관된 에러 응답 설계"
+description: "에러 코드·검증 오류·권한 오류를 일관된 REST 응답으로 모델링하고 전역 예외 핸들러를 구현하는 실무 가이드"
 module: "spring-core"
 study_order: 120
 ---
