@@ -4,7 +4,7 @@ date: 2025-03-15
 draft: false
 tags: ["REST", "gRPC", "GraphQL", "API", "비교분석"]
 categories: ["Development"]
-description: "gRPC, REST, GraphQL 세 가지 API 패러다임을 성능, 개발경험, 사용성 측면에서 비교 분석해보자."
+description: "REST·gRPC·GraphQL의 성능과 운영 복잡도를 비교하고, 공개 API·내부 서비스 통신·화면 데이터 조합에 맞는 실무 선택 기준을 정리합니다."
 keywords: ["gRPC REST GraphQL 비교", "API 아키텍처 선택", "REST API", "GraphQL", "gRPC"]
 lastmod: 2026-05-28
 summary: "REST, gRPC, GraphQL은 서로 대체재처럼 보이지만 실제로는 강점이 다릅니다. 기본값은 REST로 두고, 서버 간 고성능 통신은 gRPC, 화면별 데이터 조합 문제가 커질 때 GraphQL을 검토하는 식으로 선택 기준을 잡는 편이 현실적입니다."

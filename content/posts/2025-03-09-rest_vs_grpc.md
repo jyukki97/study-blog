@@ -4,7 +4,7 @@ date: 2025-03-09
 draft: false
 tags: ["REST", "gRPC", "Kotlin", "성능테스트", "백엔드"]
 categories: ["Development"]
-description: "gRPC가 정말 REST보다 빠를까? 직접 성능 테스트를 통해 속도, 데이터 크기, CPU 사용량을 비교해보자."
+description: "REST와 gRPC를 동일 조건에서 비교해 응답 시간·페이로드·CPU 사용량을 읽고, 외부 API와 내부 서비스 통신별 선택 기준을 정리합니다."
 summary: "이번 테스트에서는 gRPC가 REST보다 응답 속도와 페이로드 크기에서 유리했지만, CPU 사용량과 운영 복잡도까지 포함하면 항상 정답은 아닙니다. 내부 고빈도 호출, 타입 안정성, 스트리밍 요구가 크면 gRPC가 맞고, 외부 공개 API와 빠른 디버깅이 중요하면 REST가 여전히 현실적인 선택입니다."
 keywords: ["rest vs grpc", "grpc 성능 비교", "rest api 성능", "grpc protobuf", "api 아키텍처 선택"]
 key_takeaways:

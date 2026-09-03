@@ -4,7 +4,7 @@ date: 2025-03-15
 draft: false
 tags: ["MySQL", "Database", "Index", "Performance", "B-Tree", "Hash", "Fulltext"]
 categories: ["Database"]
-description: "MySQL의 다양한 인덱스 타입(B-Tree, Hash, Fulltext)을 실제 테스트를 통해 성능 비교해보자."
+description: "MySQL의 B-Tree·Hash·Fulltext 인덱스를 조회 패턴별 테스트 결과로 비교하고, 범위 검색·동등 조건·텍스트 검색에 맞는 선택 기준을 정리합니다."
 ---
 
 ## 들어가며

@@ -4,7 +4,7 @@ date: 2025-03-15
 draft: false
 tags: ["REST", "GraphQL", "성능테스트", "API", "벤치마크"]
 categories: ["Development"]
-description: "REST와 GraphQL의 실제 성능을 wrk로 비교하고, 어떤 상황에서 무엇을 선택해야 하는지 실무 기준으로 정리한다."
+description: "wrk 벤치마크로 REST와 GraphQL의 응답 시간·처리량·CPU 사용량을 비교하고, 데이터 조합·캐시·운영 비용까지 반영한 선택 기준을 정리합니다."
 keywords: ["REST GraphQL 비교", "GraphQL 성능", "REST API 벤치마크", "API 아키텍처 선택"]
 cover:
   image: "/images/graphql-vs-rest.png"
