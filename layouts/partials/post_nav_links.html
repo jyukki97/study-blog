@@ -86,9 +86,27 @@
 {{- else if .Params.series }}
 {{- /* Named series navigation for trend and essay posts */ -}}
 {{- $series := .Params.series }}
-{{- $pages := where site.RegularPages "Params.series" $series }}
+{{- $seriesNames := slice -}}
+{{- if reflect.IsSlice $series }}
+  {{- $seriesNames = $series }}
+{{- else }}
+  {{- $seriesNames = slice $series }}
+{{- end }}
+{{- $pages := slice }}
+{{- range site.RegularPages }}
+  {{- $candidateSeries := .Params.series }}
+  {{- if $candidateSeries }}
+    {{- if reflect.IsSlice $candidateSeries }}
+      {{- if gt (len (intersect $seriesNames $candidateSeries)) 0 }}
+        {{- $pages = $pages | append . }}
+      {{- end }}
+    {{- else if in $seriesNames $candidateSeries }}
+      {{- $pages = $pages | append . }}
+    {{- end }}
+  {{- end }}
+{{- end }}
 {{- $pages = where $pages "Section" .Section }}
-{{- $pages = sort $pages "Date" "asc" }}
+{{- $pages = sort $pages "Params.series_order" "asc" }}
 
 {{- $current := . }}
 {{- $prevPage := "" }}
@@ -108,7 +126,7 @@
 {{- end }}
 
 {{- if and (gt $currentOrder 0) (or $prevPage $nextPage) }}
-<p class="project-series-progress"><strong>{{ $series }}</strong> 시리즈 {{ $currentOrder }}/{{ len $pages }}</p>
+<p class="project-series-progress"><strong>{{ delimit $seriesNames ", " }}</strong> 시리즈 {{ $currentOrder }}/{{ len $pages }}</p>
 <nav class="paginav" aria-label="시리즈 이전/다음 글">
     {{- with $prevPage }}
     <a class="prev" rel="prev" href="{{ .RelPermalink }}" aria-label="이전 시리즈 글: {{ .Title }}">

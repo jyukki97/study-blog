@@ -3,13 +3,35 @@
 {{- $hasContext := or $seriesName $projectName -}}
 {{- if $hasContext -}}
   {{- $relatedInSeries := slice -}}
+  {{- $seriesNames := slice -}}
   {{- if $seriesName -}}
-    {{- $relatedInSeries = where .Site.RegularPages "Params.series" $seriesName -}}
+    {{- if reflect.IsSlice $seriesName -}}
+      {{- $seriesNames = $seriesName -}}
+    {{- else -}}
+      {{- $seriesNames = slice $seriesName -}}
+    {{- end -}}
+    {{- /* series는 과거 글에서 문자열 또는 배열로 저장되어 있다. 둘을 함께 비교해 읽기 맥락이 끊기지 않게 한다. */ -}}
+    {{- range .Site.RegularPages -}}
+      {{- $candidateSeries := .Params.series -}}
+      {{- if $candidateSeries -}}
+        {{- if reflect.IsSlice $candidateSeries -}}
+          {{- if gt (len (intersect $seriesNames $candidateSeries)) 0 -}}
+            {{- $relatedInSeries = $relatedInSeries | append . -}}
+          {{- end -}}
+        {{- else if in $seriesNames $candidateSeries -}}
+          {{- $relatedInSeries = $relatedInSeries | append . -}}
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
   {{- else if $projectName -}}
     {{- $relatedInSeries = where .Site.RegularPages "Params.project" $projectName -}}
   {{- end -}}
   {{- $relatedInSeries = where $relatedInSeries "Section" .Section -}}
-  {{- $relatedInSeries = sort $relatedInSeries "Date" "asc" -}}
+  {{- if $seriesName -}}
+    {{- $relatedInSeries = sort $relatedInSeries "Params.series_order" "asc" -}}
+  {{- else -}}
+    {{- $relatedInSeries = sort $relatedInSeries "Date" "asc" -}}
+  {{- end -}}
   {{- $currentIndex := -1 -}}
   {{- range $idx, $page := $relatedInSeries -}}
     {{- if eq $page.RelPermalink $.RelPermalink -}}
@@ -28,11 +50,11 @@
   <div class="post-series-context-header">
     <div>
       <p class="post-series-context-eyebrow">시리즈 읽기 맥락</p>
-      <h2>{{ $seriesName | default $projectName }}</h2>
+      <h2>{{ delimit $seriesNames ", " | default $projectName }}</h2>
     </div>
     <div class="post-series-context-badges">
       {{- with $projectName }}<span>프로젝트: {{ . }}</span>{{- end }}
-      {{- with $seriesName }}<span>시리즈: {{ . }}</span>{{- end }}
+      {{- with $seriesName }}<span>시리즈: {{ delimit $seriesNames ", " }}</span>{{- end }}
       {{- if ge $currentIndex 0 }}<span>{{ add $currentIndex 1 }}/{{ len $relatedInSeries }}편</span>{{- end }}
     </div>
   </div>
