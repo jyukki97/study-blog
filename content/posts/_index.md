@@ -13,54 +13,27 @@ keywords: ["개발 블로그 아카이브", "백엔드 학습 글", "기술 트�
 
 ## 이번 주 먼저 읽으면 좋은 흐름
 
-이번 주에는 에이전트 운영 거버넌스 흐름 위에 **로컬 실행·샌드박스·브라우저 권한·보안 판정·플랫폼 의존성·보안 알림 triage**를 붙여 읽는 편이 가장 효율적입니다. 최근 글이 계속 쌓이면서 “AI 코딩 도구를 제품 기능으로 넣어도 되는가”, “로컬 모델과 브라우저 워커는 어디까지 권한을 가져야 하는가”, “AI가 만든 보안 신호와 코드 변경을 어떤 증거로 검증할 것인가”, “외부 플랫폼이 멈췄을 때 기능을 어떻게 낮출 것인가”, “보안 알림을 누가 몇 분 안에 회수 가능한 액션으로 바꿀 것인가”가 같은 운영 문제로 이어지고 있습니다.
+이번 주의 새 글은 **배포 결정을 위한 LLM 평가 → 관측 데이터의 완전성 → 플랫폼 리소스 계약 → 실행 권한의 경계**라는 하나의 흐름으로 읽는 편이 좋습니다. 최근 글의 공통점은 새 기능을 도입할 수 있느냐가 아니라, 그 기능이 내놓는 수치와 결과를 어느 조건에서 신뢰하고 언제 사람에게 되돌릴지를 먼저 정한다는 데 있습니다.
 
-처음 들어온 독자라면 최신순으로 한 편씩 훑기보다, 아래처럼 **제품화된 코딩 에이전트 → 로컬/브라우저 실행 경계 → 생성 코드 검증 → 권한과 보안 판정 → 보안 알림의 소유권·회수 경로 → 세션 장부와 비용 제어 → 실행 증거와 예외 관리**로 묶어 보는 쪽이 더 빠릅니다. 7월 글들은 에이전트 선택권, 세션 로그·크레딧 제어, 보안 triage context를 최신 운영 이슈로 끌어올리고, 6월 글들은 이 블로그의 최근 문제의식을 압축해서 보여주는 진입점이며, 5월 글들은 그 문제를 운영 체계로 고정하는 배경 글입니다.
+처음 방문한 독자라면 아래 여섯 편을 순서대로 읽어 보세요. 평가 기준을 먼저 세우고, 그 기준을 만드는 관측 데이터가 누락되지 않는지 확인한 뒤, 인프라 계약과 에이전트 실행 경계로 넓혀 가는 동선입니다.
 
-1. [/posts/2026-07-08-security-triage-context-plane-trend/](/posts/2026-07-08-security-triage-context-plane-trend/) : secret alert, credential revocation, review dismissal을 owner·blast radius·회수 경로가 있는 triage context로 묶는 최신 보안 운영 흐름을 먼저 잡습니다.
-2. [/posts/2026-07-03-agent-session-ledger-ai-credit-controls-trend/](/posts/2026-07-03-agent-session-ledger-ai-credit-controls-trend/) : 에이전트 세션 로그, tool call, credit cap, cost center를 작업 단위 장부로 관리하는 흐름을 봅니다.
-3. [/posts/2026-07-02-ide-native-agent-picker-governance-trend/](/posts/2026-07-02-ide-native-agent-picker-governance-trend/) : IDE 안에서 agent와 모델 선택지가 늘어날 때 기본값, 정책, 권한 경계를 어떻게 운영 기준으로 묶을지 봅니다.
-4. [/posts/2026-06-03-dev-news-senior-insights/](/posts/2026-06-03-dev-news-senior-insights/) : Copilot SDK, 샌드박스, 모델 종료, 개발자 토큰 탈취 사례를 통해 코딩 에이전트가 제품 API와 운영 경계 안으로 들어오는 흐름을 잡습니다.
-5. [/posts/2026-06-04-dev-news-senior-insights/](/posts/2026-06-04-dev-news-senior-insights/) : 로컬 멀티모달 모델, Claude 격리 설계, post-quantum TLS 전환을 함께 보며 “더 강한 자동화일수록 더 분명한 경계가 필요하다”는 기준을 확인합니다.
-6. [/posts/2026-06-06-dev-news-senior-insights/](/posts/2026-06-06-dev-news-senior-insights/) : AI 코드 품질, 오픈소스 PR 신뢰 모델, pg_durable, 로컬 AI 운영을 묶어 생성 속도보다 검증과 소유권이 중요해지는 이유를 봅니다.
-7. [/posts/2026-06-07-dev-news-senior-insights/](/posts/2026-06-07-dev-news-senior-insights/) : 에이전트 하네스, AI 챗봇 보안, SQLite 키 설계, 브라우저 로컬 실행, 플랫폼 의존성을 하나의 시스템 경계 문제로 정리합니다.
-8. [/posts/2026-05-28-agent-workbench-operating-console-trend/](/posts/2026-05-28-agent-workbench-operating-console-trend/) : 코딩 에이전트를 채팅창이 아니라 세션, 승인, 증거, 결과 큐가 있는 운영 콘솔로 다루는 관점을 붙입니다.
-9. [/posts/2026-05-25-agentic-pr-governance-trend/](/posts/2026-05-25-agentic-pr-governance-trend/) : AI 생성 PR을 merge 속도 문제가 아니라 owner, evidence, blast radius, 회귀 테스트 문제로 보는 기준을 세웁니다.
-10. [/posts/2026-05-24-mcp-native-secret-scanning-shift-left-trend/](/posts/2026-05-24-mcp-native-secret-scanning-shift-left-trend/) : 에이전트와 MCP 도구가 비밀값을 읽고 쓰는 순간을 shift-left 보안 검사로 다루는 방법을 연결합니다.
-11. [/posts/2026-05-20-policy-exception-ledger-agent-governance-trend/](/posts/2026-05-20-policy-exception-ledger-agent-governance-trend/) : 정책 예외를 임시 구두 승인으로 두지 않고 owner, scope, expiry, evidence가 있는 ledger로 관리하는 흐름까지 이어 봅니다.
+1. [LLM 평가는 점수표가 아니라 배포 결정을 위한 Guardrail이 된다](/posts/2026-09-04-llm-evaluation-decision-guardrail-production-trend/) : primary outcome, 안전 제약, 운영 guardrail을 섞지 않고 release gate로 만드는 기준을 잡습니다.
+2. [OpenTelemetry Metric Cardinality Limit과 데이터 완전성](/posts/2026-09-03-opentelemetry-metric-cardinality-overflow-data-completeness-trend/) : 총합이 남아 있어도 속성별 수치가 조용히 누락될 수 있는 overflow를 SLO·경보 관점에서 살핍니다.
+3. [Kubernetes Metrics API와 DRA 리소스 계약](/posts/2026-09-02-kubernetes-metrics-api-dra-resource-contract-trend/) : 관측·스케줄링 입력이 바뀔 때 API 버전, 리소스 소유권, fallback을 함께 검증하는 방법을 연결합니다.
+4. [OpenTelemetry Go Logs RC와 상관관계 계약](/posts/2026-09-01-opentelemetry-go-logs-rc-correlation-contract-trend/) : 로그·trace·metric을 한 화면에 모으기 전에 어떤 correlation key와 누락 기준을 계약으로 둘지 확인합니다.
+5. [도구 선택과 데이터 이식성에 관한 9월 4일 개발 뉴스](/posts/2026-09-04-dev-news-senior-insights/) : 코딩 에이전트의 도구 호출, 도메인·데이터 이식성, 신원확인의 문제를 통제권과 되돌림 관점으로 읽습니다.
+6. [AI의 실행 경계와 개발 기본값에 관한 9월 3일 개발 뉴스](/posts/2026-09-03-dev-news-senior-insights/) : 로컬 LLM, 에이전트 거래, 로컬 검색을 도입할 때 읽기·쓰기 권한과 재검증 경계를 어떻게 나눌지 정리합니다.
 
-이 11편을 함께 읽으면 “좋은 AI 도구를 고르는 방법”보다 더 중요한 질문이 보입니다. 에이전트가 어떤 파일과 네트워크를 만질 수 있는지, 브라우저나 로컬 모델이 어떤 사용자 데이터를 처리하는지, 생성된 diff를 누가 소유하고 어떤 테스트 증거로 받아들일지, 세션 로그와 크레딧 한도를 어디까지 남길지, 플랫폼 장애나 모델 변경이 생겼을 때 어디서 기능을 낮출지 같은 질문입니다. 자동화의 품질은 모델 이름이 아니라 **권한 경계, 검증 증거, 비용 한도, 복구 경로, 책임자**가 얼마나 명확한지에서 갈립니다.
+이 흐름을 읽을 때는 다음 네 가지 질문을 붙이면 글 사이의 연결이 더 선명해집니다.
 
-운영 관점으로 바로 적용하려면 읽으면서 아래 항목을 체크하면 좋습니다.
+- 이 변경이 내리는 제품 또는 운영 결정은 무엇이며, 평균 점수와 별개로 절대 허용할 수 없는 실패는 무엇인가?
+- 그 결정을 뒷받침하는 metric·log·trace가 속성별로도 완전한가? overflow·지연·누락 때 어떤 자동화가 멈춰야 하는가?
+- 외부 API, 리소스, 데이터 저장소가 바뀔 때 owner·버전·fallback·rollback이 같은 변경 단위에 기록되는가?
+- 에이전트가 읽기에서 쓰기 작업으로 넘어가는 순간에 서버 재검증, 최소 권한, idempotency, 사람 승인이 남는가?
 
-- 새 자동화나 보안 알림이 외부 전송, 계정 변경, 결제, 배포, 권한 상승, credential revoke 같은 action을 호출하는가?
-- 실행 전후에 owner, 허용 명령, 네트워크 목적지, 테스트 결과, rollback 방법이 남는가?
-- alert마다 owner, active 여부, exposed surface, blast radius, revoke path가 붙는가?
-- 비대화형 에이전트 작업에 session credit cap, timeout, max tool call, stop condition이 있는가?
-- 모델 교체, 패키지 업데이트, 브라우저 API 변경, 플랫폼 장애가 발생했을 때 degradation 기준이 있는가?
-- 사람이 마지막에 판단할 수 있도록 로그와 산출물이 채팅이 아니라 재조회 가능한 위치에 남는가?
+조금 더 깊게 들어가고 싶다면 [Synthetic Replay 기반 평가 Gate](/posts/2026-04-20-synthetic-replay-eval-gate-trend/), [OpenTelemetry 선언적 구성과 버전 계약](/posts/2026-08-29-opentelemetry-declarative-config-versioned-contract-trend/), [Agent Sandbox Egress Policy](/posts/2026-05-16-agent-sandbox-egress-policy-trend/)를 이어 읽어 보세요. 각각 재현 가능한 검증, telemetry 설정의 배포 안전성, 외부 호출 권한을 보강합니다.
 
-조금 더 기초부터 이어 읽고 싶다면 아래 순서도 좋습니다.
-
-1. [/posts/2026-05-07-dependency-update-pipeline-trend/](/posts/2026-05-07-dependency-update-pipeline-trend/) : 의존성 업데이트를 보안 패치 SLO와 변경 위험으로 나눠 운영하는 기준을 먼저 잡습니다.
-2. [/posts/2026-05-12-package-release-quarantine-gate-trend/](/posts/2026-05-12-package-release-quarantine-gate-trend/) : 새 패키지 버전을 바로 소비하지 않고 provenance, tarball diff, lifecycle script를 격리 창에서 확인하는 실무 기준을 붙입니다.
-3. [/posts/2026-05-16-agent-sandbox-egress-policy-trend/](/posts/2026-05-16-agent-sandbox-egress-policy-trend/) : 에이전트가 패키지와 문서를 가져올 때 어떤 네트워크 출구를 열어야 하는지, egress policy 관점에서 경계를 잡습니다.
-4. [/posts/2026-05-13-ai-vulnerability-triage-pipeline-trend/](/posts/2026-05-13-ai-vulnerability-triage-pipeline-trend/) : AI가 만든 취약점 후보를 confirmed, duplicate, hardening, false positive로 나누는 판정 큐를 연결합니다.
-5. [/posts/2026-04-14-execution-receipt-agent-operations-trend/](/posts/2026-04-14-execution-receipt-agent-operations-trend/) : 업데이트나 에이전트 실행 결과를 나중에 추적 가능한 receipt로 남기는 구조를 연결합니다.
-6. [/posts/2026-05-08-agentic-provisioning-contract-trend/](/posts/2026-05-08-agentic-provisioning-contract-trend/) : 에이전트가 계정, 토큰, 비용, 배포 자원을 만질 때 필요한 계약과 revoke 경로를 확인합니다.
-7. [/posts/2026-05-18-managed-browser-worker-trend/](/posts/2026-05-18-managed-browser-worker-trend/) : 에이전트가 로그인된 웹 UI와 SaaS 콘솔을 다룰 때 브라우저 세션, 승인 action, 스크린샷 증거를 어떻게 운영 자원으로 묶을지 정리합니다.
-8. [/posts/2026-05-19-agent-artifact-registry-trend/](/posts/2026-05-19-agent-artifact-registry-trend/) : diff, 테스트 로그, 스크린샷, decision note를 채팅에 흘리지 않고 검증 가능한 산출물로 보존하는 기준을 붙입니다.
-9. [/posts/2026-05-20-policy-exception-ledger-agent-governance-trend/](/posts/2026-05-20-policy-exception-ledger-agent-governance-trend/) : 정책 예외를 임시 구두 승인으로 두지 않고 owner, scope, expiry, evidence가 있는 ledger로 관리하는 흐름까지 이어 봅니다.
-
-이 9편은 따로 보면 각각 의존성 관리, 공급망 보안, egress 통제, 취약점 triage, 실행 증거, 프로비저닝 계약, 브라우저 런타임, 산출물 보존, 예외 승인처럼 보입니다. 하지만 실제 운영에서는 모두 **자동화가 외부 권한 또는 보안 판단을 만나는 순간의 안전장치**입니다. dependency update bot이 lockfile을 열고, CI가 패키지를 설치하고, AI 스캐너가 취약점 후보를 만들고, 에이전트가 도구를 호출하고, release workflow가 registry나 cloud 권한을 쓰고, 브라우저 워커가 SaaS 콘솔의 버튼을 마주하는 과정은 서로 다른 시스템처럼 보여도 같은 trust boundary 위에 있습니다.
-
-조금 더 깊게 읽고 싶다면 아래 3편을 이어 붙이면 좋습니다.
-
-- [/posts/2026-04-30-tool-contract-test-agent-runtime-trend/](/posts/2026-04-30-tool-contract-test-agent-runtime-trend/) : 도구 호출이 늘어날 때 schema, fixture, 회귀 테스트를 왜 먼저 고정해야 하는지 설명합니다.
-- [/posts/2026-04-22-third-party-oauth-supply-chain-trend/](/posts/2026-04-22-third-party-oauth-supply-chain-trend/) : 토큰과 OAuth 앱이 코드 변경보다 더 오래 남는 공급망 위험이 되는 이유를 정리합니다.
-- [/posts/2026-03-08-ai-code-provenance-and-sbom-trend/](/posts/2026-03-08-ai-code-provenance-and-sbom-trend/) : 패키지와 코드 출처를 증거로 남기는 기본기를 복습하기 좋습니다.
-
-따라서 이번 주의 추천 동선은 “좋은 자동화 만들기”가 아니라 **자동화가 무엇을 설치하고, 어떤 네트워크 출구로 움직였고, 어떤 권한으로 실행됐고, 어떤 보안 신호를 냈고, 실패했을 때 어디서 멈출 수 있는지, 그리고 웹 UI를 직접 만질 때 어떤 증거를 남기는지**를 확인하는 흐름입니다. 처음 방문한 독자라면 위 흐름만 먼저 읽어도 최근 블로그의 문제의식이 꽤 선명해지고, 이미 자주 읽던 독자라면 공급망·egress 통제·취약점 triage·에이전트 운영·권한 통제·브라우저 자동화를 한 묶음으로 다시 정리할 수 있습니다.
+따라서 이번 주의 추천 동선은 “더 많은 자동화”가 아니라 **결정 기준 → 데이터 신뢰성 → 변경 계약 → 실행 권한**을 차례로 확인하는 흐름입니다. 이 순서로 보면 AI 기능, 관측성, Kubernetes, 외부 플랫폼처럼 다른 주제도 결국 신뢰할 수 있는 입력과 되돌릴 수 있는 실행을 설계하는 문제로 만난다는 점을 확인할 수 있습니다.
 
 ## 이 아카이브를 가장 잘 쓰는 방법
 
