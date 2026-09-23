@@ -1,8 +1,16 @@
 {{ define "main" }}
 {{- $moduleKey := .Params.module_key }}
+{{- $moduleKeys := slice }}
 {{- $modulePosts := slice }}
 {{- if $moduleKey }}
-  {{- $modulePosts = where site.RegularPages "Params.module" $moduleKey }}
+  {{- $moduleKeys = $moduleKeys | append $moduleKey }}
+  {{- with .Params.module_aliases }}
+    {{- range . }}
+      {{- $moduleKeys = $moduleKeys | append . }}
+    {{- end }}
+  {{- end }}
+  {{- /* 이전 모듈 키도 함께 읽어, front matter 정리 전의 학습 노트가 허브에서 사라지지 않게 한다. */ -}}
+  {{- $modulePosts = where site.RegularPages "Params.module" "in" $moduleKeys }}
   {{- $orderedPosts := where $modulePosts "Params.study_order" "!=" nil }}
   {{- $orderedPosts = sort $orderedPosts "Params.study_order" }}
   {{- $unorderedPosts := where $modulePosts "Params.study_order" "==" nil }}

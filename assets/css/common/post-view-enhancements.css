@@ -167,6 +167,7 @@
 }
 
 .related-post-reason {
+  min-height: 4.1em;
   margin: 0 0 1rem;
   padding: 0.65rem 0.75rem;
   border-left: 3px solid rgba(177, 156, 217, 0.72);
@@ -296,4 +297,3 @@
     padding: 0.76rem 0.78rem;
   }
 }
-

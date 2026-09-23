@@ -10,12 +10,13 @@
 {{- $description = $description | plainify | htmlUnescape | chomp | truncate 160 -}}
 {{- $canonical := partial "canonical_url.html" . -}}
 {{- $image := "" -}}
+{{- $isDefaultImage := false -}}
 {{- with .Params.cover.image -}}
   {{- $image = . | absURL -}}
 {{- else -}}
-  {{- with site.Params.label.icon -}}
-    {{- $image = . | absURL -}}
-  {{- end -}}
+  {{- /* SNS crawler는 SVG를 카드 이미지로 안정적으로 처리하지 못할 수 있다. 기본 카드는 PNG 로고로 고정한다. */ -}}
+  {{- $image = "images/logo.png" | absURL -}}
+  {{- $isDefaultImage = true -}}
 {{- end -}}
 {{- $imageAlt := .Title -}}
 {{- with .Params.cover.alt -}}
@@ -33,6 +34,11 @@
 {{- with $image }}
 <meta property="og:image" content="{{ . }}">
 <meta property="og:image:alt" content="{{ $imageAlt }}">
+{{- if $isDefaultImage }}
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1024">
+<meta property="og:image:height" content="1024">
+{{- end }}
 {{- end }}
 
 <meta name="twitter:card" content="{{ if $image }}summary_large_image{{ else }}summary{{ end }}">

@@ -56,8 +56,14 @@
                         <strong>{{ len (where .Site.RegularPages "Section" "posts") }}</strong>
                     </div>
                     <div class="intro-stat-card">
-                        <span class="intro-stat-label">심화 학습</span>
-                        <strong>{{ len (where .Site.RegularPages "Section" "learning") }}</strong>
+                        {{- /* 카드의 명칭과 집계 범위를 맞춘다. Learning 전체에는 로드맵·Q&A가 포함되므로
+                              "심화 학습"은 deep-dive 글만 세야 독자가 카드 수치를 신뢰할 수 있다. */ -}}
+                        {{- $deepDivePages := slice -}}
+                        {{- with site.GetPage "/learning/deep-dive" -}}
+                          {{- $deepDivePages = .RegularPages -}}
+                        {{- end -}}
+                        <span class="intro-stat-label">심화 학습 글</span>
+                        <strong>{{ len $deepDivePages }}</strong>
                     </div>
                     <div class="intro-stat-card">
                         <span class="intro-stat-label">태그 수</span>
@@ -89,7 +95,7 @@
             <input id="post-search-input" type="search" placeholder="제목/설명/키워드/태그로 검색" autocomplete="off" />
             <button id="post-search-clear" type="button" aria-label="검색어 지우기">초기화</button>
         </div>
-        <div class="post-toolbar-filters" role="tablist" aria-label="아카이브 분류 필터">
+        <div class="post-toolbar-filters" role="group" aria-label="아카이브 분류 필터">
             <button type="button" class="post-filter-chip active" data-filter="all" aria-pressed="true">전체</button>
             <button type="button" class="post-filter-chip" data-filter="posts" aria-pressed="false">트렌드/아카이브</button>
             <button type="button" class="post-filter-chip" data-filter="learning" aria-pressed="false">심화 학습</button>

@@ -6,7 +6,7 @@ draft: false
 tags: ["AI Agent", "Observability", "MCP", "Platform Engineering", "DevOps"]
 categories: ["Development", "Learning"]
 keywords: ["AI 에이전트 운영", "에이전트 관측", "MCP 거버넌스", "토큰 비용 통제", "운영 자동화"]
-description: "코딩 에이전트와 업무 자동화 에이전트가 늘어나는 2026년, 실무에서 필요한 관측/권한/비용 통제 포인트를 정리합니다."
+description: "코딩·업무 자동화 에이전트가 늘어나는 2026년, SLO·권한 경계·버전 롤백·토큰 비용 상한으로 운영 가능성을 설계하는 실무 체크포인트를 정리합니다."
 summary: "에이전트 시대의 핵심은 모델 성능 자체가 아니라 운영 가능성이다. SLO, 권한 경계, 버전/롤백, 비용 상한선을 어떻게 설계해야 하는지 실무 관점으로 정리한다."
 ---
 

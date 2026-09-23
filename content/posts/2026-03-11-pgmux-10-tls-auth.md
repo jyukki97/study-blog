@@ -5,7 +5,7 @@ draft: false
 tags: ["Go", "PostgreSQL", "Database", "Proxy", "TLS", "Security", "Authentication"]
 categories: ["Database"]
 project: "pgmux"
-description: "프록시 앞단에서 TLS를 종단하고, 백엔드 없이 클라이언트를 직접 인증하는 Front-end Auth를 구현한다."
+description: "PostgreSQL 프록시에서 SSLRequest 기반 TLS 종단과 MD5 프런트엔드 인증을 구현하고, 인증서·접근 제어·백엔드 연결 경계를 분리하는 방법을 다룹니다."
 ---
 
 ## 들어가며

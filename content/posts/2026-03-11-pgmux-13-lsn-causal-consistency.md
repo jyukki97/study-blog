@@ -5,7 +5,7 @@ draft: false
 tags: ["Go", "PostgreSQL", "Database", "Proxy", "Replication", "LSN", "Causal Consistency"]
 categories: ["Database"]
 project: "pgmux"
-description: "타이머 대신 WAL LSN을 추적하여, 쓰기 직후 읽기에서 정확히 복제된 Reader만 선택한다."
+description: "타이머 지연 대신 PostgreSQL WAL LSN을 추적해 쓰기 직후에도 복제가 완료된 Reader만 선택하고, 읽기 일관성과 복제 지연을 함께 제어하는 방법을 설명합니다."
 ---
 
 ## 들어가며

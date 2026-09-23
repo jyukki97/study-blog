@@ -407,6 +407,49 @@ Webhook은 단순한 HTTP callback처럼 보이지만, 실제 운영에서는 **
 
 이 경로를 다 읽고 나면 특정 배포 기법 이름을 아는 수준을 넘어, **릴리스 전 검증 → 제한 노출 → 관측 → 중단/확대 판단 → 롤백**까지 하나의 운영 루프로 설계할 수 있습니다. 블로그에 흩어진 심화 글도 이 흐름 안에서 다시 연결되므로, 최신 글을 읽은 뒤 관련 개념으로 자연스럽게 이동하기 좋아집니다.
 
+## CI·배치 프로세스 관측성 경로: 끊긴 실행 사슬을 안전하게 잇기
+
+HTTP 요청의 trace가 잘 보인다고 해서 배포와 배치 작업까지 설명 가능한 것은 아닙니다. CI runner가 shell을 실행하고, shell이 build·test·migration·배포 CLI를 차례로 시작하는 경로는 대개 HTTP header도 message metadata도 없습니다. 그래서 장애가 나면 workflow는 20분 걸렸다는 사실만 남고, dependency download·test·이미지 build·배포 중 어디에서 지연과 실패가 시작됐는지 서로 다른 trace를 오가며 추측하게 됩니다.
+
+이 경로의 목표는 모든 프로세스를 하나의 긴 trace로 묶는 것이 아닙니다. **누가 어떤 child process를 시작했고, 어느 실행 경계에서 context를 넘기며, 그 값이 로그·artifact·외부 action으로 새지 않게 하는지**를 운영 계약으로 만드는 것입니다. 특히 환경변수 기반 context propagation은 편리하지만, 전역 environment를 수정하거나 baggage에 고객 식별자·token을 넣으면 관측성 개선이 공급망 노출과 trace 오염으로 바뀔 수 있습니다.
+
+아래 순서로 읽으면 기본 계측부터 프로세스 경계, 시간 예산, 릴리스 검증까지 연결됩니다.
+
+1. [OpenTelemetry: 분산 추적의 표준](/learning/deep-dive/deep-dive-opentelemetry/)에서 trace, span, resource attribute의 역할을 먼저 구분합니다.
+2. [분산 트레이싱 도입 플레이북](/learning/deep-dive/deep-dive-distributed-tracing-adoption-playbook/)으로 sampling, attribute 예산, trace·log 상관관계의 기본선을 잡습니다.
+3. [ThreadLocal Context Propagation과 Cleanup](/learning/deep-dive/deep-dive-threadlocal-context-propagation-cleanup-playbook/)에서 같은 process 안의 executor·worker 경계 누수를 확인합니다.
+4. [종단간 Deadline·Cancellation Propagation](/learning/deep-dive/deep-dive-end-to-end-deadline-cancellation-playbook/)으로 trace 연결과 timeout·취소 전파가 다른 계약임을 구분합니다.
+5. [OTel 환경변수 Context Propagation RC: CI·CLI의 끊긴 Trace를 운영 계약으로 잇는다](/posts/2026-09-12-otel-environment-context-propagation-ci-process-boundary-trend/)에서 CI·CLI·batch child process의 carrier 정책과 canary 기준을 적용합니다.
+6. [안전한 릴리스와 운영 검증](#오늘-추천-학습-경로-안전한-릴리스와-운영-검증)으로 trace가 실제 확대·중단·롤백 판단에 쓰이도록 연결합니다.
+
+### 이런 상황이면 이 경로부터 보세요
+
+- CI 화면에서는 실패 step이 보이지만 build tool, test runner, deploy script가 서로 다른 trace라 원인 시간을 비교하기 어려운 경우
+- scheduler가 시작한 batch, 재처리 worker, 운영 CLI의 실행 시간과 downstream 호출을 하나의 실행 단위로 추적해야 하는 경우
+- 병렬 matrix job 또는 worker pool에서 서로 다른 작업의 trace ID가 섞이거나, 재시도 child가 오래된 parent를 물려받는 경우
+- `TRACEPARENT` 같은 propagation 값과 exporter endpoint, cloud credential, 고객 식별자를 같은 환경변수 정책으로 취급하고 있는 경우
+- telemetry 비용은 늘었지만 trace join rate, invalid context, baggage 크기, export 실패율로 품질을 판단하지 못하는 경우
+
+### 읽으면서 남길 운영 산출물
+
+| 산출물 | 최소 기준 | 실패 시 첫 조치 |
+| --- | --- | --- |
+| process boundary 표 | parent command, child command, owner, trust level을 한 행에 기록 | owner 또는 trust level이 비어 있으면 propagation을 켜지 않는다 |
+| propagation allowlist | `TRACEPARENT`, 제한된 `TRACESTATE`, 크기 제한 baggage만 명시 | token·secret·raw customer ID는 즉시 제외한다 |
+| child environment 규칙 | child 시작 직전에 base environment 복사본에 inject | runner 전역 `export`나 공유 mutable environment를 제거한다 |
+| 품질 대시보드 | workflow/tool/version별 join rate, invalid extract, baggage bytes, export failure | baseline보다 악화되면 신규 workflow 확대를 멈춘다 |
+| rollback runbook | feature flag 또는 wrapper 제거, exporter 영향 분리, 재실행 기준 | context를 끄되 job 자체의 성공 여부와 데이터 정합성을 별도로 확인한다 |
+
+### 도입 순서와 판단 기준
+
+첫 대상은 third-party action이 적고, owner가 분명하며, 로그 마스킹을 확인할 수 있는 단일 CI workflow 또는 비핵심 batch가 적합합니다. 1~2주 동안 기존 실행과 비교해 trace join rate, invalid extraction, child process 수, exporter bytes, workflow 실패율을 함께 기록합니다. join rate만 올랐는데 exporter 오류나 로그 노출이 늘었다면 성공으로 보지 않습니다. trace는 진단 수단이고, 작업 성공과 보안 경계를 대신하지 않기 때문입니다.
+
+병렬 실행에서는 parent process의 환경을 바꾸지 않는 원칙이 중요합니다. child마다 base environment를 복사하고 그 복사본에 현재 context만 inject해야 합니다. 그래야 matrix job A의 `TRACEPARENT`가 job B나 이후 retry child에 남지 않습니다. 재시도는 같은 작업의 새 attempt인지, 이전 실패를 분석하기 위한 별도 실행인지도 trace link 또는 attempt attribute로 구분해야 합니다. 무조건 parent-child 관계로 고정하면 실패 원인 분석에서 시간 순서가 왜곡될 수 있습니다.
+
+보안 정책도 propagation 정책과 exporter 설정을 분리합니다. `TRACEPARENT`는 관계를 잇는 값이고, `OTEL_EXPORTER_OTLP_ENDPOINT`는 telemetry 전달 설정이며, access token과 cloud credential은 비밀입니다. 같은 environment에 존재한다는 이유로 한 allowlist에 넣지 않습니다. baggage는 key 수와 총 byte를 제한하고, 사용자 이메일·계정 번호·원문 query처럼 재식별 또는 고카디널리티 위험이 있는 값은 correlation store나 내부 ID로 대체합니다. canary 전에 CI log, test report, artifact, support bundle에 propagation 값이 그대로 남지 않는지 확인합니다.
+
+이 경로를 마치면 “CI도 trace를 붙이자”가 아니라, **실행 경계별 owner·전파값·관측 지표·중단 조건을 갖춘 상태에서 필요한 곳만 연결한다**는 기준을 만들 수 있습니다. 이 기준은 새 CI 도구나 batch framework를 추가할 때도 동일하게 적용되며, 문제가 생기면 context propagation만 끄고 원래 작업 경로를 유지하는 점진적 롤백을 가능하게 합니다.
+
 ## 성능·비용 보호 학습 경로: 요청 하나의 리소스 예산 잡기
 
 장애는 항상 전체 트래픽이 폭증할 때만 오지 않습니다. QPS는 낮지만 DB aggregation, 외부 API fan-out, 큰 응답 payload, 재시도가 붙은 요청 하나가 pool을 오래 잡고 있으면 평범한 조회까지 같이 느려집니다. 그래서 성능 튜닝을 평균 latency 개선으로만 보면 부족하고, **요청 하나가 어떤 리소스를 얼마나 쓰는지**를 먼저 드러내야 합니다.

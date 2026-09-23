@@ -80,7 +80,7 @@
     {{- range $relatedInSeries }}
     <li class="{{ if eq .RelPermalink $.RelPermalink }}is-current{{ end }}">
       {{- if eq .RelPermalink $.RelPermalink }}
-      <span>{{ .Title }}</span>
+      <span aria-current="page">{{ .Title }}</span>
       {{- else }}
       <a href="{{ .RelPermalink }}">{{ .Title }}</a>
       {{- end }}

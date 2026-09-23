@@ -174,6 +174,31 @@ def validate_article_schema(items: list[dict], rel: Path, canonical: str, errors
         errors.append(f"[json-ld] mainEntityOfPage canonical 불일치: {rel}")
 
 
+def validate_social_images(parser: PageParser, rel: Path, public_dir: Path, errors: list[str]) -> None:
+    """SNS 공유 카드가 실제로 렌더링 가능한 내부 이미지를 가리키는지 확인한다.
+
+    템플릿에 메타 태그가 있어도 이미지 경로가 빌드 산출물에 없으면 공유 서비스는
+    빈 카드 또는 오래된 캐시를 보여 줄 수 있다. 외부 CDN 이미지는 이 검사 범위에서
+    제외하되, OG와 Twitter 카드가 서로 다른 이미지를 가리키는 실수는 막는다.
+    """
+
+    og_images = [value.strip() for value in parser.meta_values.get("og:image", []) if value.strip()]
+    twitter_images = [value.strip() for value in parser.meta_values.get("twitter:image", []) if value.strip()]
+
+    if len(og_images) != 1:
+        errors.append(f"[social] 유효한 og:image 메타가 1개여야 합니다: {rel} -> {og_images!r}")
+        return
+    if len(twitter_images) != 1:
+        errors.append(f"[social] 유효한 twitter:image 메타가 1개여야 합니다: {rel} -> {twitter_images!r}")
+        return
+    if og_images[0] != twitter_images[0]:
+        errors.append(f"[social] og:image와 twitter:image가 다릅니다: {rel}")
+
+    local_image = local_target(og_images[0])
+    if local_image is not None and not target_exists(public_dir, local_image):
+        errors.append(f"[social] 없는 공유 카드 이미지 {og_images[0]!r}: {rel}")
+
+
 def validate(public_dir: Path) -> tuple[list[str], list[str]]:
     errors: list[str] = []
     warnings: list[str] = []
@@ -208,6 +233,8 @@ def validate(public_dir: Path) -> tuple[list[str], list[str]]:
                     errors.append(
                         f"[seo] 유효한 {meta_name} 메타가 1개여야 합니다: {rel} -> {values!r}"
                     )
+
+            validate_social_images(parser, rel, public_dir, errors)
 
             if len(parser.canonicals) != 1:
                 errors.append(f"[canonical] {len(parser.canonicals)}개 발견: {rel}")
