@@ -1,7 +1,4 @@
 {{ if or .Params.mermaid .Site.Params.mermaid }}{{ partial "mermaid.html" . }}{{ end }}
 
-{{/* Mobile CSS Loading Fix: Use resources.Get for assets */}}
-{{ $mobile := resources.Get "css/extended/mobile.css" }}
-{{ if $mobile }}
-<link rel="stylesheet" href="{{ $mobile.Permalink }}">
-{{ end }}
+{{/* mobile.css는 head.html의 css/extended/*.css 번들에 이미 포함된다.
+      여기서 다시 요청하면 모든 페이지가 같은 스타일을 한 번 더 내려받는다. */}}
