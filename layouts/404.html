@@ -1,0 +1,111 @@
+{{- define "main" }}
+<main class="not-found-page" aria-labelledby="not-found-title">
+  <section class="not-found-card">
+    <p class="not-found-eyebrow">404 · PAGE NOT FOUND</p>
+    <h1 id="not-found-title">찾으려던 글의 주소가 바뀌었거나 존재하지 않습니다.</h1>
+    <p class="not-found-copy">
+      오래된 북마크라면 아카이브에서 제목이나 태그로 다시 찾아보세요.
+      학습 글과 프로젝트 기록은 아래 경로에서 주제별로 이어서 볼 수 있습니다.
+    </p>
+
+    <nav class="not-found-actions" aria-label="다른 탐색 경로">
+      <a class="not-found-action not-found-action-primary" href="{{ "/posts/" | relURL }}">
+        <strong>아카이브에서 찾기</strong>
+        <span>제목·설명·태그로 전체 글 검색</span>
+      </a>
+      <a class="not-found-action" href="{{ "/learning/" | relURL }}">
+        <strong>학습 경로로 이동</strong>
+        <span>백엔드 로드맵과 심화 노트 보기</span>
+      </a>
+      <a class="not-found-action" href="{{ "/projects/" | relURL }}">
+        <strong>프로젝트 기록 보기</strong>
+        <span>구현 흐름과 설계 결정 따라가기</span>
+      </a>
+    </nav>
+
+    <p class="not-found-home"><a href="{{ "/" | relURL }}">홈으로 돌아가기</a></p>
+  </section>
+</main>
+
+<style>
+  .not-found-page {
+    display: grid;
+    min-height: min(68vh, 720px);
+    place-items: center;
+    padding: 3rem 1rem;
+  }
+
+  .not-found-card {
+    width: min(100%, 760px);
+    padding: clamp(1.5rem, 5vw, 3rem);
+    border: 1px solid rgba(177, 156, 217, 0.28);
+    border-radius: 22px;
+    background: linear-gradient(145deg, rgba(177, 156, 217, 0.16), var(--entry));
+    box-shadow: 0 18px 45px rgba(54, 35, 85, 0.1);
+  }
+
+  .not-found-eyebrow {
+    margin: 0 0 0.65rem;
+    color: #8060aa;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+  }
+
+  .not-found-card h1 {
+    margin: 0;
+    font-size: clamp(1.55rem, 4vw, 2.35rem);
+    line-height: 1.35;
+  }
+
+  .not-found-copy {
+    margin: 1rem 0 1.5rem;
+    color: var(--secondary);
+    line-height: 1.75;
+  }
+
+  .not-found-actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.75rem;
+  }
+
+  .not-found-action {
+    display: grid;
+    gap: 0.4rem;
+    min-height: 112px;
+    padding: 1rem;
+    border: 1px solid rgba(177, 156, 217, 0.24);
+    border-radius: 14px;
+    color: var(--primary);
+    background: var(--entry);
+    text-decoration: none;
+  }
+
+  .not-found-action:hover,
+  .not-found-action:focus-visible {
+    border-color: #8a67b8;
+    outline: 2px solid transparent;
+    transform: translateY(-2px);
+  }
+
+  .not-found-action-primary {
+    border-color: #8a67b8;
+    background: rgba(177, 156, 217, 0.2);
+  }
+
+  .not-found-action span {
+    color: var(--secondary);
+    font-size: 0.88rem;
+    line-height: 1.5;
+  }
+
+  .not-found-home { margin: 1.4rem 0 0; }
+  .not-found-home a { color: #8060aa; font-weight: 700; }
+
+  @media (max-width: 680px) {
+    .not-found-actions { grid-template-columns: 1fr; }
+    .not-found-action { min-height: auto; }
+  }
+</style>
+{{- end }}
