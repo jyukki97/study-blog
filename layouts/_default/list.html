@@ -1,5 +1,8 @@
 {{ define "main" }}
-<main class="main">
+{{/* baseof.html이 이미 주 랜드마크(main#main-content)를 제공한다.
+     여기서 main을 중첩하면 HTML 문서에 주 콘텐츠 랜드마크가 둘 생겨
+     스크린 리더의 랜드마크 탐색과 문서 구조가 불명확해진다. */}}
+<div class="list-page-shell">
     {{ if .Site.Params.cover.enabled }}
         {{ partial "cover.html" . }}
     {{ end }}
@@ -187,7 +190,7 @@
             </nav>
         {{ end }}
     </section>
-</main>
+</div>
 
 <style>
 .post-header {
