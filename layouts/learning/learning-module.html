@@ -49,6 +49,32 @@
     </div>
   </header>
 
+  {{- if or .Params.summary .Params.key_takeaways .Params.operator_checklist }}
+  <section class="learning-start-here" aria-label="학습 시작 안내">
+    {{- with .Params.summary }}
+    <p class="learning-start-summary">{{ . }}</p>
+    {{- end }}
+    <div class="learning-start-grid">
+      {{- with .Params.key_takeaways }}
+      <section class="learning-start-card" aria-labelledby="learning-takeaways-title">
+        <h2 id="learning-takeaways-title">핵심 요약</h2>
+        <ul>
+          {{- range . }}<li>{{ . }}</li>{{- end }}
+        </ul>
+      </section>
+      {{- end }}
+      {{- with .Params.operator_checklist }}
+      <section class="learning-start-card" aria-labelledby="learning-checklist-title">
+        <h2 id="learning-checklist-title">바로 점검할 것</h2>
+        <ul>
+          {{- range . }}<li>{{ . }}</li>{{- end }}
+        </ul>
+      </section>
+      {{- end }}
+    </div>
+  </section>
+  {{- end }}
+
   <section class="learning-overview">
     <div class="section-header">
       <h2>🧠 모듈 개요</h2>
@@ -134,6 +160,13 @@
 .section-header { display:flex; align-items:center; gap:1rem; margin-bottom:1.5rem; }
 .section-header h2 { font-size:1.8rem; font-weight:800; margin:0; background: linear-gradient(135deg, #a8c0ff, #9795f0); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
 .section-line { flex:1; height:2px; background: linear-gradient(90deg, #a8c0ff, transparent); border-radius:1px; }
+.learning-start-here { margin: 2rem 0; }
+.learning-start-summary { margin: 0 0 1rem; padding: 1.1rem 1.25rem; border-left: 4px solid #7d8bff; border-radius: 0 12px 12px 0; background: color-mix(in srgb, #a8c0ff 12%, var(--entry)); color: var(--primary); font-weight: 650; line-height: 1.7; }
+.learning-start-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
+.learning-start-card { padding: 1.25rem; border: 1px solid var(--border); border-radius: 14px; background: var(--entry); box-shadow: 0 4px 14px rgba(0,0,0,0.035); }
+.learning-start-card h2 { margin: 0 0 .75rem; font-size: 1.1rem; color: var(--primary); }
+.learning-start-card ul { margin: 0; padding-left: 1.2rem; color: var(--secondary); line-height: 1.65; }
+.learning-start-card li + li { margin-top: .5rem; }
 .learning-overview { margin: 2rem 0 2rem; }
 .learning-rich-content { background: var(--entry); border:1px solid var(--border); border-radius:16px; padding:1.5rem; box-shadow:0 8px 20px rgba(0,0,0,0.04); }
 .learning-rich-content h2, .learning-rich-content h3 { margin-top:1.6rem; margin-bottom:0.8rem; }
