@@ -1,7 +1,7 @@
 ---
 title: "백엔드 커리큘럼 심화: gRPC 스트리밍 흐름 제어와 역압, 빠른 소비자를 느린 소비자로 망가뜨리지 않는 법"
 date: 2026-09-29T10:06:00+09:00
-lastmod: 2026-09-29T10:06:00+09:00
+lastmod: 2026-09-30T11:30:00+09:00
 draft: false
 topic: "Backend Reliability"
 tags: ["gRPC", "Streaming", "Flow Control", "Backpressure", "HTTP/2", "Backend Reliability"]
@@ -21,6 +21,13 @@ operator_checklist:
   - "생산자 queue와 transport write를 분리해 계측하고, buffered bytes가 예산의 80%를 넘으면 admission·coalescing·disconnect 정책을 실행한다."
   - "재개 가능한 stream은 순서가 보장되는 범위, cursor TTL, ack 지점, 중복 이벤트 처리 방식을 명시한다."
   - "배포 시 새 연결부터 candidate로 보내고, 기존 stream의 drain deadline과 retry jitter를 정한 뒤 graceful shutdown을 검증한다."
+faqs:
+  - question: "gRPC의 HTTP/2 흐름 제어가 있는데 애플리케이션 queue도 제한해야 하나요?"
+    answer: "예. HTTP/2 window는 이미 transport로 넘긴 바이트의 전송 속도를 조절할 뿐, producer가 Send 이전에 만든 이벤트와 subscriber별 backlog를 제한하지 않습니다. stream당 buffered bytes와 메시지 수를 함께 제한하고, 초과 시 대기·coalescing·종료 중 하나를 event 계약에 명시해야 합니다."
+  - question: "느린 소비자는 언제 끊고 언제 최신 값만 남겨야 하나요?"
+    answer: "결제 상태나 원장처럼 중간 전이가 의미 있는 이벤트는 cursor·ACK·durable replay로 복구하고 임의로 버리지 않습니다. 진행률·가격처럼 최신 상태가 더 중요한 이벤트는 key별 coalescing과 재조회 경로를 둡니다. 어느 경우든 종료·drop의 이유를 client와 metric에 남겨 조용한 데이터 손실을 만들지 않는 것이 핵심입니다."
+  - question: "stream 재연결에 idempotency key만 있으면 충분한가요?"
+    answer: "부족합니다. idempotency key는 같은 명령의 중복 side effect를 막지만, stream 재개에는 마지막으로 durable 처리한 position, cursor TTL, retention 밖일 때의 gap 응답, event_id 기반 dedup이 추가로 필요합니다. reconnect는 jitter를 적용해 장애 복구 시 동시 재접속 폭주도 막아야 합니다."
 ---
 
 gRPC 스트리밍은 알림, 가격 변동, 작업 진행률, 로그 tail, 서비스 간 대량 전송처럼 짧은 request/response로 표현하기 어색한 흐름을 단순하게 만든다. 하지만 `Send()`를 반복할 수 있다는 사실은 수신자가 같은 속도로 읽을 수 있다는 뜻이 아니다. 클라이언트가 탭을 백그라운드로 보내거나, downstream DB가 느려지거나, 네트워크가 순간적으로 혼잡해지면 생산자와 소비자의 속도 차이는 어딘가에 쌓인다. 그 위치가 명확하지 않으면 메시지는 메모리 큐에 쌓이고, GC·CPU·connection 수가 함께 악화되어 정상 사용자까지 느려진다.
