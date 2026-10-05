@@ -55,6 +55,13 @@ class PageParser(HTMLParser):
             rel_tokens = set((values.get("rel") or "").split())
             if not {"noopener", "noreferrer"}.issubset(rel_tokens):
                 self.unsafe_blank_links.append(values.get("href") or "(href 없음)")
+        # 반응형 이미지는 src가 정상이어도 srcset 후보 중 하나가 깨지면 화면 폭에 따라
+        # 404가 발생할 수 있다. descriptor(예: "640w")를 제외하고 링크 검사에 포함한다.
+        if values.get("srcset"):
+            for candidate in (values["srcset"] or "").split(","):
+                source = candidate.strip().split(maxsplit=1)[0]
+                if source:
+                    self.links.append(source)
         if tag in {"img", "script", "source", "iframe"} and values.get("src"):
             self.links.append(values["src"] or "")
         if tag == "link" and "canonical" in (values.get("rel") or "").split():
@@ -302,6 +309,10 @@ def validate(public_dir: Path) -> tuple[list[str], list[str]]:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("public_dir", nargs="?", type=Path, default=DEFAULT_PUBLIC_DIR)
+    parser.add_argument(
+        "--public-dir", dest="public_dir", type=Path, default=argparse.SUPPRESS,
+        help="검사할 Hugo 생성 디렉터리 (위치 인자와 동일)",
+    )
     args = parser.parse_args()
     errors, warnings = validate(args.public_dir.resolve())
 
