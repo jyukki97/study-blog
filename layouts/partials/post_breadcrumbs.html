@@ -1,0 +1,13 @@
+{{- /* 페이지 계층을 글 상단에도 노출해, 긴 글에서 상위 허브로 돌아가는 경로를 보장한다. */ -}}
+{{- $ancestors := where .Ancestors.Reverse "IsHome" false -}}
+{{- if gt (len $ancestors) 0 -}}
+<nav class="post-breadcrumbs" aria-label="현재 위치">
+  <ol>
+    <li><a href="{{ site.Home.RelPermalink }}">홈</a></li>
+    {{- range $ancestors -}}
+    <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>
+    {{- end -}}
+    <li aria-current="page"><span>{{ .LinkTitle }}</span></li>
+  </ol>
+</nav>
+{{- end -}}

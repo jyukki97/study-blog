@@ -920,3 +920,52 @@ body.focus-mode .focus-mode-toggle {
     color: var(--theme);
   }
 }
+
+.post-breadcrumbs {
+  margin: 0 0 1rem;
+  overflow-x: auto;
+  color: var(--secondary);
+  font-size: 0.82rem;
+}
+
+.post-breadcrumbs ol {
+  display: flex;
+  width: max-content;
+  min-width: 100%;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.post-breadcrumbs li {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.post-breadcrumbs li + li::before {
+  margin-right: 0.35rem;
+  color: var(--tertiary);
+  content: "/";
+}
+
+.post-breadcrumbs a,
+.post-breadcrumbs span {
+  overflow: hidden;
+  max-width: 15rem;
+  color: inherit;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.post-breadcrumbs a:hover,
+.post-breadcrumbs a:focus-visible {
+  color: #8b70c7;
+}
+
+.post-breadcrumbs [aria-current="page"] span {
+  color: var(--primary);
+  font-weight: 600;
+}
