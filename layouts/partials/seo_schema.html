@@ -31,6 +31,13 @@
   {{- if $articleSection -}}
     {{- $schema = merge $schema (dict "articleSection" $articleSection) -}}
   {{- end -}}
+  {{- /* 개별 커버가 없는 글도 검색 결과에서 일관된 대표 이미지를 갖도록 한다.
+        social_meta와 같은 PNG를 사용해 SVG를 처리하지 못하는 crawler의 누락을 피한다. */ -}}
+  {{- $schemaImage := "images/logo.png" | absURL -}}
+  {{- with .Params.cover.image -}}
+    {{- $schemaImage = . | absURL -}}
+  {{- end -}}
+  {{- $schema = merge $schema (dict "image" (slice $schemaImage)) -}}
   {{- with .Params.tags -}}
     {{- $about := slice -}}
     {{- range . -}}
@@ -40,9 +47,6 @@
   {{- end -}}
   {{- with .Params.series -}}
     {{- $schema = merge $schema (dict "isPartOf" (dict "@type" "CreativeWorkSeries" "name" .)) -}}
-  {{- end -}}
-  {{- with .Params.cover.image -}}
-    {{- $schema = merge $schema (dict "image" (slice (. | absURL))) -}}
   {{- end -}}
   {{- with .Params.learning_refs -}}
     {{- $mentions := slice -}}
