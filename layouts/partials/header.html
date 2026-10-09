@@ -88,17 +88,23 @@
             {{- $page_url:= $currentPage.Permalink | absLangURL }}
             {{- $is_search := eq (site.GetPage .KeyName).Layout `search` }}
             {{- $is_projects := eq .Name "Projects" }}
+            {{- $is_learning := eq .Name "Learning" }}
+            {{- $is_posts := eq .Name "Archive" }}
             {{- $is_etc := eq .Name "etc" }}
             {{- $is_active := false }}
             {{- if $is_projects }}
             {{- $is_active = or (eq $menu_item_url $page_url) (hasPrefix $page_url "/projects/") }}
+            {{- else if $is_learning }}
+            {{- $is_active = or (eq $menu_item_url $page_url) (eq $currentPage.Section "learning") }}
+            {{- else if $is_posts }}
+            {{- $is_active = or (eq $menu_item_url $page_url) (eq $currentPage.Section "posts") }}
             {{- else }}
             {{- $is_active = eq $menu_item_url $page_url }}
             {{- end }}
             <li {{- if or $is_projects $is_etc }} class="dropdown-menu" {{- end }}>
                 <a href="{{ .URL | absLangURL }}" title="{{ .Title | default .Name }} {{- cond $is_search (" (Alt + /)"
                     | safeHTMLAttr) ("" | safeHTMLAttr ) }}" {{- cond $is_search (" accesskey=/" | safeHTMLAttr) ("" |
-                    safeHTMLAttr ) }}>
+                    safeHTMLAttr ) }}{{- if $is_active }} aria-current="page"{{- end }}>
                     <span>
                         {{- .Pre }}
                         {{- .Name -}}
