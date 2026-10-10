@@ -1,5 +1,13 @@
 {{- if .IsPage -}}
-  {{- $schemaType := cond (eq .Section "posts") "BlogPosting" "Article" -}}
+  {{- /* 학습 아카이브는 일반 Article보다 기술 문서 성격이 강하다.
+        TechArticle을 사용하면 검색 엔진이 블로그 소식과 실무 학습 자료를
+        구분하고, 모듈·태그 기반의 주제 신호를 더 일관되게 해석할 수 있다. */ -}}
+  {{- $schemaType := "Article" -}}
+  {{- if eq .Section "posts" -}}
+    {{- $schemaType = "BlogPosting" -}}
+  {{- else if eq .Section "learning" -}}
+    {{- $schemaType = "TechArticle" -}}
+  {{- end -}}
   {{- $description := .Description | default .Summary | plainify -}}
   {{- $keywords := .Params.keywords | default .Params.tags -}}
   {{- /* canonical 태그와 JSON-LD가 서로 다른 URL을 가리키면 검색 엔진의 대표 URL 신호가 분산될 수 있다. */ -}}
