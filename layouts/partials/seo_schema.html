@@ -54,7 +54,11 @@
     {{- $schema = merge $schema (dict "about" $about) -}}
   {{- end -}}
   {{- with .Params.series -}}
-    {{- $schema = merge $schema (dict "isPartOf" (dict "@type" "CreativeWorkSeries" "name" .)) -}}
+    {{- $seriesName := . -}}
+    {{- if reflect.IsSlice . -}}
+      {{- $seriesName = delimit . ", " -}}
+    {{- end -}}
+    {{- $schema = merge $schema (dict "isPartOf" (dict "@type" "CreativeWorkSeries" "name" $seriesName)) -}}
   {{- end -}}
   {{- with .Params.learning_refs -}}
     {{- $mentions := slice -}}

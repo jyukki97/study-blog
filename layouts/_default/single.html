@@ -286,8 +286,12 @@
     {{- if gt (len $related) 0 }}
     <nav class="related-posts" aria-label="관련 글">
       <h3>관련 글</h3>
-      <div class="related-posts-grid">
-        {{- range first 3 $related }}
+      {{- /* 카드 모양만 있는 div 대신 목록 구조를 사용한다. 보조기기가 추천 항목의
+            개수와 경계를 알 수 있고, 아래 ItemList JSON-LD도 화면의 실제 링크와 같은
+            순서를 공유한다. */ -}}
+      <ul class="related-posts-grid">
+        {{- $relatedListItems := slice -}}
+        {{- range first 3 $related -}}
         {{- $cover := .Param "cover.image" }}
         {{- $currentTags := $.Params.tags | default (slice) }}
         {{- $candidateTags := .Params.tags | default (slice) }}
@@ -304,7 +308,8 @@
         {{- else if eq .Section $.Section }}
           {{- $reason = "같은 아카이브 안에서 최근 글의 관점과 비교해 읽기 좋습니다." }}
         {{- end }}
-        <article class="related-post {{ if $cover }}has-image{{ else }}no-image{{ end }}">
+        {{- $relatedListItems = $relatedListItems | append (dict "@type" "ListItem" "position" (add (len $relatedListItems) 1) "url" .Permalink "name" .Title) -}}
+        <li class="related-post {{ if $cover }}has-image{{ else }}no-image{{ end }}">
           {{- if $cover }}
           <div class="related-post-image">
             <a href="{{ .RelPermalink }}" aria-label="{{ .Title }} 읽기">
@@ -322,9 +327,12 @@
               <span>{{ .Date.Format "2006.01.02" }}</span>
             </div>
           </div>
-        </article>
+        </li>
         {{- end }}
-      </div>
+      </ul>
+      <script type="application/ld+json">
+        {{- dict "@context" "https://schema.org" "@type" "ItemList" "name" "관련 글" "itemListElement" $relatedListItems | jsonify | safeJS }}
+      </script>
     </nav>
     {{- end }}
 

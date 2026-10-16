@@ -163,12 +163,15 @@ def json_ld_items(blocks: list[str], rel: Path, errors: list[str]) -> list[dict]
 
 
 def validate_article_schema(items: list[dict], rel: Path, canonical: str, errors: list[str]) -> None:
-    """article OG 페이지가 검색 결과에 필요한 Article JSON-LD를 갖는지 확인한다."""
+    """글 페이지가 검색 결과에 필요한 Article 계열 JSON-LD를 갖는지 확인한다."""
 
-    article_types = {"Article", "BlogPosting"}
+    # 학습 글은 seo_schema.html에서 일반 Article 대신 TechArticle로 발행한다.
+    # 이를 검사 대상에서 빼면 심화 학습 글의 canonical·날짜·작성자 누락은
+    # 빌드가 성공해도 발견되지 않는다.
+    article_types = {"Article", "BlogPosting", "TechArticle"}
     articles = [item for item in items if item.get("@type") in article_types]
     if not articles:
-        errors.append(f"[json-ld] Article 또는 BlogPosting 없음: {rel}")
+        errors.append(f"[json-ld] Article 계열 JSON-LD 없음: {rel}")
         return
 
     article = articles[0]

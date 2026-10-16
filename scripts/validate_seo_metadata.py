@@ -16,6 +16,10 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
 CONTENT = REPO / "content"
+# 검색 결과에 노출되는 기술 글은 posts에만 있지 않다. learning의 심화 글과
+# projects의 구현 기록도 같은 head 템플릿으로 description을 발행하므로, 한
+# 섹션만 검사하면 새 콘텐츠 형식에서 검색 스니펫 품질 저하를 놓치게 된다.
+SEO_CONTENT_SECTIONS = ("posts", "learning", "projects")
 FRONT_MATTER = re.compile(r"^---\n(.*?)\n---\n", re.DOTALL)
 DESCRIPTION = re.compile(r'(?m)^description:\s*["\']?(.+?)["\']?\s*$')
 MIN_DESCRIPTION_CHARS = 70
@@ -25,9 +29,13 @@ MAX_DESCRIPTION_CHARS = 160
 def descriptions() -> tuple[list[tuple[Path, str]], int]:
     result: list[tuple[Path, str]] = []
     errors = 0
-    for path in sorted((CONTENT / "posts").rglob("*.md")):
-        if path.name in {"_index.md", "index.md"}:
-            continue
+    paths = sorted(
+        path
+        for section in SEO_CONTENT_SECTIONS
+        for path in (CONTENT / section).rglob("*.md")
+        if path.name not in {"_index.md", "index.md", "README.md"}
+    )
+    for path in paths:
         match = FRONT_MATTER.match(path.read_text(encoding="utf-8"))
         if not match:
             errors += 1

@@ -25,7 +25,14 @@ CONTENT_DIR = REPO / "content"
 STATIC_DIR = REPO / "static"
 
 FRONT_MATTER_RE = re.compile(r"^---\n(.*?)\n---\n", re.DOTALL)
-LINK_RE = re.compile(r"(?<!\!)\[[^\]]+\]\(([^)\s]+)\)")
+# Markdown inline links may wrap a destination in ``<...>`` or add a title
+# after it (for example ``[guide](/learning/ \"학습 가이드\")``). The former
+# expression only recognised links without whitespace, so those variants
+# silently skipped the same internal-route check used by ordinary links.
+LINK_RE = re.compile(
+    r"(?<!\!)\[[^\]]+\]\(\s*(?:<([^>\s]+)>|([^\s)]+))"
+    r"(?:\s+(?:\"[^\"]*\"|'[^']*'|\([^)]*\)))?\s*\)"
+)
 LEGACY_BASEURL_RE = re.compile(r"\{\{\s*site\.baseurl\s*\}\}", re.IGNORECASE)
 
 MIN_POST_BODY_CHARS = 1500
@@ -316,7 +323,7 @@ def main() -> int:
 
         # 내부 링크 점검
         for m in LINK_RE.finditer(text):
-            raw_link = m.group(1).strip()
+            raw_link = (m.group(1) or m.group(2)).strip()
             link_no_frag = raw_link.split("#", 1)[0].split("?", 1)[0].strip()
 
             if not link_no_frag:

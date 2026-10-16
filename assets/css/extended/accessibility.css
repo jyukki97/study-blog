@@ -1,0 +1,23 @@
+/* 키보드 탐색과 본문 앵커 이동의 가시성을 모든 페이지에서 일관되게 유지한다. */
+:where(a, button, input, select, textarea, summary):focus-visible {
+    outline: 3px solid #7652c8;
+    outline-offset: 3px;
+    border-radius: 3px;
+}
+
+/* 고정 헤더가 제목을 가리지 않도록 목차·공유 링크의 도착 위치를 보정한다. */
+.post-content :is(h1, h2, h3, h4, h5, h6)[id],
+.post-content [id] {
+    scroll-margin-top: 5.5rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+    }
+}
