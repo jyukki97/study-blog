@@ -1,11 +1,13 @@
 {{- $scratch := newScratch }}
 
 {{- if not .Date.IsZero -}}
-{{- $scratch.Add "meta" (slice (printf "<span title='%s'>발행: %s</span>" (.Date) (.Date | time.Format (default "2006.01.02" site.Params.DateFormat)))) }}
+{{- $scratch.Add "meta" (slice (printf "<time datetime='%s' title='%s'>발행: %s</time>" (.Date.Format "2006-01-02T15:04:05Z07:00") (.Date) (.Date | time.Format (default "2006.01.02" site.Params.DateFormat)))) }}
 {{- end }}
 
-{{- if and (not .Lastmod.IsZero) (ne (.Lastmod | time.Format "2006-01-02") (.Date | time.Format "2006-01-02")) -}}
-{{- $scratch.Add "meta" (slice (printf "<span title='%s'>업데이트: %s</span>" (.Lastmod) (.Lastmod | time.Format (default "2006.01.02" site.Params.DateFormat)))) }}
+{{- /* 같은 날의 실질 수정도 독자가 알 수 있어야 한다. 날짜 문자열 비교 대신 시각을 비교해
+      저장소 자동화가 발행 후 내용을 보완한 경우를 숨기지 않는다. */ -}}
+{{- if and (not .Lastmod.IsZero) (or .Date.IsZero (.Lastmod.After .Date)) -}}
+{{- $scratch.Add "meta" (slice (printf "<time datetime='%s' title='%s'>업데이트: %s</time>" (.Lastmod.Format "2006-01-02T15:04:05Z07:00") (.Lastmod) (.Lastmod | time.Format (default "2006.01.02" site.Params.DateFormat)))) }}
 {{- end }}
 
 {{- if (.Param "ShowReadingTime") -}}
