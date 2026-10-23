@@ -1150,6 +1150,47 @@
         }
     }
 
+
+    function escapeSearchHtml(value) {
+        return String(value || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    function searchResultUrl(item) {
+        let candidate = item.permalink || item.url || '';
+        if (!candidate && item.title) {
+            candidate = '/posts/' + String(item.title).toLowerCase()
+                .replace(/[^a-z0-9가-힣]+/g, '-')
+                .replace(/^-+|-+$/g, '');
+        }
+
+        try {
+            const parsed = new URL(candidate || '/', window.location.origin);
+            return ['http:', 'https:'].includes(parsed.protocol) ? parsed.href : '/';
+        } catch (error) {
+            return '/';
+        }
+    }
+
+    function searchResultExcerpt(item, limit) {
+        const content = String(item.content || '')
+            .replace(/<[^>]*>/g, '')
+            .replace(/\s+/g, ' ')
+            .trim();
+        return limit && content.length > limit ? content.substring(0, limit) + '...' : content;
+    }
+
+    function highlightSearchText(text, query) {
+        const safeText = escapeSearchHtml(text);
+        if (!query || !safeText) return safeText;
+        const escapedQuery = escapeSearchHtml(query).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        return safeText.replace(new RegExp(`(${escapedQuery})`, 'gi'), '<span class="search-highlight">$1</span>');
+    }
+
     // 모바일 전용 검색 함수
     function searchMobile(query) {
         fetch('/searchindex.json')
@@ -1169,25 +1210,10 @@
                     resultsContainer.innerHTML = '<div class="no-results">검색 결과가 없습니다.</div>';
                 } else {
                     const resultsHtml = results.map(item => {
-                        let url = item.permalink;
-                        if (!url) {
-                            if (item.url) {
-                                url = item.url.startsWith('/') ? item.url : '/' + item.url;
-                            } else if (item.title) {
-                                url = '/posts/' + item.title.toLowerCase().replace(/[^a-z0-9가-힣]+/g, '-').replace(/^-+|-+$/g, '');
-                            } else {
-                                url = '/';
-                            }
-                        }
-                        const content = item.content
-                            .replace(/<[^>]*>/g, '')
-                            .replace(/\s+/g, ' ')
-                            .trim();
-
                         return '<div class="search-result-item">' +
-                            '<a href="' + url + '">' +
-                            '<h3>' + item.title + '</h3>' +
-                            '<p>' + content + '</p>' +
+                            '<a href="' + escapeSearchHtml(searchResultUrl(item)) + '">' +
+                            '<h3>' + highlightSearchText(item.title, query) + '</h3>' +
+                            '<p>' + highlightSearchText(searchResultExcerpt(item, 150), query) + '</p>' +
                             '</a>' +
                             '</div>';
                     }).join('');
@@ -1298,41 +1324,11 @@
                 if (uniqueResults.length === 0) {
                     resultsContainer.innerHTML = '<div class="no-results">검색 결과가 없습니다.</div>';
                 } else {
-                    const resultsHtml = uniqueResults.slice(0, 10).map(item => { // 최대 10개 결과로 제한
-                        // permalink가 없으면 url에서 slug 추출
-                        let url = item.permalink;
-                        if (!url) {
-                            if (item.url) {
-                                url = item.url.startsWith('/') ? item.url : '/' + item.url;
-                            } else if (item.title) {
-                                // slugify
-                                url = '/posts/' + item.title.toLowerCase().replace(/[^a-z0-9가-힣]+/g, '-').replace(/^-+|-+$/g, '');
-                            } else {
-                                url = '/';
-                            }
-                        }
-
-                        // 본문에서 HTML 태그 제거
-                        const content = item.content
-                            .replace(/<[^>]*>/g, '')
-                            .replace(/\s+/g, ' ')
-                            .trim()
-                            .substring(0, 150) + '...'; // 내용을 150자로 제한
-
-                        // 검색어 하이라이팅 함수
-                        function highlightText(text, query) {
-                            if (!query || !text) return text;
-                            const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-                            return text.replace(regex, '<span class="search-highlight">$1</span>');
-                        }
-
-                        const highlightedTitle = highlightText(item.title, query);
-                        const highlightedContent = highlightText(content, query);
-
+                    const resultsHtml = uniqueResults.slice(0, 10).map(item => {
                         return '<div class="search-result-item">' +
-                            '<a href="' + url + '">' +
-                            '<h3>' + highlightedTitle + '</h3>' +
-                            '<p>' + highlightedContent + '</p>' +
+                            '<a href="' + escapeSearchHtml(searchResultUrl(item)) + '">' +
+                            '<h3>' + highlightSearchText(item.title, query) + '</h3>' +
+                            '<p>' + highlightSearchText(searchResultExcerpt(item, 150), query) + '</p>' +
                             '</a>' +
                             '</div>';
                     }).join('');

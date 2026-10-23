@@ -1,4 +1,5 @@
 {{- define "main" }}
+{{ partial "list_schema.html" . }}
 {{- $curriculumOverview := site.GetPage "/learning/modules/backend-curriculum-overview" }}
 {{- $curriculumPages := where site.RegularPages "Params.topic" "Backend Roadmap" }}
 {{- $curriculumPages = where $curriculumPages "Params.module_key" "!=" "overview" }}
