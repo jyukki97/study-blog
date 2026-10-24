@@ -113,10 +113,19 @@ document.addEventListener('DOMContentLoaded', function () {
         const targetElement = document.getElementById(targetId);
 
         if (targetElement) {
+          // 기본 해시 이동을 막고 헤더 높이를 보정하되, 주소의 앵커는 유지한다.
+          // 그래야 새로고침·뒤로가기·링크 공유가 현재 읽는 섹션을 잃지 않는다.
+          if (window.location.hash !== href) {
+            window.history.pushState(null, '', href);
+          }
+          if (!targetElement.hasAttribute('tabindex')) {
+            targetElement.setAttribute('tabindex', '-1');
+          }
           window.scrollTo({
             top: targetElement.offsetTop - 100,
-            behavior: 'smooth'
+            behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'
           });
+          targetElement.focus({ preventScroll: true });
         }
 
         setTimeout(() => {
