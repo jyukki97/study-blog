@@ -1,5 +1,8 @@
 {{- define "main" }}
-<main class="not-found-page" aria-labelledby="not-found-title">
+{{/* baseof.html이 main#main-content 주 랜드마크를 이미 제공한다.
+     여기서 main을 중첩하면 보조기기가 문서에 주 콘텐츠가 둘이라고 해석할 수 있어
+     404 전용 영역은 section으로 유지한다. */}}
+<section class="not-found-page" aria-labelledby="not-found-title">
   <section class="not-found-card">
     <p class="not-found-eyebrow">404 · PAGE NOT FOUND</p>
     <h1 id="not-found-title">찾으려던 글의 주소가 바뀌었거나 존재하지 않습니다.</h1>
@@ -25,7 +28,7 @@
 
     <p class="not-found-home"><a href="{{ "/" | relURL }}">홈으로 돌아가기</a></p>
   </section>
-</main>
+</section>
 
 <style>
   .not-found-page {
