@@ -106,7 +106,11 @@
   {{- end }}
 {{- end }}
 {{- $pages = where $pages "Section" .Section }}
-{{- $pages = sort $pages "Params.series_order" "asc" }}
+{{- /* series_order가 없는 기존 글도 많다. 빈 값을 정렬 기준으로 쓰면
+      새 글의 이전/다음 순서가 빌드마다 예측하기 어려워질 수 있으므로,
+      발행일을 공통 기준으로 사용한다. series_order가 필요한 시리즈는
+      발행일도 의도한 읽기 순서로 기록한다. */ -}}
+{{- $pages = sort $pages "Date" "asc" }}
 
 {{- $current := . }}
 {{- $prevPage := "" }}
