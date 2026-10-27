@@ -1,5 +1,9 @@
 {{- if and (not .IsHome) .IsSection -}}
-  {{- $pages := where .Pages "Kind" "page" -}}
+  {{- /* .Pages는 바로 아래 단계만 포함한다. /learning/deep-dive/처럼
+        중첩 아카이브를 둔 섹션에서는 CollectionPage의 항목 수와 최신 목록이
+        실제 글보다 작아질 수 있으므로, 하위 정규 글까지 재귀적으로 수집한다.
+        목록 화면의 페이지네이션과 독립된 schema 전용 집계라 표시 결과는 바꾸지 않는다. */ -}}
+  {{- $pages := .RegularPagesRecursive -}}
   {{- $elements := slice -}}
   {{- range $index, $page := first 12 ($pages.ByDate.Reverse) -}}
     {{- $elements = $elements | append (dict
