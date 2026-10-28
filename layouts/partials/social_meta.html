@@ -25,6 +25,17 @@
 {{- $lang := .Site.Language.Lang | default "ko-kr" -}}
 {{- $locale := replace $lang "-" "_" -}}
 {{- $authorName := site.Params.author | default site.Title -}}
+{{- /* Open Graph의 section에는 내부 디렉터리명보다 독자가 이해할 수 있는
+      첫 분류를 우선 제공한다. category가 없는 기존 글은 section을 fallback으로
+      사용해 메타데이터가 비지 않게 한다. */ -}}
+{{- $articleSection := .Section -}}
+{{- with .Params.categories -}}
+  {{- if reflect.IsSlice . -}}
+    {{- with first 1 . -}}{{- $articleSection = index . 0 -}}{{- end -}}
+  {{- else -}}
+    {{- $articleSection = . -}}
+  {{- end -}}
+{{- end -}}
 <meta property="og:site_name" content="{{ site.Title }}">
 <meta property="og:title" content="{{ $title }}">
 <meta property="og:description" content="{{ $description }}">
@@ -52,7 +63,7 @@
 
 {{- if .IsPage }}
 <meta property="article:author" content="{{ $authorName }}">
-  {{- with .Section }}
+  {{- with $articleSection }}
 <meta property="article:section" content="{{ . }}">
   {{- end }}
   {{- range first 10 (.Params.tags | default slice) }}

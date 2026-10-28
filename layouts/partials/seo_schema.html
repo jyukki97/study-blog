@@ -12,8 +12,16 @@
   {{- $keywords := .Params.keywords | default .Params.tags -}}
   {{- /* canonical 태그와 JSON-LD가 서로 다른 URL을 가리키면 검색 엔진의 대표 URL 신호가 분산될 수 있다. */ -}}
   {{- $canonical := partial "canonical_url.html" . -}}
-  {{- $articleSection := "" -}}
-  {{- with .Params.categories }}{{- $articleSection = delimit . ", " -}}{{- end -}}
+  {{- /* 기존 글에는 category가 없는 경우가 있으므로, Article의 주제 신호가
+        사라지지 않게 섹션을 최소 fallback으로 남긴다. */ -}}
+  {{- $articleSection := .Section -}}
+  {{- with .Params.categories -}}
+    {{- if reflect.IsSlice . -}}
+      {{- $articleSection = delimit . ", " -}}
+    {{- else -}}
+      {{- $articleSection = . -}}
+    {{- end -}}
+  {{- end -}}
   {{- $authorName := .Site.Params.author | default .Site.Title -}}
   {{- $publisher := dict "@type" "Organization" "name" .Site.Title -}}
   {{- with .Site.Params.label.icon -}}
