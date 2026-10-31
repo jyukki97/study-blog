@@ -1014,12 +1014,16 @@
     function closeMobileMenu() {
         const menu = document.getElementById('menu');
         const toggle = document.querySelector('.mobile-menu-toggle');
+        const wasOpen = !!(menu && menu.classList.contains('active'));
 
         if (menu) menu.classList.remove('active');
         if (toggle) {
             toggle.classList.remove('active');
             toggle.setAttribute('aria-expanded', 'false');
             toggle.setAttribute('aria-label', '메뉴 열기');
+            // Escape나 외부 클릭으로 닫을 때 다음 키 입력이 페이지 뒤로
+            // 사라지지 않도록, 메뉴를 연 버튼으로 초점을 되돌린다.
+            if (wasOpen && window.innerWidth <= 768) toggle.focus();
         }
         syncMobileBodyLock();
     }
@@ -1254,6 +1258,13 @@
         toggle.setAttribute('aria-expanded', String(willOpen));
         toggle.setAttribute('aria-label', willOpen ? '메뉴 닫기' : '메뉴 열기');
         syncMobileBodyLock();
+
+        // 메뉴를 열었을 때 첫 탐색 링크로 초점을 옮긴다. 터치 사용자에게는
+        // 영향이 없고, 키보드·스크린리더 사용자는 열린 메뉴의 시작점을 즉시 알 수 있다.
+        if (willOpen) {
+            const firstMenuLink = menu.querySelector('a[href]');
+            if (firstMenuLink) firstMenuLink.focus();
+        }
     }
 
     // 모바일 검색 오버레이 기능
