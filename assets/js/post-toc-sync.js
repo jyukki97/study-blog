@@ -178,7 +178,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!activeLink) return;
 
-    activeLink.classList.add('active');
+    // 색상만 바꾸면 보조기술 사용자는 현재 읽는 위치를 알 수 없다.
+    // aria-current는 스크롤 동기화로 선택된 목차 항목을 문서 내 현재 위치로 알린다.
+    tocLinks.forEach(link => {
+      link.classList.toggle('active', link === activeLink);
+      link.toggleAttribute('aria-current', link === activeLink);
+    });
 
     let linkOffsetTop = 0;
     let element = activeLink;
