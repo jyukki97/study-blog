@@ -2,7 +2,7 @@
 title: "pgmux"
 date: 2026-03-11
 draft: false
-description: "PostgreSQL 프록시 직접 구현하기 - 커넥션 풀링, R/W 분산, 쿼리 캐싱, TLS, Circuit Breaker, 무중단 리로드, LSN Causal Consistency, AST 파서, 쿼리 방화벽, Audit Logging, Helm Chart, Serverless Data API, OpenTelemetry, fsnotify, Prepared Statement Multiplexing, Query Mirroring, GitHub Actions CI/CD, Multi-Database Routing, Query Digest, Grafana Dashboard, Per-User Connection Limits, Query Timeout, Idle Client Timeout, SQL Redaction"
+description: "PostgreSQL 프록시 직접 구현하기 - 커넥션 풀링, R/W 분산, 쿼리 캐싱, TLS, Circuit Breaker, 무중단 리로드, LSN Causal Consistency, AST 파서, 쿼리 방화벽, Audit Logging, Helm Chart, Serverless Data API, OpenTelemetry, fsnotify, Prepared Statement Multiplexing, Query Mirroring, GitHub Actions CI/CD, Multi-Database Routing, Query Digest, Grafana Dashboard, Per-User Connection Limits, Query Timeout, Idle Client Timeout, SQL Redaction, Query Rewriting, Active Session Dashboard, Per-User Rate Limiting, Connection Warming"
 icon: "🗄️"
 status: "진행중"
 tech: ["Go", "PostgreSQL", "Wire Protocol", "Prometheus", "Redis", "TLS", "Circuit Breaker", "pg_query_go", "AST", "Helm", "Kubernetes", "OpenTelemetry", "fsnotify"]
@@ -176,6 +176,8 @@ duration: "2026.03.11"
 - `/admin/cache/flush[/{table}]` — 전체/테이블별 캐시 비우기
 - `/admin/reload` — 무중단 설정 리로드
 - `/admin/mirror/stats` — 쿼리 미러링 통계
+- `/admin/sessions` — 활성 세션 실시간 조회 (ID, 클라이언트 IP, 현재 쿼리, 백엔드 주소, 트랜잭션/핀 상태)
+- `/admin/sessions/{id}/cancel` — 특정 세션 쿼리 취소 (PostgreSQL CancelRequest)
 
 **SQL Redaction / Safe Observability**
 - Audit log, OTel span, slog, webhook에서 SQL 리터럴 자동 마스킹
@@ -349,6 +351,14 @@ Go testing              # 단위 테스트 + 통합 테스트 + 벤치마크
 56. [QA 7차: 릴리즈 전 최종 코드 리뷰](/posts/2026-03-17-pgmux-56-qa-round7-pre-release/)
 57. [v1.0.0 릴리즈 준비](/posts/2026-03-17-pgmux-57-v1-release-prep/)
 58. [SQL Redaction과 Safe Observability](/posts/2026-03-17-pgmux-58-sql-redaction/)
+59. [QA 8·9차: COPY 방화벽 우회부터 타이밍 공격까지](/posts/2026-03-17-pgmux-59-qa-round8-9/)
+60. [Extended Query 커넥션 바인딩과 E2E 전수 검증](/posts/2026-03-17-pgmux-60-ext-query-binding-e2e/)
+61. [E2E 커버리지 갭 분석과 미커버 기능 테스트](/posts/2026-03-17-pgmux-61-e2e-coverage-gap/)
+62. [릴리스 전 최종 점검: 5개 버그와 품질 개선](/posts/2026-03-17-pgmux-62-pre-release-review/)
+63. [AST 기반 Query Rewriting Rules 엔진](/posts/2026-03-18-pgmux-63-query-rewriting/)
+64. [Active Session Dashboard](/posts/2026-03-18-pgmux-64-active-session-dashboard/)
+65. [Per-User / Per-IP Rate Limiting](/posts/2026-03-20-pgmux-65-per-user-rate-limiting/)
+66. [Connection Warming](/posts/2026-03-20-pgmux-66-connection-warming/)
 
 ## 🔗 관련 링크
 
